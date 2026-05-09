@@ -1,0 +1,9 @@
+{
+  "primaryRegion": "ap-southeast-1",
+  "failoverRegions": ["ap-southeast-2"],
+  "rpoMinutes": 15,
+  "rtoMinutes": 60,
+  "statelessApp": true,
+  "requiresExternalSessionStore": true,
+  "notes": "Enable provider-level DB replication and configure DNS/edge failover before go-live."
+}

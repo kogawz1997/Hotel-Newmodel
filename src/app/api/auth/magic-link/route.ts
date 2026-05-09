@@ -1,0 +1,19 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
+import { buildAuthRedirect } from '@/lib/auth/session-refresh';
+
+export const dynamic = 'force-dynamic';
+
+const schema = z.object({ email: z.string().email(), redirectTo: z.string().optional().default('/dashboard') });
+
+export async function POST(request: Request) {
+  let raw: unknown;
+  try { raw = await request.json(); } catch { raw = {}; }
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 422 });
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithOtp({ email: parsed.data.email, options: { emailRedirectTo: buildAuthRedirect(parsed.data.redirectTo) } });
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ success: true, message: 'Magic link sent' });
+}
