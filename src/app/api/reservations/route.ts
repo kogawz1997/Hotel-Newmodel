@@ -46,6 +46,10 @@ export async function POST(request: Request) {
     if (parsed.error) return parsed.error;
 
     const body = parsed.data;
+    const idempotencyKey = request.headers.get('x-idempotency-key')?.trim() || null;
+    if (idempotencyKey && (idempotencyKey.length < 8 || idempotencyKey.length > 128)) {
+      return NextResponse.json({ error: 'Invalid idempotency key length' }, { status: 400 });
+    }
 
     // Allow both hotel staff AND public guests (website bookings)
     let supabase: any;
@@ -53,7 +57,9 @@ export async function POST(request: Request) {
     let actorUserId: string | null = null;
     let bookingHotel: any = null;
 
-    if (body.source === 'website' || body.guestAccountId !== undefined) {
+    const isPublicBooking = body.source === 'website' || body.guestAccountId !== undefined;
+
+    if (isPublicBooking) {
       // Public booking — use admin client, verify hotel exists
       supabase = createAdminClient();
       const { data: hotel } = await supabase
@@ -72,6 +78,31 @@ export async function POST(request: Request) {
       hotelId = ctx.hotelId;
       actorUserId = ctx.user?.id || null;
       bookingHotel = ctx.hotel;
+    }
+
+    if (isPublicBooking && !idempotencyKey) {
+      return NextResponse.json({ error: 'Missing x-idempotency-key for public booking' }, { status: 400 });
+    }
+
+    if (idempotencyKey) {
+      const { data: existingKey } = await supabase
+        .from('reservation_idempotency_keys')
+        .select('reservation_id')
+        .eq('hotel_id', hotelId)
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle();
+
+      if (existingKey?.reservation_id) {
+        const { data: existingReservation } = await supabase
+          .from('reservations')
+          .select('*')
+          .eq('id', existingKey.reservation_id)
+          .maybeSingle();
+
+        if (existingReservation) {
+          return NextResponse.json({ success: true, reservation: existingReservation, idempotentReplay: true });
+        }
+      }
     }
 
     const nights = calculateNights(body.checkIn, body.checkOut);
@@ -151,6 +182,28 @@ export async function POST(request: Request) {
       guest = newGuest;
     }
 
+
+    const { data: possibleDuplicate } = await supabase
+      .from('reservations')
+      .select('id,reservation_code,status,created_at')
+      .eq('hotel_id', hotelId)
+      .eq('guest_id', guest.id)
+      .eq('room_type_id', body.roomTypeId)
+      .eq('check_in', body.checkIn)
+      .eq('check_out', body.checkOut)
+      .in('status', ['pending_payment', 'confirmed'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (possibleDuplicate) {
+      return NextResponse.json({
+        error: 'Duplicate booking detected',
+        existingReservationId: possibleDuplicate.id,
+        existingReservationCode: possibleDuplicate.reservation_code,
+      }, { status: 409 });
+    }
+
     // ── Availability check with advisory lock (prevent overbooking) ──
     const availCheck = await checkAndReserve(
       hotelId, body.roomTypeId, body.checkIn, body.checkOut
@@ -192,6 +245,16 @@ export async function POST(request: Request) {
       .single();
 
     if (error || !reservation) return dbError(error);
+
+    if (idempotencyKey) {
+      await supabase
+        .from('reservation_idempotency_keys')
+        .upsert({
+          hotel_id: hotelId,
+          idempotency_key: idempotencyKey,
+          reservation_id: reservation.id,
+        }, { onConflict: 'hotel_id,idempotency_key' });
+    }
 
     await supabase.from('folios').insert({
       reservation_id: reservation.id,
