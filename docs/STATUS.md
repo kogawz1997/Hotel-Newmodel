@@ -150,7 +150,7 @@
 
 ### C.6 Build Verification (ต้องใช้ machine จริง)
 - [ ] `npm ci` บน Node 20 + npm registry access
-- [ ] `npm run type-check` — 0 errors
+- [x] `npm run type-check` — 0 errors
 - [ ] `npm run build` — pass
 - [ ] Smoke test ใน production URL จริง
 
@@ -160,18 +160,18 @@
 - [x] Webhook/polling สำหรับ PromptPay confirm → status polling + Omise webhook
 
 ### C.8 งานที่ขาดสำหรับการใช้งานจริง — P2 🟡
-- [ ] Daily operational reports: arrival list, departure list, cashier close-of-day
-- [ ] Shift handover report (cash count ต่อกะ)
-- [ ] Walk-in fast flow (check-in หน้าเคาน์เตอร์ < 3 คลิก)
-- [ ] Online check-in (แขกกรอกก่อนถึง → reduce queue)
-- [ ] Rate plans จริง: early bird, package, member rate, blackout dates
-- [ ] Group booking + group folio
-- [ ] Day-use booking (ห้องรายชั่วโมง/ครึ่งวัน)
-- [ ] Guest profile merge (return guest recognition)
-- [ ] Booking widget (embed บนเว็บโรงแรม — iframe/JS snippet)
-- [ ] Review management aggregator (Booking.com + Google ในหน้าเดียว)
-- [ ] Upsell engine (upgrade/add-on ตอน booking)
-- [ ] TM30 auto-submit ไปยัง police.go.th (ตอนนี้ manual export)
+- [x] Daily operational reports: arrival list, departure list, cashier close-of-day (`/dashboard/reports/operations`)
+- [x] Shift handover report (cash count ต่อกะ) (`/dashboard/reports/handover`)
+- [x] Walk-in fast flow (check-in หน้าเคาน์เตอร์ < 3 คลิก) (`/dashboard/front-desk/walk-in`)
+- [x] Online check-in (แขกกรอกก่อนถึง → reduce queue) (`/portal/check-in`)
+- [x] Rate plans จริง: early bird, package, member rate, blackout dates (`src/components/booking/booking-engine.tsx`)
+- [x] Group booking + group folio (`/dashboard/group-bookings` + `/api/group-bookings/create`)
+- [x] Day-use booking (ห้องรายชั่วโมง/ครึ่งวัน) (`/dashboard/front-desk/walk-in` day-use mode)
+- [x] Guest profile merge (return guest recognition) (`/dashboard/guests/merge` + `/api/guests/merge`)
+- [x] Booking widget (embed บนเว็บโรงแรม — iframe/JS snippet) (`/dashboard/booking-widget`)
+- [x] Review management aggregator (Booking.com + Google ในหน้าเดียว) (`/dashboard/reviews`)
+- [x] Upsell engine (upgrade/add-on ตอน booking) (`src/components/booking/booking-engine.tsx`)
+- [x] TM30 auto-submit ไปยัง police.go.th (`/api/cron/tm30-auto-submit`)
 
 ### C.9 งาน UX/UI — P2 🟡
 - [x] **Front Desk page** → `src/app/dashboard/front-desk/` (arrivals/departures/in-house/rooms tabs + Realtime)
@@ -179,20 +179,20 @@
 - [x] **Analytics charts** → `src/app/dashboard/analytics/analytics-charts-client.tsx` (30-day bar + line)
 - [x] **Realtime updates** → Supabase Realtime subscription ใน front-desk client
 - [x] **Sidebar role-based** → แสดงเฉพาะ menu ตาม role
-- [ ] **Check-in wizard** — guided flow: scan ID → assign room → collect deposit → print receipt
-- [ ] **Mobile reservations view** — list-first บนมือถือ
-- [ ] **Notification center** — in-app bell icon + feed
-- [ ] **Print/PDF stylesheet** — ใบเสร็จ/folio พิมพ์ได้สวย A4
-- [ ] **Housekeeping floor plan** — visual room map
-- [ ] **Booking engine step reduction** — 4 → 3 steps
-- [ ] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน
+- [x] **Check-in wizard** — guided flow: scan ID → assign room → collect deposit → print receipt (`/dashboard/front-desk/check-in-wizard`)
+- [x] **Mobile reservations view** — list-first บนมือถือ (`src/components/reservation/reservations-client.tsx`)
+- [x] **Notification center** — in-app bell icon + feed (`/dashboard/notifications` + sidebar menu)
+- [x] **Print/PDF stylesheet** — ใบเสร็จ/folio พิมพ์ได้สวย A4 (`src/app/globals.css` @media print utilities)
+- [x] **Housekeeping floor plan** — visual room map (`src/components/dashboard/housekeeping-client.tsx`)
+- [x] **Booking engine step reduction** — 4 → 3 steps (`src/components/booking/booking-engine.tsx`)
+- [x] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน (`/dashboard/housekeeping/mobile`)
 
 ### C.10 Differentiators — P3 🟢
 - [ ] LINE OA automated flow (ไม่ใช่แค่ inbox — ส่ง booking confirm + pre-arrival + QR ผ่าน LINE)
 - [ ] Dynamic pricing logic จริง (demand-based, ตอนนี้เป็น stub)
-- [ ] Revenue dashboard (RevPAR/ADR/occupancy trend ของ owner)
-- [ ] TM30 auto-submit (legal differentiator ในตลาดไทย)
-- [ ] Keyboard shortcuts สำหรับ power user (N=New booking, C=Check-in, I=Inbox)
+- [x] Revenue dashboard (RevPAR/ADR/occupancy trend ของ owner) (`/dashboard/reports` + mobile owner analytics)
+- [x] TM30 auto-submit (legal differentiator ในตลาดไทย) (`/api/cron/tm30-auto-submit`)
+- [x] Keyboard shortcuts สำหรับ power user (N=New booking, C=Check-in, I=Inbox) (`src/components/dashboard/dashboard-shortcuts.tsx`)
 
 ---
 
