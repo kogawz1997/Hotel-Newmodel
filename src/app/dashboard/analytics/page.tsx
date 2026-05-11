@@ -22,7 +22,7 @@ export default async function AnalyticsPage() {
   const monthStart = `${now.toISOString().slice(0, 7)}-01T00:00:00.000Z`;
   const thirtyDaysAgo = subDays(now, 29).toISOString().slice(0, 10);
 
-  const [roomsTotal, roomsOccupied, arrivalsToday, departuresToday, reservationsMonth, paymentRows, fbRows, spaRows, trend30Payments, trend30Reservations, trend30Rooms] = await Promise.all([
+  const [roomsTotal, roomsOccupied, arrivalsToday, departuresToday, reservationsMonth, paymentRows, fbRows, spaRows, trend30Payments, trend30Reservations] = await Promise.all([
     supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id),
     supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).eq('status', 'occupied'),
     supabase.from('reservations').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).eq('check_in', today).in('status', ['confirmed', 'pending']),
@@ -34,7 +34,6 @@ export default async function AnalyticsPage() {
     // 30-day trend data
     supabase.from('payments').select('amount,status,created_at').eq('hotel_id', hotel.id).gte('created_at', thirtyDaysAgo + 'T00:00:00Z').eq('status', 'completed'),
     supabase.from('reservations').select('id,created_at,status').eq('hotel_id', hotel.id).gte('created_at', thirtyDaysAgo + 'T00:00:00Z').neq('status', 'cancelled'),
-    supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id),
   ]);
 
   const payments = paymentRows.data || [];

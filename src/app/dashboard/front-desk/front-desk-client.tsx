@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect, useCallback } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -49,7 +49,7 @@ function roomNum(r: any) {
 export function FrontDeskClient({ hotelId, hotel, arrivals, departures, inHouse, rooms, today }: Props) {
   const [tab, setTab] = useState<'arrivals' | 'departures' | 'inhouse' | 'rooms'>('arrivals');
   const [search, setSearch] = useState('');
-  const [pending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [liveIndicator, setLiveIndicator] = useState(false);
 
   // Realtime: refresh page when reservations or rooms change
