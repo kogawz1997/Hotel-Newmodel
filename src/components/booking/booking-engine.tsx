@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
@@ -8,6 +8,7 @@ import { PriceGraph } from '@/components/booking/price-graph';
 import { GuestChatWidget } from '@/components/booking/guest-chat-widget';
 import { CurrencySwitcher } from '@/components/ui/currency-switcher';
 import { TrustBadges } from '@/components/public/TrustBadges';
+import { PromptPayQR } from '@/components/payments/PromptPayQR';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -46,7 +47,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [promoCode, setPromoCode]           = useState('');
   const [promoResult, setPromoResult]       = useState<any>(null);
   const [promoLoading, setPromoLoading]     = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel'>('online');
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel' | 'promptpay'>('online');
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [wishlist, setWishlist] = useState<string[]>([]);
 
@@ -126,8 +127,10 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   async function handleBook() {
     if (!guestInfo.firstName || !guestInfo.email) { toast.error('กรุณากรอกข้อมูลให้ครบ'); return; }
     setSubmitting(true);
+    const idempotencyKey = `${hotel.id}-${selected.id}-${search.checkIn}-${search.checkOut}-${guestInfo.email}-${Date.now()}`;
     const res = await fetch('/api/reservations', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-idempotency-key': idempotencyKey },
       body: JSON.stringify({
         hotelId: hotel.id,
         roomTypeId: selected.id,
@@ -141,6 +144,8 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         source: 'website',
         totalAmount: total,
         guestAccountId: guestAccount?.id || null,
+        paymentMethod: paymentMethod === 'online' ? 'online' : paymentMethod,
+        roomTypeName: selected.name,
       }),
     });
     const data = await res.json();
@@ -471,12 +476,13 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
               <h3 className="font-bold text-[#2A2522] mb-4">วิธีชำระเงิน</h3>
               <div className="space-y-3">
                 {[
-                  { key: 'online', label: 'ชำระออนไลน์ตอนนี้', desc: 'บัตรเครดิต/เดบิต, PromptPay — ปลอดภัยและยืนยันทันที', badge: '🔒 แนะนำ' },
+                  { key: 'promptpay', label: 'PromptPay QR', desc: 'สแกน QR ผ่าน Mobile Banking — ยืนยันอัตโนมัติทันที', badge: '⚡ เร็วที่สุด' },
+                  { key: 'online', label: 'บัตรเครดิต/เดบิต', desc: 'ชำระด้วยบัตรออนไลน์ — ปลอดภัยและยืนยันทันที', badge: '🔒 ปลอดภัย' },
                   { key: 'at_hotel', label: 'ชำระที่โรงแรม (Pay at Hotel)', desc: 'จ่ายเมื่อเช็คอิน — ยกเลิกได้ฟรีทุกเมื่อก่อนวันเช็คอิน', badge: '' },
                 ].map(pm => (
-                  <label key={pm.key} className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === pm.key ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30'}`}>
+                  <label key={pm.key} className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === pm.key ? 'border-[#004B87] bg-[#004B87]/5' : 'border-black/8 hover:border-[#004B87]/30'}`}>
                     <input type="radio" name="paymentMethod" value={pm.key} checked={paymentMethod === pm.key}
-                      onChange={() => setPaymentMethod(pm.key as any)} className="accent-[#C66A30] mt-0.5" />
+                      onChange={() => setPaymentMethod(pm.key as any)} className="accent-[#004B87] mt-0.5" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-[#2A2522]">{pm.label}</span>
@@ -597,7 +603,50 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     </PublicLayout>
   );
 
-  // ─── STEP: CONFIRMED ─────────────────────────────────────────────────
+  // ─── STEP: CONFIRMED — PromptPay flow ────────────────────────────────
+  if (step === 'confirmed' && paymentMethod === 'promptpay' && reservation) {
+    return (
+      <PublicLayout hotel={hotel} user={user} step={step}>
+        <div className="max-w-2xl mx-auto px-4 py-12">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-[#2A2522]">ชำระเงินด้วย PromptPay</h2>
+            <p className="text-[#2A2522]/60 mt-1">รหัสการจอง <span className="font-mono font-bold text-[#C66A30]">{reservation.reservation_code}</span></p>
+          </div>
+
+          <PromptPayQR
+            reservationId={reservation.id}
+            amount={total}
+            description={`จองห้องพัก ${selected?.name} — ${hotel.name}`}
+            onSuccess={() => {
+              toast.success('ชำระเงินสำเร็จ! การจองได้รับการยืนยันแล้ว');
+            }}
+            onExpired={() => toast.warning('QR Code หมดอายุ กรุณาสร้างใหม่')}
+            className="mx-auto"
+          />
+
+          <div className="mt-8 bg-white rounded-2xl border border-black/5 p-5 text-sm space-y-2">
+            <SummaryRow label="โรงแรม" value={hotel.name} />
+            <SummaryRow label="ห้องพัก" value={selected?.name} />
+            <SummaryRow label="เช็คอิน" value={format(new Date(search.checkIn+'T00:00:00'), 'd MMMM yyyy', { locale: th })} />
+            <SummaryRow label="เช็คเอาท์" value={format(new Date(search.checkOut+'T00:00:00'), 'd MMMM yyyy', { locale: th })} />
+            <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
+              <span>ยอดชำระ</span><span>{formatCurrency(total)}</span>
+            </div>
+          </div>
+
+          <div className="mt-4 flex gap-3 justify-center">
+            {user ? (
+              <Link href="/portal/bookings" className="flex items-center gap-2 px-5 py-2.5 border border-black/10 text-[#2A2522] rounded-xl font-medium text-sm hover:bg-black/5 transition-colors">
+                ดูการจองของฉัน <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : null}
+          </div>
+        </div>
+      </PublicLayout>
+    );
+  }
+
+  // ─── STEP: CONFIRMED — standard flow ─────────────────────────────────
   return (
     <PublicLayout hotel={hotel} user={user} step={step}>
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
@@ -610,6 +659,11 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
           {reservation?.reservation_code}
         </div>
         <p className="text-sm text-[#2A2522]/50 mb-8">ระบบส่งอีเมลยืนยันไปที่ <strong>{guestInfo.email}</strong> แล้ว</p>
+        {paymentMethod === 'at_hotel' && (
+          <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            ชำระที่โรงแรมเมื่อเช็คอิน — กรุณาแสดงรหัสการจองแก่พนักงาน
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl border border-black/5 p-6 text-left mb-6">
           <h3 className="font-semibold text-[#2A2522] mb-4">สรุปการจอง</h3>

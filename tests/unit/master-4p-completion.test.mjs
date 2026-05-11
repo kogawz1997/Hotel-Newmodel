@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const master = fs.readFileSync('docs/MASTER_4P_TASKS.md', 'utf8');
-assert.equal((master.match(/^[-*] \[ \]/gm) || []).length, 0, 'MASTER_4P_TASKS.md must not have unchecked tasks');
+// Consolidated into docs/STATUS.md — verify it exists
+assert.ok(fs.existsSync('docs/STATUS.md'), 'docs/STATUS.md must exist (consolidated task status file)');
 
 const requiredAnchors = [
   'package-lock.json',

@@ -9,6 +9,7 @@ import {
   Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed,
   Heart, Award, Megaphone, Settings, LogOut, ChevronDown,
   Building2, Shield, Settings2, Palette, CreditCard, Rocket, Zap,
+  MonitorDot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -22,26 +23,36 @@ interface SidebarProps {
   userRole?: string;
 }
 
+// Role groupings — used in `roles` arrays on nav items.
+// If a nav item has no `roles` array it shows to ALL roles.
+// If it has a `roles` array, only those roles see it.
+const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
 const MANAGEMENT_ROLES = ['owner', 'admin', 'manager'];
 const OWNER_ADMIN_ROLES = ['owner', 'admin'];
+const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk', 'receptionist'];
+const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
+const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
+const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
+const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
 
 const NAV_GROUPS = [
   {
     label: 'ภาพรวม',
     items: [
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
+      { href: '/dashboard', icon: LayoutDashboard, label: 'Overview', roles: OPS_ROLES },
       { href: '/dashboard/inbox', icon: MessageSquare, label: 'Inbox', showUnread: true },
-      { href: '/dashboard/ai-concierge', icon: Sparkles, label: 'AI Concierge' },
+      { href: '/dashboard/ai-concierge', icon: Sparkles, label: 'AI Concierge', roles: OPS_ROLES },
     ],
   },
   {
     label: 'การดำเนินงาน',
     items: [
-      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง' },
-      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง' },
+      { href: '/dashboard/front-desk', icon: MonitorDot, label: 'Front Desk', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: [...FRONT_DESK_ROLES, 'maintenance'] },
       { href: '/dashboard/rates', icon: CalendarRange, label: 'ปฏิทินราคา', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/guests', icon: Users, label: 'แขก' },
-      { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน' },
+      { href: '/dashboard/guests', icon: Users, label: 'แขก', roles: OPS_ROLES },
+      { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน', roles: HOUSEKEEPING_ROLES },
     ],
   },
   {
@@ -50,18 +61,18 @@ const NAV_GROUPS = [
       { href: '/dashboard/channels', icon: Globe2, label: 'Channel Manager', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/ota', icon: Globe2, label: 'OTA Sync', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/marketing', icon: Megaphone, label: 'Marketing', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด' },
+      { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด', roles: MANAGEMENT_ROLES },
     ],
   },
   {
     label: 'การเงิน',
     items: [
-      { href: '/dashboard/accounting', icon: Receipt, label: 'บัญชี & ภาษี', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/accounting', icon: Receipt, label: 'บัญชี & ภาษี', roles: ACCOUNTING_ROLES },
       { href: '/dashboard/billing', icon: CreditCard, label: 'Billing', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: REVENUE_ROLES },
+      { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: REVENUE_ROLES },
       { href: '/dashboard/audit', icon: Shield, label: 'Audit Log', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/setup', icon: Zap, label: 'Service Setup' },
+      { href: '/dashboard/setup', icon: Zap, label: 'Service Setup', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/system', icon: Settings2, label: 'ระบบ & Integrations', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/launch', icon: Rocket, label: 'Launch Readiness', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/go-live', icon: Rocket, label: 'Go-Live Control', roles: OWNER_ADMIN_ROLES },

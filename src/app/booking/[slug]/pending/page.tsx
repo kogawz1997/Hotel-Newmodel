@@ -1,14 +1,27 @@
 import Link from 'next/link';
+import { PromptPayPendingClient } from './PromptPayPendingClient';
 
 export default async function BookingPendingPage({
   params,
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ amount?: string }>;
+  searchParams: Promise<{ amount?: string; method?: string; reservationId?: string }>;
 }) {
   const { slug } = await params;
-  const { amount } = await searchParams;
+  const { amount, method, reservationId } = await searchParams;
+
+  if (method === 'promptpay' && reservationId && amount) {
+    return (
+      <main className="mx-auto max-w-2xl px-4 py-12">
+        <PromptPayPendingClient
+          reservationId={reservationId}
+          amount={Number(amount)}
+          slug={slug}
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
