@@ -129,7 +129,7 @@ async function processQueue(request: Request) {
             .eq('hotel_id', job.hotel_id)
             .eq('provider', job.provider)
             .eq('external_reservation_id', parsed.externalId);
-        } else {
+        } else if (!result.ok) {
           await alertOtaFailure({
             channel: job.provider,
             operation: 'map_reservation',
