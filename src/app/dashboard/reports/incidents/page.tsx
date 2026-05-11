@@ -1,4 +1,4 @@
-import { Activity, AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Info, XCircle, type LucideIcon } from 'lucide-react';
 import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,7 @@ import { ReplayButton } from './replay-button';
 
 export const dynamic = 'force-dynamic';
 
-const SEVERITY_CONFIG: Record<string, { icon: React.ElementType; badge: string; label: string }> = {
+const SEVERITY_CONFIG: Record<string, { icon: LucideIcon; badge: string; label: string }> = {
   critical: { icon: XCircle,       badge: 'destructive', label: 'Critical' },
   error:    { icon: AlertTriangle,  badge: 'destructive', label: 'Error' },
   warning:  { icon: AlertTriangle,  badge: 'warning',     label: 'Warning' },
