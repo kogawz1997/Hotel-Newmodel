@@ -7,7 +7,7 @@ import { th } from 'date-fns/locale';
 
 export default async function NotificationsPage() {
   const { supabase, profile } = await requireDashboardRole([
-    'owner', 'admin', 'manager', 'front_desk', 'receptionist', 'housekeeping', 'maintenance', 'staff',
+    'owner', 'admin', 'manager', 'front_desk', 'receptionist', 'housekeeping', 'staff',
   ]);
 
   const { data: hotels } = await supabase
