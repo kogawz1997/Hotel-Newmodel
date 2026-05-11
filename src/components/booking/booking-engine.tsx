@@ -123,18 +123,18 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     if (!code) return;
     setPromoLoading(true);
     try {
-      const demoPromos: Record<string, { description: string; percent: number }> = {
-        SAVE10: { description: 'ส่วนลด 10% สำหรับการจองตรง', percent: 10 },
-        MAITRI5: { description: 'ส่วนลด 5% โปรโมชั่นพิเศษ', percent: 5 },
-      };
-      const promo = demoPromos[code];
-      if (!promo) {
+      const res = await fetch('/api/public/promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hotelId: hotel.id, code, amount: subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
         setPromoResult({ valid: false });
-        toast.error('โค้ดส่วนลดไม่ถูกต้อง');
+        toast.error(data.error || 'โค้ดส่วนลดไม่ถูกต้อง');
         return;
       }
-      const discountAmount = Math.round((subtotal * promo.percent) / 100);
-      setPromoResult({ valid: true, description: promo.description, discountAmount, code });
+      setPromoResult({ valid: true, description: data.description, discountAmount: data.discountAmount, code: data.code });
       toast.success('ใช้โค้ดส่วนลดสำเร็จ');
     } finally {
       setPromoLoading(false);

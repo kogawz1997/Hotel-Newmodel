@@ -1,13 +1,10 @@
-import { createClient } from '@/lib/supabase/server';
+import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { CheckInWizardClient } from '@/components/dashboard/check-in-wizard-client';
 
 export default async function CheckInWizardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager', 'front_desk', 'receptionist']);
 
-  const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
-  const { data: hotel } = await supabase.from('hotels').select('id, name').eq('organization_id', profile?.organization_id).limit(1).single();
+  const { data: hotel } = await supabase.from('hotels').select('id, name').eq('organization_id', profile.organization_id).limit(1).single();
   if (!hotel) return null;
 
   const today = new Date().toISOString().slice(0,10);

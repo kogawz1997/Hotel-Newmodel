@@ -1,25 +1,19 @@
 import { Bell } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
+import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 
 export default async function NotificationsPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('organization_id')
-    .eq('id', user.id)
-    .single();
+  const { supabase, profile } = await requireDashboardRole([
+    'owner', 'admin', 'manager', 'front_desk', 'receptionist', 'housekeeping', 'maintenance', 'staff',
+  ]);
 
   const { data: hotels } = await supabase
     .from('hotels')
     .select('id')
-    .eq('organization_id', profile?.organization_id)
+    .eq('organization_id', profile.organization_id)
     .limit(1);
   const hotelId = hotels?.[0]?.id;
   if (!hotelId) return null;

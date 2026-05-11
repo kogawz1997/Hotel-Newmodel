@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { FrontDeskClient } from './front-desk-client';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export default async function FrontDeskPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) redirect('/auth/login');
 
   const { data: profile } = await supabase
     .from('user_profiles')
