@@ -146,7 +146,7 @@
 ### C.5 Monitoring + Alerting — ✅ DONE
 - [x] Payment/OTA/cron failure monitors → `src/lib/ops/alerts.ts` (`alertPaymentFailure`, `alertOtaFailure`, `alertCronFailure`)
 - [x] Alert routing + severity policy → Slack Block Kit with category routing
-- [ ] Incident timeline + replay tooling — P2
+- [x] Incident timeline + replay tooling — `/dashboard/reports/incidents` (severity filter, timeline, replay POST)
 
 ### C.6 Build Verification (ต้องใช้ machine จริง)
 - [x] `npm ci` บน Node 20 + npm registry access
@@ -272,7 +272,7 @@ curl https://your-domain.com/api/ops/readiness
 ### ช่องโหว่ที่พบ ⚠️
 
 **Security — ต้องแก้ก่อน production:**
-- [ ] `/admin/page.tsx` ไม่มี auth guard เลย — ใครรู้ URL เข้าได้เลย (ต้องเพิ่ม platform admin token check)
+- [x] `/admin/page.tsx` มี auth guard ครบ — `admin/layout.tsx` ตรวจ `is_platform_admin` และ `page.tsx` เรียก `requirePlatformAdmin()` ซ้ำ
 - [ ] Dashboard pages หลายหน้าไม่มี role guard ที่ page level เลย อาศัย middleware อย่างเดียว — ถ้า middleware bypass ได้จะเจอข้อมูลทันที
 
 **UX — Staff เห็นของที่ไม่ใช่งานตัวเอง:**
@@ -293,8 +293,8 @@ curl https://your-domain.com/api/ops/readiness
 
 ### งานที่ต้องทำเพื่อให้สมบูรณ์ (F tasks)
 
-**F.1 Security — P1 🔴**
-- [ ] เพิ่ม platform admin auth guard ใน `/admin/page.tsx` (check superadmin role หรือ secret token)
+**F.1 Security — ✅ DONE**
+- [x] เพิ่ม platform admin auth guard ใน `/admin/page.tsx` — `layout.tsx` ตรวจ `is_platform_admin` + `requirePlatformAdmin()` ใน page
 - [x] เพิ่ม page-level role guard สำหรับ sensitive dashboard pages — `requireDashboardRole()` ครอบ 9 หน้า: booking-widget, check-in-wizard, walk-in, group-bookings, guests/merge, notifications, reports/handover, reports/operations, reviews
 
 **F.2 Role-based Sidebar — P2 🟡**
