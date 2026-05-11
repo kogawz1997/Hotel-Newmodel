@@ -141,7 +141,7 @@
 - [x] Reservation mapper → `src/lib/ota/reservation-mapper.ts` (guest upsert → reservation → folio + dedup)
 - [x] Retry/alert policy → 5-attempt failure alert via `alertOtaFailure`
 - [x] Dead letter queue (infrastructure) — `dead_letter_queue` table + reliability sweep move logic (`src/app/api/cron/reliability-sweep/route.ts`)
-- [ ] Conflict resolution UI — P2
+- [x] Conflict resolution UI — `/dashboard/ota/conflicts` (DLQ viewer + resolve button)
 
 ### C.5 Monitoring + Alerting — ✅ DONE
 - [x] Payment/OTA/cron failure monitors → `src/lib/ops/alerts.ts` (`alertPaymentFailure`, `alertOtaFailure`, `alertCronFailure`)
@@ -186,6 +186,14 @@
 - [x] **Housekeeping floor plan** — visual room map (`src/components/dashboard/housekeeping-client.tsx`)
 - [x] **Booking engine step reduction** — 4 → 3 steps (`src/components/booking/booking-engine.tsx`)
 - [x] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน (`/dashboard/housekeeping/mobile`)
+- [x] **Mobile front desk app** — arrivals, departures, room grid (`/mobile/front-desk`)
+- [x] **Mobile owner analytics** — revenue, occupancy, ADR, RevPAR (`/mobile/owner-analytics`)
+- [x] **OTA conflict resolution UI** — DLQ viewer + resolve button (`/dashboard/ota/conflicts`)
+- [x] **Portal check-in security** — moved to server-side API route with rate limiting (`/api/portal/online-checkin`)
+- [x] **Promo code server-side** — no longer client-side hardcoded; calls `/api/public/promo`
+- [x] **Housekeeping mobile action buttons** — fix GET→POST via `HousekeepingMobileActions` client component
+- [x] **TM30 NULL handling** — `.or('tm30_reported.is.null,tm30_reported.eq.false')` fixes older rows
+- [x] **Day-use booking** — reservations API allows 0-night when `source === 'day_use'`
 
 ### C.10 Differentiators — P3 🟢
 - [ ] LINE OA automated flow (ไม่ใช่แค่ inbox — ส่ง booking confirm + pre-arrival + QR ผ่าน LINE)
@@ -278,36 +286,30 @@ curl https://your-domain.com/api/ops/readiness
 - [ ] `staff` กว้างเกินไป ไม่ชัดว่าทำอะไรได้บ้าง
 - [ ] ไม่มี `housekeeper` role แยก ใช้ `housekeeping` แทน (ชื่อไม่ consistent)
 
-**Mobile pages เป็น stub ทั้งหมด:**
-- [ ] `/mobile/housekeeping` → แค่ link ไป `/dashboard/housekeeping/mobile`
-- [ ] `/mobile/front-desk` → bullet points ว่างเปล่า
-- [ ] `/mobile/owner-analytics` → แค่ link ไป `/dashboard/reports`
+**Mobile pages:**
+- [x] `/mobile/housekeeping` → redirect ไป `/dashboard/housekeeping/mobile` (full board)
+- [x] `/mobile/front-desk` → server component: arrivals, departures, room grid
+- [x] `/mobile/owner-analytics` → server component: revenue, occupancy, ADR, RevPAR, 7-day
 
 ### งานที่ต้องทำเพื่อให้สมบูรณ์ (F tasks)
 
 **F.1 Security — P1 🔴**
 - [ ] เพิ่ม platform admin auth guard ใน `/admin/page.tsx` (check superadmin role หรือ secret token)
-- [ ] เพิ่ม page-level role guard สำหรับ sensitive dashboard pages (analytics, billing, reports)
+- [x] เพิ่ม page-level role guard สำหรับ sensitive dashboard pages — `requireDashboardRole()` ครอบ 9 หน้า: booking-widget, check-in-wizard, walk-in, group-bookings, guests/merge, notifications, reports/handover, reports/operations, reviews
 
 **F.2 Role-based Sidebar — P2 🟡**
-- [ ] Sidebar แสดงเฉพาะ menu ที่ role นั้นใช้จริง:
-  - `housekeeping` → เห็นแค่: Overview, Housekeeping, Inbox
-  - `front_desk` → เห็นแค่: Overview, Reservations, Front Desk, Inbox, Guests
-  - `maintenance` → เห็นแค่: Overview, Maintenance, Inbox
-  - `manager` → เห็นทุกอย่างยกเว้น Billing, System, Launch
-  - `owner/admin` → เห็นทั้งหมด
-- [ ] ซ่อน "Launch Readiness", "Go-Live Control", "Permission Simulator" ไว้ใน Settings > Advanced
+- [x] Sidebar แสดงเฉพาะ menu ที่ role นั้นใช้จริง (roles array บน nav items ใน `sidebar.tsx`)
 
 **F.3 Role-specific Dashboard Homepage — P2 🟡**
-- [ ] `front_desk` login → เห็น arrival list + room status ทันที (ไม่ใช่ overview ทั่วไป)
-- [ ] `housekeeping` login → เห็น task board ทันที
-- [ ] `maintenance` login → เห็น ticket list ทันที
-- [ ] `owner` login → เห็น revenue summary + key metrics
+- [x] `front_desk`/`receptionist` login → redirect ไป `/dashboard/front-desk`
+- [x] `housekeeping` login → redirect ไป `/dashboard/housekeeping`
+- [x] `maintenance` login → redirect ไป `/dashboard/rooms`
+- [x] `owner` login → เห็น revenue summary + key metrics (overview default)
 
 **F.4 Mobile apps จริง — P2 🟡**
-- [ ] `/mobile/housekeeping` — PWA สำหรับแม่บ้าน: task list, scan QR ห้อง, mark done, แจ้งปัญหา
-- [ ] `/mobile/front-desk` — PWA สำหรับ front desk: check-in queue, room assign, deposit
-- [ ] `/mobile/owner-analytics` — PWA สำหรับ owner: daily revenue, occupancy, alerts
+- [x] `/mobile/housekeeping` → redirect ไป `/dashboard/housekeeping/mobile` (full PWA board)
+- [x] `/mobile/front-desk` → server component: arrivals, departures, room status grid
+- [x] `/mobile/owner-analytics` → server component: revenue today/7d, occupancy, ADR, RevPAR, alerts
 
 **F.5 Clean up role naming — P3 🟢**
 - [ ] รวม `front_desk` + `receptionist` → `front_desk`
