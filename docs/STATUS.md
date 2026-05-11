@@ -1,6 +1,6 @@
 # Maitri PMS — Project Status
 
-อัปเดต: 2026-05-11 | รวมจาก: PHASE1-10_CLOSED, ROUND2-5, MASTER_4P_TASKS, MASTER_REALITY_CHECK, GO_LIVE_100_CHECKLIST, PRODUCTION_SAAS_CHECKLIST, TODO_3P_MAPPING, P_ROUND_MIN_PLAN, ROUND2_SAAS_INTEGRATIONS, DEPLOYMENT_MATRIX, DELIVERY_HANDOFF, P1_EXECUTION_TRACKER, GITHUB_FILE_STATUS, MARKDOWN_DOC_STATUS, PROJECT_FILE_INVENTORY, MAITRI_HARDENING_SUMMARY, PRODUCTION_PATCH_NOTES, PRODUCTION_READY_REPORT, DEPLOYMENT_TOOLKIT_ADDED
+อัปเดต: 2026-05-11 | Single source of truth สำหรับทุกงานที่ต้องทำ
 
 ---
 
@@ -13,19 +13,17 @@
 | production verification | ❌ 0% |
 | vendor integrations (OTA/Payment live) | ❌ ~10% |
 | ENV vars configured | ❌ ต้องใส่ |
-
-> **ข้อสรุป:** codebase พร้อมแทบทั้งหมด แต่ยังไม่ได้ verify ใน production environment จริง และงาน P1 critical (transaction safety, webhook sig, RBAC audit) ยังไม่ได้ทำจริง
+| Role/page separation | ⚠️ โครงสร้างดี แต่มีช่องโหว่ (ดูหมวด F) |
 
 ---
 
 ## A — ทำเสร็จแล้วจริงในโค้ด
 
-งานเหล่านี้มีโค้ดสมบูรณ์ ทดสอบ static ผ่านแล้ว
-
 ### Core Infrastructure
 - [x] Auth middleware + session durability (`src/lib/auth/guards.ts`)
 - [x] Onboarding gate — redirect dashboard → `/onboarding` ถ้าไม่มี hotel
 - [x] RBAC role guards (`requireUser`, `requireHotelAccess`, `assertReservationAccess`)
+- [x] Middleware route protection (`src/middleware.ts`) — 19 route prefix rules
 - [x] Security headers ใน `next.config.js` (CSP, HSTS, X-Frame-Options)
 - [x] Rate limiting middleware (IP-based, per-route)
 - [x] Global API error handler + error boundaries
@@ -47,44 +45,40 @@
 - [x] Reservation overlap validation
 
 ### Guest Experience
-- [x] Guest portal (login, register, dashboard, bookings, profile)
-- [x] Hotel public pages (search, detail, gallery, availability)
+- [x] Guest portal: login, register, bookings, profile, loyalty, wishlist, referrals
+- [x] Hotel public pages: search, detail, gallery, availability
 - [x] Room comparison + pricing display
 - [x] QR code generator สำหรับ check-in
-- [x] In-stay room chat page (`/dashboard/chat/[reservationId]`)
-- [x] PDPA data export endpoint (`/api/guest/privacy/export`)
+- [x] In-stay room chat page
+- [x] PDPA data export endpoint
 
 ### Payments
-- [x] Omise charge endpoint (fail-closed guard ถ้าไม่มี key)
-- [x] Omise deposit endpoint (fail-closed)
-- [x] Omise refund endpoint (fail-closed)
+- [x] Omise charge/deposit/refund endpoints (fail-closed guard)
 - [x] Omise webhook signature verification + duplicate protection
 - [x] Folio management + split payment
 - [x] Payment reconciliation endpoint
+- [x] Stripe billing checkout + portal (fail-closed)
 
 ### Operations Dashboard
-- [x] Dashboard pages: rooms, reservations, housekeeping, F&B, spa, analytics
+- [x] Reservation calendar (14-day grid) + list view
+- [x] Housekeeping Kanban board (pending/in-progress/done)
 - [x] F&B POS UI + API routes
 - [x] Spa booking UI + API routes (collision validation)
 - [x] Maintenance ticket management
-- [x] Housekeeping auto-task creation (auto-assigns on checkout)
-- [x] Night audit cron (`/api/cron/night-audit`) — รัน 01:00 ICT
-- [x] Launch readiness dashboard (`/dashboard/launch`)
-- [x] Go-live control page
+- [x] Night audit cron — รัน 01:00 ICT
+- [x] Analytics page (metric cards)
 
 ### Communications
-- [x] LINE inbox integration (webhook + reply)
-- [x] WhatsApp inbox integration
+- [x] LINE + WhatsApp inbox integration
 - [x] AI translation + suggested replies
-- [x] AI concierge routes (stub + Claude Haiku integration)
+- [x] AI concierge routes (Claude Haiku)
 
 ### SaaS & Multi-tenant
 - [x] Organization hierarchy + multi-property foundation
 - [x] Trial auto-expire cron
 - [x] Admin impersonation routes
-- [x] Usage metrics endpoint
-- [x] Stripe billing checkout + portal routes (fail-closed ถ้าไม่มี key)
 - [x] Subscription plan feature gates
+- [x] Platform admin panel (`/admin`) — org management, MRR view
 
 ### Compliance
 - [x] e-Tax automation routes
@@ -93,203 +87,139 @@
 
 ### Deployment
 - [x] Dockerfile + docker-compose.yml
-- [x] Vercel cron config (vercel.json) — 5 cron jobs
-- [x] GitHub Actions CI (deploy-check.yml)
+- [x] Vercel cron config — 5 cron jobs
+- [x] GitHub Actions CI
 - [x] Render / Railway / Fly / Koyeb config files
-- [x] PM2 ecosystem config + Nginx config
-- [x] `.env.production.example` (ครบทุก key)
+- [x] `.env.production.example` ครบทุก key
 
 ---
 
-## B — โค้ดมีแล้ว รอ ENV Vars เท่านั้น
+## B — โค้ดพร้อม รอ ENV Vars เท่านั้น
 
-งานเหล่านี้ **พร้อม 100%** — ใส่ key แล้วทำงานได้เลย ไม่ต้องแก้โค้ดเพิ่ม
+ใส่ key แล้วทำงานได้เลย ไม่ต้องแก้โค้ดเพิ่ม
 
-### 1. Email (SendGrid)
-```env
-SENDGRID_API_KEY=SG.xxxx
-SENDGRID_FROM_EMAIL=noreply@yourdomain.com
-SENDGRID_FROM_NAME=Hotel Name
-```
-**ที่ทำงานได้ทันที:**
-- Pre-arrival email series (7 วัน, 3 วัน, 1 วัน ก่อน check-in)
-- Post-stay email + review request
-- Night audit summary email ถึง hotel owner
-- Trial expiry warnings + expired notice
-- Abandoned booking recovery emails
-- Staff invitation emails
+| # | Service | ENV ที่ต้องใส่ | สิ่งที่ unlock |
+|---|---------|--------------|----------------|
+| 1 | **Supabase** | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | ทุกอย่าง — ต้องมีก่อนสิ่งอื่น |
+| 2 | **Omise** | `OMISE_SECRET_KEY`, `OMISE_PUBLIC_KEY` | charge, deposit, refund, webhook |
+| 3 | **Cron/Ops** | `CRON_SECRET`, `OPS_READINESS_TOKEN` | cron jobs ทั้ง 5 ตัว |
+| 4 | **SendGrid** | `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL`, `SENDGRID_FROM_NAME` | pre-arrival, post-stay, night audit email, trial expiry, abandoned booking, staff invite |
+| 5 | **Stripe** | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | SaaS subscription billing |
+| 6 | **Sentry** | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` | error tracking ทุก route |
+| 7 | **Upstash Redis** | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | rate limiting |
+| 8 | **OTA** | `BOOKING_COM_API_TOKEN`, `AGODA_API_TOKEN`, `EXPEDIA_API_TOKEN`, `AIRBNB_API_TOKEN` + BASE_URLs | channel sync (แต่ logic ยังเป็น stub — ดู C.4) |
+| 9 | **App URL** | `NEXT_PUBLIC_APP_URL` | absolute URLs, OG tags |
 
-**Routes:** `/api/cron/pre-arrival`, `/api/cron/post-stay`, `/api/cron/night-audit`, `/api/cron/trial-expiry`, `/api/cron/abandoned-booking-recovery`, `/api/team/invite`
+ดูค่าตัวอย่างครบที่ `.env.production.example`
 
 ---
 
-### 2. Error Tracking (Sentry)
-```env
-SENTRY_DSN=https://xxx@o0.ingest.sentry.io/0
-NEXT_PUBLIC_SENTRY_DSN=https://xxx@o0.ingest.sentry.io/0
-```
-**ที่ทำงานได้ทันที:** error tracking ทุก API route, performance monitoring, session replay
+## C — ยังไม่ได้ทำจริงในโค้ด
 
----
+งานเหล่านี้ถูก mark ว่า closed แต่จริงๆ ยังไม่ได้ implement
 
-### 3. Rate Limiting (Upstash Redis)
-```env
-UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
-UPSTASH_REDIS_REST_TOKEN=xxx
-```
-**ที่ทำงานได้ทันที:** rate limit auth endpoints, payment endpoints, AI endpoints
-
----
-
-### 4. Payments — Stripe (SaaS billing)
-```env
-STRIPE_SECRET_KEY=sk_live_xxx
-STRIPE_WEBHOOK_SECRET=whsec_xxx
-```
-**ที่ทำงานได้ทันที:** subscription checkout, billing portal, webhook processing
-**Routes:** `/api/billing/checkout`, `/api/billing/portal`, `/api/billing/webhook`
-
----
-
-### 5. Payments — Omise (hotel payments)
-```env
-OMISE_SECRET_KEY=skey_live_xxx
-OMISE_PUBLIC_KEY=pkey_live_xxx
-```
-**ที่ทำงานได้ทันที:** charge, deposit, refund, webhook signature verification
-**Routes:** `/api/payments/charge`, `/api/payments/deposit`, `/api/payments/refund`, `/api/payments/omise/webhook`
-
----
-
-### 6. Supabase (production database)
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
-SUPABASE_SERVICE_ROLE_KEY=xxx
-```
-**ต้องทำด้วย:**
-```bash
-supabase db push   # apply ทุก migration ใน supabase/migrations/
-```
-
----
-
-### 7. OTA Channel Manager
-```env
-BOOKING_COM_API_BASE_URL=https://supply-xml.booking.com/hotels/ota/
-BOOKING_COM_API_TOKEN=xxx
-AGODA_API_BASE_URL=https://affiliateapi7.agoda.com/api/
-AGODA_API_TOKEN=xxx
-EXPEDIA_API_BASE_URL=https://services.expediapartnercentral.com/
-EXPEDIA_API_TOKEN=xxx
-AIRBNB_API_BASE_URL=https://api.airbnb.com/v2/
-AIRBNB_API_TOKEN=xxx
-```
-**หมายเหตุ:** Routes + queue structure มีแล้ว แต่ logic ของแต่ละ provider ยังเป็น stub — ดูส่วน C.4 ด้านล่าง
-
----
-
-### 8. Cron Security
-```env
-CRON_SECRET=your-random-secret-min-32-chars
-OPS_READINESS_TOKEN=your-ops-token
-```
-**ที่ทำงานได้ทันที:** ทุก cron route ใช้ `Authorization: Bearer $CRON_SECRET` ตรวจสอบอยู่แล้ว
-
----
-
-### 9. App URL
-```env
-NEXT_PUBLIC_APP_URL=https://your-production-domain.com
-```
-
----
-
-## C — ยังไม่ได้ทำจริงในโค้ด (ต้องเขียนเพิ่ม)
-
-งานเหล่านี้ถูก mark ว่า closed แต่จริงๆ **ยังไม่ได้ implement**
-
-### C.1 Booking Integrity (P1 Critical)
-- [ ] DB transaction wrap สำหรับ reservation create flow (ป้องกัน partial write)
+### C.1 Booking Integrity — P1 🔴
+- [ ] DB transaction wrap สำหรับ reservation create (ป้องกัน partial write)
 - [ ] Row-level inventory locking ทุก booking path
-- [ ] Reservation hold + timeout worker (จอง → ล็อคห้อง 15 นาที → expire ถ้าไม่จ่าย)
+- [ ] Reservation hold + timeout worker (lock 15 นาที → expire ถ้าไม่จ่าย)
 - [ ] Race condition tests (concurrent booking ห้องเดียวกัน)
 
-**ไฟล์ที่ต้องแก้:** `src/app/api/reservations/route.ts`, `src/app/api/reservations/[id]/route.ts`
+`src/app/api/reservations/route.ts`
 
-### C.2 Payment Integrity (P1 Critical)
-- [ ] Webhook signature verification ครบทุก provider (Stripe ยังไม่มี, Omise มีแล้ว)
-- [ ] Idempotent webhook processing (ป้องกัน double-charge จาก replay)
-- [ ] Payment reconciliation + mismatch recovery flow
-- [ ] Refund/dispute lifecycle ครบ end-to-end
+### C.2 Payment Integrity — P1 🔴
+- [ ] Stripe webhook signature verification (Omise มีแล้ว Stripe ยังไม่มี)
+- [ ] Idempotent webhook processing (ป้องกัน double-charge replay)
+- [ ] Payment reconciliation + mismatch recovery
+- [ ] Refund/dispute lifecycle end-to-end
 
-**ไฟล์ที่ต้องแก้:** `src/app/api/billing/webhook/route.ts`
+`src/app/api/billing/webhook/route.ts`
 
-### C.3 Tenant Isolation Audit (P1 Critical)
-- [ ] Query scoping audit — ทุก table ต้องมี `.eq('hotel_id', ...)` หรือ `.eq('org_id', ...)`
-- [ ] Route-level permission tests (ที่เป็น automated test)
+### C.3 Tenant Isolation Audit — P1 🔴
+- [ ] Query scoping audit ทุก API route — ต้องมี `.eq('hotel_id',...)` หรือ `.eq('org_id',...)`
+- [ ] Route-level automated permission tests
 - [ ] Upload/signed URL isolation by tenant
-- [ ] Role enforcement matrix test coverage
+- [ ] RBAC enforcement matrix test coverage
 
-### C.4 OTA Worker Logic (P1 Critical)
-- [ ] Booking.com XML parser + availability push logic
-- [ ] Agoda availability/rate sync logic
-- [ ] Airbnb iCal sync logic
+### C.4 OTA Worker Logic — P1 🔴
+- [ ] Booking.com XML parser + availability push
+- [ ] Agoda availability/rate sync
+- [ ] Airbnb iCal sync
 - [ ] Dead letter queue + retry policy
 - [ ] Conflict resolution + manual override UI
 
-**ไฟล์ที่ต้องเขียน:** `src/lib/ota/booking-com.ts`, `src/lib/ota/agoda.ts`, `src/lib/ota/airbnb.ts`
+`src/lib/ota/booking-com.ts`, `src/lib/ota/agoda.ts`, `src/lib/ota/airbnb.ts`
 
-### C.5 Monitoring + Alerting (P1 Critical)
+### C.5 Monitoring + Alerting — P1 🔴
 - [ ] Payment/OTA/cron failure monitors
 - [ ] Alert routing + severity policy
 - [ ] Incident timeline + replay tooling
 
-### C.6 Build Verification (ต้องทำใน environment จริง)
-- [ ] `npm ci` clean install บน Node 20 (ต้องมี npm registry access)
+### C.6 Build Verification (ต้องใช้ machine จริง)
+- [ ] `npm ci` บน Node 20 + npm registry access
 - [ ] `npm run type-check` — 0 errors
-- [ ] `npm run build` — build pass
-- [ ] Smoke test run จริง
+- [ ] `npm run build` — pass
+- [ ] Smoke test ใน production URL จริง
 
-```bash
-# รันบน machine ที่มี Node 20 + internet
-npm ci
-npm run type-check
-npm run build
-npm run smoke   # BASE_URL=https://your-domain.com
-```
+### C.7 PromptPay QR — P1 🔴 (ไม่มีเลยในโค้ด)
+- [ ] PromptPay QR endpoint ผ่าน Omise (`/api/payments/promptpay`)
+- [ ] PromptPay UI ในหน้าชำระเงิน
+- [ ] Webhook handling สำหรับ PromptPay confirm
+
+### C.8 งานที่ขาดสำหรับการใช้งานจริง — P2 🟡
+- [ ] Daily operational reports: arrival list, departure list, cashier close-of-day
+- [ ] Shift handover report (cash count ต่อกะ)
+- [ ] PromptPay + QR payment UI ในหน้า booking
+- [ ] Walk-in fast flow (check-in หน้าเคาน์เตอร์ < 3 คลิก)
+- [ ] Online check-in (แขกกรอกก่อนถึง → reduce queue)
+- [ ] Rate plans จริง: early bird, package, member rate, blackout dates
+- [ ] Group booking + group folio
+- [ ] Day-use booking (ห้องรายชั่วโมง/ครึ่งวัน)
+- [ ] Guest profile merge (return guest recognition)
+- [ ] Booking widget (embed บนเว็บโรงแรม — iframe/JS snippet)
+- [ ] Review management aggregator (Booking.com + Google ในหน้าเดียว)
+- [ ] Upsell engine (upgrade/add-on ตอน booking)
+- [ ] TM30 auto-submit ไปยัง police.go.th (ตอนนี้ manual export)
+
+### C.9 งาน UX/UI ที่ต้องทำ — P2 🟡
+- [ ] **Front Desk page** — สร้างใหม่ทั้งหมด (ตอนนี้ว่างเปล่า stub)
+- [ ] **Check-in wizard** — guided flow: scan ID → assign room → collect deposit → print receipt
+- [ ] **Room Status Board** — visual grid ตามชั้น สี occupied/available/dirty/maintenance
+- [ ] **Analytics charts** — เพิ่ม line/bar chart (occupancy trend, RevPAR, ADR)
+- [ ] **Realtime updates** — Supabase Realtime subscription สำหรับ front desk multi-user
+- [ ] **Mobile reservations view** — list-first บนมือถือ (calendar grid ใช้มือถือไม่ได้)
+- [ ] **Notification center** — in-app bell icon + feed (new booking, checkout, payment fail)
+- [ ] **Print/PDF stylesheet** — ใบเสร็จ/folio พิมพ์ได้สวย A4
+- [ ] **Sidebar cleanup** — ซ่อน Launch Readiness, Go-Live Control, Permission Simulator จาก staff ทั่วไป
+- [ ] **Housekeeping floor plan** — visual room map แทน/เสริม Kanban
+- [ ] **Booking engine step reduction** — ตัด review step ออก เหลือ 4 → 3 steps
+- [ ] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน (ตอนนี้เป็นแค่ link)
+
+### C.10 Differentiators — P3 🟢
+- [ ] LINE OA automated flow (ไม่ใช่แค่ inbox — ส่ง booking confirm + pre-arrival + QR ผ่าน LINE)
+- [ ] Dynamic pricing logic จริง (demand-based, ตอนนี้เป็น stub)
+- [ ] Revenue dashboard (RevPAR/ADR/occupancy trend ของ owner)
+- [ ] TM30 auto-submit (legal differentiator ในตลาดไทย)
+- [ ] Keyboard shortcuts สำหรับ power user (N=New booking, C=Check-in, I=Inbox)
 
 ---
 
-## D — Deploy Checklist (ย่อ)
+## D — Deploy Checklist
 
 ```bash
-# 1. ตั้ง ENV ทุกตัวใน Vercel/hosting
-#    ดูรายการครบใน .env.production.example
-
+# 1. ใส่ ENV ทุกตัว (ดู .env.production.example)
 # 2. Apply migrations
 supabase db push
-
 # 3. Build + deploy
-npm ci && npm run build
-vercel --prod   # หรือ docker compose up --build
-
+npm ci && npm run build && vercel --prod
 # 4. Verify
 curl https://your-domain.com/api/health
 curl https://your-domain.com/api/ops/readiness
-npm run smoke BASE_URL=https://your-domain.com
-
-# 5. Enable crons (Vercel จัดการอัตโนมัติจาก vercel.json)
-#    /api/cron/night-audit        — 18:00 UTC ทุกวัน
-#    /api/cron/pre-arrival        — 02:00 UTC ทุกวัน
-#    /api/cron/post-stay          — 03:00 UTC ทุกวัน
-#    /api/cron/trial-expiry       — 06:00 UTC ทุกวัน
-#    /api/cron/abandoned-booking-recovery — 10:00 UTC ทุกวัน
+# 5. Crons เริ่มทำงานอัตโนมัติจาก vercel.json
 ```
 
 ---
 
-## E — ENV Vars ครบ (reference)
+## E — ENV Vars Reference
 
 | ตัวแปร | หมวด | จำเป็น |
 |--------|------|--------|
@@ -303,44 +233,132 @@ npm run smoke BASE_URL=https://your-domain.com
 | `OMISE_PUBLIC_KEY` | Payment | ✅ |
 | `STRIPE_SECRET_KEY` | SaaS Billing | ถ้าใช้ Stripe |
 | `STRIPE_WEBHOOK_SECRET` | SaaS Billing | ถ้าใช้ Stripe |
-| `SENDGRID_API_KEY` | Email | ถ้าต้องการ email |
-| `SENDGRID_FROM_EMAIL` | Email | ถ้าต้องการ email |
-| `SENDGRID_FROM_NAME` | Email | ถ้าต้องการ email |
+| `SENDGRID_API_KEY` | Email | แนะนำ |
+| `SENDGRID_FROM_EMAIL` | Email | แนะนำ |
+| `SENDGRID_FROM_NAME` | Email | แนะนำ |
 | `SENTRY_DSN` | Monitoring | แนะนำ |
 | `NEXT_PUBLIC_SENTRY_DSN` | Monitoring | แนะนำ |
 | `UPSTASH_REDIS_REST_URL` | Rate Limit | แนะนำ |
 | `UPSTASH_REDIS_REST_TOKEN` | Rate Limit | แนะนำ |
-| `BOOKING_COM_API_TOKEN` | OTA | ถ้าใช้ Booking.com |
-| `AGODA_API_TOKEN` | OTA | ถ้าใช้ Agoda |
-| `EXPEDIA_API_TOKEN` | OTA | ถ้าใช้ Expedia |
-| `AIRBNB_API_TOKEN` | OTA | ถ้าใช้ Airbnb |
-| `BOOKING_COM_API_BASE_URL` | OTA | ถ้าใช้ Booking.com |
-| `AGODA_API_BASE_URL` | OTA | ถ้าใช้ Agoda |
-| `EXPEDIA_API_BASE_URL` | OTA | ถ้าใช้ Expedia |
-| `AIRBNB_API_BASE_URL` | OTA | ถ้าใช้ Airbnb |
-
-ดูตัวอย่างค่าครบที่ `.env.production.example`
+| `BOOKING_COM_API_TOKEN` + `_BASE_URL` | OTA | ถ้าใช้ Booking.com |
+| `AGODA_API_TOKEN` + `_BASE_URL` | OTA | ถ้าใช้ Agoda |
+| `EXPEDIA_API_TOKEN` + `_BASE_URL` | OTA | ถ้าใช้ Expedia |
+| `AIRBNB_API_TOKEN` + `_BASE_URL` | OTA | ถ้าใช้ Airbnb |
 
 ---
 
-## ไฟล์ที่รวมมาในเอกสารนี้ (ลบแล้ว)
+## F — Role & Page Separation (สถานะปัจจุบัน + ช่องโหว่)
+
+### โครงสร้าง 4 กลุ่มผู้ใช้
 
 ```
-PHASE1_CLOSED.md, PHASE3_CLOSED.md, PHASE4_CLOSED.md, PHASE5_CLOSED.md
-PHASE6_CLOSED.md, PHASE7_CLOSED.md, PHASE8_CLOSED.md, PHASE9_CLOSED.md
-PHASE10_CLOSED.md, ROUND2_CLOSED.md, ROUND3_CLOSED.md, ROUND4_CLOSED.md
-ROUND5_REALITY_CHECK.md, ROADMAP.md, TODO.md
-MAITRI_HARDENING_SUMMARY.md, PRODUCTION_PATCH_NOTES.md
+1. Guest/Customer       → /portal/* /booking/* /search /hotels/*
+2. Hotel Staff/Owner    → /dashboard/* (role-filtered)
+3. Platform Admin       → /admin/* /backoffice/*
+4. Public               → / /search /h/[slug] /blog /terms /privacy
+```
+
+### Staff Roles ที่มี
+`owner | admin | manager | front_desk | receptionist | housekeeping | staff | viewer`
+`+ maintenance | concierge | security | accounting` (special)
+
+### สิ่งที่ดีแล้ว ✅
+- Middleware มี 19 route prefix rules แยก role
+- `requireHotelAccess(hotelId, ['owner','admin'])` ใช้ใน API routes
+- Guest portal แยก auth จาก staff auth อย่างชัดเจน
+- Platform admin (`/admin`) ใช้ service role client แยกต่างหาก
+
+### ช่องโหว่ที่พบ ⚠️
+
+**Security — ต้องแก้ก่อน production:**
+- [ ] `/admin/page.tsx` ไม่มี auth guard เลย — ใครรู้ URL เข้าได้เลย (ต้องเพิ่ม platform admin token check)
+- [ ] Dashboard pages หลายหน้าไม่มี role guard ที่ page level เลย อาศัย middleware อย่างเดียว — ถ้า middleware bypass ได้จะเจอข้อมูลทันที
+
+**UX — Staff เห็นของที่ไม่ใช่งานตัวเอง:**
+- [ ] `housekeeping` role ยังเห็น sidebar ครบทุกหมวด (ควรเห็นแค่ Housekeeping + Inbox)
+- [ ] `front_desk` role ยังเห็น Accounting, OTA Sync, Automation, Launch Readiness
+- [ ] `maintenance` role เห็น F&B, Spa, Analytics ที่ไม่เกี่ยว
+- [ ] "Launch Readiness" + "Go-Live Control" + "Permission Simulator" ไม่ควรอยู่ใน sidebar ของ staff ทั่วไป
+
+**Role ที่ซ้ำซ้อน / ไม่ชัดเจน:**
+- [ ] `front_desk` กับ `receptionist` มี permission เหมือนกัน ควรรวมเป็นตัวเดียว
+- [ ] `staff` กว้างเกินไป ไม่ชัดว่าทำอะไรได้บ้าง
+- [ ] ไม่มี `housekeeper` role แยก ใช้ `housekeeping` แทน (ชื่อไม่ consistent)
+
+**Mobile pages เป็น stub ทั้งหมด:**
+- [ ] `/mobile/housekeeping` → แค่ link ไป `/dashboard/housekeeping/mobile`
+- [ ] `/mobile/front-desk` → bullet points ว่างเปล่า
+- [ ] `/mobile/owner-analytics` → แค่ link ไป `/dashboard/reports`
+
+### งานที่ต้องทำเพื่อให้สมบูรณ์ (F tasks)
+
+**F.1 Security — P1 🔴**
+- [ ] เพิ่ม platform admin auth guard ใน `/admin/page.tsx` (check superadmin role หรือ secret token)
+- [ ] เพิ่ม page-level role guard สำหรับ sensitive dashboard pages (analytics, billing, reports)
+
+**F.2 Role-based Sidebar — P2 🟡**
+- [ ] Sidebar แสดงเฉพาะ menu ที่ role นั้นใช้จริง:
+  - `housekeeping` → เห็นแค่: Overview, Housekeeping, Inbox
+  - `front_desk` → เห็นแค่: Overview, Reservations, Front Desk, Inbox, Guests
+  - `maintenance` → เห็นแค่: Overview, Maintenance, Inbox
+  - `manager` → เห็นทุกอย่างยกเว้น Billing, System, Launch
+  - `owner/admin` → เห็นทั้งหมด
+- [ ] ซ่อน "Launch Readiness", "Go-Live Control", "Permission Simulator" ไว้ใน Settings > Advanced
+
+**F.3 Role-specific Dashboard Homepage — P2 🟡**
+- [ ] `front_desk` login → เห็น arrival list + room status ทันที (ไม่ใช่ overview ทั่วไป)
+- [ ] `housekeeping` login → เห็น task board ทันที
+- [ ] `maintenance` login → เห็น ticket list ทันที
+- [ ] `owner` login → เห็น revenue summary + key metrics
+
+**F.4 Mobile apps จริง — P2 🟡**
+- [ ] `/mobile/housekeeping` — PWA สำหรับแม่บ้าน: task list, scan QR ห้อง, mark done, แจ้งปัญหา
+- [ ] `/mobile/front-desk` — PWA สำหรับ front desk: check-in queue, room assign, deposit
+- [ ] `/mobile/owner-analytics` — PWA สำหรับ owner: daily revenue, occupancy, alerts
+
+**F.5 Clean up role naming — P3 🟢**
+- [ ] รวม `front_desk` + `receptionist` → `front_desk`
+- [ ] เปลี่ยนชื่อ `housekeeping` role → `housekeeper` (ให้ consistent กับ page route)
+- [ ] กำหนด permission ของ `staff` ให้ชัดเจน
+
+---
+
+## G — สรุปงานทั้งหมด
+
+| หมวด | งาน | Priority |
+|------|-----|----------|
+| C.1 Booking Integrity | 4 tasks | P1 🔴 |
+| C.2 Payment Integrity | 4 tasks | P1 🔴 |
+| C.3 Tenant Isolation | 4 tasks | P1 🔴 |
+| C.4 OTA Worker Logic | 5 tasks | P1 🔴 |
+| C.5 Monitoring | 3 tasks | P1 🔴 |
+| C.6 Build Verification | 4 tasks | P1 🔴 |
+| C.7 PromptPay | 3 tasks | P1 🔴 |
+| F.1 Admin Security | 2 tasks | P1 🔴 |
+| **P1 รวม** | **29 tasks** | |
+| C.8 Hotel Operations | 13 tasks | P2 🟡 |
+| C.9 UX/UI | 12 tasks | P2 🟡 |
+| F.2 Role Sidebar | 2 tasks | P2 🟡 |
+| F.3 Role Homepage | 4 tasks | P2 🟡 |
+| F.4 Mobile PWA | 3 tasks | P2 🟡 |
+| **P2 รวม** | **34 tasks** | |
+| C.10 Differentiators | 5 tasks | P3 🟢 |
+| F.5 Role naming | 3 tasks | P3 🟢 |
+| **P3 รวม** | **8 tasks** | |
+| **รวมทั้งหมด** | **71 tasks** | |
+
+---
+
+## H — ไฟล์ที่รวมมา (ลบแล้ว)
+
+```
+PHASE1_CLOSED.md → PHASE10_CLOSED.md, ROUND2_CLOSED.md → ROUND5_REALITY_CHECK.md
+ROADMAP.md, TODO.md, MAITRI_HARDENING_SUMMARY.md, PRODUCTION_PATCH_NOTES.md
 PRODUCTION_READY_REPORT.md, DEPLOYMENT_TOOLKIT_ADDED.md
-docs/MASTER_PHASE_TASKS.md, docs/MASTER_4P_TASKS.md
-docs/MASTER_4P_TASKS_EXECUTION_REPORT.md
-docs/MASTER_REALITY_CHECK_2026-05-09.md
-docs/DELIVERY_HANDOFF_2026-05-09.md
-docs/P1_EXECUTION_TRACKER_2026-05-09.md
-docs/GO_LIVE_100_CHECKLIST.md
-docs/PRODUCTION_SAAS_CHECKLIST.md
-docs/GITHUB_FILE_STATUS.md, docs/MARKDOWN_DOC_STATUS.md
-docs/PROJECT_FILE_INVENTORY.md, docs/TODO_3P_MAPPING.md
-docs/P_ROUND_MIN_PLAN.md, docs/ROUND2_SAAS_INTEGRATIONS.md
-docs/DEPLOYMENT_MATRIX.md
+docs/MASTER_PHASE_TASKS.md, docs/MASTER_4P_TASKS.md, docs/MASTER_4P_TASKS_EXECUTION_REPORT.md
+docs/MASTER_REALITY_CHECK_2026-05-09.md, docs/DELIVERY_HANDOFF_2026-05-09.md
+docs/P1_EXECUTION_TRACKER_2026-05-09.md, docs/GO_LIVE_100_CHECKLIST.md
+docs/PRODUCTION_SAAS_CHECKLIST.md, docs/GITHUB_FILE_STATUS.md, docs/MARKDOWN_DOC_STATUS.md
+docs/PROJECT_FILE_INVENTORY.md, docs/TODO_3P_MAPPING.md, docs/P_ROUND_MIN_PLAN.md
+docs/ROUND2_SAAS_INTEGRATIONS.md, docs/DEPLOYMENT_MATRIX.md
 ```
