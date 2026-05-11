@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { ReservationActionButtons } from '@/components/dashboard/reservation-action-buttons';
+import { DashboardShortcuts } from '@/components/dashboard/dashboard-shortcuts';
 
 async function countQuery(query: any) {
   const { count } = await query;
@@ -133,6 +134,8 @@ export default async function DashboardPage() {
         </div>
       </section>
 
+      <DashboardShortcuts />
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
           <Link key={item.label} href={item.href} className="group">
@@ -153,6 +156,7 @@ export default async function DashboardPage() {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
           { title: 'สร้างการจอง', href: '/dashboard/reservations', desc: 'เปิด calendar/list แล้วกดจองใหม่' },
+          { title: 'Walk-in 3 คลิก', href: '/dashboard/front-desk/walk-in', desc: 'หน้าเคาน์เตอร์ใช้งานเร็ว' },
           { title: 'ตอบ Inbox', href: '/dashboard/inbox', desc: `${openInbox} งานเปิดอยู่` },
           { title: 'อัปเดตห้อง', href: '/dashboard/rooms', desc: `${roomsAvailable} ห้องพร้อมขาย` },
           { title: 'งานแม่บ้าน', href: '/dashboard/housekeeping', desc: `${hkPending} งานต้องตาม` },

@@ -25,6 +25,7 @@ export function HousekeepingClient({ hotelId }: { hotelId: string }) {
   const [tasks, setTasks] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [rooms, setRooms] = useState<any[]>([]);
+  const [roomMap, setRoomMap] = useState<any[]>([]);
 
   useEffect(() => { load(); }, []);
 
@@ -39,10 +40,20 @@ export function HousekeepingClient({ hotelId }: { hotelId: string }) {
     setTasks(data || []);
 
     const { data: rs } = await supabase
-      .from('rooms').select('id, room_number')
-      .eq('hotel_id', hotelId).order('room_number');
+      .from('rooms').select('id, room_number, floor, status')
+      .eq('hotel_id', hotelId).order('floor').order('room_number');
     setRooms(rs || []);
+    setRoomMap(rs || []);
   }
+
+
+
+  const floorGroups = roomMap.reduce((acc: Record<string, any[]>, room: any) => {
+    const floor = room.floor || 'N/A';
+    if (!acc[floor]) acc[floor] = [];
+    acc[floor].push(room);
+    return acc;
+  }, {});
 
   async function updateStatus(id: string, status: string) {
     const updates: any = { status };
@@ -66,6 +77,35 @@ export function HousekeepingClient({ hotelId }: { hotelId: string }) {
         description={`${tasks.filter(t => t.status === 'pending').length} งานรอ · ${tasks.filter(t => t.status === 'in_progress').length} กำลังทำ`}
         action={<Button size="sm" onClick={() => setShowModal(true)}><Plus className="h-3.5 w-3.5" /> เพิ่มงาน</Button>}
       />
+
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold">Housekeeping floor plan</h2>
+          <span className="text-xs text-muted-foreground">แผนผังสถานะห้องแบบรายชั้น</span>
+        </div>
+        <div className="space-y-4">
+          {Object.keys(floorGroups).length === 0 ? (
+            <EmptyState icon={Bed} title="ยังไม่มีข้อมูลห้อง" description="เพิ่มห้องเพื่อดู floor plan" />
+          ) : Object.entries(floorGroups).map(([floor, floorRooms]) => (
+            <div key={floor}>
+              <p className="mb-2 text-xs font-medium text-muted-foreground">ชั้น {floor}</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+                {(floorRooms as any[]).map((room) => (
+                  <div key={room.id} className={cn('rounded-lg border px-3 py-2 text-xs',
+                    room.status === 'occupied' && 'border-rose-200 bg-rose-50 text-rose-700',
+                    room.status === 'available' && 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                    room.status === 'cleaning' && 'border-amber-200 bg-amber-50 text-amber-700',
+                    room.status === 'maintenance' && 'border-slate-300 bg-slate-100 text-slate-700'
+                  )}>
+                    <div className="font-semibold">ห้อง {room.room_number}</div>
+                    <div className="mt-1 uppercase tracking-wide opacity-80">{room.status || 'unknown'}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {COLUMNS.map(col => {
