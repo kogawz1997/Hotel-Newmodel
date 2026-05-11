@@ -196,7 +196,7 @@
 - [x] **Day-use booking** — reservations API allows 0-night when `source === 'day_use'`
 
 ### C.10 Differentiators — P3 🟢
-- [ ] LINE OA automated flow (ไม่ใช่แค่ inbox — ส่ง booking confirm + pre-arrival + QR ผ่าน LINE)
+- [x] LINE OA automated flow — `src/lib/channels/line-notify.ts`: booking confirm + pre-arrival push message ผ่าน LINE เมื่อแขกมี LINE conversation กับโรงแรม
 - [ ] Dynamic pricing logic จริง (demand-based, ตอนนี้เป็น stub)
 - [x] Revenue dashboard (RevPAR/ADR/occupancy trend ของ owner) (`/dashboard/reports` + mobile owner analytics)
 - [x] TM30 auto-submit (legal differentiator ในตลาดไทย) (`/api/cron/tm30-auto-submit`)
