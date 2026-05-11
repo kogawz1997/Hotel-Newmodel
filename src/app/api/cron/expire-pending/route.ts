@@ -8,12 +8,19 @@ import { requireCronSecret } from '@/lib/auth/guards';
 import { expirePendingPayments } from '@/lib/booking/availability-lock';
 import { sendCancellationEmail } from '@/lib/email-templates';
 import { createAdminClient } from '@/lib/supabase/server';
+import { alertCronFailure } from '@/lib/ops/alerts';
 
 export async function GET(request: NextRequest) {
   const err = requireCronSecret(request);
   if (err) return err;
 
-  const expired = await expirePendingPayments(15); // 15 min timeout
+  let expired: Awaited<ReturnType<typeof expirePendingPayments>> = [];
+  try {
+    expired = await expirePendingPayments(15); // 15 min timeout
+  } catch (e) {
+    await alertCronFailure({ cronPath: '/api/cron/expire-pending', error: String(e) });
+    return NextResponse.json({ success: false, error: String(e) }, { status: 500 });
+  }
 
   // Notify guests of auto-cancelled reservations
   if (expired.length > 0 && process.env.SENDGRID_API_KEY) {
@@ -30,7 +37,7 @@ export async function GET(request: NextRequest) {
         sendCancellationEmail({
           to: guest.email,
           guestName: `${guest.first_name} ${guest.last_name || ''}`.trim(),
-          reservationCode: full?.reservation_code || res.id.slice(0,8),
+          reservationCode: full?.reservation_code || res.id.slice(0, 8),
           hotelName: hotel?.name || 'โรงแรม',
           checkIn:  full?.check_in || '',
           checkOut: full?.check_out || '',

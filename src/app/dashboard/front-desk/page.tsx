@@ -1,17 +1,70 @@
+import { createClient } from '@/lib/supabase/server';
+import { FrontDeskClient } from './front-desk-client';
+
 export const dynamic = 'force-dynamic';
 
-export default function Page() {
+export default async function FrontDeskPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('organization_id, role')
+    .eq('id', user.id)
+    .single();
+
+  const { data: hotels } = await supabase
+    .from('hotels')
+    .select('id, name, check_in_time, check_out_time')
+    .eq('organization_id', profile?.organization_id)
+    .limit(1);
+
+  if (!hotels?.[0]) return null;
+  const hotelId = hotels[0].id;
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [arrivalsRes, departuresRes, inHouseRes, roomsRes] = await Promise.all([
+    supabase
+      .from('reservations')
+      .select('id, reservation_code, check_in, check_out, num_adults, status, room_id, guests(first_name, last_name, phone, email), rooms(room_number), room_types(name)')
+      .eq('hotel_id', hotelId)
+      .eq('check_in', today)
+      .in('status', ['confirmed', 'pending_payment'])
+      .order('created_at', { ascending: true })
+      .limit(50),
+    supabase
+      .from('reservations')
+      .select('id, reservation_code, check_in, check_out, num_adults, status, room_id, guests(first_name, last_name, phone, email), rooms(room_number), room_types(name)')
+      .eq('hotel_id', hotelId)
+      .eq('check_out', today)
+      .eq('status', 'checked_in')
+      .order('check_out', { ascending: true })
+      .limit(50),
+    supabase
+      .from('reservations')
+      .select('id, reservation_code, check_in, check_out, num_adults, status, room_id, guests(first_name, last_name), rooms(room_number), room_types(name)')
+      .eq('hotel_id', hotelId)
+      .eq('status', 'checked_in')
+      .order('check_in', { ascending: false })
+      .limit(100),
+    supabase
+      .from('rooms')
+      .select('id, room_number, floor, status, room_type_id, room_types(name)')
+      .eq('hotel_id', hotelId)
+      .order('floor', { ascending: true })
+      .order('room_number', { ascending: true }),
+  ]);
+
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <p className="text-sm uppercase tracking-[0.3em] text-amber-600">Maitri Production Suite</p>
-      <h1 className="mt-3 text-4xl font-semibold text-slate-950">Front desk command center</h1>
-      <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <ul className="grid gap-3 text-slate-700">
-          <li>Check-in wizard</li>
-          <li>Walk-in booking</li>
-          <li>Deposit capture and quick room assignment</li>
-        </ul>
-      </section>
-    </main>
+    <FrontDeskClient
+      hotelId={hotelId}
+      hotel={hotels[0]}
+      arrivals={arrivalsRes.data || []}
+      departures={departuresRes.data || []}
+      inHouse={inHouseRes.data || []}
+      rooms={roomsRes.data || []}
+      today={today}
+    />
   );
 }
