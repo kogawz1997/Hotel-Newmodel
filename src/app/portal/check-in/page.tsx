@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 export default function OnlineCheckInPage() {
-  const supabase = createClient();
   const [code, setCode] = useState('');
   const [email, setEmail] = useState('');
   const [arrival, setArrival] = useState('');
@@ -16,6 +15,7 @@ export default function OnlineCheckInPage() {
   const [submitting, setSubmitting] = useState(false);
 
   async function submit() {
+    const supabase = createClient();
     if (!code || !email) return toast.error('กรอกเลขจองและอีเมล');
     setSubmitting(true);
     const { data: booking, error } = await supabase

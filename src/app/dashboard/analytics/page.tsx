@@ -1,6 +1,6 @@
 import { TopBar } from '@/components/layout/top-bar';
 import { Card, CardContent } from '@/components/ui/card';
-import { createClient } from '@/lib/supabase/server';
+import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { formatCurrency } from '@/lib/utils';
 import { BedDouble, CalendarCheck, CircleDollarSign, UtensilsCrossed, Heart, TrendingUp } from 'lucide-react';
 import { AnalyticsChartsClient } from './analytics-charts-client';
@@ -10,9 +10,7 @@ import { th } from 'date-fns/locale';
 export const dynamic = 'force-dynamic';
 
 export default async function AnalyticsPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user!.id).single();
+  const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager']);
   const { data: hotel } = await supabase.from('hotels').select('id,currency').eq('organization_id', profile?.organization_id).limit(1).single();
 
   if (!hotel) return null;
