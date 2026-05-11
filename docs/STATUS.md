@@ -140,7 +140,7 @@
 - [x] Airbnb iCal + JSON webhook → `src/lib/ota/parsers/airbnb.ts`
 - [x] Reservation mapper → `src/lib/ota/reservation-mapper.ts` (guest upsert → reservation → folio + dedup)
 - [x] Retry/alert policy → 5-attempt failure alert via `alertOtaFailure`
-- [ ] Dead letter queue (infrastructure) — requires Redis/queue setup (ENV dependency)
+- [x] Dead letter queue (infrastructure) — `dead_letter_queue` table + reliability sweep move logic (`src/app/api/cron/reliability-sweep/route.ts`)
 - [ ] Conflict resolution UI — P2
 
 ### C.5 Monitoring + Alerting — ✅ DONE
@@ -149,10 +149,10 @@
 - [ ] Incident timeline + replay tooling — P2
 
 ### C.6 Build Verification (ต้องใช้ machine จริง)
-- [ ] `npm ci` บน Node 20 + npm registry access
+- [x] `npm ci` บน Node 20 + npm registry access
 - [x] `npm run type-check` — 0 errors
-- [ ] `npm run build` — pass
-- [ ] Smoke test ใน production URL จริง
+- [x] `npm run build` — pass
+- [ ] Smoke test ใน production URL จริง (pending: ต้องรันจาก environment ที่ออกอินเทอร์เน็ตไป production ได้)
 
 ### C.7 PromptPay QR — ✅ DONE
 - [x] PromptPay QR endpoint → `src/app/api/payments/promptpay/route.ts` + `status/route.ts`
