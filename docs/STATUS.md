@@ -114,45 +114,39 @@
 
 ---
 
-## C — ยังไม่ได้ทำจริงในโค้ด
+## C — สถานะงานที่เคยยังไม่ได้ implement
 
-งานเหล่านี้ถูก mark ว่า closed แต่จริงๆ ยังไม่ได้ implement
+### C.1 Booking Integrity — ✅ DONE
+- [x] DB transaction wrap สำหรับ reservation create → `create_reservation_atomic` RPC (`supabase/migrations/20260511041344_p1_create_reservation_rpc.sql`)
+- [x] Row-level inventory locking → `pg_try_advisory_lock` (`src/lib/booking/availability-lock.ts`)
+- [x] Reservation hold + timeout worker → `expirePendingPayments` + cron `*/15 * * * *`
+- [x] Race condition tests → `tests/unit/concurrent-booking.test.mjs` (7 checks ✅)
 
-### C.1 Booking Integrity — P1 🔴
-- [ ] DB transaction wrap สำหรับ reservation create (ป้องกัน partial write)
-- [ ] Row-level inventory locking ทุก booking path
-- [ ] Reservation hold + timeout worker (lock 15 นาที → expire ถ้าไม่จ่าย)
-- [ ] Race condition tests (concurrent booking ห้องเดียวกัน)
+### C.2 Payment Integrity — ✅ DONE
+- [x] Stripe webhook signature verification → HMAC-SHA256 + `timingSafeEqual` (`src/lib/billing/stripe.ts:verifyStripeSignature`)
+- [x] Idempotent webhook processing → audit_logs dedup by Stripe event ID (`src/app/api/billing/webhook/route.ts`)
+- [x] Payment reconciliation + mismatch recovery → `src/app/api/payments/reconcile/route.ts` (auto-fix Omise mismatch)
+- [x] Refund/dispute lifecycle → `src/app/api/payments/refund/route.ts` + dispute handlers in Stripe webhook
 
-`src/app/api/reservations/route.ts`
+### C.3 Tenant Isolation Audit — ✅ DONE
+- [x] Query scoping — hotel-scoped routes use `requireHotelAccess`, admin routes use `requirePlatformAdmin`
+- [x] Route-level permission tests → `tests/unit/route-permissions.test.mjs` (35 checks ✅)
+- [x] Upload/signed URL isolation by tenant → `{hotelId}/` path prefix + signed upload URLs
+- [x] RBAC enforcement matrix → guards.ts exports `requireHotelAccess`, `requirePlatformAdmin`, `requireCronSecret`, `requireUser`, `assertReservationAccess`
 
-### C.2 Payment Integrity — P1 🔴
-- [ ] Stripe webhook signature verification (Omise มีแล้ว Stripe ยังไม่มี)
-- [ ] Idempotent webhook processing (ป้องกัน double-charge replay)
-- [ ] Payment reconciliation + mismatch recovery
-- [ ] Refund/dispute lifecycle end-to-end
+### C.4 OTA Worker Logic — ✅ DONE
+- [x] Booking.com XML parser → `src/lib/ota/parsers/booking-com.ts` (OTA_HotelResNotifRQ)
+- [x] Agoda YCS JSON parser → `src/lib/ota/parsers/agoda.ts`
+- [x] Airbnb iCal + JSON webhook → `src/lib/ota/parsers/airbnb.ts`
+- [x] Reservation mapper → `src/lib/ota/reservation-mapper.ts` (guest upsert → reservation → folio + dedup)
+- [x] Retry/alert policy → 5-attempt failure alert via `alertOtaFailure`
+- [ ] Dead letter queue (infrastructure) — requires Redis/queue setup (ENV dependency)
+- [ ] Conflict resolution UI — P2
 
-`src/app/api/billing/webhook/route.ts`
-
-### C.3 Tenant Isolation Audit — P1 🔴
-- [ ] Query scoping audit ทุก API route — ต้องมี `.eq('hotel_id',...)` หรือ `.eq('org_id',...)`
-- [ ] Route-level automated permission tests
-- [ ] Upload/signed URL isolation by tenant
-- [ ] RBAC enforcement matrix test coverage
-
-### C.4 OTA Worker Logic — P1 🔴
-- [ ] Booking.com XML parser + availability push
-- [ ] Agoda availability/rate sync
-- [ ] Airbnb iCal sync
-- [ ] Dead letter queue + retry policy
-- [ ] Conflict resolution + manual override UI
-
-`src/lib/ota/booking-com.ts`, `src/lib/ota/agoda.ts`, `src/lib/ota/airbnb.ts`
-
-### C.5 Monitoring + Alerting — P1 🔴
-- [ ] Payment/OTA/cron failure monitors
-- [ ] Alert routing + severity policy
-- [ ] Incident timeline + replay tooling
+### C.5 Monitoring + Alerting — ✅ DONE
+- [x] Payment/OTA/cron failure monitors → `src/lib/ops/alerts.ts` (`alertPaymentFailure`, `alertOtaFailure`, `alertCronFailure`)
+- [x] Alert routing + severity policy → Slack Block Kit with category routing
+- [ ] Incident timeline + replay tooling — P2
 
 ### C.6 Build Verification (ต้องใช้ machine จริง)
 - [ ] `npm ci` บน Node 20 + npm registry access
@@ -160,15 +154,14 @@
 - [ ] `npm run build` — pass
 - [ ] Smoke test ใน production URL จริง
 
-### C.7 PromptPay QR — P1 🔴 (ไม่มีเลยในโค้ด)
-- [ ] PromptPay QR endpoint ผ่าน Omise (`/api/payments/promptpay`)
-- [ ] PromptPay UI ในหน้าชำระเงิน
-- [ ] Webhook handling สำหรับ PromptPay confirm
+### C.7 PromptPay QR — ✅ DONE
+- [x] PromptPay QR endpoint → `src/app/api/payments/promptpay/route.ts` + `status/route.ts`
+- [x] PromptPay UI ในหน้า booking → `src/components/payments/PromptPayQR.tsx` + booking engine integration
+- [x] Webhook/polling สำหรับ PromptPay confirm → status polling + Omise webhook
 
 ### C.8 งานที่ขาดสำหรับการใช้งานจริง — P2 🟡
 - [ ] Daily operational reports: arrival list, departure list, cashier close-of-day
 - [ ] Shift handover report (cash count ต่อกะ)
-- [ ] PromptPay + QR payment UI ในหน้า booking
 - [ ] Walk-in fast flow (check-in หน้าเคาน์เตอร์ < 3 คลิก)
 - [ ] Online check-in (แขกกรอกก่อนถึง → reduce queue)
 - [ ] Rate plans จริง: early bird, package, member rate, blackout dates
@@ -180,19 +173,19 @@
 - [ ] Upsell engine (upgrade/add-on ตอน booking)
 - [ ] TM30 auto-submit ไปยัง police.go.th (ตอนนี้ manual export)
 
-### C.9 งาน UX/UI ที่ต้องทำ — P2 🟡
-- [ ] **Front Desk page** — สร้างใหม่ทั้งหมด (ตอนนี้ว่างเปล่า stub)
+### C.9 งาน UX/UI — P2 🟡
+- [x] **Front Desk page** → `src/app/dashboard/front-desk/` (arrivals/departures/in-house/rooms tabs + Realtime)
+- [x] **Room Status Board** → visual grid ตามชั้น (สี occupied/available/cleaning/maintenance)
+- [x] **Analytics charts** → `src/app/dashboard/analytics/analytics-charts-client.tsx` (30-day bar + line)
+- [x] **Realtime updates** → Supabase Realtime subscription ใน front-desk client
+- [x] **Sidebar role-based** → แสดงเฉพาะ menu ตาม role
 - [ ] **Check-in wizard** — guided flow: scan ID → assign room → collect deposit → print receipt
-- [ ] **Room Status Board** — visual grid ตามชั้น สี occupied/available/dirty/maintenance
-- [ ] **Analytics charts** — เพิ่ม line/bar chart (occupancy trend, RevPAR, ADR)
-- [ ] **Realtime updates** — Supabase Realtime subscription สำหรับ front desk multi-user
-- [ ] **Mobile reservations view** — list-first บนมือถือ (calendar grid ใช้มือถือไม่ได้)
-- [ ] **Notification center** — in-app bell icon + feed (new booking, checkout, payment fail)
+- [ ] **Mobile reservations view** — list-first บนมือถือ
+- [ ] **Notification center** — in-app bell icon + feed
 - [ ] **Print/PDF stylesheet** — ใบเสร็จ/folio พิมพ์ได้สวย A4
-- [ ] **Sidebar cleanup** — ซ่อน Launch Readiness, Go-Live Control, Permission Simulator จาก staff ทั่วไป
-- [ ] **Housekeeping floor plan** — visual room map แทน/เสริม Kanban
-- [ ] **Booking engine step reduction** — ตัด review step ออก เหลือ 4 → 3 steps
-- [ ] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน (ตอนนี้เป็นแค่ link)
+- [ ] **Housekeeping floor plan** — visual room map
+- [ ] **Booking engine step reduction** — 4 → 3 steps
+- [ ] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน
 
 ### C.10 Differentiators — P3 🟢
 - [ ] LINE OA automated flow (ไม่ใช่แค่ inbox — ส่ง booking confirm + pre-arrival + QR ผ่าน LINE)
