@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { SearchHeader } from '@/components/public/SearchHeader';
+import { FAQSection } from '@/components/public/FAQSection';
 import { IMAGES } from '@/lib/images';
 import {
   ArrowRight, Globe2, Check, Star, ChevronRight,
@@ -364,6 +365,94 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── Services showcase ───────────────────────────────────────────── */}
+      <section className="py-24 md:py-32 bg-[#2A2522]">
+        <div className="container max-w-7xl px-4">
+          <div className="text-center mb-16">
+            <div className="overline text-[#C66A30] mb-4">บริการครบวงจร</div>
+            <h2 className="font-serif text-4xl md:text-5xl font-medium tracking-tight mb-4 text-white">
+              ครบทุกบริการในที่เดียว<br/>
+              <span className="italic text-[#C66A30]">เพิ่มรายได้ทุกจุดสัมผัส</span>
+            </h2>
+            <p className="text-white/60 max-w-xl mx-auto">
+              Maitri ไม่ได้แค่จัดการห้องพัก — รองรับทุกบริการที่โรงแรมคุณมี
+              เพื่อเพิ่มรายได้จาก F&B สปา กิจกรรม และสิ่งอำนวยความสะดวกทั้งหมด
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { emoji: '🍽️', title: 'ร้านอาหาร',        desc: 'จัดการเมนู สั่งอาหาร F&B' },
+              { emoji: '💆', title: 'สปา',              desc: 'จอง Spa ออนไลน์ ไม่พลาดรายได้' },
+              { emoji: '🏊', title: 'สระว่ายน้ำ',       desc: 'จัดการการใช้งานสิ่งอำนวยความสะดวก' },
+              { emoji: '🎯', title: 'กิจกรรม',          desc: 'แพ็กเกจและประสบการณ์พิเศษ' },
+            ].map((service) => (
+              <div key={service.title}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl p-8 text-center transition-colors group cursor-default">
+                <div className="text-5xl mb-5">{service.emoji}</div>
+                <h3 className="font-semibold text-white text-lg mb-2">{service.title}</h3>
+                <p className="text-sm text-white/50 leading-relaxed">{service.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Promotions & packages ───────────────────────────────────────── */}
+      <section className="py-24 md:py-32 bg-[#FAF7F2]">
+        <div className="container max-w-7xl px-4">
+          <div className="text-center mb-16">
+            <div className="overline text-[#C66A30] mb-4">โปรโมชั่น</div>
+            <h2 className="font-serif text-4xl md:text-5xl font-medium tracking-tight mb-4">
+              โปรโมชั่นและแพ็กเกจ<br/>
+              <span className="italic text-[#C66A30]">สร้างเองได้ง่ายๆ</span>
+            </h2>
+            <p className="text-[#2A2522]/60 max-w-xl mx-auto">
+              สร้างโปรโมชั่นและแพ็กเกจพิเศษให้แขกของคุณได้ภายในไม่กี่นาที
+              ตัวอย่างด้านล่างคือสิ่งที่โรงแรมที่ใช้ Maitri สร้างได้
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: 'Early Bird',
+                desc:  'จองล่วงหน้า 30 วัน รับส่วนลด 20%',
+                color: 'from-amber-500 to-orange-600',
+              },
+              {
+                title: 'Honeymoon Package',
+                desc:  'ห้อง Deluxe + อาหารเช้า + Welcome cake',
+                color: 'from-rose-500 to-pink-600',
+              },
+              {
+                title: 'Long Stay',
+                desc:  'พัก 3 คืนขึ้นไป รับคืนที่ 4 ฟรี',
+                color: 'from-emerald-500 to-teal-600',
+              },
+            ].map((offer) => (
+              <div key={offer.title}
+                className="bg-white rounded-3xl border border-black/5 p-8 flex flex-col gap-5 shadow-sm hover:shadow-md transition-shadow">
+                <div>
+                  <span className={`inline-block text-xs font-semibold text-white px-3 py-1 rounded-full bg-gradient-to-r ${offer.color} mb-4`}>
+                    โปรโมชั่น
+                  </span>
+                  <h3 className="font-semibold text-[#2A2522] text-xl mb-2">{offer.title}</h3>
+                  <p className="text-sm text-[#2A2522]/60 leading-relaxed">{offer.desc}</p>
+                </div>
+                <Link href="/auth/signup"
+                  className="mt-auto inline-flex items-center gap-1 text-sm text-[#C66A30] font-medium hover:underline">
+                  สร้างโปรโมชั่นแบบนี้ได้ <ChevronRight className="h-4 w-4" />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ ─────────────────────────────────────────────────────────── */}
+      <FAQSection />
 
       {/* ─── Visual showcase ──────────────────────────────────────────────── */}
       <section className="py-16 bg-[#2A2522] overflow-hidden">
