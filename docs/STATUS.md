@@ -747,3 +747,86 @@ Legend: ✅ = ทำแล้ว | `[ ]` = ยังต้องทำ
 > - **360 virtual tour** (P4) → optional, ต้นทุนสูง ทำหลังจาก content team พร้อม
 > - **CCTV integration** (P13 เดิม) → ตัด ออก ซับซ้อนเกิน scope ของ PMS
 > - **P11 Migration** → ควรขยับขึ้นเป็น P2.5 สำหรับตลาดไทยที่ยังใช้ Excel
+
+---
+
+## J — UX/UI Quick Wins (อัปเดต 2026-05-12)
+
+งานที่ระบุจาก UX audit ทั้ง 4 interfaces เรียงตาม **impact ÷ effort** — ทำก่อนได้เลยโดยไม่ต้อง block งานอื่น
+
+Legend: 🟢 ง่าย (<1 วัน) | 🟡 กลาง (1-3 วัน) | 🔴 ยาก (>3 วัน)
+
+---
+
+### J.1 Guest Portal — conversion & luxury feel
+
+- [ ] 🟢 **Trust badge strip** ใต้ปุ่ม "จองเลย" — "ราคาดีที่สุด · ยกเลิกฟรี · ปลอดภัย PDPA" (HTML เพิ่ม 5 บรรทัด)
+- [ ] 🟢 **Sticky booking bar บน mobile** — bottom bar ราคาเริ่มต้น + ปุ่ม "จองเลย" ติดล่างจอ (position:fixed)
+- [ ] 🟡 **Gallery lightbox** — กดรูปใน hotel detail แล้วขยาย fullscreen swipe ได้ (Embla Carousel)
+- [ ] 🟡 **Room detail modal** — กดการ์ดห้องแล้วเห็น carousel รูป + ของใช้ + ชั้น + ขนาด m² + วิว (Airbnb-style)
+- [ ] 🟡 **Price calendar popup** — date picker แสดงสีราคาแต่ละวัน (เขียว=ถูก แดง=แพง peak)
+- [ ] 🟡 **Live chat bubble** — icon ล่างขวาบนหน้า public hotel, กดแล้วเปิด LINE/inbox ได้ก่อน book
+- [ ] 🔴 **Upsell step ใน booking flow** — หลังเลือกห้อง ก่อน payment มี step "เพิ่มเติม": อาหารเช้า, รับสนามบิน, ดอกไม้
+
+---
+
+### J.2 Staff Dashboard — ใช้งานจริงทุกวัน
+
+- [ ] 🟢 **Folio / receipt print template** — `/dashboard/reservations/[id]/folio` พร้อม `@media print` CSS, A4 layout (API มีแล้ว ขาดแค่ UI)
+- [ ] 🟢 **Revenue target progress bar** — ลบ "coming soon" ออก, ใส่ input + progress bar จริง ใน revenue-manager-client
+- [ ] 🟢 **Room block จาก room grid** — ปุ่ม right-click / long-press บนการ์ดห้อง → mark out-of-order / maintenance
+- [ ] 🟡 **End-of-shift cashier summary** — หน้า print ยอดรวม cash/card/QR + รายการ check-in/out ของกะ
+- [ ] 🟡 **KPI comparison widget** — เพิ่มแถว "vs เดือนที่แล้ว" + "vs ปีที่แล้ว" ใต้ตัวเลข KPI ใน analytics (% change + arrow ↑↓)
+- [ ] 🟡 **Notification bell real-time** — header icon แสดง unread count, dropdown แสดง alert ล่าสุด (check-in, maintenance, payment)
+- [ ] 🔴 **Reservation Gantt timeline** — visual แถบนอนเห็น overlap ทั้งโรงแรม (เหมือน Google Calendar แนวนอน), click = open reservation
+
+---
+
+### J.3 Owner Analytics — executive feel
+
+- [ ] 🟢 **Channel contribution pie chart** — สัดส่วน revenue จาก Direct / Booking.com / Agoda / Walk-in ใน analytics page
+- [ ] 🟡 **Occupancy heatmap calendar** — ปฏิทิน 12 เดือน สีเข้ม=เต็ม สีอ่อน=ว่าง (แบบ GitHub contribution graph)
+- [ ] 🟡 **Export PDF/Excel** — ปุ่ม download ใน reports page: Arrivals list, Cashier close-of-day, Occupancy report
+- [ ] 🟡 **Notification preferences** — owner เลือกได้ว่ารับ LINE alert ระดับไหน (ทุก check-in vs สรุปรายวัน vs critical only)
+- [ ] 🟡 **AI executive summary widget** — กล่องสรุปรายอาทิตย์ "สัปดาห์นี้ดีกว่าสัปดาห์ที่แล้ว X%" (Claude Haiku, cached)
+
+---
+
+### J.4 Platform Admin — SaaS ops
+
+- [ ] 🟢 **Org search + filter** — search input + dropdown filter by plan/status/trial ใน admin org list
+- [ ] 🟢 **Impersonate banner** — banner สีส้มขึ้นตลอดเวลา "คุณกำลังดูในฐานะ [org name] — คลิกเพื่อออก" เมื่อ impersonate
+- [ ] 🟡 **MRR trend chart** — กราฟเส้น 12 เดือน MRR + churned + new MRR (Recharts, data มีใน Stripe)
+- [ ] 🟡 **Usage sparklines per org** — กราฟเล็กๆ ติดการ์ด org แสดง booking volume 30 วัน
+- [ ] 🟡 **Churn risk flag** — org ที่ไม่ login >14 วัน หรือ usage ตก >50% แสดง badge "⚠️ At risk"
+
+---
+
+### J.5 Design System — ทำครั้งเดียวใช้ทุกที่
+
+- [ ] 🟢 **Skeleton loaders ครบทุกหน้า** — ทุก page ที่ fetch data ต้องมี skeleton ก่อน data โหลด (ตอนนี้มีบางหน้า)
+- [ ] 🟡 **Dark mode ครบ** — ตอนนี้มี darkMode class แต่หลาย component ยังไม่ apply ครบ (front-desk, analytics, admin)
+- [ ] 🟡 **Motion system** — consistent transition timing: page load (fade 150ms), modal (scale+fade 200ms), toast (slide 250ms)
+- [ ] 🔴 **Micro-interactions** — hover states บน card ที่ยกขึ้น, button press scale(0.97), loading shimmer
+
+---
+
+### สรุป J tasks — ทำตามลำดับนี้
+
+| ลำดับ | งาน | เวลา | ผล |
+|-------|-----|------|-----|
+| 1 | Trust badges + sticky booking bar | <1 วัน | Conversion ↑ |
+| 2 | Folio print template | <1 วัน | ใช้งานจริงได้ |
+| 3 | Revenue target bar (ลบ coming soon) | <1 วัน | Owner happy |
+| 4 | Room block จาก grid | <1 วัน | Operation ไม่สะดุด |
+| 5 | Org search + impersonate banner | <1 วัน | Admin UX ดีขึ้น |
+| 6 | Gallery lightbox + room modal | 2 วัน | Conversion ↑↑ |
+| 7 | KPI comparison widget | 1 วัน | Owner insight ดีขึ้น |
+| 8 | Skeleton loaders ครบ | 1 วัน | ดูเป็น premium |
+| 9 | End-of-shift cashier summary | 2 วัน | Staff daily use |
+| 10 | Channel pie chart + heatmap | 2 วัน | Owner analytics ครบ |
+| 11 | MRR trend chart + churn flag | 2 วัน | Admin insight ดีขึ้น |
+| 12 | Notification bell real-time | 2 วัน | Staff awareness ↑ |
+| 13 | Dark mode ครบ | 2 วัน | Modern feel |
+| 14 | Export PDF/Excel | 3 วัน | Owner ขอบ่อย |
+| 15 | Reservation Gantt timeline | 4 วัน | Front desk ❤️ |
