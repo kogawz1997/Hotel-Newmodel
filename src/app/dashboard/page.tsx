@@ -32,6 +32,12 @@ export default async function DashboardPage() {
     .limit(1)
     .single();
 
+  // Role-specific redirect: send operational staff straight to their workspace
+  const role = profile?.role;
+  if (role === 'housekeeping') redirect('/dashboard/housekeeping');
+  if (role === 'front_desk' || role === 'receptionist') redirect('/dashboard/front-desk');
+  if (role === 'maintenance') redirect('/dashboard/rooms');
+
   if (!hotel) {
     return (
       <main className="p-6 md:p-8 flex flex-col items-center justify-center min-h-[70vh]">

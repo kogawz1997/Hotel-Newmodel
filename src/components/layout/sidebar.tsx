@@ -79,6 +79,7 @@ const NAV_GROUPS = [
       { href: '/dashboard/billing', icon: CreditCard, label: 'Billing', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: REVENUE_ROLES },
       { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: REVENUE_ROLES },
+      { href: '/dashboard/reports/incidents', icon: Shield, label: 'Incident Timeline', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/audit', icon: Shield, label: 'Audit Log', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/setup', icon: Zap, label: 'Service Setup', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/system', icon: Settings2, label: 'ระบบ & Integrations', roles: OWNER_ADMIN_ROLES },

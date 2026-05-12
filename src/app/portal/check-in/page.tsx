@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -15,29 +14,27 @@ export default function OnlineCheckInPage() {
   const [submitting, setSubmitting] = useState(false);
 
   async function submit() {
-    const supabase = createClient();
     if (!code || !email) return toast.error('กรอกเลขจองและอีเมล');
     setSubmitting(true);
-    const { data: booking, error } = await supabase
-      .from('reservations')
-      .select('id, reservation_code')
-      .eq('reservation_code', code.toUpperCase())
-      .eq('email', email.toLowerCase())
-      .single();
-    if (error || !booking) {
+    try {
+      const res = await fetch('/api/portal/online-checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reservationCode: code.trim(),
+          email: email.trim(),
+          estimatedArrival: arrival || null,
+          specialRequests: requests || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) return toast.error(data.error || 'เกิดข้อผิดพลาด');
+      toast.success(`Online check-in สำเร็จ (${data.reservationCode})`);
+      setArrival('');
+      setRequests('');
+    } finally {
       setSubmitting(false);
-      return toast.error('ไม่พบข้อมูลการจอง');
     }
-
-    const { error: updateError } = await supabase
-      .from('reservations')
-      .update({ estimated_arrival: arrival || null, special_requests: requests || null })
-      .eq('id', booking.id);
-    setSubmitting(false);
-    if (updateError) return toast.error(updateError.message);
-    toast.success(`Online check-in สำเร็จ (${booking.reservation_code})`);
-    setArrival('');
-    setRequests('');
   }
 
   return (

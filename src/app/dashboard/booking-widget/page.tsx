@@ -1,13 +1,10 @@
-import { createClient } from '@/lib/supabase/server';
+import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default async function BookingWidgetPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager']);
 
-  const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
-  const { data: hotel } = await supabase.from('hotels').select('id, slug, name').eq('organization_id', profile?.organization_id).limit(1).single();
+  const { data: hotel } = await supabase.from('hotels').select('id, slug, name').eq('organization_id', profile.organization_id).limit(1).single();
   if (!hotel) return null;
 
   const url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/h/${hotel.slug || hotel.id}`;
