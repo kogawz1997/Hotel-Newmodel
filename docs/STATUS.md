@@ -277,15 +277,15 @@ curl https://your-domain.com/api/ops/readiness
 - [x] Dashboard pages ที่ modified ใน PR #8 ทั้งหมดมี page-level guard แล้ว (11 หน้า) — หน้า legacy ที่ยังค้างให้ทำ incremental ใน PR ถัดไป
 
 **UX — Staff เห็นของที่ไม่ใช่งานตัวเอง:**
-- [ ] `housekeeping` role ยังเห็น sidebar ครบทุกหมวด (ควรเห็นแค่ Housekeeping + Inbox)
-- [ ] `front_desk` role ยังเห็น Accounting, OTA Sync, Automation, Launch Readiness
-- [ ] `maintenance` role เห็น F&B, Spa, Analytics ที่ไม่เกี่ยว
-- [ ] "Launch Readiness" + "Go-Live Control" + "Permission Simulator" ไม่ควรอยู่ใน sidebar ของ staff ทั่วไป
+- [x] `housekeeping` role เห็นเฉพาะ Inbox + Notifications + Housekeeping (ถูกต้องแล้วหลัง F.2)
+- [x] `front_desk` role ไม่เห็น Accounting, OTA Sync, Automation, Launch Readiness (ถูกต้องแล้ว)
+- [x] `maintenance` role ไม่เห็น F&B, Spa, Analytics (ถูกต้องแล้ว)
+- [x] Launch Readiness + Go-Live Control จำกัดเฉพาะ owner/admin ใน sidebar แล้ว; Permission Simulator ไม่อยู่ใน sidebar
 
 **Role ที่ซ้ำซ้อน / ไม่ชัดเจน:**
-- [ ] `front_desk` กับ `receptionist` มี permission เหมือนกัน ควรรวมเป็นตัวเดียว
-- [ ] `staff` กว้างเกินไป ไม่ชัดว่าทำอะไรได้บ้าง
-- [ ] ไม่มี `housekeeper` role แยก ใช้ `housekeeping` แทน (ชื่อไม่ consistent)
+- [ ] `front_desk` กับ `receptionist` มี permission เหมือนกัน ควรรวมเป็นตัวเดียว (pending F.5 — ต้อง DB migration)
+- [ ] `staff` role เห็นแค่ Inbox + Notifications — ยังต้องกำหนด scope ที่ชัดเจน (pending F.5)
+- [x] `housekeeping` role ชื่อ consistent กับ route `/dashboard/housekeeping` แล้ว — ไม่ต้อง rename
 
 **Mobile pages:**
 - [x] `/mobile/housekeeping` → redirect ไป `/dashboard/housekeeping/mobile` (full board)
