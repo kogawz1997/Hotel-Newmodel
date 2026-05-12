@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { AdminPanelClient } from './admin-panel-client';
 import { format, subDays } from 'date-fns';

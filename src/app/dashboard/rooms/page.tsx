@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
 import { RoomsClient } from '@/components/dashboard/rooms-client';
 

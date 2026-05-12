@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { BedDouble, CalendarCheck, CircleDollarSign, MessageSquareWarning, Sparkles, UsersRound, Wrench, ArrowRight } from 'lucide-react';
