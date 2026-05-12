@@ -12,6 +12,7 @@ import {
 import { GuestChatWidget } from '@/components/booking/guest-chat-widget';
 import { WishlistButton } from '@/components/ui/wishlist-button';
 import { HotelGallery } from '@/components/booking/hotel-gallery';
+import { HotelCard } from '@/components/public/HotelCard';
 import type { Metadata } from 'next';
 
 type GalleryItem = { image_url: string; alt_text?: string | null; display_order: number };
@@ -115,7 +116,7 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
     .single();
   if (!hotel) notFound();
 
-  const [roomTypesRes, reviewsRes, roomInventoryRes] = await Promise.all([
+  const [roomTypesRes, reviewsRes, roomInventoryRes, nearbyRes] = await Promise.all([
     supabase
       .from('room_types')
       .select('*, room_type_images(image_url, display_order)')
@@ -132,11 +133,23 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
       .select('room_type_id')
       .eq('hotel_id', hotel.id)
       .not('status', 'in', '("out_of_order","maintenance")'),
+    hotel.city
+      ? supabase
+          .from('hotels')
+          .select('id, name, slug, city, hero_image_url, star_rating, hotel_gallery(image_url, display_order)')
+          .eq('city', hotel.city)
+          .neq('id', hotel.id)
+          .limit(4)
+      : { data: [] },
   ]);
 
-  const roomTypes = roomTypesRes.data || [];
-  const reviews   = reviewsRes.data   || [];
+  const roomTypes    = roomTypesRes.data || [];
+  const reviews      = reviewsRes.data   || [];
   const typedReviews = reviews as Review[];
+  const nearbyHotels = (nearbyRes.data || []).map((h: any) => ({
+    ...h,
+    gallery: (h.hotel_gallery || []).sort((a: any, b: any) => a.display_order - b.display_order).slice(0, 3),
+  }));
 
   const roomCountByType: Record<string, number> = {};
   for (const r of (roomInventoryRes.data || [])) {
@@ -688,7 +701,28 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
 
       <GuestChatWidget hotelId={hotel.id} hotelName={hotel.name} />
 
-      <footer className="bg-[#2A2522] text-white/40 py-8 mt-20">
+      {/* ── Nearby hotels ── */}
+      {nearbyHotels.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 py-12">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-xl font-bold text-[#2A2522]">ที่พักใกล้เคียงใน{hotel.city}</h2>
+              <p className="text-sm text-[#2A2522]/40 mt-0.5">ที่พักอื่นๆ ในย่านเดียวกัน</p>
+            </div>
+            <Link href={`/search?city=${encodeURIComponent(hotel.city || '')}`}
+              className="text-sm text-[#C66A30] hover:underline flex items-center gap-1">
+              ดูทั้งหมด <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {nearbyHotels.map((h: any) => (
+              <HotelCard key={h.id} hotel={h} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <footer className="bg-[#2A2522] text-white/40 py-8 mt-4">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
             <span>© {new Date().getFullYear()} {hotel.name}</span>
