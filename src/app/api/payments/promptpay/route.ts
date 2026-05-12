@@ -11,6 +11,7 @@
  * 6. เมื่อ guest scan+จ่าย → Omise webhook → /api/payments/omise/webhook → update status
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/server';
 import { parseJson } from '@/lib/http/validation';
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (payErr) {
-    console.error('[PromptPay] Failed to save payment record:', payErr.message);
+    logger.error('PromptPay save failed', { error: payErr.message });
   }
 
   await admin.from('audit_logs').insert({

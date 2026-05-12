@@ -14,6 +14,7 @@
  * Set: CHANNEL_{VENDOR}_API_KEY, CHANNEL_{VENDOR}_PROPERTY_ID per hotel.
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { requireCronSecret } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { handleChannelConflict } from '@/lib/channel-manager/conflict';
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     if (!ch.api_key || !ch.property_id) {
       const msg = `[OTA Sync] Skipping ${ch.channel_type} for hotel=${hotel?.id || 'unknown'} (missing api_key/property_id)`;
-      console.info(msg);
+      logger.info(msg);
       result.errors.push('Skipped: missing API credentials');
       results.push(result);
       continue;
@@ -78,7 +79,7 @@ async function pullFromOTA(channel: any): Promise<any[]> {
   if (!channel.api_key || !channel.property_id) {
     // Not configured yet — this is expected for new hotels
     // Log but don't treat as error
-    console.info(`[OTA Sync] ${channel.channel_type}: not configured (no api_key/property_id) — skipping`);
+    logger.info("OTA Sync channel skipped", { channel: channel.channel_type, reason: "not configured" });
     return [];
   }
 

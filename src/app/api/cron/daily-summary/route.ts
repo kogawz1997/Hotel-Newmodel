@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { createAdminClient } from '@/lib/supabase/server';
 
 // Vercel Cron -- runs every day at 08:00 ICT (01:00 UTC)
@@ -80,9 +81,7 @@ export async function GET(request: Request) {
       })
     );
 
-    console.log(
-      `[Cron Daily] Generated ${summaries.length} hotel summaries for ${today}`
-    );
+    logger.info("Cron daily summary complete", { count: summaries.length, date: today });
 
     return NextResponse.json({ date: today, summaries });
   } catch (err: unknown) {
