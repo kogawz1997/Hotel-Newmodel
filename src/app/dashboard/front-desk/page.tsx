@@ -1,24 +1,15 @@
-import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { FrontDeskClient } from './front-desk-client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function FrontDeskPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/auth/login');
-
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('organization_id, role')
-    .eq('id', user.id)
-    .single();
+  const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager', 'front_desk', 'receptionist']);
 
   const { data: hotels } = await supabase
     .from('hotels')
     .select('id, name, check_in_time, check_out_time')
-    .eq('organization_id', profile?.organization_id)
+    .eq('organization_id', profile.organization_id)
     .limit(1);
 
   if (!hotels?.[0]) return null;

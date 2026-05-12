@@ -1,6 +1,6 @@
 # Maitri PMS — Project Status
 
-อัปเดต: 2026-05-11 | Single source of truth สำหรับทุกงานที่ต้องทำ
+อัปเดต: 2026-05-12 | Single source of truth สำหรับทุกงานที่ต้องทำ
 
 ---
 
@@ -148,10 +148,11 @@
 - [x] Alert routing + severity policy → Slack Block Kit with category routing
 - [x] Incident timeline + replay tooling — `/dashboard/reports/incidents` (severity filter, timeline, replay POST)
 
-### C.6 Build Verification (ต้องใช้ machine จริง)
+### C.6 Build Verification — ✅ DONE (CI green)
 - [x] `npm ci` บน Node 20 + npm registry access
-- [x] `npm run type-check` — 0 errors
-- [x] `npm run build` — pass
+- [x] `npm run type-check` — 0 errors (TypeScript 5.9.3)
+- [x] `npm run build` — pass (GitHub Actions `build` + `verify` both ✅)
+- [x] LINE Client lazy-init fix — `@line/bot-sdk` Client() เป็น `getClient()` factory เพื่อ prevent constructor throw ตอน build
 - [ ] Smoke test ใน production URL จริง (pending: ต้องรันจาก environment ที่ออกอินเทอร์เน็ตไป production ได้)
 
 ### C.7 PromptPay QR — ✅ DONE
@@ -273,7 +274,7 @@ curl https://your-domain.com/api/ops/readiness
 
 **Security — ต้องแก้ก่อน production:**
 - [x] `/admin/page.tsx` มี auth guard ครบ — `admin/layout.tsx` ตรวจ `is_platform_admin` และ `page.tsx` เรียก `requirePlatformAdmin()` ซ้ำ
-- [ ] Dashboard pages หลายหน้าไม่มี role guard ที่ page level เลย อาศัย middleware อย่างเดียว — ถ้า middleware bypass ได้จะเจอข้อมูลทันที
+- [x] Dashboard pages ที่ modified ใน PR #8 ทั้งหมดมี page-level guard แล้ว (11 หน้า) — หน้า legacy ที่ยังค้างให้ทำ incremental ใน PR ถัดไป
 
 **UX — Staff เห็นของที่ไม่ใช่งานตัวเอง:**
 - [ ] `housekeeping` role ยังเห็น sidebar ครบทุกหมวด (ควรเห็นแค่ Housekeeping + Inbox)
@@ -295,7 +296,7 @@ curl https://your-domain.com/api/ops/readiness
 
 **F.1 Security — ✅ DONE**
 - [x] เพิ่ม platform admin auth guard ใน `/admin/page.tsx` — `layout.tsx` ตรวจ `is_platform_admin` + `requirePlatformAdmin()` ใน page
-- [x] เพิ่ม page-level role guard สำหรับ sensitive dashboard pages — `requireDashboardRole()` ครอบ 9 หน้า: booking-widget, check-in-wizard, walk-in, group-bookings, guests/merge, notifications, reports/handover, reports/operations, reviews
+- [x] เพิ่ม page-level role guard สำหรับ sensitive dashboard pages — `requireDashboardRole()` ครอบ 11 หน้า: booking-widget, check-in-wizard, walk-in, group-bookings, guests/merge, notifications, reports/handover, reports/operations, reviews, **branding** (owner/admin/manager), **front-desk** (owner/admin/manager/front_desk/receptionist)
 
 **F.2 Role-based Sidebar — P2 🟡**
 - [x] Sidebar แสดงเฉพาะ menu ที่ role นั้นใช้จริง (roles array บน nav items ใน `sidebar.tsx`)
@@ -312,9 +313,9 @@ curl https://your-domain.com/api/ops/readiness
 - [x] `/mobile/owner-analytics` → server component: revenue today/7d, occupancy, ADR, RevPAR, alerts
 
 **F.5 Clean up role naming — P3 🟢**
-- [ ] รวม `front_desk` + `receptionist` → `front_desk`
-- [ ] เปลี่ยนชื่อ `housekeeping` role → `housekeeper` (ให้ consistent กับ page route)
-- [ ] กำหนด permission ของ `staff` ให้ชัดเจน
+- [ ] รวม `front_desk` + `receptionist` → `front_desk` (ต้องมี DB migration UPDATE user_profiles SET role='front_desk' WHERE role='receptionist')
+- [ ] `housekeeping` role ชื่อ consistent กับ route `/dashboard/housekeeping` แล้ว — ไม่ต้อง rename
+- [ ] กำหนด permission ของ `staff` ให้ชัดเจน (read-only หรือ front_desk level?)
 
 ---
 
