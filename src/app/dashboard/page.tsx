@@ -35,7 +35,7 @@ export default async function DashboardPage() {
   // Role-specific redirect: send operational staff straight to their workspace
   const role = profile?.role;
   if (role === 'housekeeping') redirect('/dashboard/housekeeping');
-  if (role === 'front_desk' || role === 'receptionist') redirect('/dashboard/front-desk');
+  if (role === 'front_desk') redirect('/dashboard/front-desk');
   if (role === 'maintenance') redirect('/dashboard/rooms');
 
   if (!hotel) {

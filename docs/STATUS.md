@@ -283,8 +283,8 @@ curl https://your-domain.com/api/ops/readiness
 - [x] Launch Readiness + Go-Live Control จำกัดเฉพาะ owner/admin ใน sidebar แล้ว; Permission Simulator ไม่อยู่ใน sidebar
 
 **Role ที่ซ้ำซ้อน / ไม่ชัดเจน:**
-- [ ] `front_desk` กับ `receptionist` มี permission เหมือนกัน ควรรวมเป็นตัวเดียว (pending F.5 — ต้อง DB migration)
-- [ ] `staff` role เห็นแค่ Inbox + Notifications — ยังต้องกำหนด scope ที่ชัดเจน (pending F.5)
+- [x] `front_desk` กับ `receptionist` รวมแล้ว — DB migration + ลบ receptionist จาก StaffRole + code ทุกที่
+- [x] `staff` scope: Overview, Inbox, AI Concierge, Reservations, Rooms, Guests, Notifications (7 items)
 - [x] `housekeeping` role ชื่อ consistent กับ route `/dashboard/housekeeping` แล้ว — ไม่ต้อง rename
 
 **Mobile pages:**
@@ -313,9 +313,9 @@ curl https://your-domain.com/api/ops/readiness
 - [x] `/mobile/owner-analytics` → server component: revenue today/7d, occupancy, ADR, RevPAR, alerts
 
 **F.5 Clean up role naming — P3 🟢**
-- [ ] รวม `front_desk` + `receptionist` → `front_desk` (ต้องมี DB migration UPDATE user_profiles SET role='front_desk' WHERE role='receptionist')
-- [ ] `housekeeping` role ชื่อ consistent กับ route `/dashboard/housekeeping` แล้ว — ไม่ต้อง rename
-- [ ] กำหนด permission ของ `staff` ให้ชัดเจน (read-only หรือ front_desk level?)
+- [x] รวม `front_desk` + `receptionist` → `front_desk` เสร็จแล้ว (migration 20260512000000)
+- [x] `housekeeping` role ชื่อ consistent กับ route `/dashboard/housekeeping` แล้ว — ไม่ต้อง rename
+- [x] กำหนด permission ของ `staff`: เห็น ops ทั่วไป (reservations, rooms, guests) แต่ไม่เห็น check-in wizard หรือ walk-in
 
 ---
 

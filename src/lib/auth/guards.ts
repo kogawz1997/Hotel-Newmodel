@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/server';
 
-export type StaffRole = 'owner' | 'admin' | 'manager' | 'front_desk' | 'receptionist' | 'housekeeping' | 'staff' | 'viewer';
+export type StaffRole = 'owner' | 'admin' | 'manager' | 'front_desk' | 'housekeeping' | 'staff' | 'viewer';
 
 export interface HotelContext {
   user: { id: string; email: string };
