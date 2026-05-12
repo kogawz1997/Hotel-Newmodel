@@ -13,6 +13,7 @@ import {
   Calendar, Bed, MapPin, Clock, Star, Download, MessageSquare,
   X, ChevronRight, User, LogOut, Heart, Settings, QrCode,
 } from 'lucide-react';
+import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 const STATUS: Record<string, { label: string; color: string }> = {
   confirmed:   { label: 'ยืนยันแล้ว',   color: 'bg-sky-100 text-sky-700' },
@@ -146,7 +147,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {/* Header */}
         <div className="mb-8">
           <p className="text-sm text-[#C66A30] font-medium mb-1">สวัสดี 👋</p>
@@ -388,6 +389,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
           </div>
         </Modal>
       )}
+      <PortalBottomNav />
     </div>
   );
 }

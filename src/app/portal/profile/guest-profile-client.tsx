@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { User, ArrowLeft, Save, Lock, Globe2, Download } from 'lucide-react';
+import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 export function GuestProfileClient({ guest }: { guest: any }) {
   const supabase = createClient();
@@ -63,7 +64,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto px-4 py-8 pb-24">
         {/* Avatar */}
         <div className="flex items-center gap-4 mb-8">
           <div className="h-16 w-16 rounded-full bg-[#2A2522] text-white flex items-center justify-center text-2xl font-bold">
@@ -158,6 +159,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
           </div>
         )}
       </div>
+      <PortalBottomNav />
     </div>
   );
 }
