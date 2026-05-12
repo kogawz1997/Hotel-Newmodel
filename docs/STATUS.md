@@ -361,53 +361,389 @@ docs/ROUND2_SAAS_INTEGRATIONS.md, docs/DEPLOYMENT_MATRIX.md
 
 ---
 
-## I — งานรอบใหม่ (UI Audit 2026-05-12)
+## I — MASTER PRODUCTION ROADMAP (อัปเดต 2026-05-12)
 
-จาก UX audit ทั้ง 4 interfaces พบ gaps ดังนี้ แยก priority:
-
-### I.1 Guest Experience — P1 🔴 (กระทบ conversion โดยตรง)
-- [ ] **Hotel detail page** (`/h/[slug]`) ให้ครบ — gallery grid, amenities list, policies, reviews section, booking CTA ที่ชัด
-- [ ] **Room detail modal/page** — รูปห้องแต่ละห้อง, ของใช้ในห้อง, ชั้น, วิว, ขนาด m²
-- [ ] **Live chat widget** บนหน้า hotel public — ให้แขกทัก LINE/inbox ได้ก่อน booking
-
-### I.2 Staff Operations — P1 🔴 (ใช้งานจริงทุกวัน)
-- [ ] **Folio / receipt print view** — ใบเสร็จ A4 สำหรับพิมพ์ให้แขก (มี @media print CSS แล้ว แต่ยังไม่มี template จริง)
-- [ ] **End-of-shift summary** — สรุปยอดเงินสด/บัตร + รายการ check-in/out ของกะ สำหรับพิมพ์ handover
-- [ ] **Room block UI** — เปลี่ยน status ห้องเป็น maintenance/out-of-order ได้จาก room grid
-
-### I.3 Owner Analytics — P2 🟡
-- [ ] **Revenue target vs actual** — กรอก target รายเดือน แล้วเห็น % achieved (UI มีแล้วแต่ "coming soon")
-- [ ] **Export รายงาน** — download Excel/PDF สำหรับ Arrivals list, Cashier close-of-day, Occupancy report
-- [ ] **Notification preferences** — เจ้าของเลือกได้ว่าจะรับ alert อะไรทาง LINE/email
-
-### I.4 Platform Admin — P2 🟡
-- [ ] **Search + filter** ใน org list — หา org ด้วยชื่อ, plan, status
-- [ ] **Impersonate user UI** — admin กดเข้าไปดูระบบแทน hotel owner ได้ (route มีแล้วใน code)
-- [ ] **MRR trend chart** — graph MRR รายเดือนย้อนหลัง 12 เดือน
-
-### I.5 Competitive Features — P2 🟡 (ชนะคู่แข่ง)
-- [ ] **OTA 2-way sync จริง** — ส่ง availability/rate กลับไป Booking.com, Agoda real-time (ตอนนี้ inbound only)
-- [ ] **LINE Marketing Broadcast** — ส่ง LINE message ไปหา past guests (โปรโมชั่น, วันเกิด, low-season offer)
-- [ ] **Email automation template builder** — drag-drop template + trigger rules (pre-arrival 3 วัน, post-stay survey, birthday)
-- [ ] **Rate parity calendar** — ตาราง visual ให้ set ราคาทีละวัน/ช่วง + bulk edit
-
-### I.6 Nice-to-have — P3 🟢
-- [ ] **Dynamic pricing จริง** — demand-based (occupancy + Thai holidays + events nearby)
-- [ ] **Guest ID scan (OCR)** — สแกนบัตรประชาชน/พาสปอร์ต auto-fill check-in form
-- [ ] **Competitor rate shopping** — ดึงราคา Booking.com/Agoda ของคู่แข่งมาแสดงเปรียบเทียบ
-- [ ] **Admin bulk actions** — suspend/activate/change plan หลาย org พร้อมกัน
-- [ ] **Smoke test** production URL (ต้องมี production environment)
+ลิสรวมจาก audit + strategic roadmap แบ่งตาม priority จริง
+Legend: ✅ = ทำแล้ว | `[ ]` = ยังต้องทำ
 
 ---
 
-### สรุป I tasks
+### P1 — Core Stability (ต้องมีก่อน go-live)
 
-| หมวด | งาน | Priority |
-|------|-----|----------|
-| I.1 Guest Experience | 3 tasks | P1 🔴 |
-| I.2 Staff Operations | 3 tasks | P1 🔴 |
-| I.3 Owner Analytics | 3 tasks | P2 🟡 |
-| I.4 Platform Admin | 3 tasks | P2 🟡 |
-| I.5 Competitive Features | 4 tasks | P2 🟡 |
-| I.6 Nice-to-have | 5 tasks | P3 🟢 |
-| **รวม** | **21 tasks** | |
+**Auth & Session**
+- [x] Middleware redirect + session handling
+- [x] Refresh token + multi-tab consistency
+- [x] Email verification flow
+- [x] Forgot / reset password
+- [x] Invite staff flow
+- [x] 2FA baseline check ใน middleware (require2FA policy)
+- [ ] MFA UI จริง (TOTP/authenticator app setup page)
+- [ ] Login history + device management page
+
+**API & Backend**
+- [x] Unified API response format (`{ error, data }`)
+- [x] Validation ทุก API (zod)
+- [x] Global error handling
+- [x] Idempotent booking + payment
+- [x] Webhook handling (Stripe, LINE, Omise)
+- [x] Rate limiting (IP-based, per-route)
+- [x] Background workers / cron jobs (5 crons)
+- [x] Transaction rollback (atomic reservation RPC)
+- [ ] Queue system สำหรับ heavy jobs (email blast, OTA sync batch)
+- [ ] API versioning (`/api/v2/`) — *แนะนำ skip ตอนนี้ ทำเมื่อมี breaking change*
+
+**DevOps & Reliability**
+- [x] CI/CD pipeline (GitHub Actions)
+- [x] Structured logs (JSON, logger.ts)
+- [x] Health check `/api/health` + readiness `/api/ops/readiness`
+- [x] TypeScript errors = 0, build ผ่าน
+- [ ] Staging environment (ตอนนี้มีแค่ production)
+- [ ] Preview deploy per PR (Vercel/Railway)
+- [ ] Backup system (Supabase PITR — ต้องเปิดใน Supabase dashboard)
+- [ ] Disaster recovery runbook
+
+**Security**
+- [x] RBAC role guards (requireHotelAccess, requireDashboardRole)
+- [x] Tenant isolation (RLS policies + org-scoped queries)
+- [x] CSRF protection (Supabase + SameSite cookies)
+- [x] XSS protection (CSP headers)
+- [x] Secure uploads (signed URLs + path isolation by hotelId)
+- [x] Audit logs (ทุก sensitive action)
+- [x] PDPA compliance (data export endpoint)
+- [ ] Encryption for sensitive guest data at rest (passport number, ID card)
+- [ ] Abuse prevention dashboard (flag suspicious booking patterns)
+
+---
+
+### P2 — Role System & Multi-tenant
+
+**Permission Matrix (granular)**
+- [x] Role-based page guards (owner/admin/manager/front_desk/housekeeping/staff)
+- [x] Role-based sidebar filter
+- [x] Feature gates by subscription plan
+- [ ] Granular permissions: `can_refund`, `can_edit_rates`, `can_view_financials`, `can_export_guest_data`, `can_override_booking`
+- [ ] Read-only mode สำหรับ viewer role (ปัจจุบัน viewer เห็น analytics แต่ action ยังไม่ lock)
+- [ ] Custom role builder (สร้าง role เองได้ใน UI)
+
+**Guest Roles**
+- [x] Loyalty tiers (points, ระดับ)
+- [ ] Corporate guest type (billing ไป company account)
+- [ ] VIP flag + recognition flow (alert staff เมื่อ VIP check-in)
+
+**Multi-property**
+- [x] Organization hierarchy (org → hotels)
+- [x] Cross-hotel admin view
+- [ ] Branch switching UI (เปลี่ยน hotel ใน sidebar โดยไม่ logout)
+- [ ] Shared guest profiles ข้าม property
+- [ ] Cross-property reporting (revenue, occupancy รวมทุก branch)
+- [ ] Centralized loyalty ข้าม property
+
+**SaaS Owner Tools**
+- [x] Tenant management (admin panel)
+- [x] Subscription management (Stripe)
+- [x] Feature flags (checkFeatureGate)
+- [x] Trial expiration + auto-suspend
+- [ ] Admin impersonate user UI (route มีแล้ว ขาด UI button)
+- [ ] Usage quotas UI (แสดง limit vs actual ใน org detail)
+- [ ] Admin search + filter ใน org list
+- [ ] Abuse detection alerts
+- [ ] MRR trend chart (12 เดือน)
+
+---
+
+### P3 — Staff Operation UX
+
+**Reservation System**
+- [x] Quick check-in (walk-in flow)
+- [x] Quick checkout
+- [x] Group booking
+- [x] Conflict warnings (overlap validation)
+- [x] VIP handling (loyalty tier)
+- [x] Late checkout (day-use mode)
+- [ ] Drag/drop room move (เปลี่ยนห้องลากได้ใน calendar grid)
+- [ ] Split booking (แยก reservation ออกเป็น 2)
+- [ ] Payment alerts (แจ้งเตือนเมื่อ folio ยังไม่ settle ก่อน checkout)
+- [ ] Folio / receipt print template (ใบเสร็จ A4 จริง)
+
+**Room Management**
+- [x] Live room board (status grid)
+- [x] Floor view
+- [x] Room status update (housekeeping)
+- [ ] Auto room assignment (suggest ห้องที่ match ตาม type + preference)
+- [ ] Room block UI (เปลี่ยน status เป็น out-of-order/maintenance จาก grid)
+
+**Housekeeping**
+- [x] Kanban workflow (pending/in-progress/done)
+- [x] Mobile housekeeping app (PWA)
+- [x] Smart cleaning queue
+- [ ] Photo proof upload (แม่บ้านถ่ายรูปห้องหลังทำความสะอาด)
+- [ ] Minibar checklist (ของในตู้เย็นครบไหม)
+- [ ] SLA tracking (เวลาเฉลี่ยทำความสะอาดแต่ละห้อง)
+
+**Maintenance**
+- [x] Maintenance ticket system
+- [ ] Escalation workflow (ticket ค้างเกิน X ชั่วโมง → แจ้ง manager)
+- [ ] Equipment history (ประวัติซ่อมแต่ละเครื่อง)
+- [ ] Repeated issue detection (ห้องนี้ AC เสียบ่อย)
+
+**Internal Operations**
+- [x] Shift handover report (`/dashboard/reports/handover`)
+- [x] Incident reports (`/dashboard/reports/incidents`)
+- [x] Notification center
+- [ ] End-of-shift summary printable (ยอดเงิน + รายการ check-in/out ของกะ)
+- [ ] Lost & found tracking
+- [ ] Internal staff chat
+- [ ] Emergency broadcast mode (แจ้งเตือนพนักงานทุกคนพร้อมกัน)
+
+---
+
+### P4 — Guest Experience
+
+**Hotel Public Pages**
+- [x] Landing page (hero, pricing, testimonials)
+- [x] Hotel search + filters + comparison
+- [x] Booking engine (4-step → 3-step)
+- [ ] Hotel detail page ครบ (gallery grid, amenities, policies, reviews, booking CTA)
+- [ ] Room detail modal (รูปห้อง, ของใช้, ชั้น, ขนาด m², วิว)
+- [ ] Live chat widget บนหน้า public hotel
+- [ ] 360 virtual room tour — *optional: ต้องถ่ายเอง, ราคาสูง, skip ได้*
+- [ ] Multi-language (EN/TH toggle ที่ครบทุกหน้า)
+
+**Booking Engine**
+- [x] Mobile-first checkout
+- [x] Instant confirmation
+- [x] Deposit options
+- [x] Add-ons / upsell flow
+- [x] Flexible cancellation
+- [x] Promo codes (server-side)
+- [ ] One-page checkout (ลด steps)
+- [ ] Sticky booking bar (ราคา + CTA ติดอยู่บน scroll)
+- [ ] Currency support (USD/CNY/EUR นอกจาก THB)
+- [ ] Booking modifications (แขก modify ได้เองโดยไม่ต้องโทร)
+
+**Guest Portal**
+- [x] Online check-in
+- [x] Digital key
+- [x] Invoice download (folio)
+- [x] Loyalty dashboard
+- [x] Wishlist
+- [x] Referrals
+- [ ] Food/room service ordering จาก portal
+- [ ] Spa booking จาก portal (ตอนนี้มีใน dashboard แต่ guest-side ยังไม่มี)
+- [ ] Airport/transfer pickup request
+- [ ] Late checkout request (self-service)
+- [ ] Guest passport/ID upload (ก่อนถึง)
+
+**Guest Intelligence**
+- [x] Returning guest recognition (guest profile merge)
+- [x] Loyalty tier + points
+- [ ] Guest preference memory (เตียง king, ชั้นสูง, non-smoking)
+- [ ] VIP recognition flow (popup แจ้ง staff เมื่อ VIP check-in)
+- [ ] Personalized room recommendations (based on history)
+
+---
+
+### P5 — Mobile Experience
+
+**Staff Mobile**
+- [x] Mobile housekeeping (PWA board)
+- [x] Mobile front desk (arrivals, room grid)
+- [x] Mobile owner analytics
+- [ ] Push notifications (web push / LINE notify เมื่อมี check-in หรือ incident)
+- [ ] Photo uploads บน mobile (housekeeping proof)
+- [ ] Swipe interactions บน task cards
+
+**Guest Mobile**
+- [x] PWA manifest + service worker
+- [x] Mobile-first booking engine
+- [ ] App-like UX (smooth scroll, bottom nav สำหรับ portal)
+- [ ] Apple Pay / Google Pay (autofill + one-tap payment)
+
+**Tablet Optimization**
+- [ ] Front desk tablet mode (landscape, touch-friendly calendar)
+- [ ] Housekeeping tablet mode (ใหญ่กว่ามือถือ layout)
+
+---
+
+### P6 — AI System
+
+**AI Inbox** (multi-channel)
+- [x] LINE Messaging API (2-way + AI reply)
+- [x] WhatsApp integration
+- [x] AI translation + suggested replies
+- [x] Unified conversation timeline
+- [ ] Messenger (Facebook) integration
+- [ ] Email sync (guest email → inbox thread)
+- [ ] OTA chat sync (Booking.com, Agoda message → inbox)
+
+**AI Copilot**
+- [x] AI concierge (Claude Haiku — guest-facing)
+- [x] AI pricing suggestions (Claude)
+- [ ] AI operational assistant (staff-facing — "room 205 requested extra towels 3x this month")
+- [ ] AI booking insights ("occupancy จะต่ำสัปดาห์หน้า ควร push promo")
+
+**AI Actions (automation)**
+- [x] Pre-arrival LINE/email notification
+- [x] TM30 auto-submit
+- [ ] AI auto task creation (complaint → maintenance ticket อัตโนมัติ)
+- [ ] AI complaint escalation (detect negative sentiment → alert manager)
+- [ ] AI upsell automation (room upgrade offer 24h ก่อน check-in)
+
+**AI Analytics**
+- [x] Revenue trends + ADR/RevPAR
+- [ ] Revenue forecasting (predict next 30/90 days)
+- [ ] Occupancy forecasting (based on booking pace)
+- [ ] Guest sentiment analysis (จาก reviews + inbox messages)
+
+---
+
+### P7 — OTA & Channel Manager
+
+**OTA Integration**
+- [x] Booking.com XML parser (inbound)
+- [x] Agoda YCS JSON parser (inbound)
+- [x] Airbnb iCal + JSON (inbound)
+- [x] Dead letter queue + conflict resolution UI
+- [ ] Expedia integration (inbound parser)
+- [ ] **OTA 2-way sync** (push availability + rate ออก) — *นี่คือ gap ที่ใหญ่ที่สุด*
+- [ ] Rate parity calendar (visual bulk edit ราคาทุก channel)
+- [ ] Room mapping UI (map internal room type → OTA room type)
+- [ ] OTA sync dashboard (last sync time, success/fail rate per channel)
+
+---
+
+### P8 — Payments & Finance
+
+**Payments**
+- [x] PromptPay QR + polling
+- [x] Omise credit card (charge, deposit, refund)
+- [x] Stripe SaaS billing
+- [x] Partial payments + folio management
+- [x] Payment reconciliation
+- [ ] Multi-currency support (USD/EUR/CNY display)
+- [ ] Auto receipt email (ส่ง PDF receipt หลัง payment สำเร็จ)
+
+**Accounting & Exports**
+- [x] e-Tax automation routes
+- [x] TM30 CSV export
+- [x] Folio management
+- [ ] Expense tracking (hotel expenses เช่น ค่าซ่อม, ค่าน้ำมัน)
+- [ ] Export รายงาน Excel/PDF (Arrivals, Cashier close-of-day, Occupancy)
+- [ ] Tax invoice PDF (ใบกำกับภาษีครบถ้วน)
+
+---
+
+### P9 — Analytics & Reputation
+
+**Executive Dashboard**
+- [x] Occupancy %, ADR, RevPAR (real-time)
+- [x] Revenue trend 30 วัน
+- [x] Mobile owner analytics
+- [ ] Revenue target vs actual (UI มีแต่ "coming soon")
+- [ ] Branch comparison (multi-property owners)
+- [ ] Staff KPI (tasks completed, response time)
+- [ ] AI executive summary ("สัปดาห์นี้ดีกว่าสัปดาห์ที่แล้ว X% เพราะ...")
+- [ ] Revenue/occupancy forecasting (30/90 days)
+
+**Reputation Management**
+- [x] Review aggregator page (`/dashboard/reviews`)
+- [ ] Google Reviews API integration (แสดง review จริง)
+- [ ] Agoda / Booking.com review sync
+- [ ] Sentiment analysis + complaint trends
+- [ ] Auto-response suggestions สำหรับ review
+
+---
+
+### P10 — Automation
+
+**Existing Automation**
+- [x] Pre-arrival notifications (LINE + email)
+- [x] Night audit cron (auto no-show, auto checkout)
+- [x] TM30 reminders
+- [x] Trial expiration
+- [x] OTA reliability sweep
+
+**Workflow Builder**
+- [ ] No-code automation builder (trigger + action UI) — *สำคัญมากสำหรับ non-tech hotel owners*
+- [ ] Post-stay review request (email/LINE 1 วันหลัง checkout)
+- [ ] Birthday/anniversary special offer automation
+- [ ] No-show handling workflow (auto charge + notify)
+- [ ] Maintenance reminder (ทำความสะอาด HVAC ทุก 3 เดือน)
+- [ ] LINE Marketing Broadcast (ส่ง bulk message ไปหา past guests)
+
+---
+
+### P11 — Migration & Onboarding
+
+**สำคัญมากสำหรับตลาดไทย — โรงแรมส่วนใหญ่ย้ายมาจาก Excel**
+- [ ] Excel/CSV import: guest list, reservation history, room setup
+- [ ] Mapping wizard (column matching)
+- [ ] PMS migration tool (import จาก HotelRunner, Protel format)
+- [ ] Demo hotel (sandbox ที่มี data ตัวอย่างให้ทดลองใช้)
+- [ ] Guided onboarding wizard (setup hotel → add rooms → connect OTA → go live)
+- [ ] In-app tooltips + contextual help
+- [ ] Training mode (action จริงแต่ไม่กระทบ production data)
+
+---
+
+### P12 — UX Polish & Performance
+
+**Design System**
+- [x] Tailwind + consistent color scheme
+- [x] Component library (Card, Badge, Button, Input)
+- [x] Thai language throughout
+- [x] Responsive (mobile-first)
+- [ ] Design tokens อย่างเป็นทางการ (spacing, radius, shadow scale)
+- [ ] Motion/animation system (consistent transition timing)
+- [ ] Skeleton loaders ครบทุกหน้า (ตอนนี้มีบางหน้า)
+- [ ] Dark mode ที่ polish (มี darkMode class แต่ยังไม่ครบทุก component)
+
+**Performance**
+- [x] PWA (service worker, manifest)
+- [x] Image optimization (next/image)
+- [ ] Offline mode (basic — แสดง cached data เมื่อขาด internet)
+- [ ] Weak internet mode (reduce payload, text-only fallback)
+- [ ] Core Web Vitals audit (LCP < 2.5s, CLS < 0.1)
+
+---
+
+### P13 — Future Moat (ระยะยาว)
+
+- [ ] Plugin/integration marketplace (third-party developers เพิ่ม integration ได้)
+- [ ] Smart lock integration (SALTO, Dormakaba, Assa Abloy)
+- [ ] IoT room control (แอร์, ไฟ ผ่าน PMS) — *ต้องใช้ hardware*
+- [ ] POS integration (Lightspeed, Square)
+- [ ] Competitor rate shopping (ดึงราคา Booking.com ของคู่แข่ง)
+- [ ] Mobile guest app native (iOS/Android)
+- [ ] Digital room key NFC (ตอนนี้มี UI แต่ยังเป็น stub)
+- [ ] TAT / Amazing Thailand integration
+- [ ] Guest facial recognition check-in
+
+---
+
+### สรุป Master Roadmap
+
+| Priority | งานทั้งหมด | ทำแล้ว | ยังต้อง |
+|----------|-----------|--------|---------|
+| P1 Core Stability | 24 | 19 | 5 |
+| P2 Roles & Multi-tenant | 21 | 12 | 9 |
+| P3 Staff UX | 24 | 14 | 10 |
+| P4 Guest Experience | 22 | 12 | 10 |
+| P5 Mobile | 10 | 6 | 4 |
+| P6 AI | 14 | 8 | 6 |
+| P7 OTA | 9 | 4 | 5 |
+| P8 Payments & Finance | 10 | 7 | 3 |
+| P9 Analytics & Reputation | 10 | 4 | 6 |
+| P10 Automation | 11 | 5 | 6 |
+| P11 Migration & Onboarding | 7 | 0 | 7 |
+| P12 UX Polish | 12 | 8 | 4 |
+| P13 Future Moat | 9 | 0 | 9 |
+| **รวม** | **183** | **99** | **84** |
+
+### หมายเหตุเรื่อง Priority ของ Roadmap
+
+> ⚠️ Items ที่แนะนำ re-prioritize:
+> - **API versioning** (P1 เดิม) → ควร skip จนกว่าจะมี breaking change จริง
+> - **360 virtual tour** (P4) → optional, ต้นทุนสูง ทำหลังจาก content team พร้อม
+> - **CCTV integration** (P13 เดิม) → ตัด ออก ซับซ้อนเกิน scope ของ PMS
+> - **P11 Migration** → ควรขยับขึ้นเป็น P2.5 สำหรับตลาดไทยที่ยังใช้ Excel
