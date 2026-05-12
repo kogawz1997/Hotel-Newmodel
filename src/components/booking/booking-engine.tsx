@@ -16,7 +16,7 @@ import {
   MapPin, Phone, Mail, Star, Wifi, Wind, Coffee, Waves,
   Tv, Car, Users, Maximize2, Bed, Calendar, ChevronRight,
   ChevronLeft, Check, X, ShieldCheck, Clock, Info, Heart,
-  Tag, AlertCircle, Globe2, User,
+  Tag, AlertCircle, Globe2, User, Flame,
 } from 'lucide-react';
 
 const AMENITY_ICONS: Record<string, any> = {
@@ -280,18 +280,29 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
           </div>
         )}
 
-        <div className="space-y-4">
-          {availableRooms.map(rt => {
+        <div className="space-y-5">
+          {availableRooms.map((rt, idx) => {
             const amenities: string[] = rt.amenities || [];
             const imgs: any[] = rt.room_type_images || [];
-            const rate = Number(rt.effective_rate || rt.base_rate);
-            const isAvail = rt.is_available !== false;
+            const rate     = Number(rt.effective_rate || rt.base_rate);
+            const total    = rate * nights;
+            const isAvail  = rt.is_available !== false;
+            const isLow    = isAvail && rt.available_rooms > 0 && rt.available_rooms <= 3;
+            const isPopular = idx === 0 && isAvail;
 
             return (
-              <div key={rt.id} className={`bg-white rounded-2xl border overflow-hidden ${isAvail ? 'border-black/5' : 'border-black/5 opacity-60'}`}>
+              <div key={rt.id} className={`bg-white rounded-2xl border overflow-hidden transition-shadow hover:shadow-md ${isAvail ? (isPopular ? 'border-[#C66A30]/40 ring-1 ring-[#C66A30]/20' : 'border-black/8') : 'border-black/5 opacity-60'}`}>
+                {/* Popular banner */}
+                {isPopular && (
+                  <div className="bg-[#C66A30] px-4 py-1.5 flex items-center gap-2">
+                    <Flame className="h-3.5 w-3.5 text-white" />
+                    <span className="text-white text-xs font-semibold">ห้องยอดนิยม — เลือกมากที่สุด</span>
+                  </div>
+                )}
+
                 <div className="md:flex">
                   {/* Image */}
-                  <div className="md:w-64 h-48 md:h-auto bg-[#FAF7F2] shrink-0">
+                  <div className="md:w-60 h-52 md:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden">
                     {imgs[0]?.image_url ? (
                       <img src={imgs[0].image_url} alt={rt.name} className="w-full h-full object-cover" />
                     ) : (
@@ -299,33 +310,43 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                         <Bed className="h-12 w-12" />
                       </div>
                     )}
+                    {imgs.length > 1 && (
+                      <div className="absolute bottom-2 right-2 bg-black/60 text-white text-2xs px-2 py-0.5 rounded-full">
+                        {imgs.length} รูป
+                      </div>
+                    )}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-start justify-between mb-2 gap-3">
                       <div>
-                        <h3 className="font-bold text-[#2A2522]">{rt.name}</h3>
-                        <div className="flex items-center gap-3 text-xs text-[#2A2522]/50 mt-1">
-                          {rt.size_sqm && <span className="flex items-center gap-1"><Maximize2 className="h-3 w-3" />{rt.size_sqm} ตร.ม.</span>}
+                        <h3 className="font-bold text-[#2A2522] text-base">{rt.name}</h3>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#2A2522]/50 mt-1">
+                          {rt.size_sqm     && <span className="flex items-center gap-1"><Maximize2 className="h-3 w-3" />{rt.size_sqm} ตร.ม.</span>}
                           {rt.max_occupancy && <span className="flex items-center gap-1"><Users className="h-3 w-3" />สูงสุด {rt.max_occupancy} คน</span>}
-                          {rt.bed_type && <span className="flex items-center gap-1"><Bed className="h-3 w-3" />{rt.bed_type}</span>}
+                          {rt.bed_type      && <span className="flex items-center gap-1"><Bed className="h-3 w-3" />{rt.bed_type}</span>}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold text-[#2A2522]">{formatCurrency(rate)}</div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xl font-bold text-[#C66A30]">{formatCurrency(rate)}</div>
                         <div className="text-xs text-[#2A2522]/40">/ คืน</div>
+                        {nights > 1 && (
+                          <div className="text-xs font-semibold text-[#2A2522]/60 mt-0.5">
+                            รวม {formatCurrency(total)} ({nights} คืน)
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {rt.description && <p className="text-xs text-[#2A2522]/50 mb-3 line-clamp-2">{rt.description}</p>}
+                    {rt.description && <p className="text-xs text-[#2A2522]/50 mb-3 line-clamp-2 leading-relaxed">{rt.description}</p>}
 
                     {amenities.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {amenities.slice(0, 6).map((a: string) => {
                           const Icon = AMENITY_ICONS[a.toLowerCase()] || Check;
                           return (
-                            <span key={a} className="flex items-center gap-1 text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-1 rounded-full">
+                            <span key={a} className="flex items-center gap-1 text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-1 rounded-full border border-black/5">
                               <Icon className="h-3 w-3" />{a}
                             </span>
                           );
@@ -334,17 +355,28 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                       </div>
                     )}
 
-                    <div className="mt-auto flex items-center justify-between">
+                    {/* Status row */}
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {isAvail ? (
-                        <span className="text-xs text-emerald-600 flex items-center gap-1"><Check className="h-3.5 w-3.5" />ว่าง {rt.available_rooms > 0 ? rt.available_rooms : ''} ห้อง</span>
+                        <span className="flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                          <Check className="h-3.5 w-3.5" />ยกเลิกฟรี 24 ชม.
+                        </span>
                       ) : (
-                        <span className="text-xs text-red-500 flex items-center gap-1"><X className="h-3.5 w-3.5" />เต็มแล้ว</span>
+                        <span className="flex items-center gap-1 text-xs text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
+                          <X className="h-3.5 w-3.5" />เต็มแล้ว
+                        </span>
                       )}
-                      <button onClick={() => { setSelected(rt); setStep('details'); }} disabled={!isAvail}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
-                      </button>
+                      {isLow && (
+                        <span className="flex items-center gap-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full font-semibold">
+                          เหลือเพียง {rt.available_rooms} ห้อง!
+                        </span>
+                      )}
                     </div>
+
+                    <button onClick={() => { setSelected(rt); setStep('details'); }} disabled={!isAvail}
+                      className="mt-auto w-full sm:w-auto sm:self-end flex items-center justify-center gap-2 px-6 py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                      เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
