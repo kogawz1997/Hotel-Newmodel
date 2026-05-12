@@ -358,3 +358,56 @@ docs/PRODUCTION_SAAS_CHECKLIST.md, docs/GITHUB_FILE_STATUS.md, docs/MARKDOWN_DOC
 docs/PROJECT_FILE_INVENTORY.md, docs/TODO_3P_MAPPING.md, docs/P_ROUND_MIN_PLAN.md
 docs/ROUND2_SAAS_INTEGRATIONS.md, docs/DEPLOYMENT_MATRIX.md
 ```
+
+---
+
+## I — งานรอบใหม่ (UI Audit 2026-05-12)
+
+จาก UX audit ทั้ง 4 interfaces พบ gaps ดังนี้ แยก priority:
+
+### I.1 Guest Experience — P1 🔴 (กระทบ conversion โดยตรง)
+- [ ] **Hotel detail page** (`/h/[slug]`) ให้ครบ — gallery grid, amenities list, policies, reviews section, booking CTA ที่ชัด
+- [ ] **Room detail modal/page** — รูปห้องแต่ละห้อง, ของใช้ในห้อง, ชั้น, วิว, ขนาด m²
+- [ ] **Live chat widget** บนหน้า hotel public — ให้แขกทัก LINE/inbox ได้ก่อน booking
+
+### I.2 Staff Operations — P1 🔴 (ใช้งานจริงทุกวัน)
+- [ ] **Folio / receipt print view** — ใบเสร็จ A4 สำหรับพิมพ์ให้แขก (มี @media print CSS แล้ว แต่ยังไม่มี template จริง)
+- [ ] **End-of-shift summary** — สรุปยอดเงินสด/บัตร + รายการ check-in/out ของกะ สำหรับพิมพ์ handover
+- [ ] **Room block UI** — เปลี่ยน status ห้องเป็น maintenance/out-of-order ได้จาก room grid
+
+### I.3 Owner Analytics — P2 🟡
+- [ ] **Revenue target vs actual** — กรอก target รายเดือน แล้วเห็น % achieved (UI มีแล้วแต่ "coming soon")
+- [ ] **Export รายงาน** — download Excel/PDF สำหรับ Arrivals list, Cashier close-of-day, Occupancy report
+- [ ] **Notification preferences** — เจ้าของเลือกได้ว่าจะรับ alert อะไรทาง LINE/email
+
+### I.4 Platform Admin — P2 🟡
+- [ ] **Search + filter** ใน org list — หา org ด้วยชื่อ, plan, status
+- [ ] **Impersonate user UI** — admin กดเข้าไปดูระบบแทน hotel owner ได้ (route มีแล้วใน code)
+- [ ] **MRR trend chart** — graph MRR รายเดือนย้อนหลัง 12 เดือน
+
+### I.5 Competitive Features — P2 🟡 (ชนะคู่แข่ง)
+- [ ] **OTA 2-way sync จริง** — ส่ง availability/rate กลับไป Booking.com, Agoda real-time (ตอนนี้ inbound only)
+- [ ] **LINE Marketing Broadcast** — ส่ง LINE message ไปหา past guests (โปรโมชั่น, วันเกิด, low-season offer)
+- [ ] **Email automation template builder** — drag-drop template + trigger rules (pre-arrival 3 วัน, post-stay survey, birthday)
+- [ ] **Rate parity calendar** — ตาราง visual ให้ set ราคาทีละวัน/ช่วง + bulk edit
+
+### I.6 Nice-to-have — P3 🟢
+- [ ] **Dynamic pricing จริง** — demand-based (occupancy + Thai holidays + events nearby)
+- [ ] **Guest ID scan (OCR)** — สแกนบัตรประชาชน/พาสปอร์ต auto-fill check-in form
+- [ ] **Competitor rate shopping** — ดึงราคา Booking.com/Agoda ของคู่แข่งมาแสดงเปรียบเทียบ
+- [ ] **Admin bulk actions** — suspend/activate/change plan หลาย org พร้อมกัน
+- [ ] **Smoke test** production URL (ต้องมี production environment)
+
+---
+
+### สรุป I tasks
+
+| หมวด | งาน | Priority |
+|------|-----|----------|
+| I.1 Guest Experience | 3 tasks | P1 🔴 |
+| I.2 Staff Operations | 3 tasks | P1 🔴 |
+| I.3 Owner Analytics | 3 tasks | P2 🟡 |
+| I.4 Platform Admin | 3 tasks | P2 🟡 |
+| I.5 Competitive Features | 4 tasks | P2 🟡 |
+| I.6 Nice-to-have | 5 tasks | P3 🟢 |
+| **รวม** | **21 tasks** | |
