@@ -9,7 +9,7 @@ import {
   Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed,
   Heart, Award, Megaphone, Settings, LogOut, ChevronDown,
   Building2, Shield, Settings2, Palette, CreditCard, Rocket, Zap,
-  MonitorDot,
+  MonitorDot, Wrench, Headphones, ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -31,9 +31,12 @@ const MANAGEMENT_ROLES = ['owner', 'admin', 'manager'];
 const OWNER_ADMIN_ROLES = ['owner', 'admin'];
 const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk', 'receptionist'];
 const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
-const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
-const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
-const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
+const HOUSEKEEPING_ROLES  = ['owner', 'admin', 'manager', 'housekeeping'];
+const ACCOUNTING_ROLES   = ['owner', 'admin', 'manager', 'accounting'];
+const REVENUE_ROLES      = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
+const MAINTENANCE_ROLES  = ['owner', 'admin', 'manager', 'maintenance'];
+const CONCIERGE_ROLES    = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
+const SECURITY_ROLES     = ['owner', 'admin', 'manager', 'security'];
 
 const NAV_GROUPS = [
   {
@@ -53,6 +56,9 @@ const NAV_GROUPS = [
       { href: '/dashboard/rates', icon: CalendarRange, label: 'ปฏิทินราคา', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/guests', icon: Users, label: 'แขก', roles: OPS_ROLES },
       { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน', roles: HOUSEKEEPING_ROLES },
+      { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุง', roles: MAINTENANCE_ROLES },
+      { href: '/dashboard/concierge', icon: Headphones, label: 'Concierge', roles: CONCIERGE_ROLES },
+      { href: '/dashboard/security', icon: ShieldCheck, label: 'Security', roles: SECURITY_ROLES },
     ],
   },
   {
