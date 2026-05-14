@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Save, RotateCcw, TrendingUp, Info } from 'lucide-react';
 import { DEFAULT_WEIGHTS, WEIGHT_META, type RankingWeights } from '@/lib/ranking';
+import { useAdminLang } from '@/contexts/admin-lang-context';
 
 export default function AdminRankingPage() {
+  const { t } = useAdminLang();
   const [weights, setWeights] = useState<RankingWeights>({ ...DEFAULT_WEIGHTS });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,16 +39,16 @@ export default function AdminRankingPage() {
   const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
 
   if (loading) return (
-    <div className="p-8 space-y-4">
-      {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-muted rounded-xl animate-pulse" />)}
+    <div className="p-4 md:p-8 space-y-4">
+      {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-white/5 rounded-xl animate-pulse" />)}
     </div>
   );
 
   return (
-    <div className="p-6 md:p-8 space-y-6 max-w-2xl">
+    <div className="p-4 md:p-8 space-y-6 max-w-2xl text-white">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Ranking Algorithm</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-white">{t('ranking.title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">
             ปรับ weight ของแต่ละ signal ที่ใช้คำนวณอันดับ "แนะนำ" ในผลการค้นหา — มีผลกับทุกโรงแรมในแพลตฟอร์ม
           </p>

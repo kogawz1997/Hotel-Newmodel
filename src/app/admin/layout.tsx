@@ -1,7 +1,10 @@
 export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { AdminLangProvider } from '@/contexts/admin-lang-context';
+import { AdminSidebar } from './admin-sidebar';
+import { AdminMobileHeader } from './admin-mobile-header';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -14,5 +17,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!profile?.is_platform_admin) redirect('/dashboard');
 
-  return <>{children}</>;
+  return (
+    <AdminLangProvider>
+      <div className="flex min-h-screen bg-[#111113]">
+        <AdminSidebar />
+        <div className="flex-1 flex flex-col min-w-0">
+          <AdminMobileHeader />
+          <main className="flex-1 overflow-x-hidden">
+            {children}
+          </main>
+        </div>
+      </div>
+    </AdminLangProvider>
+  );
 }

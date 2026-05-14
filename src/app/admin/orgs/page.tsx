@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
-import { AdminPanelClient } from './admin-panel-client';
+import { AdminPanelClient } from '../admin-panel-client';
 import { format, subDays } from 'date-fns';
 
-export default async function AdminPanelPage() {
+export default async function AdminOrgsPage() {
   const admin = createAdminClient();
 
   const [
