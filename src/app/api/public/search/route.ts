@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { DEFAULT_WEIGHTS, computeScore, type RankingWeights } from '@/lib/ranking';
 
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
@@ -29,12 +30,23 @@ export async function GET(request: NextRequest) {
 
     const supabase = createAdminClient();
 
+    // Load platform-configured weights (falls back to defaults silently)
+    let weights: RankingWeights = { ...DEFAULT_WEIGHTS };
+    try {
+      const { data: cfg } = await supabase
+        .from('platform_config')
+        .select('value')
+        .eq('key', 'ranking_weights')
+        .single();
+      if (cfg?.value) weights = { ...DEFAULT_WEIGHTS, ...(cfg.value as Partial<RankingWeights>) };
+    } catch {}
+
     let query = supabase
       .from('hotels')
       .select(`
-        id, name, slug, city, country, type, address, tagline,
+        id, name, slug, city, country, type, address, tagline, description,
         hero_image_url, star_rating, total_rooms, amenities,
-        latitude, longitude,
+        latitude, longitude, is_featured, featured_until,
         hotel_gallery(image_url, display_order)
       `)
       .eq('country', 'Thailand');
@@ -50,6 +62,8 @@ export async function GET(request: NextRequest) {
 
     const { data: hotels, error } = await query.limit(100);
     if (error) return NextResponse.json({ hotels: [], total: 0, warning: error.message }, { status: 200 });
+
+    const now = new Date().toISOString();
 
     const results = await Promise.all((hotels || []).map(async (hotel: any) => {
       const [{ data: roomTypes }, { data: reviews }, { data: occupiedRooms }] = await Promise.all([
@@ -97,6 +111,21 @@ export async function GET(request: NextRequest) {
         distanceKm = Math.round(haversineKm(lat, lng, hotel.latitude, hotel.longitude) * 10) / 10;
       }
 
+      const galleryCount = (hotel.hotel_gallery || []).length;
+      const isFeatured = hotel.is_featured === true && (!hotel.featured_until || hotel.featured_until > now);
+      const hasContent  = !!(hotel.description && hotel.tagline);
+
+      const rankScore = computeScore({
+        avg_rating:    avgRating ? Math.round(avgRating * 10) / 10 : null,
+        review_count:  reviews?.length || 0,
+        gallery_count: galleryCount,
+        is_free_cancel: isFreeCancel,
+        is_breakfast:  isBreakfast,
+        star_rating:   hotel.star_rating,
+        is_featured:   isFeatured,
+        has_content:   hasContent,
+      }, weights);
+
       return {
         id: hotel.id,
         slug: hotel.slug,
@@ -113,7 +142,9 @@ export async function GET(request: NextRequest) {
         is_available: availableRoomTypes.length > 0,
         is_free_cancel: isFreeCancel,
         is_breakfast: isBreakfast,
+        is_featured: isFeatured,
         distance_km: distanceKm,
+        rank_score: rankScore,
         gallery: (hotel.hotel_gallery || [])
           .sort((a: any, b: any) => a.display_order - b.display_order)
           .slice(0, 5),
@@ -133,10 +164,11 @@ export async function GET(request: NextRequest) {
       return true;
     });
 
-    if (sort === 'price_asc') filtered.sort((a, b) => (a.min_rate || 0) - (b.min_rate || 0));
+    if (sort === 'recommended') filtered.sort((a, b) => b.rank_score - a.rank_score);
+    else if (sort === 'price_asc')  filtered.sort((a, b) => (a.min_rate || 0) - (b.min_rate || 0));
     else if (sort === 'price_desc') filtered.sort((a, b) => (b.min_rate || 0) - (a.min_rate || 0));
-    else if (sort === 'rating') filtered.sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0));
-    else if (sort === 'distance') filtered.sort((a, b) => (a.distance_km ?? 9999) - (b.distance_km ?? 9999));
+    else if (sort === 'rating')     filtered.sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0));
+    else if (sort === 'distance')   filtered.sort((a, b) => (a.distance_km ?? 9999) - (b.distance_km ?? 9999));
 
     return NextResponse.json({ hotels: filtered, total: filtered.length });
   } catch (error: unknown) {
