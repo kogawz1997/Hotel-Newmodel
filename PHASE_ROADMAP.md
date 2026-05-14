@@ -955,4 +955,357 @@ src/app/(platform)/                  ← Route group สำหรับ Platform
 
 ---
 
+---
+
+## PHASE 1 ADDITIONS — ทำได้ทันทีด้วย Stack ที่มี (Next.js + Supabase + Claude API)
+
+### Guest Portal — เพิ่ม
+
+| ไฟล์ | Feature | ใช้อะไร |
+|---|---|---|
+| `src/app/portal/check-in/page.tsx` | Online Check-in — อัพโหลด ID, เลือกห้อง 3 วันก่อนถึง | Supabase Storage + DB |
+| `src/app/portal/check-in/check-in-client.tsx` | Form: เวลาถึง, ความต้องการพิเศษ, upload passport | file input + Storage |
+| `src/app/portal/folio/page.tsx` | Guest Folio View — ดูยอดค่าใช้จ่าย real-time | Supabase query |
+| `src/app/portal/folio/express-checkout/page.tsx` | Express Check-out — อนุมัติ folio จากโทรศัพท์ | API route + Realtime |
+| `src/app/portal/requests/[id]/page.tsx` | Request Tracker — status + ETA แบบ real-time | Supabase Realtime |
+| `src/app/portal/compendium/page.tsx` | Digital Compendium — เมนู, คู่มือ, สถานที่ใกล้เคียง | CMS-like pages |
+| `src/app/api/portal/checkin/route.ts` | POST: บันทึก check-in preferences | Supabase |
+| `src/app/api/portal/review-prompt/route.ts` | POST: send review prompt หลัง checkout 2h | Edge Function cron |
+| `src/app/api/portal/chat/route.ts` | POST: AI chatbot สำหรับ guest ตอบคำถาม 24/7 | **Claude API** |
+| `src/components/portal/request-tracker.tsx` | Real-time ETA component (Realtime subscribe) | Supabase Realtime |
+| `src/components/portal/ai-chat-widget.tsx` | Floating chat widget (ทุกหน้า portal) | Claude API |
+| `public/manifest.json` | PWA manifest — installable บนโทรศัพท์ | Web standard |
+| `public/sw.js` | Service Worker — offline mode สำหรับ booking info | next-pwa |
+
+### Hotel OS — เพิ่ม Phase 1
+
+| ไฟล์ | Feature | ใช้อะไร |
+|---|---|---|
+| `src/app/dashboard/live-board/sla-widget.tsx` | SLA Traffic Light — เขียว/เหลือง/แดง real-time | Supabase Realtime + `work_orders.sla_deadline` |
+| `src/app/dashboard/handover/page.tsx` | Digital Shift Handover Log | DB table + page |
+| `src/app/dashboard/handover/handover-client.tsx` | บันทึก handover: งานค้าง, incidents, VIP notes | JSONB + timestamp |
+| `src/app/dashboard/duty-log/page.tsx` | Duty Manager Log — GM บันทึก decisions รายวัน | DB table + page |
+| `src/app/dashboard/guest-recovery/page.tsx` | Guest Recovery Workflow — complaint → resolve → compensate | DB + state machine |
+| `src/app/dashboard/guests/blacklist/page.tsx` | Blacklist Management — flag + note เหตุผล | column ใน guests |
+| `src/app/api/guests/[id]/blacklist/route.ts` | POST: flag/unflag guest | Supabase update |
+| `src/app/api/reports/daily-report/route.ts` | GET: generate daily management report | aggregate query |
+| `src/app/api/reports/daily-report/pdf/route.ts` | GET: PDF daily report | `@react-pdf/renderer` |
+| `src/app/api/compliance/tm30/route.ts` | POST: generate TM30 form สำหรับ foreign guest | form + PDF |
+| `src/app/dashboard/compliance/tm30/page.tsx` | TM30 Management — list, generate, track | DB + PDF export |
+| `src/app/dashboard/compliance/pdpa/page.tsx` | PDPA Consent Management — consent log, withdrawal | consent table |
+| `src/app/api/compliance/pdpa/consent/route.ts` | POST: record consent, DELETE: withdraw | Supabase |
+| `src/lib/checklist-templates.ts` | Dynamic checklist templates (VIP/checkout/deep/inspection) | JSONB definitions |
+| `src/components/dashboard/vip-alert-banner.tsx` | VIP Alert บน check-in screen — tier, preferences, past issues | query loyalty |
+| `src/app/api/ai/review-reply/route.ts` | POST: AI draft ตอบ Google/Booking review | **Claude API** |
+| `src/app/api/ai/sentiment/route.ts` | POST: วิเคราะห์ sentiment จาก feedback text | **Claude API** |
+| `src/app/api/ai/inbox-reply/route.ts` | POST: AI แนะนำ reply สำหรับ guest message | **Claude API** (stub มีอยู่แล้ว) |
+| `src/lib/geofence.ts` | Geofence helper — ตรวจสอบ lat/lng อยู่ในรัศมีโรงแรม | Web Geolocation API |
+| `src/components/attendance/geofence-clock.tsx` | Clock-in button ที่ตรวจ location ก่อน | Geolocation API |
+
+**Library เพิ่ม:**
+```bash
+npm install @react-pdf/renderer html5-qrcode qrcode next-pwa web-push xlsx
+```
+
+---
+
+## PHASE 2 ADDITIONS — ทำได้ด้วย Stack ที่มี
+
+| ไฟล์ | Feature | ใช้อะไร |
+|---|---|---|
+| `src/app/dashboard/packages/page.tsx` | Package Builder — ห้อง + สปา + อาหาร + transfer | DB + booking flow |
+| `src/app/dashboard/packages/package-client.tsx` | Drag-and-drop package composer | component |
+| `src/app/api/packages/route.ts` | POST: สร้าง package, GET: list | Supabase |
+| `src/app/dashboard/revenue/yield-rules/page.tsx` | Yield Management Rules — occ > X% → ราคา +Y% | rules table + Edge Function |
+| `src/app/api/revenue/yield/apply/route.ts` | POST: apply yield rules (cron ทุก 1h) | Edge Function |
+| `src/app/api/marketing/last-minute/route.ts` | POST: auto-push last-minute deals ถ้าห้องว่าง 18:00 | Edge Function cron |
+| `src/app/dashboard/accounting/budget/page.tsx` | Budget vs Actuals — ตั้ง budget + เห็น variance real-time | DB table + chart |
+| `src/app/dashboard/accounting/dept-pl/page.tsx` | Department P&L — แต่ละแผนกมี P&L แยก | aggregate query |
+| `src/app/api/accounting/export/route.ts` | GET: export Excel รายงาน | `xlsx` library |
+| `src/app/dashboard/reservations/corporate/page.tsx` | Corporate Account Management — rate พิเศษ, billing แยก | DB + rate plan |
+| `src/app/dashboard/reservations/groups/page.tsx` | Group Booking — block rooms, allotment, BEO | DB extension |
+| `src/app/api/reservations/groups/route.ts` | POST: group block + allotment | Supabase |
+
+### SaaS Platform — เพิ่ม Phase 2
+
+| ไฟล์ | Feature | ใช้อะไร |
+|---|---|---|
+| `src/app/(platform)/onboarding/page.tsx` | Self-Service Onboarding wizard (สมัครเอง 5 steps) | Auth + DB |
+| `src/app/(platform)/status/page.tsx` | Public Status Page (`status.maitriapp.com`) | health check APIs |
+| `src/app/api/platform/health/route.ts` | GET: aggregate health ทุก service | ping + DB check |
+| `src/app/(platform)/export/[orgId]/route.ts` | Data Export — hotel export ข้อมูลตัวเองเป็น JSON/CSV | stream query |
+| `src/lib/platform/health-score.ts` | Customer Health Score — คำนวณจาก usage, login, features used | aggregate |
+| `src/app/(platform)/trial/route.ts` | Trial Automation — email drip 14 วัน + upgrade prompt day 12 | Edge Function cron |
+| `src/app/api/platform/referrals/route.ts` | Referral Program — hotel แนะนำ hotel อื่น → discount | referral_codes table |
+
+---
+
+## 🔌 INTEGRATION STUBS — เตรียม Architecture ไว้พร้อม ใส่ Key ทีหลัง
+
+> **หลักการ:** Adapter Pattern — ทุก integration มี interface + mock adapter พร้อม  
+> เมื่อได้ API key จริง: สร้าง concrete adapter → swap ใน config บรรทัดเดียว
+
+### Architecture
+
+```
+src/lib/integrations/
+  index.ts                    ← registry: export adapter ที่ใช้งาน
+  types.ts                    ← interfaces ทุก integration
+  mock/                       ← Mock adapters (ใช้ระหว่าง dev)
+    channel-manager.mock.ts
+    payment.mock.ts
+    sms.mock.ts
+    ota.mock.ts
+    keycard.mock.ts
+    pos.mock.ts
+    bank.mock.ts
+    review-platform.mock.ts
+  providers/                  ← Real adapters (ใส่ key แล้ว uncomment)
+    siteminder.ts             ← Channel Manager
+    omise.ts                  ← Payment (ไทย)
+    twilio.ts                 ← SMS
+    booking-com.ts            ← OTA
+    assa-abloy.ts             ← Key Card (NFC)
+    oracle-micros.ts          ← POS
+    scb-open-banking.ts       ← Bank Reconciliation
+    google-business.ts        ← Review response
+    xero.ts                   ← Accounting export
+    str.ts                    ← Market benchmarking
+```
+
+---
+
+### DB Schema (เตรียมไว้ทันที)
+
+**Migration:** `20260601500000_integration_stubs.sql`
+
+```sql
+-- Integration config per hotel (credentials encrypted)
+CREATE TABLE channel_integrations (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  provider     TEXT NOT NULL,   -- 'siteminder'|'omise'|'twilio'|'booking_com'|...
+  enabled      BOOLEAN DEFAULT false,
+  config       JSONB DEFAULT '{}',  -- { api_key, endpoint, webhook_secret, ... }
+  last_sync_at TIMESTAMPTZ,
+  sync_status  TEXT DEFAULT 'idle',
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+
+-- OTA reservations queue (รับจาก OTA webhook, รอ confirm)
+CREATE TABLE ota_reservations (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id        UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  ota_platform    TEXT NOT NULL,  -- 'booking_com'|'agoda'|'expedia'|'airbnb'
+  ota_booking_id  TEXT NOT NULL UNIQUE,
+  raw_payload     JSONB NOT NULL,
+  mapped_data     JSONB,          -- normalized to our format
+  status          TEXT DEFAULT 'pending',  -- pending|confirmed|rejected|cancelled
+  processed_at    TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- Rate push queue → ส่งราคาไปยัง channel manager
+CREATE TABLE rate_push_queue (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  room_type_id UUID,
+  date_from    DATE NOT NULL,
+  date_to      DATE NOT NULL,
+  rate         NUMERIC(10,2),
+  availability INT,
+  provider     TEXT,  -- 'siteminder'|'rategain'
+  status       TEXT DEFAULT 'pending',  -- pending|sent|failed
+  attempts     INT DEFAULT 0,
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+
+-- SMS/notification queue
+CREATE TABLE notification_queue (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  channel      TEXT NOT NULL,  -- 'sms'|'email'|'line'|'whatsapp'|'push'
+  recipient    TEXT NOT NULL,  -- phone / email / line_uid
+  message      TEXT NOT NULL,
+  template_id  TEXT,
+  status       TEXT DEFAULT 'pending',
+  provider     TEXT,
+  sent_at      TIMESTAMPTZ,
+  error        TEXT,
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+
+-- Keycard issuance log
+CREATE TABLE keycard_log (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  reservation_id UUID REFERENCES reservations(id),
+  room_no      TEXT NOT NULL,
+  guest_name   TEXT,
+  card_uid     TEXT,           -- physical card UID (ถ้ามี hardware)
+  digital_key  TEXT,           -- token for digital key (QR/NFC)
+  valid_from   TIMESTAMPTZ,
+  valid_until  TIMESTAMPTZ,
+  issued_by    UUID REFERENCES user_profiles(id),
+  revoked_at   TIMESTAMPTZ,
+  provider     TEXT DEFAULT 'digital_qr',  -- 'assa_abloy'|'dormakaba'|'digital_qr'
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+
+-- POS sync log
+CREATE TABLE pos_sync_log (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  pos_order_id TEXT,
+  amount       NUMERIC(10,2),
+  outlet       TEXT,
+  synced_to    TEXT,           -- 'folio'|'accounting'
+  status       TEXT DEFAULT 'pending',
+  raw_data     JSONB,
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+
+-- Bank transaction (for reconciliation)
+CREATE TABLE bank_transactions (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id       UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  txn_date       DATE NOT NULL,
+  description    TEXT,
+  amount         NUMERIC(10,2),
+  type           TEXT,         -- 'credit'|'debit'
+  matched_folio  UUID,         -- matched folio_id หลัง reconcile
+  status         TEXT DEFAULT 'unmatched',
+  source         TEXT DEFAULT 'manual',  -- 'manual'|'scb_api'|'kbank_api'
+  created_at     TIMESTAMPTZ DEFAULT now()
+);
+
+-- Market benchmarking data
+CREATE TABLE market_rates (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  date         DATE NOT NULL,
+  competitor   TEXT,
+  room_type    TEXT,
+  rate         NUMERIC(10,2),
+  occ_pct      NUMERIC(5,2),
+  source       TEXT DEFAULT 'manual',  -- 'str'|'airdna'|'manual'
+  fetched_at   TIMESTAMPTZ DEFAULT now()
+);
+```
+
+---
+
+### Interface Definitions (`src/lib/integrations/types.ts`)
+
+```typescript
+// Channel Manager
+export interface ChannelManagerAdapter {
+  pushRates(hotelId: string, rates: RatePush[]): Promise<void>;
+  pushAvailability(hotelId: string, avail: AvailabilityPush[]): Promise<void>;
+  fetchReservations(hotelId: string, since: Date): Promise<OTAReservation[]>;
+}
+
+// Payment Gateway
+export interface PaymentAdapter {
+  charge(amount: number, currency: string, source: string): Promise<PaymentResult>;
+  refund(chargeId: string, amount?: number): Promise<RefundResult>;
+  getTransaction(id: string): Promise<Transaction>;
+}
+
+// SMS Provider
+export interface SMSAdapter {
+  send(to: string, message: string): Promise<{ messageId: string }>;
+}
+
+// Key Card / Digital Key
+export interface KeyCardAdapter {
+  issueKey(params: KeyIssueParams): Promise<{ keyToken: string; cardUid?: string }>;
+  revokeKey(keyToken: string): Promise<void>;
+  extendKey(keyToken: string, until: Date): Promise<void>;
+}
+
+// POS System
+export interface POSAdapter {
+  fetchOrders(since: Date): Promise<POSOrder[]>;
+  postRoomCharge(roomNo: string, amount: number, description: string): Promise<void>;
+}
+
+// Accounting Export
+export interface AccountingAdapter {
+  exportJournalEntries(from: Date, to: Date): Promise<void>;
+  syncInvoice(invoiceId: string): Promise<void>;
+}
+
+// Review Platform
+export interface ReviewPlatformAdapter {
+  fetchNewReviews(): Promise<Review[]>;
+  postReply(reviewId: string, reply: string): Promise<void>;
+}
+
+// Market Data
+export interface MarketDataAdapter {
+  fetchCompetitorRates(hotelId: string, dates: Date[]): Promise<MarketRate[]>;
+}
+```
+
+---
+
+### Integration Registry (`src/lib/integrations/index.ts`)
+
+```typescript
+// ← เปลี่ยน import บรรทัดเดียวเมื่อพร้อม
+import { MockChannelManager } from './mock/channel-manager.mock';
+// import { SiteMinderAdapter } from './providers/siteminder'; // uncomment เมื่อมี key
+
+import { MockPayment } from './mock/payment.mock';
+// import { OmiseAdapter } from './providers/omise'; // uncomment เมื่อมี key
+
+import { MockSMS } from './mock/sms.mock';
+// import { TwilioAdapter } from './providers/twilio'; // uncomment เมื่อมี key
+
+import { MockKeyCard } from './mock/keycard.mock';
+// import { AssaAbloyAdapter } from './providers/assa-abloy'; // uncomment เมื่อมี key
+
+export const channelManager: ChannelManagerAdapter = new MockChannelManager();
+export const payment: PaymentAdapter = new MockPayment();
+export const sms: SMSAdapter = new MockSMS();
+export const keyCard: KeyCardAdapter = new MockKeyCard();
+```
+
+---
+
+### Integration Status UI (`src/app/dashboard/it/integrations/page.tsx`)
+
+แสดงสถานะ integration ทุกตัว พร้อมปุ่ม Configure:
+
+| Integration | สถานะ | Action |
+|---|---|---|
+| Channel Manager (SiteMinder) | 🔴 ไม่ได้เชื่อม | Configure → ใส่ API key |
+| Payment Gateway (Omise) | 🔴 ไม่ได้เชื่อม | Configure → ใส่ public/secret key |
+| SMS (Twilio) | 🔴 ไม่ได้เชื่อม | Configure → ใส่ SID + token |
+| Key Card (ASSA ABLOY) | 🔴 ไม่ได้เชื่อม | Configure → ใส่ endpoint + key |
+| POS (Oracle MICROS) | 🔴 ไม่ได้เชื่อม | Configure → ใส่ credentials |
+| Bank (SCB/KBank) | 🔴 ไม่ได้เชื่อม | Configure → ใส่ client ID |
+| Google Business | 🔴 ไม่ได้เชื่อม | Configure → OAuth |
+| Xero Accounting | 🔴 ไม่ได้เชื่อม | Configure → OAuth |
+| STR Benchmarking | 🔴 ไม่ได้เชื่อม | Configure → ใส่ API key |
+| OTA (Booking.com) | 🟡 webhook รับได้แล้ว | Configure → ใส่ EAN credentials |
+| LINE OA | 🟢 เชื่อมแล้ว | — |
+| WhatsApp Business | 🟡 webhook รับได้แล้ว | Configure → ใส่ token |
+
+เมื่อโรงแรมกรอก API key ใน UI → บันทึกใน `channel_integrations.config` (encrypted) → ระบบ swap mock → real adapter อัตโนมัติ
+
+---
+
+## Updated Summary Table
+
+| Category | Phase 1 | Phase 1 Add | Phase 2 | Phase 2 Add | Phase 3 | Total |
+|---|---|---|---|---|---|---|
+| DB Tables | 9 | 7 (stubs) | 18 | 5 | 15 | **54** |
+| API Routes | 20 | 12 | 38 | 8 | 24 | **102** |
+| Pages / Clients | 18 | 14 | 44 | 10 | 28 | **114** |
+| Integration Stubs | — | 9 adapters | — | — | — | **9** |
+
+---
+
 *อัพเดตล่าสุด: 2026-05-14 | Branch: `claude/audit-consolidate-docs-mj9Dt`*
