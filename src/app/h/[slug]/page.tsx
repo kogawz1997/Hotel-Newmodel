@@ -14,6 +14,7 @@ import { WishlistButton } from '@/components/ui/wishlist-button';
 import { HotelGallery } from '@/components/booking/hotel-gallery';
 import { HotelCard } from '@/components/public/HotelCard';
 import { RoomCompareSection } from '@/components/public/RoomCompareSection';
+import { PriceGraph } from '@/components/booking/price-graph';
 import type { Metadata } from 'next';
 
 type GalleryItem = { image_url: string; alt_text?: string | null; display_order: number };
@@ -89,7 +90,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     metadataBase: new URL(appUrl),
     title: `${h.name} — จองห้องพักออนไลน์`,
     description: h.description || `จองห้องพักที่ ${h.name} ${h.city} ราคาดีที่สุด ยกเลิกฟรี`,
-    alternates: { canonical: `/h/${slug}` },
+    alternates: {
+      canonical: `/h/${slug}`,
+      languages: { 'th': `/h/${slug}`, 'en': `/h/${slug}`, 'x-default': `/h/${slug}` },
+    },
     openGraph: {
       title: h.name,
       description: h.description || `ที่พักใน ${h.city}`,
@@ -410,6 +414,14 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
                 </p>
               )}
             </div>
+
+            {/* ── Price calendar ── */}
+            {roomTypes.length > 0 && (
+              <div>
+                <h2 className="text-lg font-bold text-[#2A2522] mb-3">ปฏิทินราคา</h2>
+                <PriceGraph hotelId={hotel.id} roomTypeId={(roomTypes[0] as any).id} />
+              </div>
+            )}
 
             {/* ── Room types with comparison ── */}
             {roomTypes.length > 0 && (

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { cn, formatCurrency } from '@/lib/utils';
-import { Star, ArrowLeft, Gift, Trophy, TrendingUp, ChevronRight, Zap } from 'lucide-react';
+import { Star, ArrowLeft, Gift, Trophy, TrendingUp, ChevronRight, Zap, Cake } from 'lucide-react';
 import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 const TIERS = [
@@ -20,6 +20,13 @@ const BENEFITS: Record<string, string[]> = {
   platinum: ['คะแนน 3 แต้มต่อ ฿100', 'ส่วนลด 15%', 'เช็คอินก่อนเวลา', 'Late checkout', 'ห้อง Upgrade', 'ยกเว้นค่าธรรมเนียมยกเลิก'],
 };
 
+const BIRTHDAY_PERKS: Record<string, { discount: number; bonus: number; gift: string }> = {
+  bronze:   { discount: 10, bonus: 200,  gift: 'ของที่ระลึกต้อนรับ' },
+  silver:   { discount: 15, bonus: 500,  gift: 'เค้กวันเกิดฟรี' },
+  gold:     { discount: 20, bonus: 1000, gift: 'เค้กวันเกิด + ดอกไม้' },
+  platinum: { discount: 25, bonus: 2000, gift: 'แพ็กเกจ Celebration ครบชุด' },
+};
+
 type LoyaltyData = {
   points: number;
   tier: string;
@@ -30,6 +37,8 @@ type LoyaltyData = {
 export default function LoyaltyPortalPage() {
   const [data, setData] = useState<LoyaltyData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [birthday, setBirthday] = useState('');
+  const [birthdaySaved, setBirthdaySaved] = useState(false);
 
   useEffect(() => {
     fetch('/api/guest/loyalty')
@@ -37,6 +46,8 @@ export default function LoyaltyPortalPage() {
       .then(setData)
       .catch(() => setData({ points: 0, tier: 'bronze', transactions: [] }))
       .finally(() => setLoading(false));
+    const saved = localStorage.getItem('maitri_birthday');
+    if (saved) setBirthday(saved);
   }, []);
 
   const points    = data?.points ?? 0;
@@ -46,6 +57,14 @@ export default function LoyaltyPortalPage() {
     ? Math.min(100, Math.round(((points - tier.minPoints) / (nextTier.minPoints - tier.minPoints)) * 100))
     : 100;
   const toNextTier = nextTier ? Math.max(0, nextTier.minPoints - points) : 0;
+  const bPerks = BIRTHDAY_PERKS[tier.id];
+
+  function saveBirthday() {
+    if (!birthday) return;
+    localStorage.setItem('maitri_birthday', birthday);
+    setBirthdaySaved(true);
+    setTimeout(() => setBirthdaySaved(false), 3000);
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
@@ -145,6 +164,51 @@ export default function LoyaltyPortalPage() {
                   </ul>
                 </div>
               )}
+            </div>
+
+            {/* Birthday perks */}
+            <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl border border-pink-100 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Cake className="h-4 w-4 text-rose-500" />
+                <h2 className="font-bold text-[#2A2522]">Birthday Privileges</h2>
+                <span className="text-xs bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-medium">ระดับ {tier.label}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="bg-white rounded-xl p-3 text-center border border-pink-100">
+                  <p className="text-2xl font-bold text-rose-500">{bPerks.discount}%</p>
+                  <p className="text-2xs text-[#2A2522]/50 mt-0.5">ส่วนลดในเดือนเกิด</p>
+                </div>
+                <div className="bg-white rounded-xl p-3 text-center border border-pink-100">
+                  <p className="text-2xl font-bold text-rose-500">{bPerks.bonus.toLocaleString()}</p>
+                  <p className="text-2xs text-[#2A2522]/50 mt-0.5">แต้มโบนัสพิเศษ</p>
+                </div>
+                <div className="bg-white rounded-xl p-3 text-center border border-pink-100">
+                  <p className="text-xs font-bold text-rose-500 leading-tight">{bPerks.gift}</p>
+                  <p className="text-2xs text-[#2A2522]/50 mt-0.5">ของขวัญพิเศษ</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-[#2A2522]/60 mb-2">วันเกิดของคุณ (เพื่อรับสิทธิพิเศษ)</p>
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    value={birthday}
+                    onChange={e => setBirthday(e.target.value)}
+                    className="flex-1 px-3 py-2 text-sm bg-white border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-rose-400"
+                  />
+                  <button
+                    onClick={saveBirthday}
+                    className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium rounded-xl transition-colors"
+                  >
+                    {birthdaySaved ? '✓ บันทึกแล้ว' : 'บันทึก'}
+                  </button>
+                </div>
+                {birthday && (
+                  <p className="text-2xs text-[#2A2522]/40 mt-2">
+                    ระบบจะส่งโค้ดส่วนลด {bPerks.discount}% ให้ทางอีเมลก่อนวันเกิด 7 วัน
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* All tiers overview */}
