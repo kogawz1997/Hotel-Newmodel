@@ -199,10 +199,10 @@ export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: S
 
       <div className="border-t border-border p-3">
         <Link
-          href="/dashboard/settings"
+          href="/dashboard/profile"
           className={cn(
             'flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-secondary transition-colors',
-            pathname.startsWith('/dashboard/settings') && 'bg-secondary'
+            pathname.startsWith('/dashboard/profile') && 'bg-secondary'
           )}
         >
           <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0">
