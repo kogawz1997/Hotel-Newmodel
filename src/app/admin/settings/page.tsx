@@ -2,11 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Save, Settings, AlertTriangle, Megaphone, CreditCard, Zap, ChevronRight } from 'lucide-react';
+import { Save, Settings, AlertTriangle, Megaphone, CreditCard, Zap, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdminLang } from '@/contexts/admin-lang-context';
 
-type Tab = 'general' | 'plans' | 'features' | 'announcement';
+type Tab = 'general' | 'plans' | 'features' | 'announcement' | 'content';
+
+type SiteContent = {
+  hero_headline_th: string;
+  hero_headline_en: string;
+  hero_subtitle: string;
+  hero_cta: string;
+  site_description: string;
+  favicon_url: string;
+  footer_tagline: string;
+};
 
 type Config = {
   app_name: string;
@@ -16,6 +26,17 @@ type Config = {
   plan_prices: { starter: number; standard: number; pro: number; enterprise: number };
   features: Record<string, string[]>;
   announcement: { enabled: boolean; message: string; type: 'info' | 'warning' | 'success' };
+  site_content: SiteContent;
+};
+
+const DEFAULT_SITE_CONTENT: SiteContent = {
+  hero_headline_th: 'ระบบบริหารโรงแรมสำหรับยุคใหม่',
+  hero_headline_en: 'Hotel Management for the Modern Era',
+  hero_subtitle: 'AI-first property management for Thai hospitality',
+  hero_cta: 'เริ่มต้นฟรี 60 วัน',
+  site_description: 'AI-first property management for Thai hospitality. Multi-language inbox, channel manager, compliance — built for the way modern hotels work.',
+  favicon_url: '',
+  footer_tagline: 'Built for Thai hospitality',
 };
 
 const DEFAULTS: Config = {
@@ -35,6 +56,7 @@ const DEFAULTS: Config = {
     custom_branding:    ['pro', 'enterprise'],
   },
   announcement: { enabled: false, message: '', type: 'info' },
+  site_content: DEFAULT_SITE_CONTENT,
 };
 
 const FEATURE_LABELS: Record<string, string> = {
@@ -61,18 +83,21 @@ async function loadConfig(): Promise<Partial<Config>> {
   const res = await fetch('/api/admin/platform-config');
   if (!res.ok) return {};
   const data = await res.json();
+  // data is a flat map: { general: {...}, plan_prices: {...}, features: {...}, announcement: {...}, site_content: {...} }
+  const general = (typeof data.general === 'object' && data.general !== null) ? data.general as Record<string, unknown> : {};
   return {
-    app_name:         data.app_name?.value ?? undefined,
-    support_email:    data.support_email?.value ?? undefined,
-    logo_url:         data.logo_url?.value ?? undefined,
-    maintenance_mode: data.maintenance_mode?.value ?? undefined,
-    plan_prices:      data.plan_prices?.value ?? undefined,
-    features:         data.features?.value ?? undefined,
-    announcement:     data.announcement?.value ?? undefined,
+    app_name:         general.app_name         as string  ?? undefined,
+    support_email:    general.support_email    as string  ?? undefined,
+    logo_url:         general.logo_url         as string  ?? undefined,
+    maintenance_mode: general.maintenance_mode as boolean ?? undefined,
+    plan_prices:      data.plan_prices  ?? undefined,
+    features:         data.features     ?? undefined,
+    announcement:     data.announcement ?? undefined,
+    site_content:     data.site_content ?? undefined,
   };
 }
 
-async function saveKey(key: string, value: any) {
+async function saveKey(key: string, value: unknown) {
   await fetch('/api/admin/platform-config', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -92,12 +117,13 @@ export default function AdminSettingsPage() {
       setCfg(prev => ({
         ...prev,
         ...Object.fromEntries(Object.entries(remote).filter(([, v]) => v !== undefined)),
+        site_content: { ...DEFAULT_SITE_CONTENT, ...(remote.site_content ?? {}) },
       }));
       setLoading(false);
     });
   }, []);
 
-  async function save(section: string, data: any) {
+  async function save(section: string, data: unknown) {
     setSaving(section);
     try {
       await saveKey(section, data);
@@ -116,10 +142,11 @@ export default function AdminSettingsPage() {
   }
 
   const TABS: { key: Tab; icon: React.ComponentType<{className?: string}>; labelKey: string }[] = [
-    { key: 'general',      icon: Settings,      labelKey: 'settings.tabs.general'      },
-    { key: 'plans',        icon: CreditCard,    labelKey: 'settings.tabs.plans'        },
-    { key: 'features',     icon: Zap,           labelKey: 'settings.tabs.features'     },
-    { key: 'announcement', icon: Megaphone,     labelKey: 'settings.tabs.announcement' },
+    { key: 'general',      icon: Settings,  labelKey: 'settings.tabs.general'      },
+    { key: 'plans',        icon: CreditCard, labelKey: 'settings.tabs.plans'       },
+    { key: 'features',     icon: Zap,        labelKey: 'settings.tabs.features'    },
+    { key: 'announcement', icon: Megaphone,  labelKey: 'settings.tabs.announcement' },
+    { key: 'content',      icon: Globe,      labelKey: 'settings.tabs.content'     },
   ];
 
   if (loading) return (
@@ -146,15 +173,16 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      {/* Tab strip */}
+      {/* Tab strip — scrollable on mobile */}
       <div className="flex gap-1 bg-white/5 p-1 rounded-2xl border border-white/8 overflow-x-auto">
         {TABS.map(({ key, icon: Icon, labelKey }) => (
           <button key={key} onClick={() => setTab(key)}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all flex-1 justify-center',
+              'flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex-1 justify-center min-w-0',
               tab === key ? 'bg-[#C66A30] text-white shadow' : 'text-white/40 hover:text-white/70',
             )}>
-            <Icon className="h-4 w-4" />{t(labelKey)}
+            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{t(labelKey)}</span>
           </button>
         ))}
       </div>
@@ -178,7 +206,12 @@ export default function AdminSettingsPage() {
           />
 
           <SaveButton saving={saving === 'general'} label={t('settings.general.save')}
-            onClick={() => save('general', { app_name: cfg.app_name, support_email: cfg.support_email, logo_url: cfg.logo_url, maintenance_mode: cfg.maintenance_mode })} />
+            onClick={() => save('general', {
+              app_name: cfg.app_name,
+              support_email: cfg.support_email,
+              logo_url: cfg.logo_url,
+              maintenance_mode: cfg.maintenance_mode,
+            })} />
         </div>
       )}
 
@@ -221,7 +254,6 @@ export default function AdminSettingsPage() {
             <p className="text-sm text-white/40 mt-0.5">{t('settings.features.desc')}</p>
           </div>
 
-          {/* Feature/plan matrix */}
           <div className="overflow-x-auto -mx-5 px-5">
             <table className="w-full text-sm">
               <thead>
@@ -245,7 +277,7 @@ export default function AdminSettingsPage() {
                               'h-6 w-6 rounded-lg border-2 mx-auto flex items-center justify-center transition-all',
                               enabled ? 'bg-[#C66A30] border-[#C66A30]' : 'border-white/15 hover:border-white/30',
                             )}>
-                            {enabled && <span className="text-white text-xs font-bold">✓</span>}
+                            {enabled && <span className="text-white text-xs font-bold">&#10003;</span>}
                           </button>
                         </td>
                       );
@@ -301,7 +333,6 @@ export default function AdminSettingsPage() {
             />
           </div>
 
-          {/* Preview */}
           {cfg.announcement.enabled && cfg.announcement.message && (
             <div>
               <p className="text-xs font-medium text-white/40 mb-2">{t('settings.announcement.preview')}</p>
@@ -313,6 +344,110 @@ export default function AdminSettingsPage() {
 
           <SaveButton saving={saving === 'announcement'} label={t('settings.announcement.save')}
             onClick={() => save('announcement', cfg.announcement)} />
+        </div>
+      )}
+
+      {/* ── Content ── */}
+      {tab === 'content' && (
+        <div className="space-y-4">
+          {/* Favicon & Identity */}
+          <div className="bg-white/5 border border-white/8 rounded-2xl p-5 md:p-6 space-y-5">
+            <div>
+              <h2 className="font-semibold text-white">{t('settings.content.title')}</h2>
+              <p className="text-sm text-white/40 mt-0.5">{t('settings.content.desc')}</p>
+            </div>
+
+            <AdminField
+              label={t('settings.content.faviconUrl')}
+              desc={t('settings.content.faviconDesc')}
+              type="url"
+              placeholder="https://example.com/icon.png"
+              value={cfg.site_content.favicon_url}
+              onChange={v => setCfg(p => ({ ...p, site_content: { ...p.site_content, favicon_url: v } }))}
+            />
+
+            {cfg.site_content.favicon_url && (
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                <img
+                  src={cfg.site_content.favicon_url}
+                  alt="Favicon preview"
+                  className="h-8 w-8 rounded object-contain bg-white/10"
+                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+                <p className="text-xs text-white/40">
+                  {lang === 'th' ? 'ตัวอย่างไอคอนเว็บ' : 'Favicon preview'}
+                </p>
+              </div>
+            )}
+
+            <AdminField
+              label={t('settings.content.footerTagline')}
+              placeholder="Built for Thai hospitality"
+              value={cfg.site_content.footer_tagline}
+              onChange={v => setCfg(p => ({ ...p, site_content: { ...p.site_content, footer_tagline: v } }))}
+            />
+          </div>
+
+          {/* Hero section */}
+          <div className="bg-white/5 border border-white/8 rounded-2xl p-5 md:p-6 space-y-5">
+            <div>
+              <h2 className="font-semibold text-white">
+                {lang === 'th' ? 'ส่วนหัวหน้าแรก (Hero)' : 'Homepage Hero Section'}
+              </h2>
+              <p className="text-xs text-white/40 mt-0.5">
+                {lang === 'th' ? 'ข้อความขนาดใหญ่ที่แสดงบนหน้าแรก' : 'Large text displayed at the top of the homepage'}
+              </p>
+            </div>
+
+            <AdminField
+              label={t('settings.content.heroHeadlineTh')}
+              value={cfg.site_content.hero_headline_th}
+              onChange={v => setCfg(p => ({ ...p, site_content: { ...p.site_content, hero_headline_th: v } }))}
+            />
+            <AdminField
+              label={t('settings.content.heroHeadlineEn')}
+              value={cfg.site_content.hero_headline_en}
+              onChange={v => setCfg(p => ({ ...p, site_content: { ...p.site_content, hero_headline_en: v } }))}
+            />
+            <AdminField
+              label={t('settings.content.heroSubtitle')}
+              value={cfg.site_content.hero_subtitle}
+              onChange={v => setCfg(p => ({ ...p, site_content: { ...p.site_content, hero_subtitle: v } }))}
+            />
+            <AdminField
+              label={t('settings.content.heroCta')}
+              placeholder="เริ่มต้นฟรี 60 วัน"
+              value={cfg.site_content.hero_cta}
+              onChange={v => setCfg(p => ({ ...p, site_content: { ...p.site_content, hero_cta: v } }))}
+            />
+          </div>
+
+          {/* SEO */}
+          <div className="bg-white/5 border border-white/8 rounded-2xl p-5 md:p-6 space-y-5">
+            <div>
+              <h2 className="font-semibold text-white">SEO</h2>
+              <p className="text-xs text-white/40 mt-0.5">
+                {lang === 'th' ? 'ข้อมูลที่แสดงใน Google และ social media' : 'Information shown in Google and social media previews'}
+              </p>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-white/60 mb-1.5 block">{t('settings.content.siteDescription')}</label>
+              <p className="text-xs text-white/30 mb-1.5">{t('settings.content.siteDescriptionDesc')}</p>
+              <textarea
+                rows={3}
+                value={cfg.site_content.site_description}
+                onChange={e => setCfg(p => ({ ...p, site_content: { ...p.site_content, site_description: e.target.value } }))}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-[#C66A30]/50 resize-none"
+              />
+              <p className="text-right text-2xs text-white/25 mt-1">
+                {cfg.site_content.site_description.length}/160
+              </p>
+            </div>
+          </div>
+
+          <SaveButton saving={saving === 'site_content'} label={t('settings.content.save')}
+            onClick={() => save('site_content', cfg.site_content)} />
         </div>
       )}
     </div>

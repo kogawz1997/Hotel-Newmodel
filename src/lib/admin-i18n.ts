@@ -66,6 +66,7 @@ export const ADMIN_STRINGS: Record<Lang, {
       plans: string;
       features: string;
       announcement: string;
+      content: string;
     };
     general: {
       appName: string;
@@ -102,6 +103,20 @@ export const ADMIN_STRINGS: Record<Lang, {
       messagePlaceholder: string;
       enabled: string;
       preview: string;
+      save: string;
+    };
+    content: {
+      title: string;
+      desc: string;
+      heroHeadlineTh: string;
+      heroHeadlineEn: string;
+      heroSubtitle: string;
+      heroCta: string;
+      siteDescription: string;
+      siteDescriptionDesc: string;
+      faviconUrl: string;
+      faviconDesc: string;
+      footerTagline: string;
       save: string;
     };
   };
@@ -208,6 +223,7 @@ export const ADMIN_STRINGS: Record<Lang, {
         plans: 'แผนการใช้งาน',
         features: 'ฟีเจอร์',
         announcement: 'ประกาศ',
+        content: 'เนื้อหาเว็บ',
       },
       general: {
         appName: 'ชื่อแอปพลิเคชัน',
@@ -245,6 +261,20 @@ export const ADMIN_STRINGS: Record<Lang, {
         enabled: 'เปิดใช้งานประกาศ',
         preview: 'ตัวอย่าง',
         save: 'บันทึกประกาศ',
+      },
+      content: {
+        title: 'เนื้อหาหน้าเว็บ',
+        desc: 'แก้ไขข้อความและเนื้อหาที่แสดงบนหน้าเว็บสาธารณะ รวมถึงชื่อเว็บและไอคอน',
+        heroHeadlineTh: 'หัวข้อหลัก (ภาษาไทย)',
+        heroHeadlineEn: 'หัวข้อหลัก (ภาษาอังกฤษ)',
+        heroSubtitle: 'คำบรรยายใต้หัวข้อ',
+        heroCta: 'ข้อความปุ่ม CTA',
+        siteDescription: 'คำอธิบายเว็บ (SEO)',
+        siteDescriptionDesc: 'ข้อความที่แสดงใน Google และ social media ควรยาว 120-160 ตัวอักษร',
+        faviconUrl: 'URL ไอคอนเว็บ (Favicon)',
+        faviconDesc: 'URL รูปภาพ .png หรือ .svg แนะนำขนาด 32x32 หรือ 64x64 px — ปล่อยว่างเพื่อใช้ไอคอนเริ่มต้น',
+        footerTagline: 'คำขวัญท้ายเว็บ (Footer)',
+        save: 'บันทึกเนื้อหา',
       },
     },
     ranking: {
@@ -351,6 +381,7 @@ export const ADMIN_STRINGS: Record<Lang, {
         plans: 'Plans',
         features: 'Features',
         announcement: 'Announcement',
+        content: 'Content',
       },
       general: {
         appName: 'Application Name',
@@ -388,6 +419,20 @@ export const ADMIN_STRINGS: Record<Lang, {
         enabled: 'Enable Announcement',
         preview: 'Preview',
         save: 'Save Announcement',
+      },
+      content: {
+        title: 'Website Content',
+        desc: 'Edit text and content shown on public pages, including the site name and favicon',
+        heroHeadlineTh: 'Hero Headline (Thai)',
+        heroHeadlineEn: 'Hero Headline (English)',
+        heroSubtitle: 'Hero Subtitle',
+        heroCta: 'CTA Button Text',
+        siteDescription: 'Site Description (SEO)',
+        siteDescriptionDesc: 'Shown in Google and social media previews. Aim for 120–160 characters.',
+        faviconUrl: 'Favicon URL',
+        faviconDesc: 'URL to a .png or .svg image. Recommended 32×32 or 64×64 px — leave blank to use the default icon.',
+        footerTagline: 'Footer Tagline',
+        save: 'Save Content',
       },
     },
     ranking: {
@@ -443,7 +488,7 @@ export function t(lang: Lang, key: string): string {
 
   for (const part of parts) {
     if (node == null || typeof node !== 'object') {
-      return key; // key not found — return raw key as fallback
+      return key;
     }
     node = node[part];
   }
@@ -452,5 +497,5 @@ export function t(lang: Lang, key: string): string {
     return node;
   }
 
-  return key; // key resolved to a non-string (nested object) — return raw key
+  return key;
 }
