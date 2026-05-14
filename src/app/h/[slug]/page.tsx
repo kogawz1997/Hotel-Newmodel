@@ -13,6 +13,7 @@ import { GuestChatWidget } from '@/components/booking/guest-chat-widget';
 import { WishlistButton } from '@/components/ui/wishlist-button';
 import { HotelGallery } from '@/components/booking/hotel-gallery';
 import { HotelCard } from '@/components/public/HotelCard';
+import { RoomCompareSection } from '@/components/public/RoomCompareSection';
 import type { Metadata } from 'next';
 
 type GalleryItem = { image_url: string; alt_text?: string | null; display_order: number };
@@ -410,102 +411,9 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
               )}
             </div>
 
-            {/* ── Room types (UPGRADED) ── */}
+            {/* ── Room types with comparison ── */}
             {roomTypes.length > 0 && (
-              <div className="border-b border-black/8 pb-8" id="rooms">
-                <h2 className="text-lg font-bold text-[#2A2522] mb-1">ห้องพักที่มี</h2>
-                <p className="text-sm text-[#2A2522]/50 mb-5">ราคาเริ่มต้น · ยกเลิกฟรี · จองได้ทันที</p>
-                <div className="space-y-5">
-                  {(roomTypes as any[]).map((rt, idx) => {
-                    const imgs = ((rt.room_type_images || []) as any[]).sort((a, b) => a.display_order - b.display_order);
-                    const amenities: string[] = rt.amenities || [];
-                    const availCount = roomCountByType[rt.id] || 0;
-                    const isPopular  = idx === 0;
-                    const isLow      = availCount > 0 && availCount <= 3;
-
-                    return (
-                      <div key={rt.id} className={`rounded-2xl border overflow-hidden hover:shadow-md transition-shadow ${isPopular ? 'border-[#C66A30]/40 ring-1 ring-[#C66A30]/20' : 'border-black/8'}`}>
-                        {/* Popular badge strip */}
-                        {isPopular && (
-                          <div className="bg-[#C66A30] px-4 py-1.5 flex items-center gap-1.5">
-                            <Flame className="h-3.5 w-3.5 text-white" />
-                            <span className="text-white text-xs font-semibold">ห้องยอดนิยม — เลือกมากที่สุด</span>
-                          </div>
-                        )}
-
-                        <div className="flex flex-col sm:flex-row">
-                          {/* Image */}
-                          <div className="sm:w-52 h-52 sm:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden">
-                            {imgs[0]?.image_url
-                              ? <img src={imgs[0].image_url} alt={rt.name} className="w-full h-full object-cover" />
-                              : <div className="w-full h-full flex items-center justify-center text-[#2A2522]/10"><Bed className="h-12 w-12" /></div>
-                            }
-                            {imgs.length > 1 && (
-                              <div className="absolute bottom-2 right-2 bg-black/60 text-white text-2xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                                <ImageIcon className="h-3 w-3" />
-                                {imgs.length} รูป
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Content */}
-                          <div className="flex-1 p-5 flex flex-col justify-between">
-                            <div>
-                              <div className="flex items-start justify-between gap-3 mb-2">
-                                <h3 className="font-bold text-[#2A2522] text-base leading-tight">{rt.name}</h3>
-                                <div className="text-right shrink-0">
-                                  <div className="font-bold text-xl text-[#C66A30]">{formatCurrency(rt.base_rate)}</div>
-                                  <div className="text-xs text-[#2A2522]/40">/ คืน (ราคาเริ่มต้น)</div>
-                                </div>
-                              </div>
-
-                              <div className="flex flex-wrap gap-3 text-xs text-[#2A2522]/50 mb-3">
-                                {rt.size_sqm    && <span className="flex items-center gap-1"><Maximize2 className="h-3.5 w-3.5" />{rt.size_sqm} ตร.ม.</span>}
-                                {rt.max_occupancy && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />สูงสุด {rt.max_occupancy} คน</span>}
-                                {rt.bed_type     && <span className="flex items-center gap-1"><Bed className="h-3.5 w-3.5" />{rt.bed_type}</span>}
-                              </div>
-
-                              {rt.description && (
-                                <p className="text-xs text-[#2A2522]/60 leading-relaxed mb-3 line-clamp-2">{rt.description}</p>
-                              )}
-
-                              {amenities.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mb-3">
-                                  {amenities.slice(0, 6).map((a: string) => (
-                                    <span key={a} className="text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-0.5 rounded-full border border-black/5">
-                                      {amenityTh(a)}
-                                    </span>
-                                  ))}
-                                  {amenities.length > 6 && (
-                                    <span className="text-2xs text-[#2A2522]/40">+{amenities.length - 6} อื่นๆ</span>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Status badges */}
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                <span className="flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-                                  <CheckCircle className="h-3.5 w-3.5" />ยกเลิกฟรี 24 ชม.
-                                </span>
-                                {isLow && (
-                                  <span className="flex items-center gap-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full font-semibold">
-                                    เหลือเพียง {availCount} ห้อง!
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            <Link href={`/booking/${slug}`}
-                              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto sm:self-end bg-[#C66A30] hover:bg-[#A4522A] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors">
-                              เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <RoomCompareSection roomTypes={roomTypes as any} slug={slug} roomCountByType={roomCountByType} />
             )}
 
             {/* Reviews */}

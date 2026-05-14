@@ -129,8 +129,24 @@ export default async function RoomDetailPage({
 
   const amenities: string[] = room.amenities ?? [];
 
+  const roomJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: room.name,
+    description: room.description ?? undefined,
+    offers: {
+      '@type': 'Offer',
+      price: room.base_rate ?? 0,
+      priceCurrency: 'THB',
+      availability: 'https://schema.org/InStock',
+      url: `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/h/${slug}/rooms/${roomId}`,
+    },
+    brand: { '@type': 'Brand', name: hotel.name },
+  };
+
   return (
     <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh' }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(roomJsonLd) }} />
       {/* ── Sticky nav ──────────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-40 bg-white border-b border-black/5 px-4 py-3">
         <div className="max-w-5xl mx-auto">
@@ -221,6 +237,20 @@ export default async function RoomDetailPage({
               <p className="text-sm font-medium text-amber-800">
                 เหลือเพียง 2 ห้อง · มีผู้เข้าชม 18 คนในขณะนี้
               </p>
+            </div>
+
+            {/* ── 360° Virtual Tour placeholder ───────────────────────────── */}
+            <div className="bg-white rounded-2xl border border-black/5 p-5">
+              <h2 className="text-base font-semibold mb-3" style={{ color: '#2A2522' }}>360° Virtual Tour</h2>
+              <div className="relative h-52 bg-[#FAF7F2] rounded-xl overflow-hidden flex flex-col items-center justify-center gap-3 border-2 border-dashed border-black/10">
+                <span className="text-5xl">🏨</span>
+                <p className="text-sm text-[#2A2522]/50 font-medium">Virtual Tour — ชมห้องพักแบบ 360°</p>
+                <p className="text-xs text-[#2A2522]/30">ติดต่อโรงแรมเพื่อขอลิงก์ Virtual Tour</p>
+                <a href={`tel:${hotel.phone ?? ''}`}
+                  className="mt-1 inline-flex items-center gap-1.5 px-4 py-2 bg-[#2A2522] text-white text-xs font-medium rounded-lg hover:bg-black transition-colors">
+                  📞 ติดต่อโรงแรม
+                </a>
+              </div>
             </div>
 
             {/* ── Amenities ───────────────────────────────────────────────── */}

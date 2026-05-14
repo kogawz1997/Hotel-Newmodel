@@ -47,7 +47,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [promoCode, setPromoCode]           = useState('');
   const [promoResult, setPromoResult]       = useState<any>(null);
   const [promoLoading, setPromoLoading]     = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel' | 'promptpay'>('online');
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel' | 'promptpay' | 'truemoney' | 'bank_transfer'>('promptpay');
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [wishlist, setWishlist] = useState<string[]>([]);
 
@@ -510,6 +510,8 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 {[
                   { key: 'promptpay', label: 'PromptPay QR', desc: 'สแกน QR ผ่าน Mobile Banking — ยืนยันอัตโนมัติทันที', badge: '⚡ เร็วที่สุด' },
                   { key: 'online', label: 'บัตรเครดิต/เดบิต', desc: 'ชำระด้วยบัตรออนไลน์ — ปลอดภัยและยืนยันทันที', badge: '🔒 ปลอดภัย' },
+                  { key: 'truemoney', label: 'TrueMoney Wallet', desc: 'ชำระผ่าน TrueMoney — รองรับทุก True Card และ eWallet', badge: '💳 True' },
+                  { key: 'bank_transfer', label: 'โอนเงินผ่านธนาคาร', desc: 'โอนเงินเข้าบัญชีโรงแรมและแนบสลิป — ยืนยันภายใน 30 นาที', badge: '' },
                   { key: 'at_hotel', label: 'ชำระที่โรงแรม (Pay at Hotel)', desc: 'จ่ายเมื่อเช็คอิน — ยกเลิกได้ฟรีทุกเมื่อก่อนวันเช็คอิน', badge: '' },
                 ].map(pm => (
                   <label key={pm.key} className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === pm.key ? 'border-[#004B87] bg-[#004B87]/5' : 'border-black/8 hover:border-[#004B87]/30'}`}>
@@ -694,6 +696,20 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         {paymentMethod === 'at_hotel' && (
           <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
             ชำระที่โรงแรมเมื่อเช็คอิน — กรุณาแสดงรหัสการจองแก่พนักงาน
+          </div>
+        )}
+        {paymentMethod === 'truemoney' && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="font-semibold mb-1">ชำระผ่าน TrueMoney Wallet</p>
+            <p>เปิดแอป TrueMoney → โอนเงิน → ใส่เบอร์โรงแรม → ส่งสลิปมาที่อีเมลโรงแรม</p>
+            <p className="mt-1 text-xs text-red-600">ทีมงานจะยืนยันการจองภายใน 30 นาทีหลังได้รับสลิป</p>
+          </div>
+        )}
+        {paymentMethod === 'bank_transfer' && (
+          <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+            <p className="font-semibold mb-1">โอนเงินผ่านธนาคาร</p>
+            <p>โอนเงินเข้าบัญชีโรงแรมและแนบสลิปในอีเมลยืนยันการจอง</p>
+            <p className="mt-1 text-xs text-blue-600">จะยืนยันภายใน 30 นาทีในเวลาทำการ 8:00–20:00 น.</p>
           </div>
         )}
 

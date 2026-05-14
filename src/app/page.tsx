@@ -145,13 +145,16 @@ export default function HomePage() {
 
       {/* ─── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Background image */}
+        {/* Cinematic video hero with image fallback */}
         <div className="absolute inset-0 -z-10">
-          <img
-            src={IMAGES.heroLobby}
-            alt="Luxury hotel lobby"
+          <video
+            autoPlay muted loop playsInline
+            poster={IMAGES.heroLobby}
             className="w-full h-full object-cover"
-          />
+          >
+            {/* Hotel can upload their own video — fallback to poster image */}
+            <source src="/hero-video.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-[#1A1614]/70 via-[#1A1614]/50 to-[#1A1614]/80" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#1A1614]/40 to-transparent" />
         </div>
