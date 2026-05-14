@@ -1,525 +1,957 @@
-# Hotel System — Complete Implementation Roadmap
-
-> แผนพัฒนาระบบโรงแรมครบวงจร แบ่งเป็น 3 Phase  
-> Branch: `claude/audit-consolidate-docs-mj9Dt`
-
----
-
-## PHASE 1 — Core Operations Foundation
-**เป้าหมาย:** ระบบพื้นฐานที่ทุกแผนกต้องการในชีวิตประจำวัน  
-**ระยะเวลาโดยประมาณ:** 4–6 สัปดาห์
+# Hotel System — Complete Implementation Roadmap v2
+> เปรียบเทียบกับ target spec เต็มรูปแบบ: Hotel OS + SaaS Platform  
+> Branch: `claude/audit-consolidate-docs-mj9Dt`  
+> อัพเดต: 2026-05-14
 
 ---
 
-### 1.1 Database Migrations
+## GAP ANALYSIS — สิ่งที่มีอยู่แล้ว vs ที่ยังขาด
 
-| ไฟล์ Migration | ตาราง / การเปลี่ยนแปลง |
-|---|---|
-| `20260514000000_staff_profile_extended.sql` | ✅ เสร็จแล้ว — first_name, last_name, avatar_url, notification_prefs, dept_prefs, appearance_prefs |
-| `20260514100000_department_work_tables.sql` | ✅ เสร็จแล้ว — concierge_requests, security_incidents, visitor_log |
-| `20260601000000_attendance_shifts.sql` | `attendance_records` (clock_in/out, break, status), `shifts` (name, start_time, end_time, dept), `shift_assignments` (staff_id, shift_id, date) |
-| `20260601100000_task_router.sql` | `work_orders` (type, priority, status, room_no, assigned_to, queue_position, auto_routed), `task_assignments` (work_order_id, staff_id, assigned_at, completed_at), `staff_availability` (staff_id, is_available, current_task_id) |
-| `20260601200000_omnichannel_inbox.sql` | `conversations` (update: add platform_id, platform_thread_id, assigned_to, last_message_at), `messages` (conversation_id, sender_type, content, platform_msg_id, read_at), `channel_integrations` (hotel_id, platform, credentials JSONB, enabled) |
-| `20260601300000_leave_documents.sql` | `leave_requests` (staff_id, type, start_date, end_date, reason, status, approved_by), `documents` (hotel_id, category, title, file_url, uploaded_by, version), `internal_requests` (requester_id, dept, type, details JSONB, status, approved_by), `announcements` (hotel_id, title, body, target_roles[], expires_at) |
+### ✅ มีอยู่แล้ว
+| ระบบ | ไฟล์ | ระดับความสมบูรณ์ |
+|---|---|---|
+| Auth / Login | `src/app/auth/` | ✅ เต็ม |
+| Reservations (basic) | `src/app/dashboard/reservations/` | ⚠️ ขาด: group booking, OTA queue, waitlist |
+| Rooms | `src/app/dashboard/rooms/` | ⚠️ ขาด: room move, block, upgrade flow |
+| Guests | `src/app/dashboard/guests/` | ⚠️ ขาด: 360 profile, folio, loyalty |
+| Front Desk (basic) | `src/app/dashboard/front-desk/` | ⚠️ ขาด: keycard, deposit, cashier |
+| Housekeeping (basic) | `src/app/dashboard/housekeeping/` | ⚠️ ขาด: inspector, minibar, photo, laundry |
+| Maintenance (basic) | `src/app/dashboard/maintenance/` | ⚠️ ขาด: parts, before/after photo, technician view |
+| Concierge (full) | `src/app/dashboard/concierge/` | ⚠️ ขาด: bellboy tasks, transport, luggage |
+| Security (full) | `src/app/dashboard/security/` | ⚠️ ขาด: patrol checklist, emergency alerts |
+| Staff Profile (5 tabs) | `src/app/dashboard/profile/` | ✅ เต็ม |
+| Role-adaptive Dashboard | `src/app/dashboard/page.tsx` | ⚠️ ขาด: GM/OpsManager/Owner views |
+| DB: staff_profile_extended | `supabase/migrations/20260514000000` | ✅ เต็ม |
+| DB: department_work_tables | `supabase/migrations/20260514100000` | ✅ เต็ม |
+
+### ❌ ยังขาดทั้งหมด (Hotel OS)
+- GM Command Center, Operations Manager view, Owner Dashboard with AI summaries
+- Reservation Agent role + full booking module
+- Chat Admin / Omnichannel Inbox with AI replies, SLA timer, translations
+- Room Inspector app, Housekeeper mobile view
+- Technician mobile view, parts tracking
+- Kitchen Queue / KDS
+- Room Service Delivery app
+- Restaurant POS (table orders, room charge, split bill)
+- Bellboy / Porter tasks
+- Transport Staff app
+- Revenue Manager tools (competitor pricing, dynamic pricing, OTA performance)
+- Marketing tools (campaigns, abandoned bookings, LINE campaigns)
+- Accounting OS (folio, cashier close, tax invoices, reconciliation)
+- Night Audit full flow
+- Spa full (treatment rooms, therapist assignment)
+- HR full (onboarding, training mode, payroll)
+- IT Support tickets
+
+### ❌ ยังขาดทั้งหมด (SaaS Platform — app.maitriapp.com/owner)
+- Platform Owner Control Center (MRR, churn, AI usage, webhook failures)
+- Billing Admin (failed payments, subscription lifecycle, refunds, credits)
+- Support Admin (impersonation, diagnostics, onboarding)
+- Platform Ops Admin (uptime, queue, WebSocket health, OTA health)
+- Security Admin (access logs, session revocation, API abuse)
+- Sales Admin CRM (hotel leads, demos, trial tracking, onboarding pipeline)
+- Product Admin (feature flags, A/B testing, module toggles)
+- Developer / Engineering Admin (logs, deployments, webhook replay)
 
 ---
 
-### 1.2 Roles & Permissions
+## DATABASE MIGRATIONS — COMPLETE
 
-**ไฟล์:** `supabase/migrations/20260601400000_expanded_roles.sql`
-
-เพิ่ม role ใหม่ใน CHECK constraint:
+### ✅ Already Done
 ```
-owner | admin | manager | dept_head | shift_supervisor |
-front_desk | receptionist | housekeeping | concierge |
-guest_relations | accounting | maintenance | engineering |
-security | purchasing | hr_manager | hr_staff |
-fnb_manager | fnb_staff | spa_manager | spa_staff |
-sales | night_audit | it_admin | staff | viewer
+20260514000000_staff_profile_extended.sql
+20260514100000_department_work_tables.sql
 ```
 
-**ไฟล์:** `src/lib/roles.ts`
-- Role hierarchy map (owner > admin > manager > dept_head > shift_supervisor > staff)
-- `canManage(actorRole, targetRole)` helper
-- `getDeptRoles(dept: string)` — รายการ role ในแต่ละแผนก
-- `isShiftLead(role)` — ตรวจสอบว่าเป็นหัวหน้ากะหรือไม่
+### Phase 1 Migrations
+```
+20260601000000_attendance_shifts.sql
+  → attendance_records, shifts, shift_assignments, staff_availability
+
+20260601100000_work_orders.sql
+  → work_orders (type, priority, status, room_no, assigned_to, queue_pos, auto_routed)
+  → task_assignments (work_order_id, staff_id, assigned_at, completed_at)
+  → task_photos (task_id, photo_url, type: before/after/proof)
+
+20260601200000_messaging.sql
+  → conversations (update: platform_thread_id, assigned_to, sla_deadline, ai_suggested_reply)
+  → messages (conversation_id, sender_type, content, platform_msg_id, translated_content, read_at)
+  → channel_integrations (hotel_id, platform, credentials JSONB, enabled, webhook_url)
+  → canned_responses (hotel_id, title, body, category, lang)
+
+20260601300000_leave_documents.sql
+  → leave_requests, documents, internal_requests, announcements
+
+20260601400000_roles_expanded.sql
+  → 35 roles (see full list below)
+```
+
+### Phase 2 Migrations
+```
+20260701000000_hr_module.sql
+  → employees (extended profile), payroll_periods, payroll_items
+  → performance_reviews, training_records, onboarding_tasks
+
+20260701100000_accounting_full.sql
+  → accounts (chart of accounts), journal_entries, expense_categories
+  → expense_items (receipt_url, approved_by), revenue_summary
+  → folios (reservation_id, items JSONB, total, status)
+  → cashier_sessions (staff_id, opened_at, closed_at, opening_balance, closing_balance)
+  → tax_invoices (folio_id, tax_id, issued_at, amount, tax_amount)
+
+20260701200000_housekeeping_full.sql
+  → room_cleaning_tasks (update: photo_urls[], minibar_items JSONB, inspector_id, inspection_score)
+  → linen_inventory, lost_found
+  → minibar_templates (room_type_id, items JSONB)
+  → laundry_batches (collected_at, returned_at, items_count, assigned_to)
+
+20260701300000_engineering_full.sql
+  → maintenance_requests (update: before_photos[], after_photos[], parts_used JSONB)
+  → preventive_maintenance, equipment_log, equipment_inventory
+  → parts_inventory (name, quantity, unit, cost, min_stock)
+
+20260701400000_fnb_full.sql
+  → menu_items, food_orders (update: room_service / dine_in), kitchen_queue
+  → spa_services, spa_bookings (update: treatment_room_id, notes)
+  → restaurant_tables (outlet_id, table_no, capacity, status)
+  → restaurant_orders (table_id, items JSONB, total, status, server_id)
+
+20260701500000_purchasing.sql
+  → suppliers, purchase_orders, inventory_items, stock_transactions
+
+20260701600000_transport_bellboy.sql
+  → transport_tasks (type: airport_pickup/dropoff/tour, guest_id, vehicle, driver_id, pickup_time, status)
+  → luggage_tasks (type: pickup/delivery/storage, room_no, count, notes, assigned_to, completed_at)
+
+20260701700000_revenue_marketing.sql
+  → rate_plans, price_overrides, occupancy_forecast, channel_rates
+  → leads (hotel-level, not platform), promo_codes
+  → marketing_campaigns (hotel_id, type, channel, audience_segment, stats JSONB)
+  → abandoned_bookings (guest_email, room_type, dates, last_step, recovery_sent_at)
+
+20260701800000_it_support.sql
+  → support_tickets_internal (hotel_id, requester_id, category, description, status, resolved_by)
+  → device_registry (hotel_id, name, type, location, status, last_ping)
+```
+
+### Phase 3 Migrations (Platform / SaaS)
+```
+20260801000000_platform_core.sql
+  → organizations (expand: subscription_plan, seats, features JSONB, trial_ends_at, suspended_at)
+  → billing_subscriptions (org_id, plan, status, current_period_start/end, stripe_id)
+  → billing_invoices (org_id, amount, status, due_date, paid_at, pdf_url)
+  → billing_credits (org_id, amount, reason, expires_at)
+  → platform_addons (org_id, addon_type, quantity, price)
+
+20260801100000_platform_ops.sql
+  → audit_logs (global: org_id, hotel_id, user_id, action, resource, ip, details JSONB)
+  → system_health_log (service, status, latency_ms, checked_at)
+  → webhook_events (hotel_id, platform, event_type, payload JSONB, status, retry_count)
+  → feature_flags (key, enabled, rollout_pct, target_orgs[], created_by)
+  → ab_tests (name, variants JSONB, start_date, end_date, results JSONB)
+
+20260801200000_platform_sales.sql
+  → platform_leads (company, contact_name, email, phone, source, stage, value, notes, owner_id)
+  → demo_sessions (lead_id, scheduled_at, demo_url, status, notes)
+  → platform_contracts (org_id, plan, start_date, end_date, committed_seats, price)
+
+20260801300000_night_audit.sql
+  → night_audit_runs, night_audit_items, no_show_log
+
+20260801400000_crm_loyalty.sql
+  → loyalty_members, loyalty_transactions, crm_segments, email_campaigns
+```
 
 ---
 
-### 1.3 Attendance & Shift System
+## COMPLETE ROLE LIST (35 Roles)
 
-**หน้าสำหรับพนักงานทั่วไป**
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/attendance/page.tsx` | Server component — ดึงกะวันนี้ + ประวัติ 7 วัน |
-| `src/app/dashboard/attendance/attendance-client.tsx` | ปุ่ม Clock In / Clock Out / Break, ประวัติการทำงาน |
-| `src/app/api/attendance/clock/route.ts` | POST: บันทึก clock_in / clock_out / break_start / break_end |
-
-**หน้าสำหรับ Shift Supervisor / Dept Head**
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/shift-management/page.tsx` | Server component — ดึง shift_assignments วันนี้ + พรุ่งนี้ |
-| `src/app/dashboard/shift-management/shift-client.tsx` | ตารางกะ, มอบหมายกะ, แก้ไข, ดูสถานะ clock-in/out ของทีม |
-| `src/app/api/shifts/assign/route.ts` | POST: สร้าง/แก้ไข shift_assignment |
-| `src/app/api/shifts/today/route.ts` | GET: กะของวันนี้พร้อมสถานะ |
-
-**Sidebar nav เพิ่ม:**
+### Hotel OS Roles
 ```typescript
-{ href: '/dashboard/attendance', label: 'บันทึกเวลา', icon: Clock, roles: ALL_ROLES }
-{ href: '/dashboard/shift-management', label: 'จัดการกะ', icon: CalendarClock, roles: SUPERVISOR_ROLES }
+// OWNERSHIP / MANAGEMENT
+'hotel_owner'       // เจ้าของโรงแรม — full access + financials
+'general_manager'   // GM — command center, escalations, override
+'operations_manager' // Ops — workload, dispatch, dept reports
+
+// FRONT OF HOUSE
+'front_office_manager' // Front Office Mgr — cashier overview, upgrades
+'front_desk'        // Receptionist — check-in/out, payment, keycard
+'reservation_agent' // Booking agent — OTA queue, rate management
+'night_auditor'     // Night shift — audit, close day, no-shows
+
+// COMMUNICATIONS
+'chat_admin'        // Omnichannel inbox — AI replies, SLA, routing
+'guest_relations'   // Guest experience — complaints, VIP care
+
+// HOUSEKEEPING
+'housekeeping_manager' // HK Manager — floor assignment, SLA, inspection queue
+'housekeeper'       // Cleaner — my tasks, photos, minibar, lost & found
+'room_inspector'    // Inspector — approve/reject rooms, quality score
+
+// ENGINEERING
+'maintenance_manager' // Maint Mgr — repair board, PM schedule, parts
+'technician'        // Tech staff — claim repair, photos, parts log
+
+// F&B
+'fnb_manager'       // F&B Manager — menu, staff, revenue
+'kitchen_staff'     // Cook — KDS queue, allergy notes, stock alerts
+'room_service_staff' // Delivery — delivery queue, collect payment
+'restaurant_staff'  // Server — POS, table orders, room charge
+
+// GUEST SERVICES
+'concierge'         // Concierge — transport, tours, VIP tasks
+'bellboy'           // Porter — luggage, escort, airport pickup
+'transport_driver'  // Driver — pickup queue, route, confirm
+
+// REVENUE & MARKETING
+'revenue_manager'   // Revenue — rate plans, OTA, dynamic pricing
+'marketing_staff'   // Marketing — campaigns, coupons, LINE
+
+// BACK OF HOUSE
+'accounting_manager' // Accounting Mgr — full accounting OS
+'accounting_staff'  // Cashier — folio, collect, cashier close
+'purchasing_manager' // Purchasing — PO approve, supplier mgmt
+'purchasing_staff'  // Buyer — create PO, receive goods, stock
+
+// HR
+'hr_manager'        // HR Mgr — payroll, performance, onboarding
+'hr_staff'          // HR Staff — attendance, leave approve, records
+
+// SPA
+'spa_manager'       // Spa Mgr — bookings, services, revenue
+'spa_staff'         // Therapist — my bookings, treatment rooms
+
+// SECURITY
+'security_manager'  // Security Mgr — incident reports, staff
+'security_staff'    // Guard — patrol log, visitor, incident
+
+// IT
+'it_admin'          // IT Admin — integrations, system settings
+'it_support'        // IT Support — device tickets, printer, Wi-Fi
 ```
 
----
-
-### 1.4 Task Auto-Router
-
-**ไฟล์:** `src/lib/task-router.ts`
+### SaaS Platform Roles (app.maitriapp.com/owner)
 ```typescript
-// Logic:
-// 1. รับ request type (housekeeping | maintenance | room_service | concierge | security)
-// 2. หา staff ที่ role ตรงและ is_available = true
-// 3. ถ้าไม่มี → หา staff ที่มี current_task น้อยที่สุด
-// 4. ถ้าทุกคนติดงาน → ต่อคิว (queue_position = max + 1)
-// 5. บันทึก work_order + task_assignment + อัพเดต staff_availability
-```
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/api/work-orders/route.ts` | POST: สร้าง work order → auto-route, GET: list ตาม hotel/dept |
-| `src/app/api/work-orders/[id]/route.ts` | PATCH: อัพเดต status (pending→in_progress→done), DELETE: ยกเลิก |
-| `src/app/api/work-orders/assign/route.ts` | POST: manual assign override |
-| `src/app/dashboard/work-orders/page.tsx` | หน้า supervisor ดู queue ทั้งหมด |
-| `src/app/dashboard/my-tasks/page.tsx` | หน้าพนักงาน — งานที่ได้รับมอบหมาย + สถานะ |
-| `src/app/dashboard/my-tasks/my-tasks-client.tsx` | รับ-ปฏิเสธงาน, อัพเดตสถานะ, แจ้งเสร็จ |
-
-**Realtime:** Supabase Realtime subscription บน `work_orders` เพื่อ notify พนักงานเมื่อมีงานใหม่
-
----
-
-### 1.5 Omnichannel Inbox (Guest Relations)
-
-**หน้าใหม่ Guest Relations**
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/inbox/page.tsx` | Server component — ดึง conversations ทุก platform |
-| `src/app/dashboard/inbox/inbox-client.tsx` | Inbox UI: sidebar รายการแชท, พื้นที่แชท, filter by platform |
-| `src/app/dashboard/inbox/conversation/[id]/page.tsx` | หน้าแชทเดี่ยว (สำหรับ deep link) |
-| `src/app/api/inbox/messages/route.ts` | GET: ดึง messages ของ conversation, POST: ส่งข้อความ |
-| `src/app/api/inbox/assign/route.ts` | POST: assign conversation ให้ guest_relations staff |
-| `src/app/api/inbox/webhooks/line/route.ts` | POST: รับ webhook จาก LINE |
-| `src/app/api/inbox/webhooks/whatsapp/route.ts` | POST: รับ webhook จาก WhatsApp Business |
-| `src/app/api/inbox/webhooks/facebook/route.ts` | POST: รับ webhook จาก Facebook Messenger |
-
-**ฟีเจอร์ใน inbox-client.tsx:**
-- Platform filter: All / LINE / WhatsApp / Facebook / Booking.com / Agoda / Direct
-- Status: Open / Pending / Resolved
-- Assign to self / assign to teammate
-- Quick reply templates (canned responses)
-- Guest profile sidebar (ชื่อ, ประวัติการเข้าพัก, requests)
-- Auto-tag: ประเมินจาก keyword → routing (room issue → maintenance, clean → housekeeping)
-
-**Sidebar nav เพิ่ม:**
-```typescript
-{ href: '/dashboard/inbox', label: 'Inbox', icon: MessageSquare, roles: GUEST_RELATIONS_ROLES }
+'platform_owner'    // คุณ — all tenants, MRR, feature flags, impersonation
+'billing_admin'     // Billing — invoices, failed payments, refunds
+'support_admin'     // Support — tickets, impersonation, diagnostics
+'platform_ops'      // Ops — uptime, queue, WebSocket, OTA health
+'security_admin'    // Security — audit logs, session revoke, abuse
+'sales_admin'       // Sales — leads, demos, trials, onboarding
+'product_admin'     // Product — feature flags, A/B tests, rollout
+'dev_admin'         // Engineering — logs, deployments, webhook replay
 ```
 
 ---
 
-### 1.6 Leave Management
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/leave/page.tsx` | Server component — ดึง leave_requests ของตัวเอง + สถิติ |
-| `src/app/dashboard/leave/leave-client.tsx` | ยื่นขอลา (ประเภท/วันที่/เหตุผล), ดูสถานะ, ประวัติ |
-| `src/app/dashboard/leave/approve/page.tsx` | หน้า manager/dept_head อนุมัติ/ปฏิเสธ |
-| `src/app/api/leave/route.ts` | POST: ยื่นคำขอ, GET: list |
-| `src/app/api/leave/[id]/approve/route.ts` | POST: อนุมัติ |
-| `src/app/api/leave/[id]/reject/route.ts` | POST: ปฏิเสธ |
-
-ประเภทการลา: ลาป่วย, ลาพักร้อน, ลากิจ, ลาคลอด, ลาบวช, ลาไม่รับค่าจ้าง
+## PHASE 1 — Core Daily Operations
+**ระยะเวลา:** 4–6 สัปดาห์  
+**เป้าหมาย:** ทุก role เข้าระบบได้และทำงานพื้นฐานได้
 
 ---
 
-### 1.7 Document & Internal Request Workflow
+### 1.1 Role-Adaptive Dashboard (ขยายจากที่มี)
 
-| ไฟล์ | รายละเอียด |
+**ไฟล์ที่ต้องแก้:** `src/app/dashboard/page.tsx`
+
+| Role Group | สิ่งที่แสดง |
 |---|---|
-| `src/app/dashboard/documents/page.tsx` | คลัง document: แบ่งหมวด (นโยบาย/ฟอร์ม/คู่มือ/SOP) |
-| `src/app/dashboard/documents/documents-client.tsx` | ค้นหา, ดาวน์โหลด, อัพโหลด (ตาม permission) |
-| `src/app/dashboard/requests/page.tsx` | ส่งคำขอ (ขอซื้อของ, ขอซ่อม, ขอทรัพยากร) |
-| `src/app/dashboard/requests/requests-client.tsx` | Form ส่งคำขอ, ติดตามสถานะ, ประวัติ |
-| `src/app/dashboard/requests/approve/page.tsx` | หน้า manager อนุมัติ/ปฏิเสธคำขอ |
-| `src/app/api/documents/route.ts` | GET: list documents, POST: upload metadata |
-| `src/app/api/documents/[id]/route.ts` | GET: signed URL, DELETE |
-| `src/app/api/requests/route.ts` | POST: ส่งคำขอ, GET: list |
-| `src/app/api/requests/[id]/route.ts` | PATCH: อัพเดตสถานะ |
+| `hotel_owner` | Revenue summary, Occupancy, ADR/RevPAR, Staff performance, AI summaries widget |
+| `general_manager` | Live ops, Unresolved requests, VIP arrivals, Incidents, Staff online count |
+| `operations_manager` | All active tasks, Dept workload bars, Shift coverage, Bottleneck alerts |
+| `front_office_manager` | Arrivals/departures, Check-in queue, VIP list, Cashier overview |
+| `front_desk` | Check-in/out queue, Room assignment, Today's requests |
+| `reservation_agent` | Booking calendar, OTA queue, Availability grid |
+| `chat_admin` | Unread by platform, SLA breaches, Unassigned conversations |
+| `housekeeping_manager` | Room board by floor, Staff assignment, Inspection queue |
+| `housekeeper` | My tasks (nearby rooms), Next room, Supply requests |
+| `room_inspector` | Rooms awaiting inspection, Rejected count |
+| `maintenance_manager` | Repair board, Emergency issues, Blocked rooms |
+| `technician` | My repairs, Claim task, Parts needed |
+| `kitchen_staff` | KDS queue, Preparing, Ready to serve |
+| `room_service_staff` | Delivery queue, In transit |
+| `restaurant_staff` | My tables, Open orders |
+| `concierge` | Active requests, Today's VIP arrivals |
+| `bellboy` | Luggage pickup queue, Delivery queue |
+| `transport_driver` | Today's pickups, Route status |
+| `revenue_manager` | ADR, RevPAR, Occupancy, Rate recommendations |
+| `marketing_staff` | Campaign stats, Active promos |
+| `accounting_manager` | Daily P&L, Outstanding folios, Cashier status |
+| `accounting_staff` | Open folios, Pending payments |
+| `security_manager` | Incidents today, Patrol status |
+| `security_staff` | Patrol checklist, Visitor log |
+| `spa_manager` | Today's bookings, Therapist schedule |
+| `spa_staff` | My bookings, Treatment rooms |
+| `hr_manager` | Staff online, Leave pending, Payroll status |
+| `it_admin` | System health, Integration status |
+| `it_support` | Open tickets, Device alerts |
 
 ---
 
-### 1.8 Manager Live Board
+### 1.2 Attendance & Shift System
+*(รายละเอียดเหมือนเดิม — ครบอยู่แล้ว)*
+
+| ไฟล์ | สถานะ |
+|---|---|
+| `src/app/dashboard/attendance/` | ❌ สร้างใหม่ |
+| `src/app/dashboard/shift-management/` | ❌ สร้างใหม่ |
+| `src/app/api/attendance/clock/route.ts` | ❌ สร้างใหม่ |
+| `src/app/api/shifts/` | ❌ สร้างใหม่ |
+
+---
+
+### 1.3 Task Auto-Router + Work Order System
+
+| ไฟล์ | สถานะ |
+|---|---|
+| `src/lib/task-router.ts` | ❌ สร้างใหม่ |
+| `src/app/api/work-orders/route.ts` | ❌ สร้างใหม่ |
+| `src/app/api/work-orders/[id]/route.ts` | ❌ สร้างใหม่ |
+| `src/app/dashboard/work-orders/page.tsx` | ❌ สร้างใหม่ |
+| `src/app/dashboard/my-tasks/page.tsx` | ❌ สร้างใหม่ (housekeeper/technician/bellboy view) |
+| `src/components/tasks/task-card.tsx` | ❌ สร้างใหม่ |
+| `src/components/tasks/photo-upload.tsx` | ❌ สร้างใหม่ (before/after photos) |
+
+**Photo Upload Flow:** พนักงานอัพโหลดรูป → Supabase Storage → URL บันทึกใน `task_photos`
+
+---
+
+### 1.4 Omnichannel Inbox — Chat Admin
+
+**หน้าหลัก:** `src/app/dashboard/inbox/`
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/inbox/page.tsx` | Server: ดึง conversations ทุก platform |
+| `src/app/dashboard/inbox/inbox-client.tsx` | Unified inbox UI |
+| `src/app/dashboard/inbox/[id]/page.tsx` | Single conversation + guest profile |
+| `src/app/api/inbox/messages/route.ts` | GET/POST messages |
+| `src/app/api/inbox/assign/route.ts` | Assign to dept/staff |
+| `src/app/api/inbox/webhooks/line/route.ts` | LINE webhook |
+| `src/app/api/inbox/webhooks/whatsapp/route.ts` | WhatsApp Business webhook |
+| `src/app/api/inbox/webhooks/facebook/route.ts` | Facebook Messenger webhook |
+| `src/app/api/inbox/ai-reply/route.ts` | **POST: AI suggested reply** |
+
+**Inbox Client Features:**
+- Platform filter: All / LINE / WhatsApp / Facebook / Website Chat / Room QR / OTA / Email
+- SLA response timer (ไฟเขียว/เหลือง/แดง ตามเวลาที่เหลือ)
+- AI reply suggestion button (เรียก Claude API → แนะนำข้อความตอบ)
+- Auto-translation toggle (แปลเป็นภาษาที่พนักงานเข้าใจ)
+- Guest timeline sidebar: ประวัติการเข้าพัก, requests, เรื่องร้องเรียน
+- Booking context: หากแชทจาก OTA → แสดง reservation ที่เชื่อมโยง
+- Convert to request: ส่งงานไปยังแผนกที่รับผิดชอบ
+- Follow-up reminder: ตั้งเวลาเตือนติดตาม
+- Canned responses: ข้อความสำเร็จรูปแยกตาม category
+
+---
+
+### 1.5 Leave Management
+*(รายละเอียดเหมือน roadmap เดิม)*
+
+---
+
+### 1.6 Document & Request Workflow
+*(รายละเอียดเหมือน roadmap เดิม)*
+
+---
+
+### 1.7 Announcements
+*(รายละเอียดเหมือน roadmap เดิม)*
+
+---
+
+### 1.8 Manager Live Board (GM Command Center)
+
+**สำหรับ:** `general_manager`, `operations_manager`, `hotel_owner`
 
 | ไฟล์ | รายละเอียด |
 |---|---|
 | `src/app/dashboard/live-board/page.tsx` | Server component |
-| `src/app/dashboard/live-board/live-board-client.tsx` | Real-time dashboard: กะวันนี้, งานค้าง, แชทรอตอบ, ห้องพักสถานะ |
-| `src/components/live/occupancy-map.tsx` | แผนผังห้องพัก real-time (by floor) |
-| `src/components/live/staff-status-grid.tsx` | Grid พนักงาน: ออนไลน์/ติดงาน/ออฟไลน์ |
+| `src/app/dashboard/live-board/live-board-client.tsx` | Real-time via Supabase Realtime |
+| `src/components/live/occupancy-map.tsx` | แผนผังห้อง real-time (by floor) |
+| `src/components/live/staff-status-grid.tsx` | Grid: ออนไลน์/ติดงาน/ออฟไลน์ |
 | `src/components/live/task-queue-widget.tsx` | คิวงานแต่ละแผนก |
-| `src/components/live/alerts-feed.tsx` | Feed: incidents + urgent requests |
+| `src/components/live/alerts-feed.tsx` | Feed: incidents + SLA breaches + urgent requests |
+| `src/components/live/vip-arrivals-widget.tsx` | VIP ที่จะมาถึงวันนี้ |
+| `src/components/live/emergency-alert-bar.tsx` | Emergency alerts (แสดงด้านบนสุด) |
+
+**GM Controls (เพิ่มใน live-board-client.tsx):**
+- Reassign task (drag & drop หรือ modal)
+- Override SLA (เพิ่มเวลา + หมายเหตุ)
+- Approve room block / upgrade / late checkout / discount
+- Broadcast internal announcement
+
+---
+
+## PHASE 2 — Department Modules (Full)
+**ระยะเวลา:** 8–10 สัปดาห์  
+**เป้าหมาย:** ทุกแผนกมีหน้าทำงานครบ + mobile-friendly
+
+---
+
+### 2.1 Front Desk / Reservation (Full)
+
+#### Reservation Agent Module
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/reservations/reservations-client.tsx` | **ปรับปรุง:** เพิ่ม tabs |
+| Tab: Booking Calendar | ปฏิทิน availability (color by room type) |
+| Tab: OTA Queue | incoming bookings จาก Booking.com/Agoda รอ confirm |
+| Tab: Group Booking | สร้าง group block + allotment |
+| Tab: Rate Management | rate plans, promo codes, restrictions |
+| Tab: Waitlist | รายชื่อรอห้องว่าง + notify |
+| `src/app/api/reservations/group/route.ts` | POST: group booking |
+| `src/app/api/reservations/ota-queue/route.ts` | GET: pending OTA bookings, POST: confirm/reject |
+| `src/app/api/reservations/send-confirmation/route.ts` | POST: email/LINE confirmation |
+| `src/components/reservations/booking-calendar.tsx` | Calendar grid with availability |
+| `src/components/reservations/ota-booking-card.tsx` | Card: OTA booking details + confirm/reject |
+
+#### Front Desk Enhanced
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/front-desk/front-desk-client.tsx` | **ปรับปรุง:** เพิ่มฟีเจอร์ |
+| Tab: Check-in | Walk-in + reservation lookup, room assign, keycard issue |
+| Tab: Check-out | Folio review, collect payment, invoice print |
+| Tab: In-house Guests | ทุก guest ที่ check-in อยู่, room move, upgrade, notes |
+| Tab: Cashier | รายการรับเงิน, deposits, outstanding |
+| `src/app/api/front-desk/folio/route.ts` | GET folio, POST add charge |
+| `src/app/api/front-desk/keycard/route.ts` | POST: issue/reissue keycard log |
+| `src/app/api/front-desk/room-move/route.ts` | POST: move guest to new room |
+| `src/app/api/front-desk/invoice/route.ts` | GET: generate invoice PDF |
+| `src/components/front-desk/folio-panel.tsx` | รายการค่าใช้จ่าย guest |
+| `src/components/front-desk/cashier-session.tsx` | เปิด/ปิดกะ cashier |
+
+---
+
+### 2.2 Housekeeping (Full)
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/housekeeping/page.tsx` | **ปรับปรุง** |
+| `src/app/dashboard/housekeeping/housekeeping-client.tsx` | **ปรับปรุง:** HK Manager view |
+| Tab: Room Board | All rooms by floor, status color, assign staff |
+| Tab: Floor Assignment | มอบหมาย floor ให้ housekeeper |
+| Tab: Inspection Queue | ห้องรอ inspect |
+| Tab: Laundry | รอส่งซัก / รับคืน |
+| Tab: Minibar | minibar checklist per room type |
+| Tab: Supply Tracking | สต็อกอุปกรณ์ทำความสะอาด |
+| `src/app/dashboard/housekeeping/my-tasks/page.tsx` | **Housekeeper View** |
+| — | ห้องที่รับผิดชอบ, สถานะ, ใกล้สุด, claim task |
+| — | Upload photos (before/after), minibar checklist |
+| — | แจ้ง DND, Lost & Found form |
+| — | Request supplies |
+| `src/app/dashboard/housekeeping/inspect/page.tsx` | **Room Inspector View** |
+| — | ห้องรอตรวจ, checklist, score, approve/reject |
+| — | Photo proof, หมายเหตุสำหรับ housekeeper |
+| `src/app/api/housekeeping/tasks/[id]/photos/route.ts` | POST: upload task photos |
+| `src/app/api/housekeeping/inspect/route.ts` | POST: inspection result |
+| `src/app/api/housekeeping/minibar/route.ts` | POST: minibar consumption → charge to folio |
+| `src/components/housekeeping/room-board.tsx` | Visual floor map |
+| `src/components/housekeeping/photo-checklist.tsx` | Photo upload widget |
+| `src/components/housekeeping/inspection-form.tsx` | Checklist form for inspector |
+
+---
+
+### 2.3 Engineering / Maintenance (Full)
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/maintenance/maintenance-client.tsx` | **ปรับปรุง:** Manager view |
+| Tab: Repair Board | Kanban: new/assigned/in_progress/done |
+| Tab: Emergency | ด่วนสูงสุด: SLA breach alerts, blocked rooms |
+| Tab: PM Schedule | Preventive maintenance calendar |
+| Tab: Equipment | ทะเบียนอุปกรณ์ + ประวัติ |
+| Tab: Parts Inventory | สต็อกอะไหล่, reorder alerts |
+| `src/app/dashboard/maintenance/my-repairs/page.tsx` | **Technician View** |
+| — | claim repair, start, complete, before/after photos |
+| — | parts used form, escalation button |
+| — | recurring issue notes |
+| `src/app/api/maintenance/requests/[id]/photos/route.ts` | POST: before/after photos |
+| `src/app/api/maintenance/parts/route.ts` | GET/POST parts usage |
+| `src/components/maintenance/repair-kanban.tsx` | Kanban board |
+| `src/components/maintenance/parts-picker.tsx` | เลือก parts ที่ใช้ |
+
+---
+
+### 2.4 F&B — Kitchen, Room Service, Restaurant (Full)
+
+#### Kitchen (KDS)
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/kitchen/page.tsx` | Kitchen Display System |
+| `src/app/dashboard/kitchen/kitchen-client.tsx` | Queue: new → preparing → ready |
+| — | Allergy notes highlight, Timing per ticket |
+| — | Stock alerts (เมื่อวัตถุดิบใกล้หมด) |
+| — | Kitchen SLA timer |
+| `src/app/api/fnb/orders/[id]/status/route.ts` | PATCH: new→preparing→ready |
+| `src/components/fnb/kds-ticket.tsx` | Kitchen ticket (order items + allergy) |
+
+#### Room Service Delivery
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/room-service/page.tsx` | Room Service Staff view |
+| `src/app/dashboard/room-service/room-service-client.tsx` | Delivery queue |
+| — | Claim delivery, mark in transit, mark delivered |
+| — | Collect payment / charge to room |
+| — | Photo confirmation + signature |
+| — | Tray return tracking |
+| `src/app/api/fnb/delivery/route.ts` | POST: delivery events |
+
+#### Restaurant POS
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/restaurant/page.tsx` | Restaurant floor view |
+| `src/app/dashboard/restaurant/restaurant-client.tsx` | POS features |
+| Tab: Tables | Table grid, status (free/occupied), seat count |
+| Tab: Orders | Take order, modify, split bill |
+| Tab: Payment | Cash/card/room charge, discount apply |
+| Tab: Closing | Shift closing summary, cash count |
+| `src/app/api/fnb/restaurant/tables/route.ts` | GET/PATCH table status |
+| `src/app/api/fnb/restaurant/orders/route.ts` | POST/GET orders |
+| `src/app/api/fnb/restaurant/payment/route.ts` | POST: process payment |
+| `src/components/fnb/table-grid.tsx` | Visual table layout |
+| `src/components/fnb/pos-numpad.tsx` | Payment input |
 
 **Sidebar nav เพิ่ม:**
 ```typescript
-{ href: '/dashboard/live-board', label: 'Live Board', icon: Monitor, roles: MANAGEMENT_ROLES }
+{ href: '/dashboard/kitchen', label: 'ครัว', icon: ChefHat, roles: KITCHEN_ROLES }
+{ href: '/dashboard/room-service', label: 'Room Service', icon: Bike, roles: ROOM_SERVICE_ROLES }
+{ href: '/dashboard/restaurant', label: 'Restaurant', icon: UtensilsCrossed, roles: RESTAURANT_ROLES }
 ```
 
 ---
 
-### 1.9 Announcements System
+### 2.5 Bellboy / Porter
 
-| ไฟล์ | รายละเอียด |
+| ไฟล์ | ฟีเจอร์ |
 |---|---|
-| `src/app/dashboard/announcements/page.tsx` | แสดงประกาศ (filter ตาม role) |
-| `src/app/api/announcements/route.ts` | POST: สร้างประกาศ (manager+), GET: list |
-| `src/components/dashboard/announcement-banner.tsx` | Banner ด้านบน dashboard สำหรับประกาศด่วน |
-
----
-
-## PHASE 2 — Department Modules
-**เป้าหมาย:** หน้าทำงานเต็มรูปแบบสำหรับทุกแผนก + HR + Accounting ขยาย  
-**ระยะเวลาโดยประมาณ:** 6–8 สัปดาห์
-
----
-
-### 2.1 Database Migrations
-
-| ไฟล์ Migration | ตาราง |
-|---|---|
-| `20260701000000_hr_module.sql` | `employees` (profile extension), `payroll_periods`, `payroll_items` (salary, deductions, bonus), `performance_reviews` (staff_id, period, score, notes, reviewed_by), `training_records` (staff_id, course, completed_at, cert_url) |
-| `20260701100000_accounting_expanded.sql` | `accounts` (chart of accounts), `journal_entries`, `expense_categories`, `expense_items` (hotel_id, category_id, amount, date, receipt_url, approved_by), `revenue_summary` (hotel_id, date, room_revenue, fnb_revenue, other, total) |
-| `20260701200000_housekeeping_expanded.sql` | `room_cleaning_tasks` (room_id, type: checkout/stayover/deep, assigned_to, status, started_at, completed_at, notes), `linen_inventory` (item_type, quantity, in_use, in_laundry), `lost_found` (description, location_found, status, claimed_by) |
-| `20260701300000_engineering_expanded.sql` | `maintenance_requests` (requestor_id, room_id, area, equipment, issue_desc, priority, status, assigned_to), `preventive_maintenance` (equipment_id, schedule, last_done, next_due, assigned_to), `equipment_log` (equipment_id, type: repair/install/inspect, cost, done_by) |
-| `20260701400000_fnb_spa.sql` | `menu_items` (outlet_id, name, category, price, available), `food_orders` (room_no, items JSONB, total, status, assigned_to), `spa_services` (name, duration_min, price), `spa_bookings` (guest_id, service_id, slot_at, staff_id, status, notes) |
-| `20260701500000_purchasing.sql` | `suppliers` (name, contact, category, rating), `purchase_orders` (hotel_id, supplier_id, items JSONB, total, status, approved_by, delivery_date), `inventory_items` (name, unit, quantity, min_stock, cost), `stock_transactions` (item_id, type: in/out/adjust, qty, ref_id, done_by) |
-
----
-
-### 2.2 HR Module
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/hr/page.tsx` | HR Dashboard: headcount, department breakdown, leave summary |
-| `src/app/dashboard/hr/hr-client.tsx` | Tabs: พนักงาน / เงินเดือน / ประเมิน / ฝึกอบรม |
-| `src/app/dashboard/hr/employees/page.tsx` | ทะเบียนพนักงาน: ค้นหา, กรอง, profile link |
-| `src/app/dashboard/hr/employees/[id]/page.tsx` | หน้าโปรไฟล์พนักงาน (HR view): ประวัติ, เอกสาร, เงินเดือน |
-| `src/app/dashboard/hr/payroll/page.tsx` | สร้าง payroll period, คำนวณ, approve, export |
-| `src/app/dashboard/hr/performance/page.tsx` | ประเมินผลพนักงาน: สร้างรอบ, กรอกคะแนน, ดูประวัติ |
-| `src/app/dashboard/hr/training/page.tsx` | หลักสูตรฝึกอบรม: สมัคร, บันทึกผล, ใบรับรอง |
-| `src/app/api/hr/payroll/route.ts` | POST: สร้าง period, GET: list |
-| `src/app/api/hr/payroll/calculate/route.ts` | POST: คำนวณ payroll อัตโนมัติ |
-| `src/app/api/hr/performance/route.ts` | POST/GET performance reviews |
-| `src/components/hr/employee-card.tsx` | การ์ดพนักงาน (ชื่อ, แผนก, สถานะ, avatar) |
-| `src/components/hr/payroll-summary.tsx` | ตารางสรุป payroll |
-
----
-
-### 2.3 Accounting Module (Expanded)
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/accounting/page.tsx` | Accounting Dashboard: daily P&L, cash flow, KPIs |
-| `src/app/dashboard/accounting/accounting-client.tsx` | Tabs: รายวัน / รายงาน / ค่าใช้จ่าย / รายรับ / บัญชี |
-| `src/app/dashboard/accounting/expenses/page.tsx` | บันทึกค่าใช้จ่าย: หมวดหมู่, ใบเสร็จ, อนุมัติ |
-| `src/app/dashboard/accounting/revenue/page.tsx` | รายรับแต่ละประเภท: ห้องพัก/F&B/สปา/อื่นๆ |
-| `src/app/dashboard/accounting/reports/page.tsx` | รายงาน: P&L, Balance Sheet, Cash Flow (export Excel/PDF) |
-| `src/app/dashboard/accounting/journal/page.tsx` | Journal entries: ดู, สร้าง, ปิดบัญชี |
-| `src/app/api/accounting/expenses/route.ts` | POST/GET expenses |
-| `src/app/api/accounting/revenue/route.ts` | POST/GET revenue summary |
-| `src/app/api/accounting/reports/route.ts` | GET: สร้างรายงาน |
-| `src/components/accounting/daily-summary.tsx` | Widget: ยอดวันนี้ |
-| `src/components/accounting/expense-chart.tsx` | กราฟค่าใช้จ่ายแต่ละหมวด |
-
----
-
-### 2.4 Housekeeping (Expanded)
-
-**ปรับปรุงหน้า `/dashboard/housekeeping`**
-
-| ไฟล์ | ฟีเจอร์เพิ่ม |
-|---|---|
-| `src/app/dashboard/housekeeping/page.tsx` | เพิ่ม: room_cleaning_tasks, linen_inventory, lost_found |
-| `src/app/dashboard/housekeeping/housekeeping-client.tsx` | Tabs: งานทำความสะอาด / ผ้าปูที่นอน / ของหาย |
-| `src/app/dashboard/housekeeping/lost-found/page.tsx` | Lost & Found: บันทึก, ติดตาม, คืนของ |
-| `src/app/dashboard/housekeeping/linen/page.tsx` | สต็อกผ้า: นับ, ส่งซัก, รับคืน |
-| `src/app/api/housekeeping/tasks/route.ts` | POST: สร้างงานทำความสะอาด |
-| `src/app/api/housekeeping/linen/route.ts` | POST/GET linen transactions |
-| `src/components/housekeeping/room-task-card.tsx` | การ์ดห้องพัก (ประเภทงาน, สถานะ, ผู้รับผิดชอบ) |
-| `src/components/housekeeping/floor-map.tsx` | แผนผังชั้นพัก (สถานะห้อง) |
-
----
-
-### 2.5 Engineering / Maintenance (Expanded)
-
-**ปรับปรุงหน้า `/dashboard/maintenance`**
-
-| ไฟล์ | ฟีเจอร์เพิ่ม |
-|---|---|
-| `src/app/dashboard/maintenance/maintenance-client.tsx` | Tabs: คำร้อง / PM Schedule / อุปกรณ์ / ประวัติ |
-| `src/app/dashboard/maintenance/preventive/page.tsx` | แผน PM: สร้าง schedule, บันทึกผล, แจ้งเตือน |
-| `src/app/dashboard/maintenance/equipment/page.tsx` | ทะเบียนอุปกรณ์: ข้อมูล, ประวัติซ่อม, ค่าใช้จ่าย |
-| `src/app/api/maintenance/requests/route.ts` | POST/GET maintenance requests |
-| `src/app/api/maintenance/pm/route.ts` | POST/GET preventive maintenance |
-| `src/components/maintenance/pm-calendar.tsx` | ปฏิทิน PM schedule |
-| `src/components/maintenance/equipment-list.tsx` | ตารางอุปกรณ์ |
-
----
-
-### 2.6 Concierge (Expanded)
-
-**ปรับปรุงหน้า `/dashboard/concierge`**
-
-| ไฟล์ | ฟีเจอร์เพิ่ม |
-|---|---|
-| `src/app/dashboard/concierge/concierge-client.tsx` | เพิ่ม tab: Transportation / Local Info / F&B Orders |
-| `src/app/dashboard/concierge/local-info/page.tsx` | ข้อมูลท้องถิ่น: ร้านอาหาร, สถานที่ท่องเที่ยว, รถ |
-| `src/app/api/concierge/transport/route.ts` | POST: จองรถ, GET: list |
-| `src/components/concierge/arrival-checklist.tsx` | Checklist ต้อนรับ: amenities, preferences, requests |
-| `src/components/concierge/local-guide.tsx` | Widget ข้อมูลสถานที่ใกล้เคียง |
-
----
-
-### 2.7 Security (Expanded)
-
-**ปรับปรุงหน้า `/dashboard/security`**
-
-| ไฟล์ | ฟีเจอร์เพิ่ม |
-|---|---|
-| `src/app/dashboard/security/security-client.tsx` | เพิ่ม tab: Key Management / Patrol Log |
-| `src/app/dashboard/security/patrol/page.tsx` | บันทึกการตรวจตรา (checkpoint, เวลา, หมายเหตุ) |
-| `src/app/api/security/patrol/route.ts` | POST: บันทึก patrol checkpoint |
-| `src/components/security/patrol-map.tsx` | แผนที่ checkpoint (กรอกหมายเหตุแต่ละจุด) |
-
----
-
-### 2.8 F&B Module
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/fnb/page.tsx` | F&B Dashboard: ออเดอร์วันนี้, revenue, เมนูขายดี |
-| `src/app/dashboard/fnb/fnb-client.tsx` | Tabs: ออเดอร์ / เมนู / โต๊ะ |
-| `src/app/dashboard/fnb/menu/page.tsx` | จัดการเมนู: เพิ่ม/แก้/ซ่อน, หมวดหมู่, ราคา |
-| `src/app/dashboard/fnb/orders/page.tsx` | ออเดอร์ใหม่: รับออเดอร์, track สถานะครัว, ส่ง |
-| `src/app/api/fnb/orders/route.ts` | POST: สร้างออเดอร์, GET: list by status |
-| `src/app/api/fnb/orders/[id]/route.ts` | PATCH: อัพเดตสถานะ (new→preparing→ready→delivered) |
-| `src/app/api/fnb/menu/route.ts` | POST/GET/PATCH menu items |
-| `src/components/fnb/order-ticket.tsx` | ตั๋ว KDS (Kitchen Display) |
-| `src/components/fnb/menu-grid.tsx` | Grid เมนู + add to order |
+| `src/app/dashboard/bellboy/page.tsx` | Porter task board |
+| `src/app/dashboard/bellboy/bellboy-client.tsx` | Queue: luggage pickup / delivery / escort |
+| — | Claim task, start, complete |
+| — | Airport pickup tasks |
+| — | Guest escort notes |
+| `src/app/api/bellboy/tasks/route.ts` | GET/POST luggage tasks |
 
 **Sidebar nav เพิ่ม:**
 ```typescript
-{ href: '/dashboard/fnb', label: 'F&B', icon: UtensilsCrossed, roles: FNB_ROLES }
+{ href: '/dashboard/bellboy', label: 'Porter', icon: BriefcaseBusiness, roles: ['bellboy'] }
 ```
 
 ---
 
-### 2.9 Spa Module
+### 2.6 Transport Staff
 
-| ไฟล์ | รายละเอียด |
+| ไฟล์ | ฟีเจอร์ |
 |---|---|
-| `src/app/dashboard/spa/page.tsx` | Spa Dashboard: booking วันนี้, revenue, staff utilization |
-| `src/app/dashboard/spa/spa-client.tsx` | Tabs: Booking / บริการ / Staff Schedule |
-| `src/app/dashboard/spa/bookings/page.tsx` | จองสปา: ปฏิทิน, slot availability, assign therapist |
-| `src/app/dashboard/spa/services/page.tsx` | จัดการบริการ: เพิ่ม/แก้ไข, ราคา, ระยะเวลา |
-| `src/app/api/spa/bookings/route.ts` | POST: จองสปา, GET: list |
-| `src/app/api/spa/bookings/[id]/route.ts` | PATCH: confirm/cancel/complete |
-| `src/app/api/spa/services/route.ts` | POST/GET/PATCH services |
-| `src/components/spa/booking-calendar.tsx` | ปฏิทิน booking (time slots) |
-| `src/components/spa/therapist-schedule.tsx` | ตารางงาน therapist |
+| `src/app/dashboard/transport/page.tsx` | Driver task board |
+| `src/app/dashboard/transport/transport-client.tsx` | Pickup queue |
+| — | Driver assignment, vehicle selection |
+| — | Route status, ETA |
+| — | Guest contact (phone reveal) |
+| — | Pickup confirmation + photo |
+| `src/app/api/transport/tasks/route.ts` | GET/POST/PATCH transport tasks |
 
 **Sidebar nav เพิ่ม:**
 ```typescript
-{ href: '/dashboard/spa', label: 'Spa', icon: Sparkles, roles: SPA_ROLES }
+{ href: '/dashboard/transport', label: 'Transport', icon: Car, roles: ['transport_driver', 'concierge'] }
 ```
 
 ---
 
-### 2.10 Purchasing Module
+### 2.7 Concierge (Enhanced)
 
-| ไฟล์ | รายละเอียด |
+**ปรับปรุง `concierge-client.tsx`:**
+- Tab: Transportation — จองรถ, airport transfer, tour
+- Tab: Luggage — สั่ง bellboy ไปรับ/ส่งกระเป๋า
+- Tab: Restaurant Reservations — จองร้านอาหารนอก
+- Tab: Local Recommendations — ข้อมูล curated ตาม preference
+- Tab: VIP Tasks — checklist สำหรับ VIP guest
+- Integration กับ transport tasks + bellboy tasks (auto-create)
+
+---
+
+### 2.8 Security (Enhanced)
+
+**ปรับปรุง `security-client.tsx`:**
+- Tab: Incidents — report, update, escalate
+- Tab: Visitors — register, checkout
+- Tab: Patrol Log — checkpoint list, timer, notes per point
+- Tab: Emergency — ปุ่ม Emergency Alert (broadcast ไปยัง GM + security team)
+- Tab: Lost & Found — ประสานกับ Housekeeping
+
+| ไฟล์ | ฟีเจอร์ |
 |---|---|
-| `src/app/dashboard/purchasing/page.tsx` | Purchasing Dashboard: PO pending, stock alerts |
-| `src/app/dashboard/purchasing/purchasing-client.tsx` | Tabs: Purchase Orders / สต็อก / Suppliers |
-| `src/app/dashboard/purchasing/po/page.tsx` | สร้าง/ดู PO: supplier, items, วันส่ง, อนุมัติ |
-| `src/app/dashboard/purchasing/inventory/page.tsx` | สต็อก: ดูระดับสต็อก, แจ้งเตือนต่ำ, ปรับ |
-| `src/app/dashboard/purchasing/suppliers/page.tsx` | ทะเบียน supplier: ข้อมูล, ประวัติ, rating |
-| `src/app/api/purchasing/po/route.ts` | POST: สร้าง PO, GET: list |
-| `src/app/api/purchasing/po/[id]/approve/route.ts` | POST: อนุมัติ PO |
-| `src/app/api/purchasing/inventory/route.ts` | GET: สต็อก, POST: ปรับสต็อก |
-| `src/components/purchasing/po-form.tsx` | Form สร้าง PO (เพิ่ม line items) |
-| `src/components/purchasing/stock-alert-list.tsx` | รายการสต็อกที่ต่ำกว่า min |
+| `src/app/api/security/emergency/route.ts` | POST: trigger emergency alert (Supabase broadcast) |
+| `src/app/api/security/patrol/route.ts` | POST: checkpoint, GET: today's patrol log |
+| `src/components/security/patrol-timeline.tsx` | Timeline ของ patrol วันนี้ |
+| `src/components/security/emergency-button.tsx` | Big red button + confirmation |
+
+---
+
+### 2.9 Accounting OS (Full)
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/accounting/accounting-client.tsx` | **ปรับปรุง** |
+| Tab: Folio | ดู/แก้ไข folio ต่อ guest, add charges |
+| Tab: Cashier | เปิด/ปิดกะ, รับเงิน, reconcile |
+| Tab: Refunds | รายการ refund รอ approve + process |
+| Tab: Revenue | Revenue by source/date/room type |
+| Tab: Expenses | ค่าใช้จ่ายแต่ละหมวด + receipts |
+| Tab: Tax Invoices | สร้าง, ส่ง, ติดตาม tax invoices |
+| Tab: Reports | P&L, Balance Sheet (export Excel/PDF) |
+| Tab: Journal | Journal entries, close month |
+| `src/app/api/accounting/folio/route.ts` | GET/POST folio items |
+| `src/app/api/accounting/folio/[id]/charge/route.ts` | POST: add charge to folio |
+| `src/app/api/accounting/cashier/session/route.ts` | POST: open/close session |
+| `src/app/api/accounting/refunds/route.ts` | POST/GET refunds |
+| `src/app/api/accounting/tax-invoices/route.ts` | POST: generate tax invoice |
+| `src/app/api/accounting/reports/export/route.ts` | GET: export to Excel |
+| `src/components/accounting/folio-table.tsx` | ตารางรายการใน folio |
+| `src/components/accounting/cashier-balance.tsx` | เปิด/ปิดกะ + cash count |
+
+---
+
+### 2.10 HR Module (Full)
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/hr/hr-client.tsx` | **ปรับปรุง** |
+| Tab: Staff | ทะเบียนพนักงาน, search, filter by dept/role |
+| Tab: Onboarding | checklist สำหรับพนักงานใหม่ (tasks, documents, IT setup) |
+| Tab: Attendance | ประวัติ attendance ทั้งทีม, export |
+| Tab: Leave Approval | อนุมัติ/ปฏิเสธ leave requests |
+| Tab: Payroll | คำนวณ, review, approve, export slip |
+| Tab: Performance | รอบประเมิน, กรอก, ดูประวัติ |
+| Tab: Training | หลักสูตร, สมัคร, บันทึก, certificate |
+| Tab: Access Control | assign/revoke roles |
+| `src/app/api/hr/onboarding/route.ts` | POST/GET onboarding tasks |
+| `src/app/api/hr/access/route.ts` | POST: assign role, DELETE: revoke access |
+| `src/components/hr/onboarding-checklist.tsx` | Step-by-step onboarding |
+| `src/components/hr/payroll-slip.tsx` | PDF pay slip template |
+
+---
+
+### 2.11 IT Support
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/it/page.tsx` | IT Support dashboard |
+| `src/app/dashboard/it/it-client.tsx` | Tabs: Tickets / Devices / Integrations |
+| Tab: Tickets | รับ support ticket, assign, resolve |
+| Tab: Devices | ทะเบียนอุปกรณ์ (POS, printer, Wi-Fi AP, TV), status |
+| Tab: Wi-Fi Issues | รายงาน Wi-Fi complaints per room/floor |
+| Tab: Integrations | health status: LINE/WhatsApp/OTA/PMS |
+| Tab: Printer Status | printer queue, jammed alerts |
+| `src/app/api/it/tickets/route.ts` | POST/GET support tickets |
+| `src/app/api/it/devices/route.ts` | GET devices, PATCH status |
+| `src/components/it/device-health-grid.tsx` | Grid status ทุก device |
+| `src/components/it/integration-health.tsx` | Status badges per integration |
 
 **Sidebar nav เพิ่ม:**
 ```typescript
-{ href: '/dashboard/purchasing', label: 'Purchasing', icon: ShoppingCart, roles: PURCHASING_ROLES }
+{ href: '/dashboard/it', label: 'IT Support', icon: Cpu, roles: IT_ROLES }
 ```
 
 ---
 
-### 2.11 Guest Experience Basics
+### 2.12 Spa (Full)
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/spa/spa-client.tsx` | **ปรับปรุง** |
+| Tab: Bookings | ปฏิทิน, slot, assign therapist |
+| Tab: Treatment Rooms | ห้องสปา: สถานะ, ทำความสะอาด, occupied |
+| Tab: Therapist Schedule | ตารางงาน, คนว่าง, overtime |
+| Tab: Services | เพิ่ม/แก้ไขบริการ, ราคา, ระยะเวลา |
+| Tab: Guest Preferences | guest preference notes (pressure, allergies) |
+| Tab: Revenue | รายได้ต่อวัน/เดือน, top services |
+| `src/app/api/spa/treatment-rooms/route.ts` | GET/PATCH treatment room status |
+| `src/components/spa/room-status-grid.tsx` | Treatment room grid |
+| `src/components/spa/guest-preference-card.tsx` | Guest spa preferences |
+
+---
+
+### 2.13 Revenue Management (Full)
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/revenue/revenue-client.tsx` | **ปรับปรุง** |
+| Tab: Overview | ADR, RevPAR, Occupancy (30/60/90 days) |
+| Tab: Rate Plans | สร้าง/แก้ไข rate plans, restrictions |
+| Tab: Pricing Calendar | Override ราคาแต่ละวัน, heat map |
+| Tab: Forecast | Occupancy forecast + recommended rates |
+| Tab: OTA Performance | Revenue per channel (Booking.com/Agoda/Direct) |
+| Tab: Competitor Pricing | เปรียบเทียบราคาคู่แข่ง (manual input หรือ scraper) |
+| Tab: Dynamic Pricing | rules-based auto pricing (demand threshold) |
+| `src/app/api/revenue/dynamic-pricing/route.ts` | POST: set rules, GET: apply |
+| `src/app/api/revenue/ota-performance/route.ts` | GET: revenue breakdown by channel |
+| `src/components/revenue/competitor-table.tsx` | ตารางราคาคู่แข่ง |
+| `src/components/revenue/dynamic-pricing-rules.tsx` | Rule builder (if occ > X → price +Y%) |
+
+---
+
+### 2.14 Marketing (Full)
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `src/app/dashboard/marketing/page.tsx` | Marketing dashboard |
+| `src/app/dashboard/marketing/marketing-client.tsx` | Tabs |
+| Tab: Campaigns | Email + LINE campaigns, สถิติ |
+| Tab: Promo Codes | สร้าง, จำกัดการใช้, track redemption |
+| Tab: Abandoned Bookings | รายชื่อที่ค้างบน booking widget → send recovery |
+| Tab: Loyalty Campaigns | Points x2, tier benefits, birthday |
+| Tab: Analytics | Conversion rate, source attribution |
+| `src/app/api/marketing/abandoned/route.ts` | GET: abandoned bookings, POST: send recovery |
+| `src/app/api/marketing/loyalty-campaigns/route.ts` | POST/GET loyalty campaigns |
+| `src/components/marketing/campaign-builder.tsx` | สร้าง campaign (audience, message, schedule) |
+| `src/components/marketing/abandoned-table.tsx` | ตาราง abandoned bookings + recovery status |
+
+**Sidebar nav เพิ่ม:**
+```typescript
+{ href: '/dashboard/marketing', label: 'Marketing', icon: Megaphone, roles: MARKETING_ROLES }
+```
+
+---
+
+### 2.15 Purchasing (Full)
+*(รายละเอียดเหมือน roadmap เดิม — เพิ่ม supplier rating, receiving)*
+
+---
+
+## PHASE 3 — SaaS Platform + Advanced Systems
+**ระยะเวลา:** 10–14 สัปดาห์  
+**เป้าหมาย:** app.maitriapp.com/owner ครบวงจร + Revenue/CRM/Night Audit
+
+---
+
+### 3.1 SaaS Platform — Route Structure
+
+```
+src/app/(platform)/                  ← Route group สำหรับ Platform admin
+  layout.tsx                         ← Platform layout (platform nav, auth check)
+  dashboard/page.tsx                 ← Platform Owner overview
+  tenants/
+    page.tsx                         ← All organizations
+    [orgId]/page.tsx                 ← Single org detail + impersonate
+  hotels/page.tsx                    ← All hotels
+  billing/
+    page.tsx                         ← Billing overview
+    invoices/page.tsx
+    failed-payments/page.tsx
+    credits/page.tsx
+  support/
+    page.tsx                         ← Support tickets
+    [ticketId]/page.tsx              ← Ticket + diagnostics
+  operations/page.tsx                ← Platform health
+  security/page.tsx                  ← Access logs, sessions
+  sales/
+    page.tsx                         ← Sales CRM (leads, demos, trials)
+    leads/page.tsx
+    pipeline/page.tsx
+  product/
+    page.tsx                         ← Feature flags, A/B tests
+    flags/page.tsx
+    ab-tests/page.tsx
+  engineering/
+    page.tsx                         ← Logs, deployments
+    webhooks/page.tsx                ← Webhook events + replay
+    migrations/page.tsx
+```
+
+---
+
+### 3.2 Platform Owner Control Center
+
+**`src/app/(platform)/dashboard/page.tsx`**
+
+| Widget | ข้อมูล |
+|---|---|
+| MRR / ARR | รายได้รายเดือน/ปี |
+| Active Hotels | จำนวนโรงแรมที่ใช้งาน |
+| Active Users | DAU/MAU |
+| Churn | ออกจากระบบช่วง 30 วัน |
+| AI Usage | จำนวน API calls, cost estimate |
+| QR Scans | จำนวน QR room chat scans |
+| Support Queue | tickets ที่ยังไม่ resolve |
+| Platform Health | status สีต่างๆ (green/yellow/red) |
+| Webhook Failures | events ล้มเหลว 24h |
+| OTA Sync Failures | ล้มเหลวส่ง/รับ OTA |
+
+**Platform Owner Controls:**
+- Suspend/unsuspend hotel
+- Feature flags (per org หรือ global rollout%)
+- Plan management (upgrade/downgrade)
+- Impersonation (login as hotel_owner)
+- Billing override (add credits, extend trial)
+- Quota management (max seats, AI calls, QR scans)
+- AI limits per plan
+- Maintenance mode (hotel-level หรือ global)
+
+---
+
+### 3.3 Billing Admin
+
+**`src/app/(platform)/billing/`**
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `billing/page.tsx` | MRR chart, failed payments list, upcoming renewals |
+| `billing/invoices/page.tsx` | ทุก invoice: search, filter, download |
+| `billing/failed-payments/page.tsx` | Failed → retry / contact / write-off |
+| `billing/credits/page.tsx` | Issue credits, view history |
+| `billing/addons/page.tsx` | Add-on subscriptions per org |
+| `src/app/api/platform/billing/retry/route.ts` | POST: retry failed payment |
+| `src/app/api/platform/billing/credits/route.ts` | POST: issue credit |
+| `src/components/platform/invoice-table.tsx` | ตาราง invoices |
+| `src/components/platform/payment-alert-card.tsx` | การ์ด failed payment + actions |
+
+---
+
+### 3.4 Support Admin
+
+**`src/app/(platform)/support/`**
+
+| ไฟล์ | ฟีเจอร์ |
+|---|---|
+| `support/page.tsx` | Ticket queue: open, in_progress, resolved |
+| `support/[ticketId]/page.tsx` | Ticket detail + hotel diagnostics panel |
+| — | Live hotel state (room counts, active tasks, errors) |
+| — | Impersonate button (login as any user in that hotel) |
+| — | SLA timer, escalate to engineering |
+| `src/app/api/platform/support/impersonate/route.ts` | POST: generate impersonation token |
+| `src/app/api/platform/support/diagnostics/route.ts` | GET: live hotel state snapshot |
+| `src/components/platform/hotel-diagnostics.tsx` | Panel: hotel health + active state |
+| `src/components/platform/impersonate-button.tsx` | Confirm + open new tab as that user |
+
+---
+
+### 3.5 Platform Operations Admin
+
+**`src/app/(platform)/operations/`**
+
+| Widget | ข้อมูล |
+|---|---|
+| API Health | p50/p95 latency, error rate |
+| WebSocket Health | active connections, message rate |
+| Queue Health | pending jobs, failed jobs, processing rate |
+| OTA Sync Health | last sync per platform, error counts |
+| Payment Provider | Stripe/Omise status |
+| Notification Health | LINE/WhatsApp/Email delivery rate |
+| Database | connection pool, slow queries |
 
 | ไฟล์ | รายละเอียด |
 |---|---|
-| `src/app/dashboard/guest-experience/page.tsx` | Guest feedback dashboard: rating, complaints, compliments |
-| `src/app/dashboard/guest-experience/ge-client.tsx` | Tabs: Feedback / Complaints / Guest Profiles |
-| `src/app/api/guest-experience/feedback/route.ts` | POST/GET guest feedback |
-| `src/components/guest/guest-profile-panel.tsx` | Panel: ประวัติการเข้าพัก, preferences, requests |
-| `src/components/guest/feedback-chart.tsx` | กราฟ feedback score (NPS, คะแนนแต่ละด้าน) |
+| `src/app/api/platform/ops/health/route.ts` | GET: aggregated health snapshot |
+| `src/components/platform/health-dashboard.tsx` | Traffic light grid |
 
 ---
 
-## PHASE 3 — Advanced & Revenue Systems
-**เป้าหมาย:** ระบบขั้นสูง: Revenue Management, Sales, Night Audit, CRM, Platform Admin  
-**ระยะเวลาโดยประมาณ:** 8–12 สัปดาห์
+### 3.6 Security Admin
 
----
+**`src/app/(platform)/security/`**
 
-### 3.1 Database Migrations
-
-| ไฟล์ Migration | ตาราง |
+| ไฟล์ | ฟีเจอร์ |
 |---|---|
-| `20260801000000_revenue_management.sql` | `rate_plans` (hotel_id, name, base_rate, restrictions JSONB), `price_overrides` (room_type_id, date, price, reason), `occupancy_forecast` (hotel_id, date, predicted_occ, recommended_rate, actual_rate), `channel_rates` (rate_plan_id, channel, markup_pct) |
-| `20260801100000_sales_marketing.sql` | `leads` (hotel_id, company, contact, source, status, value), `proposals` (lead_id, details JSONB, status, sent_at), `contracts` (hotel_id, client, start_date, end_date, rate, rooms), `promo_codes` (code, discount_type, amount, valid_from, valid_to, uses_left) |
-| `20260801200000_night_audit.sql` | `night_audit_runs` (hotel_id, audit_date, status, created_by, completed_at), `night_audit_items` (run_id, type, amount, notes, status), `no_show_log` (reservation_id, audit_run_id, charge_applied) |
-| `20260801300000_crm_loyalty.sql` | `loyalty_members` (guest_id, tier, points, lifetime_points, joined_at), `loyalty_transactions` (member_id, type: earn/redeem, points, ref_id, note), `crm_segments` (hotel_id, name, criteria JSONB), `email_campaigns` (hotel_id, segment_id, subject, body, sent_at, open_count, click_count) |
-| `20260801400000_platform_admin.sql` | `organizations` (expand: subscription_plan, seats_limit, features JSONB), `audit_logs` (org_id, user_id, action, resource, details JSONB, ip), `system_settings` (org_id, key, value JSONB), `integrations` (org_id, type, config JSONB, enabled) |
+| `security/page.tsx` | Access logs, suspicious logins, active sessions |
+| `security/sessions/page.tsx` | Active sessions: device, location, last activity |
+| — | Revoke session (logout specific device) |
+| `security/abuse/page.tsx` | API abuse detection: high request rate, unusual patterns |
+| — | Auto-block IP + manual block |
+| `src/app/api/platform/security/sessions/route.ts` | GET: active sessions, DELETE: revoke |
+| `src/app/api/platform/security/block-ip/route.ts` | POST: block IP |
+| `src/components/platform/session-table.tsx` | ตาราง active sessions + revoke |
 
 ---
 
-### 3.2 Revenue Management
+### 3.7 Sales Admin CRM
 
-| ไฟล์ | รายละเอียด |
+**`src/app/(platform)/sales/`**
+
+| ไฟล์ | ฟีเจอร์ |
 |---|---|
-| `src/app/dashboard/revenue/page.tsx` | Revenue Dashboard: ADR, RevPAR, Occupancy, forecast |
-| `src/app/dashboard/revenue/revenue-client.tsx` | Tabs: Rate Plans / Pricing Calendar / Forecast / Channel Parity |
-| `src/app/dashboard/revenue/rate-plans/page.tsx` | จัดการ rate plans: สร้าง/แก้ไข restrictions |
-| `src/app/dashboard/revenue/pricing/page.tsx` | ปฏิทินราคา: override ราคาแต่ละวัน/แต่ละ room type |
-| `src/app/dashboard/revenue/forecast/page.tsx` | Forecast: กราฟ occupancy คาดการณ์, แนะนำราคา |
-| `src/app/api/revenue/rate-plans/route.ts` | POST/GET rate plans |
-| `src/app/api/revenue/pricing/route.ts` | POST: set price override, GET: pricing calendar |
-| `src/app/api/revenue/forecast/route.ts` | GET: occupancy forecast + rate recommendations |
-| `src/components/revenue/pricing-calendar.tsx` | ปฏิทิน heat map ราคา (สีตามระดับราคา) |
-| `src/components/revenue/revpar-chart.tsx` | กราฟ RevPAR / ADR / Occupancy (30/60/90 วัน) |
+| `sales/page.tsx` | Pipeline overview, targets, conversion |
+| `sales/leads/page.tsx` | Leads kanban: prospecting/demo/trial/negotiation/closed |
+| `sales/pipeline/page.tsx` | Pipeline funnel chart |
+| `sales/demos/page.tsx` | scheduled demos, notes, follow-up |
+| `sales/onboarding/page.tsx` | trial → paid onboarding pipeline |
+| `src/app/api/platform/sales/leads/route.ts` | POST/GET/PATCH platform leads |
+| `src/components/platform/sales-kanban.tsx` | Kanban board |
+| `src/components/platform/onboarding-pipeline.tsx` | Progress tracker per new hotel |
 
 ---
 
-### 3.3 Sales & Marketing
+### 3.8 Product Admin
 
-| ไฟล์ | รายละเอียด |
+**`src/app/(platform)/product/`**
+
+| ไฟล์ | ฟีเจอร์ |
 |---|---|
-| `src/app/dashboard/sales/page.tsx` | Sales Dashboard: pipeline, contracts, targets |
-| `src/app/dashboard/sales/sales-client.tsx` | Tabs: Leads / Proposals / Contracts / Promo Codes |
-| `src/app/dashboard/sales/leads/page.tsx` | CRM leads: kanban by stage (new/contacted/qualified/proposal/won/lost) |
-| `src/app/dashboard/sales/proposals/page.tsx` | สร้าง/ส่ง proposal: รายละเอียด, ราคา, ห้อง |
-| `src/app/dashboard/sales/contracts/page.tsx` | สัญญากลุ่ม: ดู, ต่ออายุ, ยกเลิก |
-| `src/app/dashboard/marketing/page.tsx` | Marketing: email campaigns, promo codes, segments |
-| `src/app/api/sales/leads/route.ts` | POST/GET/PATCH leads |
-| `src/app/api/sales/proposals/route.ts` | POST/GET proposals |
-| `src/app/api/marketing/campaigns/route.ts` | POST: สร้าง campaign, GET: list + stats |
-| `src/app/api/marketing/promo-codes/route.ts` | POST/GET/DELETE promo codes |
-| `src/components/sales/lead-kanban.tsx` | Kanban board leads |
-| `src/components/marketing/campaign-stats.tsx` | สถิติ email campaign |
+| `product/flags/page.tsx` | Feature flags: key, enabled, rollout %, target orgs |
+| `product/ab-tests/page.tsx` | A/B tests: variants, traffic split, results |
+| `product/modules/page.tsx` | Module toggles per plan (enable/disable features) |
+| `product/analytics/page.tsx` | Usage analytics: feature adoption, DAU by feature |
+| `src/app/api/platform/flags/route.ts` | POST/GET/PATCH feature flags |
+| `src/app/api/platform/ab-tests/route.ts` | POST/GET/PATCH A/B tests |
+| `src/lib/feature-flags.ts` | `isEnabled(flag, orgId)` — check flag for org |
+| `src/components/platform/flag-toggle.tsx` | Toggle + rollout slider |
 
 ---
 
-### 3.4 Night Audit
+### 3.9 Developer / Engineering Admin
 
-| ไฟล์ | รายละเอียด |
+**`src/app/(platform)/engineering/`**
+
+| ไฟล์ | ฟีเจอร์ |
 |---|---|
-| `src/app/dashboard/night-audit/page.tsx` | Night Audit Dashboard |
-| `src/app/dashboard/night-audit/audit-client.tsx` | Checklist: post charges, check no-shows, close day, run reports |
-| `src/app/api/night-audit/run/route.ts` | POST: เริ่ม audit run (lock date) |
-| `src/app/api/night-audit/post-charges/route.ts` | POST: post room charges ทุก reservation ที่ active |
-| `src/app/api/night-audit/no-shows/route.ts` | POST: ประมวลผล no-shows (charge/cancel) |
-| `src/app/api/night-audit/close/route.ts` | POST: ปิดวัน + สร้าง revenue_summary |
-| `src/components/night-audit/audit-checklist.tsx` | Checklist step-by-step พร้อม status แต่ละขั้น |
+| `engineering/page.tsx` | Deployment history, recent incidents |
+| `engineering/webhooks/page.tsx` | Webhook events: filter by hotel/platform/status |
+| — | Replay failed webhook |
+| `engineering/logs/page.tsx` | Application logs (tail, filter by level/service) |
+| `engineering/migrations/page.tsx` | DB migration history + pending |
+| `src/app/api/platform/webhooks/replay/route.ts` | POST: replay webhook event |
+| `src/app/api/platform/logs/route.ts` | GET: log stream |
+| `src/components/platform/webhook-event-table.tsx` | ตาราง webhook events + replay button |
+| `src/components/platform/log-viewer.tsx` | Log tail component |
 
 ---
 
-### 3.5 Advanced CRM & Loyalty
+### 3.10 Night Audit
+*(รายละเอียดเหมือน roadmap เดิม)*
 
-| ไฟล์ | รายละเอียด |
+---
+
+### 3.11 Advanced CRM & Loyalty
+
+| ไฟล์ | ฟีเจอร์ |
 |---|---|
-| `src/app/dashboard/crm/page.tsx` | CRM Dashboard: top guests, segments, loyalty stats |
-| `src/app/dashboard/crm/crm-client.tsx` | Tabs: Guest Profiles / Segments / Loyalty / Campaigns |
-| `src/app/dashboard/crm/guests/[id]/page.tsx` | Guest 360 Profile: ทุก stay, preferences, spend, notes |
-| `src/app/dashboard/crm/loyalty/page.tsx` | Loyalty program: tiers, points, redemptions |
-| `src/app/dashboard/crm/segments/page.tsx` | สร้าง segment: criteria builder (stay count, spend, nationality) |
-| `src/app/api/crm/loyalty/route.ts` | GET: member info, POST: manual adjust points |
-| `src/app/api/crm/segments/route.ts` | POST: สร้าง segment, GET: list + member count |
-| `src/components/crm/guest-timeline.tsx` | Timeline การเข้าพักและ interactions ของ guest |
-| `src/components/crm/loyalty-tier-badge.tsx` | Badge: Bronze/Silver/Gold/Platinum |
+| `src/app/dashboard/crm/` | Guest 360, segments, loyalty tiers |
+| `src/app/dashboard/crm/guests/[id]/page.tsx` | Full guest profile: all stays, spend, preferences |
+| `src/app/dashboard/crm/loyalty/page.tsx` | Points balance, tier, redemptions |
+| `src/components/crm/guest-timeline.tsx` | Timeline: check-ins, requests, feedback, complaints |
+| `src/components/crm/loyalty-tier-badge.tsx` | Bronze/Silver/Gold/Platinum badge |
 
 ---
 
-### 3.6 IT / System Settings
+## Complete Summary
 
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/system/page.tsx` | System Settings Dashboard |
-| `src/app/dashboard/system/system-client.tsx` | Tabs: Integrations / Audit Logs / API Keys / Backup |
-| `src/app/dashboard/system/integrations/page.tsx` | จัดการ integrations: LINE, WhatsApp, Booking.com, PMS, POS |
-| `src/app/dashboard/system/audit-logs/page.tsx` | ดู audit logs: filter by user/action/date |
-| `src/app/api/system/settings/route.ts` | GET/POST system settings |
-| `src/app/api/system/audit-logs/route.ts` | GET: audit logs with pagination |
-| `src/components/system/integration-card.tsx` | การ์ด integration: status, config, test connection |
-| `src/components/system/audit-log-table.tsx` | ตาราง audit logs |
+### Total New Items (vs current state)
 
----
-
-### 3.7 Platform Admin (Super Admin)
-
-| ไฟล์ | รายละเอียด |
-|---|---|
-| `src/app/dashboard/platform-admin/page.tsx` | Platform Overview: hotels, organizations, revenue |
-| `src/app/dashboard/platform-admin/organizations/page.tsx` | จัดการ organizations: plan, seats, features, suspend |
-| `src/app/dashboard/platform-admin/hotels/page.tsx` | จัดการ hotels ทุกโรงแรมในระบบ |
-| `src/app/dashboard/platform-admin/billing/page.tsx` | Billing: subscription, invoices, usage |
-| `src/app/api/platform-admin/organizations/route.ts` | GET: all orgs, PATCH: update plan/features |
-| `src/components/platform/org-overview-card.tsx` | การ์ด organization summary |
-
----
-
-## Summary Table
-
-| Phase | DB Tables | API Routes | Pages/Clients | Priority |
+| Category | Phase 1 | Phase 2 | Phase 3 | Total |
 |---|---|---|---|---|
-| **Phase 1** | 9 new tables | 18 routes | 22 pages | Critical |
-| **Phase 2** | 14 new tables | 24 routes | 36 pages | High |
-| **Phase 3** | 10 new tables | 18 routes | 24 pages | Medium |
-| **Total** | **33 new tables** | **60 routes** | **82 pages** | — |
+| DB Tables | 9 | 18 | 15 | **42** |
+| API Routes | 20 | 38 | 24 | **82** |
+| Pages / Clients | 18 | 44 | 28 | **90** |
+| Components | 12 | 32 | 20 | **64** |
+| **Roles** | 10 new | 8 new | 8 platform | **26 new** |
 
----
+### New Roles Added vs Previous Roadmap
 
-## Already Completed (Pre-Phase 1)
+**Hotel OS (เพิ่มจาก roadmap เก่า):**
+`general_manager`, `operations_manager`, `front_office_manager`, `reservation_agent`, `chat_admin`, `housekeeping_manager`, `room_inspector`, `maintenance_manager`, `technician`, `kitchen_staff`, `room_service_staff`, `restaurant_staff`, `bellboy`, `transport_driver`, `revenue_manager`, `marketing_staff`, `night_auditor`, `accounting_manager`, `accounting_staff`, `purchasing_manager`, `purchasing_staff`, `security_manager`, `security_staff`, `spa_manager`
 
-| ระบบ | ไฟล์ |
-|---|---|
-| ✅ Authentication | `src/app/auth/` |
-| ✅ Reservations | `src/app/dashboard/reservations/` |
-| ✅ Rooms | `src/app/dashboard/rooms/` |
-| ✅ Guests | `src/app/dashboard/guests/` |
-| ✅ Front Desk (basic) | `src/app/dashboard/front-desk/` |
-| ✅ Housekeeping (basic) | `src/app/dashboard/housekeeping/` |
-| ✅ Maintenance (basic) | `src/app/dashboard/maintenance/` |
-| ✅ Concierge (full) | `src/app/dashboard/concierge/` |
-| ✅ Security (full) | `src/app/dashboard/security/` |
-| ✅ Staff Profile (5 tabs) | `src/app/dashboard/profile/` |
-| ✅ Role-adaptive Dashboard | `src/app/dashboard/page.tsx` |
-| ✅ Sidebar with all dept links | `src/components/layout/sidebar.tsx` |
-| ✅ DB: staff_profile_extended | `supabase/migrations/20260514000000_...` |
-| ✅ DB: department_work_tables | `supabase/migrations/20260514100000_...` |
+**SaaS Platform (ใหม่ทั้งหมด — ไม่มีใน roadmap เก่า):**
+`platform_owner`, `billing_admin`, `support_admin`, `platform_ops`, `security_admin`, `sales_admin`, `product_admin`, `dev_admin`
 
 ---
 
