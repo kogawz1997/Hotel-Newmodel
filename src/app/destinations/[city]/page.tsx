@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import { LuxuryCard } from '@/components/luxury/LuxuryCard';
 import { LuxuryBadge } from '@/components/luxury/LuxuryBadge';
 import { logIfSlowQuery, measureStart } from '@/lib/ops/slow-query';
+import { ChevronRight } from 'lucide-react';
 
 const DESTINATIONS = ['bangkok', 'chiang-mai', 'phuket', 'samui'] as const;
 type DestinationSlug = (typeof DESTINATIONS)[number];
@@ -103,6 +104,16 @@ export default async function DestinationPage({ params }: { params: Promise<{ ci
 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }} />
+
+        {/* Attractions link */}
+        <Link href={`/destinations/${city}/attractions`}
+          className="mt-5 flex items-center justify-between bg-white border border-black/8 rounded-2xl px-5 py-4 hover:shadow-md transition-shadow group">
+          <div>
+            <p className="font-semibold text-[#2A2522] text-sm">🗺️ สถานที่ท่องเที่ยวใน{cityName.replace(/\b\w/g, c => c.toUpperCase())}</p>
+            <p className="text-xs text-[#2A2522]/50 mt-0.5">สถานที่น่าเที่ยว เส้นทาง เคล็ดลับการเดินทาง</p>
+          </div>
+          <ChevronRight className="h-5 w-5 text-[#C66A30] group-hover:translate-x-0.5 transition-transform" />
+        </Link>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           {(hotels || []).length === 0 && (

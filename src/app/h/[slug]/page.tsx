@@ -15,6 +15,7 @@ import { HotelGallery } from '@/components/booking/hotel-gallery';
 import { HotelCard } from '@/components/public/HotelCard';
 import { RoomCompareSection } from '@/components/public/RoomCompareSection';
 import { PriceGraph } from '@/components/booking/price-graph';
+import { TrackHotelView } from '@/components/public/TrackHotelView';
 import type { Metadata } from 'next';
 
 type GalleryItem = { image_url: string; alt_text?: string | null; display_order: number };
@@ -215,6 +216,13 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
 
   return (
     <div className="min-h-screen bg-white">
+      <TrackHotelView
+        id={hotel.id} slug={slug} name={hotel.name}
+        city={hotel.city ?? undefined}
+        hero_image_url={hotel.hero_image_url ?? undefined}
+        min_rate={minRate || undefined}
+        avg_rating={avgRating ?? undefined}
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(hotelJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
