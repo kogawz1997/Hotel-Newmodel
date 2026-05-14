@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Calendar, Heart, User } from 'lucide-react';
+import { Search, Calendar, Heart, User, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const TABS = [
-  { href: '/search',           icon: Search,   label: 'ค้นหา'    },
-  { href: '/portal/bookings',  icon: Calendar, label: 'การจอง'   },
-  { href: '/portal/wishlist',  icon: Heart,    label: 'Wishlist' },
-  { href: '/portal/profile',   icon: User,     label: 'โปรไฟล์' },
+  { href: '/search',          icon: Search,     label: 'ค้นหา' },
+  { href: '/portal/bookings', icon: Calendar,   label: 'การจอง' },
+  { href: '/portal/wishlist', icon: Heart,      label: 'Wishlist' },
+  { href: '/portal/profile',  icon: User,       label: 'โปรไฟล์' },
+  { href: '/portal/support',  icon: HelpCircle, label: 'ช่วยเหลือ' },
 ];
 
 export function PortalBottomNav() {

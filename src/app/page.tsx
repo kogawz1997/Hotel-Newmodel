@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { SearchHeader } from '@/components/public/SearchHeader';
 import { FAQSection } from '@/components/public/FAQSection';
+import { SeasonalBanner } from '@/components/public/SeasonalBanner';
+import { RecentlyViewed } from '@/components/public/RecentlyViewed';
 import { IMAGES } from '@/lib/images';
 import {
   ArrowRight, Globe2, Check, Star, ChevronRight,
@@ -257,6 +259,12 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── Seasonal Campaign ────────────────────────────────────────────── */}
+      <SeasonalBanner />
+
+      {/* ─── Recently Viewed ─────────────────────────────────────────────── */}
+      <RecentlyViewed />
 
       {/* ─── Destinations ─────────────────────────────────────────────────── */}
       <section className="py-16 bg-white/50">

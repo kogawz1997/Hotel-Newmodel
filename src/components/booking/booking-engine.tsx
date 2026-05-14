@@ -24,8 +24,16 @@ const AMENITY_ICONS: Record<string, any> = {
   pool: Waves, tv: Tv, parking: Car, balcony: Globe2,
 };
 
-const POLICY_STEPS = ['dates', 'rooms', 'details', 'review', 'confirmed'] as const;
+const POLICY_STEPS = ['dates', 'rooms', 'details', 'addons', 'review', 'confirmed'] as const;
 type Step = typeof POLICY_STEPS[number];
+
+const ADDONS_CATALOG = [
+  { code: 'airport_transfer', emoji: '🚗', name: 'Airport Transfer', desc: 'รับ-ส่งสนามบิน (ราคาต่อเที่ยว)', price: 1200 },
+  { code: 'breakfast',        emoji: '🍳', name: 'อาหารเช้า',         desc: 'บุฟเฟ่ต์มื้อเช้า (ต่อคน/วัน)', price: 350, perPersonPerNight: true },
+  { code: 'flowers',          emoji: '💐', name: 'ดอกไม้โรแมนติก',   desc: 'จัดดอกไม้ตกแต่งห้องต้อนรับ', price: 800 },
+  { code: 'spa_credit',       emoji: '💆', name: 'Spa Credit',        desc: 'เครดิตใช้บริการ Spa (ต่อคน)', price: 1000 },
+  { code: 'welcome_cake',     emoji: '🎂', name: 'Welcome Cake',      desc: 'เค้กต้อนรับพิเศษ ตกแต่งห้อง', price: 500 },
+] as const;
 
 export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: any; roomTypes: any[] }) {
   const supabase = createClient();
@@ -50,6 +58,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel' | 'promptpay' | 'truemoney' | 'bank_transfer'>('promptpay');
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
 
   const nights = search.checkIn && search.checkOut
     ? Math.max(0, differenceInDays(new Date(search.checkOut), new Date(search.checkIn)))
@@ -58,8 +67,14 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const baseRate = selected ? Number(selected.effective_rate || selected.base_rate) : 0;
   const rateMultiplier = ratePlan === 'non_refundable' ? 0.9 : 1;
   const subtotal = baseRate * rateMultiplier * nights;
-  const vat = subtotal * Number(hotel.vat_rate || 0.07);
-  const total = subtotal + vat;
+  const addOnsTotal = selectedAddOns.reduce((sum, code) => {
+    const a = ADDONS_CATALOG.find(x => x.code === code);
+    if (!a) return sum;
+    const qty = (a as any).perPersonPerNight ? (search.adults || 1) * Math.max(nights, 1) : 1;
+    return sum + a.price * qty;
+  }, 0);
+  const vat = (subtotal + addOnsTotal) * Number(hotel.vat_rate || 0.07);
+  const total = subtotal + addOnsTotal + vat;
 
   useEffect(() => {
     async function loadUser() {
@@ -545,6 +560,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 </div>
                 <div className="border-t border-black/5 pt-2.5 space-y-2">
                   <SummaryRow label={`${formatCurrency(baseRate * rateMultiplier)} × ${nights} คืน`} value={formatCurrency(subtotal)} />
+                  {addOnsTotal > 0 && <SummaryRow label="บริการเสริม" value={formatCurrency(addOnsTotal)} />}
                   <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
                   <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
                     <span>รวมทั้งสิ้น</span>
@@ -552,9 +568,9 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   </div>
                 </div>
               </div>
-              <button onClick={() => setStep('review')} disabled={!guestInfo.firstName || !guestInfo.email}
+              <button onClick={() => setStep('addons')} disabled={!guestInfo.firstName || !guestInfo.email}
                 className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50">
-                ถัดไป: ตรวจสอบข้อมูล
+                ถัดไป: เพิ่มบริการพิเศษ
               </button>
               <div className="flex items-center gap-2 mt-3 text-xs text-[#2A2522]/40 justify-center">
                 <ShieldCheck className="h-3.5 w-3.5" /> ข้อมูลของคุณได้รับการปกป้อง
@@ -566,12 +582,56 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     </PublicLayout>
   );
 
-  // ─── STEP: REVIEW ────────────────────────────────────────────────────
-  if (step === 'review') return (
+  // ─── STEP: ADD-ONS ───────────────────────────────────────────────────
+  if (step === 'addons') return (
     <PublicLayout hotel={hotel} user={user} step={step}>
       <div className="max-w-3xl mx-auto px-4 py-8">
         <button onClick={() => setStep('details')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
           <ChevronLeft className="h-4 w-4" /> แก้ไขข้อมูล
+        </button>
+        <h2 className="text-xl font-bold text-[#2A2522] mb-2">บริการเสริมและของขวัญ</h2>
+        <p className="text-sm text-[#2A2522]/50 mb-6">เพิ่มความพิเศษให้การเข้าพักของคุณ (ไม่บังคับ)</p>
+        <div className="grid gap-4 mb-6">
+          {ADDONS_CATALOG.map(a => {
+            const qty = (a as any).perPersonPerNight ? (search.adults || 1) * Math.max(nights, 1) : 1;
+            const itemTotal = a.price * qty;
+            const checked = selectedAddOns.includes(a.code);
+            return (
+              <label key={a.code} className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${checked ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30 bg-white'}`}>
+                <input type="checkbox" checked={checked} className="accent-[#C66A30] h-4 w-4 shrink-0"
+                  onChange={() => setSelectedAddOns(p => checked ? p.filter(c => c !== a.code) : [...p, a.code])} />
+                <span className="text-2xl">{a.emoji}</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm text-[#2A2522]">{a.name}</p>
+                  <p className="text-xs text-[#2A2522]/50 mt-0.5">{a.desc}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-[#C66A30] text-sm">฿{itemTotal.toLocaleString()}</p>
+                  {qty > 1 && <p className="text-2xs text-[#2A2522]/40">{qty} หน่วย</p>}
+                </div>
+              </label>
+            );
+          })}
+        </div>
+        {addOnsTotal > 0 && (
+          <div className="mb-4 p-4 bg-[#2A2522] rounded-xl flex items-center justify-between text-white">
+            <span className="text-sm">บริการเสริมที่เลือก</span>
+            <span className="font-bold">+฿{addOnsTotal.toLocaleString()}</span>
+          </div>
+        )}
+        <button onClick={() => setStep('review')} className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors">
+          {addOnsTotal > 0 ? `ถัดไป: ตรวจสอบข้อมูล (฿${total.toLocaleString()})` : 'ถัดไป: ตรวจสอบข้อมูล (ข้ามบริการเสริม)'}
+        </button>
+      </div>
+    </PublicLayout>
+  );
+
+  // ─── STEP: REVIEW ────────────────────────────────────────────────────
+  if (step === 'review') return (
+    <PublicLayout hotel={hotel} user={user} step={step}>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <button onClick={() => setStep('addons')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
+          <ChevronLeft className="h-4 w-4" /> แก้ไขบริการเสริม
         </button>
 
         <h2 className="text-xl font-bold text-[#2A2522] mb-6">ตรวจสอบและยืนยันการจอง</h2>
@@ -751,9 +811,9 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 function PublicLayout({ hotel, user, step, children }: any) {
   const STEP_LABELS: Record<string, string> = {
     dates: 'เลือกวันที่', rooms: 'เลือกห้อง', details: 'กรอกข้อมูล',
-    review: 'ตรวจสอบ', confirmed: 'เสร็จสิ้น',
+    addons: 'บริการเสริม', review: 'ตรวจสอบ', confirmed: 'เสร็จสิ้น',
   };
-  const STEP_ORDER = ['dates', 'rooms', 'details', 'review', 'confirmed'];
+  const STEP_ORDER = ['dates', 'rooms', 'details', 'addons', 'review', 'confirmed'];
   const currentIdx = STEP_ORDER.indexOf(step);
 
   return (
