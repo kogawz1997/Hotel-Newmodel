@@ -36,24 +36,11 @@ export function EngineeringAdminClient() {
   useEffect(() => { if (tab === 'webhooks') loadEvents(); }, [tab]);
 
   const MIGRATIONS = [
-    '20260514000000_staff_profile_extended.sql',
-    '20260514100000_department_work_tables.sql',
-    '20260601000000_attendance_shifts.sql',
-    '20260601100000_work_orders.sql',
-    '20260601200000_messaging.sql',
-    '20260601300000_leave_documents.sql',
-    '20260601400000_roles_expanded.sql',
-    '20260701000000_hr_module.sql',
-    '20260701100000_accounting_full.sql',
-    '20260701200000_housekeeping_full.sql',
-    '20260701300000_engineering_full.sql',
-    '20260701400000_fnb_full.sql',
-    '20260701500000_purchasing.sql',
-    '20260701600000_transport_bellboy.sql',
-    '20260701700000_revenue_marketing.sql',
-    '20260701800000_it_support.sql',
-    '20260801000000_platform_core.sql',
-    '20260801100000_platform_ops.sql',
+    '0001_core_schema.sql',
+    '0002_phase_buildout.sql',
+    '0003_staff_hr.sql',
+    '0004_departments.sql',
+    '0005_platform.sql',
   ];
 
   return (
