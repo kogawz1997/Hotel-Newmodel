@@ -1,7 +1,9 @@
 # 🗺️ Maitri PMS — 3P Roadmap (Checklist)
 
-**อัปเดต**: 2026-05-15  
-**สถานะโปรเจกต์**: Code ~100% | Integration ~20% | Production ~30%
+**อัปเดต**: 2026-05-15 (ตรวจสอบจริงโดย audit agent)  
+**สถานะโปรเจกต์**: Code ~80% | Integration ~20% | Production ~30%
+
+> ⚠️ **Audit พบ 3 จุดวิกฤต P1**: Calendar grid ไม่มี · Invoice เป็น HTML เท่านั้น · TrueMoney ยังไม่มีโค้ด
 
 ---
 
@@ -45,11 +47,11 @@
 
 #### ต้องเพิ่ม
 - [x] `/onboarding` ✅ — route มีแล้ว
-  - [ ] Step 1: Create Organization 🔄 — UI ต้องตรวจสอบว่า flow ครบ
-  - [ ] Step 2: Create Hotel 🔄
-  - [ ] Step 3: Create Room Types 🔄
-  - [ ] Step 4: Bulk Add Rooms 🔄
-  - [ ] Step 5: Ready checklist 🔄
+  - [x] Step 1: Create Organization ✅ — Real DB insert, audit logged
+  - [x] Step 2: Create Hotel ✅ — check-in/out times, VAT rate
+  - [x] Step 3: Create Room Types ✅ — amenities, images, Supabase Storage
+  - [x] Step 4: Bulk Add Rooms ✅ — creates default room per type
+  - [x] Step 5: Ready checklist ✅ — marks onboarding_completed flag
 - [x] Invite staff ✅ — email invitation ทำแล้ว
 - [x] Staff role management ✅
 - [ ] Disable staff 🔄 — schema มี `is_active` แต่ต้องตรวจ UI
@@ -64,13 +66,13 @@
 ### 2. Dashboard หลัก
 
 #### ต้องเพิ่ม/แก้
-- [ ] Dashboard ใช้ข้อมูลจริงทุก card 🔄
-  - [ ] Today check-in (real data) 🔄
-  - [ ] Today check-out (real data) 🔄
-  - [ ] Occupancy (real data) 🔄
-  - [ ] Revenue today (real data) 🔄
-  - [ ] Open inbox count 🔄
-  - [ ] Housekeeping pending 🔄
+- [x] Dashboard ใช้ข้อมูลจริงทุก card ✅ — audit ยืนยัน 10 parallel queries
+  - [x] Today check-in (real data) ✅
+  - [x] Today check-out (real data) ✅
+  - [x] Occupancy (real data) ✅
+  - [x] Revenue today (real data) ✅
+  - [x] Open inbox count ✅
+  - [x] Housekeeping pending ✅
   - [ ] Payment pending 🔄
   - [ ] OTA sync warning 🔄
 - [ ] Empty state แบบแนะนำขั้นตอนต่อไป 🔄
@@ -149,7 +151,7 @@
 - [x] internal notes ✅
 
 #### Calendar
-- [x] calendar 14/30 วัน ✅
+- [ ] calendar 14/30 วัน ❌ — **audit พบว่ามีแค่ list view ไม่มี grid calendar เลย** 🔄
 - [ ] drag & drop ย้ายห้อง 🔄
 - [ ] drag resize วันพัก 🔄
 - [x] conflict warning ✅
@@ -208,9 +210,11 @@
 
 #### Payment
 - [x] cash payment ✅
-- [x] bank transfer ✅
+- [x] bank transfer ✅ — (webhook reconciliation ยังไม่สมบูรณ์) 🔄
 - [x] PromptPay ✅ — Omise 🔑 ต้องใส่ `OMISE_PUBLIC_KEY` + `OMISE_SECRET_KEY`
 - [x] credit/debit card ✅ — Omise 🔑
+- [ ] TrueMoney Wallet ❌ — **ยังไม่มีโค้ด** ตลาดไทยใช้เยอะมาก 🔄
+- [ ] Shopeepay ❌ — ยังไม่มีโค้ด 🔄
 - [x] partial payment ✅
 - [x] refund ✅
 - [x] payment receipt ✅
@@ -224,7 +228,7 @@
 #### Invoice
 - [x] receipt ✅
 - [x] tax invoice ✅
-- [x] invoice PDF ✅
+- [ ] invoice PDF จริง (bytes) ❌ — **audit พบว่าเป็น HTML เท่านั้น ต้องใช้ browser print** 🔄
 - [x] send invoice email ✅ — SendGrid 🔑 ต้องใส่ `SENDGRID_API_KEY`
 - [x] regenerate invoice ✅
 - [ ] void invoice 🔄
@@ -236,7 +240,7 @@
 ### 7. Housekeeping / Maintenance
 
 #### Housekeeping
-- [x] kanban board ✅
+- [x] kanban board ✅ — Real-time Supabase Realtime subscription
 - [x] mobile view ✅ — basic
 - [x] auto create task after checkout ✅
 - [x] assign housekeeper ✅
@@ -802,9 +806,21 @@
 
 | Phase | ✅ Done | 🔑 รอ Key | 🔄 ต้องโค้ด | รวม |
 |-------|---------|-----------|------------|------|
-| P1 Core | ~75% | ~10% | ~15% | ~100 items |
-| P2 Booking+AI+OTA | ~60% | ~25% | ~15% | ~120 items |
+| P1 Core | ~78% | ~10% | ~12% | ~100 items |
+| P2 Booking+AI+OTA | ~62% | ~25% | ~13% | ~120 items |
 | P3 Scale | ~70% | ~15% | ~15% | ~80 items |
 
-**ถ้าใส่ Keys ครบ P1 Critical + Required → P1 flow ใช้งานได้จริงเลย**  
-**ถ้าใส่ Keys P2 เพิ่ม → booking engine + LINE + OTA พร้อม pilot**
+### 🔴 P1 Critical — ต้องแก้ก่อน launch (จาก audit 2026-05-15)
+
+| งาน | สถานะ | ความสำคัญ |
+|-----|-------|-----------|
+| [ ] Reservation Calendar grid 14/30 วัน | ❌ ไม่มีเลย | สูงมาก — daily interface |
+| [ ] Drag & drop ย้ายห้อง/ขยายวัน | ❌ ไม่มีเลย | สูงมาก |
+| [ ] Invoice PDF bytes จริง (ไม่ใช่ browser print) | ❌ HTML เท่านั้น | สูง — ส่งอีเมลไม่ได้ |
+| [ ] TrueMoney Wallet payment | ❌ ไม่มีโค้ด | สูง — ตลาดไทย |
+| [ ] Shopeepay payment | ❌ ไม่มีโค้ด | กลาง |
+| [ ] OTA workers ต่อ API จริง | ⚠️ framework only | สูง — ต้องใส่ keys + wire |
+| [ ] Bank transfer webhook reconciliation | ⚠️ partial | กลาง |
+
+**ถ้าแก้ 3 อย่างแรก (Calendar + PDF + TrueMoney) → P1 flow สมบูรณ์จริง**  
+**ถ้าใส่ Keys ครบ P1 Critical + Required → deploy ได้เลย**

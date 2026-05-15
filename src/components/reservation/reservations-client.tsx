@@ -63,6 +63,7 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dragResvId, setDragResvId] = useState<string | null>(null);
   const [listSearch, setListSearch] = useState('');
   const [listStatus, setListStatus] = useState('');
   const [listPage, setListPage] = useState(0);
@@ -102,6 +103,26 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
     window.addEventListener('resize', applyViewport);
     return () => window.removeEventListener('resize', applyViewport);
   }, []);
+
+  async function handleDropOnRoom(targetRoomId: string) {
+    if (!dragResvId) return;
+    const resv = reservations.find(r => r.id === dragResvId);
+    if (!resv || resv.room_id === targetRoomId) { setDragResvId(null); return; }
+    try {
+      const res = await fetch(`/api/reservations/${dragResvId}/move-room`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: targetRoomId }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'ย้ายห้องไม่สำเร็จ');
+      toast.success('ย้ายห้องเรียบร้อย');
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setDragResvId(null);
+    }
+  }
 
   function getReservationForRoomDay(roomId: string, day: Date) {
     return reservations.find(r => {
@@ -249,29 +270,40 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
                           </td>
                           {days.map(day => {
                             const resv = getReservationForRoomDay(room.id, day);
-                            const isCheckIn = resv && isSameDay(day, parseDateLocal(resv.check_in));
+                            const ci = resv ? parseDateLocal(resv.check_in) : null;
+                            const co = resv ? parseDateLocal(resv.check_out) : null;
+                            const isFirst = resv && ci ? isSameDay(day, ci) : false;
+                            const isLast = resv && co ? isSameDay(day, addDays(co, -1)) : false;
+                            const isDropTarget = dragResvId && !resv;
                             return (
                               <td
                                 key={day.toString()}
                                 className={cn(
-                                  'border-r border-b border-border h-14 p-1 relative',
-                                  isToday(day) && 'bg-accent/5'
+                                  'border-r border-b border-border h-14 p-0 relative overflow-visible',
+                                  isToday(day) && !resv && 'bg-accent/5',
+                                  isDropTarget && 'bg-accent/10 ring-1 ring-inset ring-accent/40'
                                 )}
+                                onDragOver={isDropTarget ? (e) => e.preventDefault() : undefined}
+                                onDrop={isDropTarget ? () => handleDropOnRoom(room.id) : undefined}
                               >
                                 {resv && (
                                   <button
+                                    draggable
+                                    onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragResvId(resv.id); }}
+                                    onDragEnd={() => setDragResvId(null)}
                                     onClick={() => setSelectedReservation(resv)}
                                     className={cn(
-                                      'w-full h-full px-2 py-1 rounded-md border text-xs text-left truncate',
-                                      'hover:ring-2 hover:ring-accent/50 hover:scale-[1.02] transition-all',
+                                      'absolute inset-y-1 flex items-center overflow-hidden border-y text-xs cursor-grab active:cursor-grabbing hover:brightness-95 transition-all',
+                                      isFirst ? 'left-0.5 rounded-l-md border-l pl-2' : 'left-0',
+                                      isLast ? 'right-0.5 rounded-r-md border-r pr-1' : 'right-0',
                                       STATUS_COLORS[resv.status]
                                     )}
-                                    title={`${resv.guests?.first_name} ${resv.guests?.last_name || ''} - ${formatCurrency(resv.total_amount)}`}
+                                    title={`${resv.guests?.first_name} ${resv.guests?.last_name || ''} · ${formatCurrency(resv.total_amount)}`}
                                   >
-                                    {isCheckIn && (
-                                      <div className="font-medium truncate">
-                                        {resv.guests?.first_name} {resv.guests?.last_name?.[0]}.
-                                      </div>
+                                    {isFirst && (
+                                      <span className="font-medium truncate">
+                                        {resv.guests?.first_name} {resv.guests?.last_name?.[0] || ''}.
+                                      </span>
                                     )}
                                   </button>
                                 )}
@@ -435,6 +467,7 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
         reservation={selectedReservation}
         onClose={() => setSelectedReservation(null)}
         onUpdated={() => { setSelectedReservation(null); load(); }}
+        rooms={rooms}
       />
 
       <CreateReservationModal
@@ -461,14 +494,20 @@ function LegendDot({ color, label }: { color: string; label: string }) {
 // Reservation Detail Modal
 // ============================================================
 function ReservationDetailModal({
-  reservation, onClose, onUpdated,
+  reservation, onClose, onUpdated, rooms,
 }: {
   reservation: Reservation | null;
   onClose: () => void;
   onUpdated: () => void;
+  rooms?: { id: string; room_number: string }[];
 }) {
   const [loading, setLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
+  const [showMoveRoom, setShowMoveRoom] = useState(false);
+  const [showExtend, setShowExtend] = useState(false);
+  const [moveRoomId, setMoveRoomId] = useState('');
+  const [newCheckOut, setNewCheckOut] = useState('');
+  const [extraAmount, setExtraAmount] = useState('0');
 
   if (!reservation) return null;
 
@@ -499,11 +538,43 @@ function ReservationDetailModal({
     }
   }
 
+  async function doMoveRoom() {
+    if (!moveRoomId) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/reservations/${reservation!.id}/move-room`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: moveRoomId }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'ย้ายห้องไม่สำเร็จ');
+      toast.success('ย้ายห้องเรียบร้อย');
+      onUpdated();
+    } catch (e: any) { toast.error(e.message); } finally { setLoading(false); setShowMoveRoom(false); }
+  }
+
+  async function doExtend() {
+    if (!newCheckOut) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/reservations/${reservation!.id}/extend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newCheckOut, additionalAmount: Number(extraAmount) || 0 }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'ต่อวันไม่สำเร็จ');
+      toast.success('ต่อวันพักเรียบร้อย');
+      onUpdated();
+    } catch (e: any) { toast.error(e.message); } finally { setLoading(false); setShowExtend(false); }
+  }
+
   const r = reservation;
   const nights = r.nights || 1;
   const canCheckIn = r.status === 'confirmed' || r.status === 'pending';
   const canCheckOut = r.status === 'checked_in';
   const canCancel = !['checked_out', 'cancelled', 'no_show'].includes(r.status);
+  const canMove = !['checked_out', 'cancelled', 'no_show'].includes(r.status);
+  const canExtend = r.status === 'confirmed' || r.status === 'checked_in';
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
@@ -570,6 +641,56 @@ function ReservationDetailModal({
             </div>
           )}
 
+          {/* Move room panel */}
+          {showMoveRoom && rooms && (
+            <div className="p-3 rounded-xl border border-border space-y-2">
+              <p className="text-xs font-medium">เลือกห้องใหม่</p>
+              <select
+                value={moveRoomId}
+                onChange={e => setMoveRoomId(e.target.value)}
+                className="w-full px-3 py-2 bg-secondary border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">— เลือกห้อง —</option>
+                {rooms.filter(rm => rm.id !== r.room_id).map(rm => (
+                  <option key={rm.id} value={rm.id}>{rm.room_number}</option>
+                ))}
+              </select>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowMoveRoom(false)}>ยกเลิก</Button>
+                <Button size="sm" disabled={!moveRoomId || loading} onClick={doMoveRoom}>
+                  {loading ? 'กำลังย้าย...' : 'ย้ายห้อง'}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Extend stay panel */}
+          {showExtend && (
+            <div className="p-3 rounded-xl border border-border space-y-2">
+              <p className="text-xs font-medium">ต่อวันพัก</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-muted-foreground">วันเช็คเอาท์ใหม่</label>
+                  <input type="date" value={newCheckOut} min={r.check_out}
+                    onChange={e => setNewCheckOut(e.target.value)}
+                    className="w-full mt-1 px-3 py-2 bg-secondary border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">ยอดเพิ่ม (฿)</label>
+                  <input type="number" value={extraAmount} min="0"
+                    onChange={e => setExtraAmount(e.target.value)}
+                    className="w-full mt-1 px-3 py-2 bg-secondary border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowExtend(false)}>ยกเลิก</Button>
+                <Button size="sm" disabled={!newCheckOut || loading} onClick={doExtend}>
+                  {loading ? 'กำลังบันทึก...' : 'ต่อวันพัก'}
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Confirm action */}
           {confirmAction && (
             <div className="p-3 rounded-xl border border-destructive/30 bg-destructive/5 flex items-center justify-between gap-3">
@@ -593,9 +714,19 @@ function ReservationDetailModal({
         </div>
 
         <DialogFooter className="flex-wrap gap-2">
-          {canCancel && !confirmAction && (
+          {canCancel && !confirmAction && !showMoveRoom && !showExtend && (
             <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => setConfirmAction('cancel')}>
-              ยกเลิกการจอง
+              ยกเลิก
+            </Button>
+          )}
+          {canMove && !confirmAction && !showMoveRoom && !showExtend && (
+            <Button variant="outline" size="sm" onClick={() => { setShowMoveRoom(true); setShowExtend(false); }}>
+              ย้ายห้อง
+            </Button>
+          )}
+          {canExtend && !confirmAction && !showMoveRoom && !showExtend && (
+            <Button variant="outline" size="sm" onClick={() => { setShowExtend(true); setShowMoveRoom(false); }}>
+              ต่อวันพัก
             </Button>
           )}
           <Button
@@ -606,15 +737,11 @@ function ReservationDetailModal({
           </Button>
           <div className="flex-1" />
           <Button variant="outline" onClick={onClose}>ปิด</Button>
-          {canCheckIn && !confirmAction && (
-            <Button onClick={() => setConfirmAction('check_in')} disabled={loading}>
-              เช็คอิน
-            </Button>
+          {canCheckIn && !confirmAction && !showMoveRoom && !showExtend && (
+            <Button onClick={() => setConfirmAction('check_in')} disabled={loading}>เช็คอิน</Button>
           )}
-          {canCheckOut && !confirmAction && (
-            <Button onClick={() => setConfirmAction('check_out')} disabled={loading}>
-              เช็คเอาท์
-            </Button>
+          {canCheckOut && !confirmAction && !showMoveRoom && !showExtend && (
+            <Button onClick={() => setConfirmAction('check_out')} disabled={loading}>เช็คเอาท์</Button>
           )}
         </DialogFooter>
       </DialogContent>
