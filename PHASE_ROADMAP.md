@@ -5,53 +5,105 @@
 
 ---
 
-## GAP ANALYSIS — สิ่งที่มีอยู่แล้ว vs ที่ยังขาด
+## GAP ANALYSIS — สถานะปัจจุบัน (อัพเดต 2026-05-15)
 
-### ✅ มีอยู่แล้ว
-| ระบบ | ไฟล์ | ระดับความสมบูรณ์ |
+### ✅ เสร็จสมบูรณ์ — Hotel OS Core
+
+| ระบบ | ไฟล์หลัก | สถานะ |
 |---|---|---|
 | Auth / Login | `src/app/auth/` | ✅ เต็ม |
-| Reservations (basic) | `src/app/dashboard/reservations/` | ⚠️ ขาด: group booking, OTA queue, waitlist |
-| Rooms | `src/app/dashboard/rooms/` | ⚠️ ขาด: room move, block, upgrade flow |
-| Guests | `src/app/dashboard/guests/` | ⚠️ ขาด: 360 profile, folio, loyalty |
-| Front Desk (basic) | `src/app/dashboard/front-desk/` | ⚠️ ขาด: keycard, deposit, cashier |
-| Housekeeping (basic) | `src/app/dashboard/housekeeping/` | ⚠️ ขาด: inspector, minibar, photo, laundry |
-| Maintenance (basic) | `src/app/dashboard/maintenance/` | ⚠️ ขาด: parts, before/after photo, technician view |
-| Concierge (full) | `src/app/dashboard/concierge/` | ⚠️ ขาด: bellboy tasks, transport, luggage |
-| Security (full) | `src/app/dashboard/security/` | ⚠️ ขาด: patrol checklist, emergency alerts |
+| Role-Adaptive Dashboard (35 roles) | `src/app/dashboard/page.tsx` | ✅ เต็ม |
 | Staff Profile (5 tabs) | `src/app/dashboard/profile/` | ✅ เต็ม |
-| Role-adaptive Dashboard | `src/app/dashboard/page.tsx` | ⚠️ ขาด: GM/OpsManager/Owner views |
-| DB: staff_profile_extended | `supabase/migrations/20260514000000` | ✅ เต็ม |
-| DB: department_work_tables | `supabase/migrations/20260514100000` | ✅ เต็ม |
+| Reservations + Group Booking | `src/app/dashboard/reservations/` + `group-bookings/` | ✅ มีทั้ง basic + group |
+| Rooms | `src/app/dashboard/rooms/` | ✅ มี |
+| Guests + Blacklist | `src/app/dashboard/guests/` + `guests/blacklist/` | ✅ มี |
+| Front Desk | `src/app/dashboard/front-desk/` | ✅ มี (ขาด full cashier) |
+| Housekeeping | `src/app/dashboard/housekeeping/` | ✅ มี (ขาด inspector/minibar) |
+| Maintenance | `src/app/dashboard/maintenance/` | ✅ มี (ขาด parts/photos) |
+| Concierge | `src/app/dashboard/concierge/` | ✅ มี |
+| Security | `src/app/dashboard/security/` | ✅ มี (ขาด patrol UI) |
+| Live Board (GM Command Center) | `src/app/dashboard/live-board/` | ✅ เต็ม + Realtime |
+| Work Orders + Task Auto-Router | `src/app/dashboard/work-orders/` + `my-tasks/` | ✅ เต็ม |
+| Attendance + Geofence Clock | `src/app/dashboard/attendance/` | ✅ เต็ม |
+| Shift Management | `src/app/dashboard/shift-management/` | ✅ เต็ม |
+| Leave Management | `src/app/dashboard/leave/` | ✅ เต็ม |
+| Document Library | `src/app/dashboard/documents/` | ✅ เต็ม |
+| Internal Requests | `src/app/dashboard/internal-requests/` | ✅ เต็ม |
+| Announcements | `src/app/dashboard/announcements/` | ✅ เต็ม |
+| Inbox (Omnichannel) | `src/app/dashboard/inbox/` | ✅ มี (ขาด SLA timer / webhook integrations) |
+| Guest Recovery | `src/app/dashboard/guest-recovery/` | ✅ เต็ม |
+| Duty Log | `src/app/dashboard/duty-log/` | ✅ เต็ม |
+| Compliance (TM30 + PDPA) | `src/app/dashboard/compliance/` | ✅ เต็ม |
+| F&B Menu | `src/app/dashboard/fb/` | ✅ มี menu |
+| Spa (basic) | `src/app/dashboard/spa/` | ✅ มี bookings + services |
+| Revenue (basic) | `src/app/dashboard/revenue/` | ✅ มี |
+| Marketing (basic) | `src/app/dashboard/marketing/` | ✅ มี |
+| Reports | `src/app/dashboard/reports/` | ✅ มี |
+| Loyalty | `src/app/dashboard/loyalty/` | ✅ มี |
+| Analytics | `src/app/dashboard/analytics/` | ✅ มี |
+| Branding | `src/app/dashboard/branding/` | ✅ มี |
+| Settings + Localization | `src/app/dashboard/settings/` + `localization/` | ✅ มี |
+| RBAC + Permission Simulator | `src/app/dashboard/rbac/` + `permission-simulator/` | ✅ มี |
+| Audit Trail | `src/app/dashboard/audit-trail/` | ✅ มี |
+| Billing (subscription) | `src/app/dashboard/billing/` | ✅ มี |
+| IoT | `src/app/dashboard/iot/` | ✅ มี |
+| OTA (Booking.com / Agoda / Airbnb) | `src/app/api/ota/` | ✅ เต็ม |
+| Payments (Stripe / Omise / PromptPay) | `src/app/api/payments/` | ✅ เต็ม |
+| Webhooks (LINE / WhatsApp / OTA) | `src/app/api/webhooks/` | ✅ มี (receive only) |
+| Night Audit (cron) | `src/app/api/cron/night-audit/` | ✅ มี cron |
+| Portal (folio / requests / compendium / AI chat) | `src/app/portal/` | ✅ เต็ม |
+| AI (review reply / sentiment / concierge / suggest) | `src/app/api/ai/` | ✅ Claude Haiku |
+| Team Management + Invite | `src/app/api/team/` | ✅ เต็ม |
+| DB Migrations (Phase 1) | `supabase/migrations/2026060*` | ✅ ครบ 5 migrations |
 
-### ❌ ยังขาดทั้งหมด (Hotel OS)
-- GM Command Center, Operations Manager view, Owner Dashboard with AI summaries
-- Reservation Agent role + full booking module
-- Chat Admin / Omnichannel Inbox with AI replies, SLA timer, translations
-- Room Inspector app, Housekeeper mobile view
-- Technician mobile view, parts tracking
-- Kitchen Queue / KDS
-- Room Service Delivery app
-- Restaurant POS (table orders, room charge, split bill)
-- Bellboy / Porter tasks
-- Transport Staff app
-- Revenue Manager tools (competitor pricing, dynamic pricing, OTA performance)
-- Marketing tools (campaigns, abandoned bookings, LINE campaigns)
-- Accounting OS (folio, cashier close, tax invoices, reconciliation)
-- Night Audit full flow
-- Spa full (treatment rooms, therapist assignment)
-- HR full (onboarding, training mode, payroll)
-- IT Support tickets
+---
 
-### ❌ ยังขาดทั้งหมด (SaaS Platform — app.maitriapp.com/owner)
-- Platform Owner Control Center (MRR, churn, AI usage, webhook failures)
-- Billing Admin (failed payments, subscription lifecycle, refunds, credits)
-- Support Admin (impersonation, diagnostics, onboarding)
-- Platform Ops Admin (uptime, queue, WebSocket health, OTA health)
-- Security Admin (access logs, session revocation, API abuse)
-- Sales Admin CRM (hotel leads, demos, trial tracking, onboarding pipeline)
-- Product Admin (feature flags, A/B testing, module toggles)
-- Developer / Engineering Admin (logs, deployments, webhook replay)
+### ⚠️ มีแต่ยังไม่ครบ — ต้องทำใน Phase 2
+
+| ระบบ | ไฟล์ | สิ่งที่ขาด |
+|---|---|---|
+| Front Desk (full) | `front-desk/` | Keycard modal, full cashier close, room upgrade UI |
+| Housekeeping (full) | `housekeeping/` | Inspector app, minibar charge to folio, laundry batches, photo workflow |
+| Maintenance (full) | `maintenance/` | Parts inventory, before/after photo upload, PM schedule, technician claim view |
+| Inbox (full) | `inbox/` | SLA countdown timer, AI reply button, translation toggle, guest timeline sidebar |
+| Security (full) | `security/` | Patrol checklist UI, Emergency broadcast button |
+| Spa (full) | `spa/` | Treatment room grid, therapist schedule, guest preference notes |
+| Revenue (full) | `revenue/` | Competitor pricing table, dynamic pricing rules builder |
+| HR (full) | `team/` | Payroll, performance reviews, onboarding checklist, training records |
+| F&B (full) | `fb/` | KDS (kitchen display), room service delivery queue, restaurant POS |
+
+---
+
+### ❌ ยังไม่มีเลย — ต้องสร้างใน Phase 2
+
+| ระบบ | ไฟล์ที่ต้องสร้าง | Phase |
+|---|---|---|
+| Bellboy / Porter Dashboard | `src/app/dashboard/bellboy/` + `src/app/api/bellboy/` | 2.5 |
+| Transport Staff Dashboard | `src/app/dashboard/transport/` + `src/app/api/transport/` | 2.6 |
+| Kitchen / KDS | `src/app/dashboard/kitchen/` + `src/app/api/fnb/orders/[id]/status/` | 2.4 |
+| Room Service Staff | `src/app/dashboard/room-service/` + `src/app/api/fnb/delivery/` | 2.4 |
+| Restaurant POS | `src/app/dashboard/restaurant/` + `src/app/api/fnb/restaurant/` | 2.4 |
+| IT Support (tickets + devices) | `src/app/dashboard/it/` + `src/app/api/it/` | 2.11 |
+| HR Full Module | `src/app/dashboard/hr/` + `src/app/api/hr/` | 2.10 |
+| Purchasing | `src/app/dashboard/purchasing/` + `src/app/api/purchasing/` | 2.15 |
+| Advanced CRM | `src/app/dashboard/crm/` | 3.11 |
+
+---
+
+### ❌ ยังไม่มีเลย — ต้องสร้างใน Phase 3 (SaaS Platform)
+
+| ระบบ | Route | Phase |
+|---|---|---|
+| Platform Owner Control Center | `src/app/(platform)/dashboard/` | 3.2 |
+| Billing Admin | `src/app/(platform)/billing/` | 3.3 |
+| Support Admin + Impersonation | `src/app/(platform)/support/` | 3.4 |
+| Platform Ops Admin | `src/app/(platform)/operations/` | 3.5 |
+| Security Admin | `src/app/(platform)/security/` | 3.6 |
+| Sales Admin CRM | `src/app/(platform)/sales/` | 3.7 |
+| Product Admin (feature flags / A/B) | `src/app/(platform)/product/` | 3.8 |
+| Developer / Engineering Admin | `src/app/(platform)/engineering/` | 3.9 |
+| Night Audit (full UI) | `src/app/dashboard/night-audit/` | 3.10 |
+| Advanced CRM + Loyalty Full | `src/app/dashboard/crm/` | 3.11 |
 
 ---
 
