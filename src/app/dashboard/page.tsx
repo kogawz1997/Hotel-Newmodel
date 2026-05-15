@@ -37,11 +37,39 @@ export default async function DashboardPage() {
     .limit(1)
     .single();
 
-  // Role-specific redirect: send operational staff straight to their workspace
+  // Role-specific redirect: send staff straight to their primary workspace
   const role = profile?.role;
+  // Legacy roles
   if (role === 'housekeeping') redirect('/dashboard/housekeeping');
   if (role === 'front_desk') redirect('/dashboard/front-desk');
   if (role === 'maintenance') redirect('/dashboard/rooms');
+  // New 35-role system — management goes to live-board
+  if (role === 'general_manager') redirect('/dashboard/live-board');
+  if (role === 'operations_manager') redirect('/dashboard/live-board');
+  if (role === 'hotel_owner') redirect('/dashboard/live-board');
+  // Operational staff go to my-tasks
+  if (['housekeeper', 'room_inspector', 'technician', 'bellboy', 'transport_driver',
+       'room_service_staff', 'kitchen_staff', 'security_staff', 'spa_staff', 'restaurant_staff'].includes(role ?? '')) {
+    redirect('/dashboard/my-tasks');
+  }
+  // Front office
+  if (role === 'front_office_manager') redirect('/dashboard/front-desk');
+  if (role === 'reservation_agent') redirect('/dashboard/reservations');
+  if (role === 'night_auditor') redirect('/dashboard/reports/handover');
+  // Department managers go to their module
+  if (role === 'housekeeping_manager') redirect('/dashboard/housekeeping');
+  if (role === 'maintenance_manager') redirect('/dashboard/maintenance');
+  if (role === 'revenue_manager') redirect('/dashboard/revenue');
+  if (role === 'accounting_manager' || role === 'accounting_staff') redirect('/dashboard/accounting');
+  if (role === 'hr_manager' || role === 'hr_staff') redirect('/dashboard/team');
+  if (role === 'spa_manager' || role === 'spa_staff') redirect('/dashboard/spa');
+  if (role === 'concierge' || role === 'guest_relations') redirect('/dashboard/concierge');
+  if (role === 'security_manager') redirect('/dashboard/security');
+  if (role === 'fnb_manager') redirect('/dashboard/fb');
+  if (role === 'chat_admin') redirect('/dashboard/inbox');
+  if (role === 'it_admin' || role === 'it_support') redirect('/dashboard/integrations');
+  if (role === 'marketing_staff') redirect('/dashboard/marketing');
+  if (role === 'purchasing_manager' || role === 'purchasing_staff') redirect('/dashboard/team');
 
   if (!hotel) {
     return (

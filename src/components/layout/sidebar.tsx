@@ -4,14 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  Tag,
-  Star,
-  LayoutDashboard, Calendar, CalendarRange, MessageSquare, Users, Bed,
-  Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed,
-  Heart, Award, Megaphone, Settings, LogOut, ChevronDown,
-  Building2, Shield, Settings2, Palette, CreditCard, Rocket, Zap,
-  MonitorDot,
-  Bell,
+  Tag, Star, LayoutDashboard, Calendar, CalendarRange, MessageSquare, Users, Bed,
+  Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed, Heart, Award, Megaphone,
+  Settings, LogOut, ChevronDown, Building2, Shield, Settings2, Palette, CreditCard,
+  Rocket, Zap, MonitorDot, Bell, Wrench, Headphones, ShieldCheck, ClipboardList,
+  ListTodo, Clock, HeartHandshake, FileText, MapPin, Monitor, Tv2, Car,
+  BriefcaseBusiness, ChefHat, Flower2, ShoppingCart, TrendingUp, Users2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -25,87 +23,146 @@ interface SidebarProps {
   userRole?: string;
 }
 
-// Role groupings — used in `roles` arrays on nav items.
-// If a nav item has no `roles` array it shows to ALL roles.
-// If it has a `roles` array, only those roles see it.
-const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
-const MANAGEMENT_ROLES = ['owner', 'admin', 'manager'];
-const OWNER_ADMIN_ROLES = ['owner', 'admin'];
-const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk'];
-const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff'];
-const FLOOR_OPS_ROLES   = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff', 'maintenance'];
-const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
-const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
-const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
+// ── Role groups ──────────────────────────────────────────────────────────────
+// Legacy roles (existing data)
+const LEGACY_MGMT   = ['owner', 'admin', 'manager'];
+const LEGACY_FRONT  = ['owner', 'admin', 'manager', 'front_desk'];
+const LEGACY_HK     = ['owner', 'admin', 'manager', 'housekeeping'];
+const LEGACY_MAINT  = ['owner', 'admin', 'manager', 'maintenance'];
+const LEGACY_SEC    = ['owner', 'admin', 'manager', 'security'];
+const LEGACY_CON    = ['owner', 'admin', 'manager', 'concierge'];
+const LEGACY_ACC    = ['owner', 'admin', 'manager', 'accounting'];
+
+// New 35-role system
+const MGMT_ROLES  = [...LEGACY_MGMT, 'hotel_owner', 'general_manager', 'operations_manager'];
+const OWNER_ROLES = [...MGMT_ROLES];
+const FRONT_ROLES = [...MGMT_ROLES, 'front_office_manager', 'front_desk', 'reservation_agent', 'night_auditor', ...LEGACY_FRONT];
+const HK_ROLES    = [...MGMT_ROLES, 'housekeeping_manager', 'housekeeper', 'room_inspector', ...LEGACY_HK];
+const MAINT_ROLES = [...MGMT_ROLES, 'maintenance_manager', 'technician', ...LEGACY_MAINT];
+const SEC_ROLES   = [...MGMT_ROLES, 'security_manager', 'security_staff', ...LEGACY_SEC];
+const CON_ROLES   = [...MGMT_ROLES, 'concierge', 'guest_relations', 'bellboy', 'transport_driver', ...LEGACY_CON];
+const ACC_ROLES   = [...MGMT_ROLES, 'accounting_manager', 'accounting_staff', ...LEGACY_ACC];
+const HR_ROLES    = [...MGMT_ROLES, 'hr_manager', 'hr_staff'];
+const REV_ROLES   = [...MGMT_ROLES, 'revenue_manager', 'marketing_staff', ...LEGACY_ACC];
+const SPA_ROLES   = [...MGMT_ROLES, 'spa_manager', 'spa_staff'];
+const FNB_ROLES   = [...MGMT_ROLES, 'fnb_manager', 'kitchen_staff', 'room_service_staff', 'restaurant_staff'];
+const IT_ROLES    = [...MGMT_ROLES, 'it_admin', 'it_support'];
+
+// Operational staff that see My Tasks
+const OPS_STAFF = [
+  'housekeeper', 'room_inspector', 'technician', 'bellboy', 'transport_driver',
+  'room_service_staff', 'kitchen_staff', 'concierge', 'security_staff', 'spa_staff',
+  'restaurant_staff', 'guest_relations',
+];
+const ALL_STAFF = [...MGMT_ROLES, ...FRONT_ROLES, ...HK_ROLES, ...MAINT_ROLES, ...OPS_STAFF, 'staff', 'viewer'];
 
 const NAV_GROUPS = [
   {
     label: 'ภาพรวม',
     items: [
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Overview', roles: OPS_ROLES },
+      { href: '/dashboard', icon: LayoutDashboard, label: 'Overview', exact: true },
+      { href: '/dashboard/live-board', icon: MonitorDot, label: 'Live Board', roles: MGMT_ROLES },
       { href: '/dashboard/inbox', icon: MessageSquare, label: 'Inbox', showUnread: true },
-      { href: '/dashboard/ai-concierge', icon: Sparkles, label: 'AI Concierge', roles: OPS_ROLES },
+      { href: '/dashboard/ai-concierge', icon: Sparkles, label: 'AI Concierge' },
+      { href: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
+    ],
+  },
+  {
+    label: 'งานของฉัน',
+    items: [
+      { href: '/dashboard/my-tasks', icon: ListTodo, label: 'งานของฉัน', roles: OPS_STAFF },
+      { href: '/dashboard/work-orders', icon: ClipboardList, label: 'Work Orders', roles: [...MGMT_ROLES, 'front_office_manager', 'housekeeping_manager', 'maintenance_manager', 'fnb_manager', 'security_manager', 'spa_manager', 'front_desk'] },
+      { href: '/dashboard/attendance', icon: Clock, label: 'ลงเวลา', roles: ALL_STAFF },
+      { href: '/dashboard/shift-management', icon: Calendar, label: 'จัดกะงาน', roles: [...MGMT_ROLES, 'hr_manager', 'hr_staff', 'housekeeping_manager', 'maintenance_manager'] },
     ],
   },
   {
     label: 'การดำเนินงาน',
     items: [
-      { href: '/dashboard/front-desk', icon: MonitorDot, label: 'Front Desk', roles: FRONT_DESK_ROLES },
-      { href: '/dashboard/front-desk/check-in-wizard', icon: MonitorDot, label: 'Check-in Wizard', roles: FRONT_DESK_ROLES },
-      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FRONT_DESK_ROLES },
-      { href: '/dashboard/group-bookings', icon: Users, label: 'Group Booking', roles: FRONT_DESK_ROLES },
-      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: [...FRONT_DESK_ROLES, 'maintenance'] },
-      { href: '/dashboard/rates', icon: CalendarRange, label: 'ปฏิทินราคา', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/guests', icon: Users, label: 'แขก', roles: OPS_ROLES },
-      { href: '/dashboard/guests/merge', icon: Users, label: 'Merge Guests', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/notifications', icon: Bell, label: 'Notifications', roles: ALL_STAFF },
-      { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน', roles: HOUSEKEEPING_ROLES },
-      { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุง', roles: MAINTENANCE_ROLES },
-      { href: '/dashboard/concierge', icon: Headphones, label: 'Concierge', roles: CONCIERGE_ROLES },
-      { href: '/dashboard/security', icon: ShieldCheck, label: 'Security', roles: SECURITY_ROLES },
+      { href: '/dashboard/front-desk', icon: MonitorDot, label: 'Front Desk', roles: FRONT_ROLES },
+      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FRONT_ROLES },
+      { href: '/dashboard/group-bookings', icon: Users, label: 'Group Booking', roles: FRONT_ROLES },
+      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: [...FRONT_ROLES, ...MAINT_ROLES] },
+      { href: '/dashboard/guests', icon: Users, label: 'แขก', roles: FRONT_ROLES },
+      { href: '/dashboard/guests/blacklist', icon: ShieldCheck, label: 'Blacklist', roles: MGMT_ROLES },
+      { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน', roles: HK_ROLES },
+      { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุง', roles: MAINT_ROLES },
+      { href: '/dashboard/concierge', icon: Headphones, label: 'Concierge', roles: CON_ROLES },
+      { href: '/dashboard/security', icon: ShieldCheck, label: 'Security', roles: SEC_ROLES },
+    ],
+  },
+  {
+    label: 'F&B',
+    items: [
+      { href: '/dashboard/fb', icon: UtensilsCrossed, label: 'F&B Overview', roles: FNB_ROLES },
+      { href: '/dashboard/fb/orders', icon: ShoppingCart, label: 'Orders', roles: FNB_ROLES },
+      { href: '/dashboard/fb/menu', icon: ChefHat, label: 'Menu', roles: [...MGMT_ROLES, 'fnb_manager'] },
+    ],
+  },
+  {
+    label: 'Spa & Wellness',
+    items: [
+      { href: '/dashboard/spa', icon: Flower2, label: 'Spa', roles: SPA_ROLES },
+      { href: '/dashboard/spa/bookings', icon: Calendar, label: 'Spa Bookings', roles: SPA_ROLES },
+      { href: '/dashboard/spa/services', icon: Heart, label: 'Services', roles: [...MGMT_ROLES, 'spa_manager'] },
     ],
   },
   {
     label: 'การจัดจำหน่าย',
     items: [
-      { href: '/dashboard/channels', icon: Globe2, label: 'Channel Manager', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/ota', icon: Globe2, label: 'OTA Sync', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/marketing', icon: Megaphone, label: 'Marketing', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/reviews', icon: Star, label: 'Review Aggregator', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/booking-widget', icon: Globe2, label: 'Booking Widget', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/channels', icon: Globe2, label: 'Channel Manager', roles: REV_ROLES },
+      { href: '/dashboard/ota', icon: Globe2, label: 'OTA Sync', roles: REV_ROLES },
+      { href: '/dashboard/rates', icon: CalendarRange, label: 'ปฏิทินราคา', roles: REV_ROLES },
+      { href: '/dashboard/revenue', icon: TrendingUp, label: 'Revenue', roles: REV_ROLES },
+      { href: '/dashboard/marketing', icon: Megaphone, label: 'Marketing', roles: REV_ROLES },
+      { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด', roles: REV_ROLES },
+      { href: '/dashboard/reviews', icon: Star, label: 'Reviews', roles: REV_ROLES },
+      { href: '/dashboard/booking-widget', icon: Globe2, label: 'Booking Widget', roles: MGMT_ROLES },
     ],
   },
   {
-    label: 'การเงิน',
+    label: 'การเงิน & HR',
     items: [
-      { href: '/dashboard/accounting', icon: Receipt, label: 'บัญชี & ภาษี', roles: ACCOUNTING_ROLES },
-      { href: '/dashboard/billing', icon: CreditCard, label: 'Billing', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: REVENUE_ROLES },
-      { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: REVENUE_ROLES },
-      { href: '/dashboard/reports/incidents', icon: Shield, label: 'Incident Timeline', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/audit', icon: Shield, label: 'Audit Log', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/setup', icon: Zap, label: 'Service Setup', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/system', icon: Settings2, label: 'ระบบ & Integrations', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/launch', icon: Rocket, label: 'Launch Readiness', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/go-live', icon: Rocket, label: 'Go-Live Control', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/automation', icon: Sparkles, label: 'Automation', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/accounting', icon: Receipt, label: 'บัญชี & ภาษี', roles: ACC_ROLES },
+      { href: '/dashboard/billing', icon: CreditCard, label: 'Billing', roles: OWNER_ROLES },
+      { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: REV_ROLES },
+      { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: REV_ROLES },
+      { href: '/dashboard/team', icon: Users2, label: 'ทีม & HR', roles: HR_ROLES },
+      { href: '/dashboard/loyalty', icon: Award, label: 'Loyalty', roles: REV_ROLES },
     ],
   },
   {
-    label: 'ส่วนเสริม',
+    label: 'GM Tools',
     items: [
-      { href: '/dashboard/fb', icon: UtensilsCrossed, label: 'F&B', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/spa', icon: Heart, label: 'Spa', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/loyalty', icon: Award, label: 'Loyalty', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/duty-log', icon: FileText, label: 'Duty Log', roles: MGMT_ROLES },
+      { href: '/dashboard/guest-recovery', icon: HeartHandshake, label: 'Guest Recovery', roles: [...MGMT_ROLES, 'guest_relations', 'front_office_manager', 'front_desk'] },
+      { href: '/dashboard/reports/handover', icon: ClipboardList, label: 'Shift Handover', roles: FRONT_ROLES },
+    ],
+  },
+  {
+    label: 'Compliance',
+    items: [
+      { href: '/dashboard/compliance/tm30', icon: FileText, label: 'TM30', roles: FRONT_ROLES },
+      { href: '/dashboard/compliance/pdpa', icon: Shield, label: 'PDPA', roles: MGMT_ROLES },
+      { href: '/dashboard/audit', icon: Shield, label: 'Audit Log', roles: OWNER_ROLES },
+    ],
+  },
+  {
+    label: 'IT & ระบบ',
+    items: [
+      { href: '/dashboard/integrations', icon: Zap, label: 'Integrations', roles: IT_ROLES },
+      { href: '/dashboard/system', icon: Settings2, label: 'ระบบ', roles: OWNER_ROLES },
+      { href: '/dashboard/automation', icon: Sparkles, label: 'Automation', roles: MGMT_ROLES },
+      { href: '/dashboard/setup', icon: Zap, label: 'Service Setup', roles: MGMT_ROLES },
+      { href: '/dashboard/go-live', icon: Rocket, label: 'Go-Live', roles: OWNER_ROLES },
     ],
   },
   {
     label: 'ตั้งค่า',
     items: [
-      { href: '/dashboard/branding', icon: Palette, label: 'Branding & Gallery', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/localization', icon: Globe2, label: 'Localization', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/settings', icon: Settings, label: 'ตั้งค่าทั่วไป', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/branding', icon: Palette, label: 'Branding', roles: OWNER_ROLES },
+      { href: '/dashboard/localization', icon: Globe2, label: 'Localization', roles: MGMT_ROLES },
+      { href: '/dashboard/settings', icon: Settings, label: 'ตั้งค่าทั่วไป', roles: MGMT_ROLES },
     ],
   },
 ];
@@ -141,6 +198,27 @@ export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: S
     return () => { supabase.removeChannel(channel); };
   }, [hotelId]);
 
+  const role = userRole || 'staff';
+
+  function canSee(item: any): boolean {
+    if (!item.roles) return true;
+    return item.roles.includes(role);
+  }
+
+  const visibleGroups = NAV_GROUPS.map(g => ({
+    ...g,
+    items: g.items.filter(canSee),
+  })).filter(g => g.items.length > 0);
+
+  const searchItems: CommandSearchItem[] = visibleGroups.flatMap(g =>
+    g.items.map(item => ({
+      href: item.href,
+      label: item.label,
+      group: g.label,
+      keywords: item.href.replace('/dashboard/', ''),
+    }))
+  );
+
   return (
     <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
       <div className="p-4 border-b border-border">
@@ -160,28 +238,20 @@ export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: S
       </div>
 
       <div className="p-3">
-        <CommandSearch items={NAV_GROUPS.flatMap((group) =>
-          group.items
-            .filter((item: any) => !item.roles || item.roles.includes(userRole || 'staff'))
-            .map((item): CommandSearchItem => ({
-              href: item.href,
-              label: item.label,
-              group: group.label,
-              keywords: item.href.replace('/dashboard/', ''),
-            }))
-        )} />
+        <CommandSearch items={searchItems} />
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-3 scrollbar-thin">
-        {NAV_GROUPS.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.label} className="mb-5">
             <p className="px-3 mb-1 text-2xs uppercase tracking-widest text-muted-foreground/70 font-medium">
               {group.label}
             </p>
             <div className="space-y-0.5">
-              {group.items.filter((item: any) => !item.roles || item.roles.includes(userRole || 'staff')).map((item) => {
-                const isActive = pathname === item.href ||
-                  (item.href !== '/dashboard' && pathname.startsWith(item.href));
+              {group.items.map((item) => {
+                const isActive = (item as any).exact
+                  ? pathname === item.href
+                  : pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
                 const showBadge = (item as any).showUnread && unreadCount > 0;
                 return (
                   <Link
@@ -222,7 +292,7 @@ export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: S
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-medium truncate">{userName || userEmail}</div>
-            <div className="text-2xs text-muted-foreground truncate">{userRole || 'staff'}</div>
+            <div className="text-2xs text-muted-foreground truncate">{role}</div>
           </div>
           <Settings className="h-3.5 w-3.5 text-muted-foreground" />
         </Link>
