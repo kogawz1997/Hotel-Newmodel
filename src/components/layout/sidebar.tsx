@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  Tag, TrendingUp,
+  Tag,
+  Star,
   LayoutDashboard, Calendar, CalendarRange, MessageSquare, Users, Bed,
   Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed,
   Heart, Award, Megaphone, Settings, LogOut, ChevronDown,
   Building2, Shield, Settings2, Palette, CreditCard, Rocket, Zap,
-  MonitorDot, Wrench, Headphones, ShieldCheck,
+  MonitorDot,
+  Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -50,9 +52,9 @@ const NAV_GROUPS = [
     items: [
       { href: '/dashboard/front-desk', icon: MonitorDot, label: 'Front Desk', roles: FRONT_DESK_ROLES },
       { href: '/dashboard/front-desk/check-in-wizard', icon: MonitorDot, label: 'Check-in Wizard', roles: FRONT_DESK_ROLES },
-      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FLOOR_OPS_ROLES },
+      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FRONT_DESK_ROLES },
       { href: '/dashboard/group-bookings', icon: Users, label: 'Group Booking', roles: FRONT_DESK_ROLES },
-      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: FLOOR_OPS_ROLES },
+      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: [...FRONT_DESK_ROLES, 'maintenance'] },
       { href: '/dashboard/rates', icon: CalendarRange, label: 'ปฏิทินราคา', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/guests', icon: Users, label: 'แขก', roles: OPS_ROLES },
       { href: '/dashboard/guests/merge', icon: Users, label: 'Merge Guests', roles: MANAGEMENT_ROLES },
@@ -70,7 +72,8 @@ const NAV_GROUPS = [
       { href: '/dashboard/ota', icon: Globe2, label: 'OTA Sync', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/marketing', icon: Megaphone, label: 'Marketing', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/ranking', icon: TrendingUp, label: 'Search Ranking', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/reviews', icon: Star, label: 'Review Aggregator', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/booking-widget', icon: Globe2, label: 'Booking Widget', roles: MANAGEMENT_ROLES },
     ],
   },
   {

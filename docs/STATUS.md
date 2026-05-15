@@ -148,12 +148,11 @@
 - [x] Alert routing + severity policy → Slack Block Kit with category routing
 - [x] Incident timeline + replay tooling — `/dashboard/reports/incidents` (severity filter, timeline, replay POST)
 
-### C.6 Build Verification — ✅ DONE (CI green)
-- [x] `npm ci` บน Node 20 + npm registry access
-- [x] `npm run type-check` — 0 errors (TypeScript 5.9.3)
-- [x] `npm run build` — pass (GitHub Actions `build` + `verify` both ✅)
-- [x] LINE Client lazy-init fix — `@line/bot-sdk` Client() เป็น `getClient()` factory เพื่อ prevent constructor throw ตอน build
-- [ ] Smoke test ใน production URL จริง (pending: ต้องรันจาก environment ที่ออกอินเทอร์เน็ตไป production ได้)
+### C.6 Build Verification (ต้องใช้ machine จริง)
+- [ ] `npm ci` บน Node 20 + npm registry access
+- [x] `npm run type-check` — 0 errors
+- [ ] `npm run build` — pass
+- [ ] Smoke test ใน production URL จริง
 
 ### C.7 PromptPay QR — ✅ DONE
 - [x] PromptPay QR endpoint → `src/app/api/payments/promptpay/route.ts` + `status/route.ts`
@@ -187,14 +186,6 @@
 - [x] **Housekeeping floor plan** — visual room map (`src/components/dashboard/housekeeping-client.tsx`)
 - [x] **Booking engine step reduction** — 4 → 3 steps (`src/components/booking/booking-engine.tsx`)
 - [x] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน (`/dashboard/housekeeping/mobile`)
-- [x] **Mobile front desk app** — arrivals, departures, room grid (`/mobile/front-desk`)
-- [x] **Mobile owner analytics** — revenue, occupancy, ADR, RevPAR (`/mobile/owner-analytics`)
-- [x] **OTA conflict resolution UI** — DLQ viewer + resolve button (`/dashboard/ota/conflicts`)
-- [x] **Portal check-in security** — moved to server-side API route with rate limiting (`/api/portal/online-checkin`)
-- [x] **Promo code server-side** — no longer client-side hardcoded; calls `/api/public/promo`
-- [x] **Housekeeping mobile action buttons** — fix GET→POST via `HousekeepingMobileActions` client component
-- [x] **TM30 NULL handling** — `.or('tm30_reported.is.null,tm30_reported.eq.false')` fixes older rows
-- [x] **Day-use booking** — reservations API allows 0-night when `source === 'day_use'`
 
 ### C.10 Differentiators — P3 🟢
 - [x] LINE OA automated flow — `src/lib/channels/line-notify.ts`: booking confirm + pre-arrival push message ผ่าน LINE เมื่อแขกมี LINE conversation กับโรงแรม

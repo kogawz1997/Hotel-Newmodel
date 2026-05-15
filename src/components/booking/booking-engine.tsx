@@ -24,7 +24,7 @@ const AMENITY_ICONS: Record<string, any> = {
   pool: Waves, tv: Tv, parking: Car, balcony: Globe2,
 };
 
-const POLICY_STEPS = ['dates', 'rooms', 'details', 'addons', 'review', 'confirmed'] as const;
+const POLICY_STEPS = ['dates', 'rooms', 'details', 'confirmed'] as const;
 type Step = typeof POLICY_STEPS[number];
 
 const ADDONS_CATALOG = [
@@ -77,14 +77,14 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   };
   const rateMultiplier = rateMultipliers[ratePlan] || 1;
   const subtotal = baseRate * rateMultiplier * nights;
-  const addOnsTotal = selectedAddOns.reduce((sum, code) => {
-    const a = ADDONS_CATALOG.find(x => x.code === code);
-    if (!a) return sum;
-    const qty = (a as any).perPersonPerNight ? (search.adults || 1) * Math.max(nights, 1) : 1;
-    return sum + a.price * qty;
-  }, 0);
-  const vat = (subtotal + addOnsTotal) * Number(hotel.vat_rate || 0.07);
-  const total = subtotal + addOnsTotal + vat;
+  const vat = subtotal * Number(hotel.vat_rate || 0.07);
+  const addOnCatalog: Record<string, { label: string; price: number }> = {
+    breakfast: { label: 'Breakfast', price: 250 },
+    airport: { label: 'Airport transfer', price: 900 },
+    late_checkout: { label: 'Late checkout', price: 600 },
+  };
+  const addOnTotal = selectedAddOns.reduce((sum, key) => sum + (addOnCatalog[key]?.price || 0), 0);
+  const total = subtotal + vat + addOnTotal;
 
   useEffect(() => {
     async function loadUser() {
@@ -606,9 +606,10 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   </div>
                 </div>
               </div>
-              <button onClick={() => setStep('addons')} disabled={!guestInfo.firstName || !guestInfo.email}
-                className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50">
-                ถัดไป: เพิ่มบริการพิเศษ
+              <button onClick={handleBook} disabled={submitting || !guestInfo.firstName || !guestInfo.email}
+                className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                {submitting ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                {submitting ? 'กำลังยืนยัน...' : `ยืนยันการจอง ${formatCurrency(total)}`}
               </button>
               <div className="flex items-center gap-2 mt-3 text-xs text-[#2A2522]/40 justify-center">
                 <ShieldCheck className="h-3.5 w-3.5" /> ข้อมูลของคุณได้รับการปกป้อง
@@ -616,121 +617,6 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             </div>
           </div>
         </div>
-      </div>
-    </PublicLayout>
-  );
-
-  // ─── STEP: ADD-ONS ───────────────────────────────────────────────────
-  if (step === 'addons') return (
-    <PublicLayout hotel={hotel} user={user} step={step}>
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <button onClick={() => setStep('details')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
-          <ChevronLeft className="h-4 w-4" /> แก้ไขข้อมูล
-        </button>
-        <h2 className="text-xl font-bold text-[#2A2522] mb-2">บริการเสริมและของขวัญ</h2>
-        <p className="text-sm text-[#2A2522]/50 mb-6">เพิ่มความพิเศษให้การเข้าพักของคุณ (ไม่บังคับ)</p>
-        <div className="grid gap-4 mb-6">
-          {ADDONS_CATALOG.map(a => {
-            const qty = (a as any).perPersonPerNight ? (search.adults || 1) * Math.max(nights, 1) : 1;
-            const itemTotal = a.price * qty;
-            const checked = selectedAddOns.includes(a.code);
-            return (
-              <label key={a.code} className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${checked ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30 bg-white'}`}>
-                <input type="checkbox" checked={checked} className="accent-[#C66A30] h-4 w-4 shrink-0"
-                  onChange={() => setSelectedAddOns(p => checked ? p.filter(c => c !== a.code) : [...p, a.code])} />
-                <span className="text-2xl">{a.emoji}</span>
-                <div className="flex-1">
-                  <p className="font-semibold text-sm text-[#2A2522]">{a.name}</p>
-                  <p className="text-xs text-[#2A2522]/50 mt-0.5">{a.desc}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="font-bold text-[#C66A30] text-sm">฿{itemTotal.toLocaleString()}</p>
-                  {qty > 1 && <p className="text-2xs text-[#2A2522]/40">{qty} หน่วย</p>}
-                </div>
-              </label>
-            );
-          })}
-        </div>
-        {addOnsTotal > 0 && (
-          <div className="mb-4 p-4 bg-[#2A2522] rounded-xl flex items-center justify-between text-white">
-            <span className="text-sm">บริการเสริมที่เลือก</span>
-            <span className="font-bold">+฿{addOnsTotal.toLocaleString()}</span>
-          </div>
-        )}
-        <button onClick={() => setStep('review')} className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors">
-          {addOnsTotal > 0 ? `ถัดไป: ตรวจสอบข้อมูล (฿${total.toLocaleString()})` : 'ถัดไป: ตรวจสอบข้อมูล (ข้ามบริการเสริม)'}
-        </button>
-      </div>
-    </PublicLayout>
-  );
-
-  // ─── STEP: REVIEW ────────────────────────────────────────────────────
-  if (step === 'review') return (
-    <PublicLayout hotel={hotel} user={user} step={step}>
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <button onClick={() => setStep('addons')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
-          <ChevronLeft className="h-4 w-4" /> แก้ไขบริการเสริม
-        </button>
-
-        <h2 className="text-xl font-bold text-[#2A2522] mb-6">ตรวจสอบและยืนยันการจอง</h2>
-
-        <div className="space-y-4 mb-6">
-          <Section title="ที่พัก">
-            <div className="flex items-start gap-4">
-              {hotel.hero_image_url && <img src={hotel.hero_image_url} alt={hotel.name} className="h-20 w-28 object-cover rounded-lg" />}
-              <div>
-                <div className="font-semibold text-[#2A2522]">{hotel.name}</div>
-                <div className="text-sm text-[#2A2522]/60">{selected?.name}</div>
-                {hotel.city && <div className="text-xs text-[#2A2522]/40 flex items-center gap-1 mt-1"><MapPin className="h-3 w-3" />{hotel.city}</div>}
-              </div>
-            </div>
-          </Section>
-
-          <Section title="วันที่เข้าพัก">
-            <div className="grid grid-cols-3 gap-4 text-sm">
-              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">เช็คอิน</div><div className="font-medium">{format(new Date(search.checkIn+'T00:00:00'), 'EEE d MMM yyyy', { locale: th })}</div><div className="text-xs text-[#2A2522]/50">หลัง {hotel.check_in_time || '14:00'} น.</div></div>
-              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">เช็คเอาท์</div><div className="font-medium">{format(new Date(search.checkOut+'T00:00:00'), 'EEE d MMM yyyy', { locale: th })}</div><div className="text-xs text-[#2A2522]/50">ก่อน {hotel.check_out_time || '12:00'} น.</div></div>
-              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">ระยะเวลา</div><div className="font-medium">{nights} คืน</div><div className="text-xs text-[#2A2522]/50">{search.adults} ผู้ใหญ่</div></div>
-            </div>
-          </Section>
-
-          <Section title="ข้อมูลผู้เข้าพัก">
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div><div className="text-xs text-[#2A2522]/40">ชื่อ-นามสกุล</div><div className="font-medium">{guestInfo.firstName} {guestInfo.lastName}</div></div>
-              <div><div className="text-xs text-[#2A2522]/40">อีเมล</div><div className="font-medium">{guestInfo.email}</div></div>
-              {guestInfo.phone && <div><div className="text-xs text-[#2A2522]/40">โทร</div><div className="font-medium">{guestInfo.phone}</div></div>}
-              {guestInfo.nationality && <div><div className="text-xs text-[#2A2522]/40">สัญชาติ</div><div className="font-medium">{guestInfo.nationality}</div></div>}
-            </div>
-            {guestInfo.specialRequests && (
-              <div className="mt-3 p-3 bg-[#FAF7F2] rounded-lg text-xs text-[#2A2522]/60">
-                <span className="font-medium">คำขอพิเศษ: </span>{guestInfo.specialRequests}
-              </div>
-            )}
-          </Section>
-
-          <Section title="ยอดชำระ">
-            <div className="space-y-2 text-sm">
-              <SummaryRow label={`ค่าห้อง ${formatCurrency(baseRate * rateMultiplier)} × ${nights} คืน`} value={formatCurrency(subtotal)} />
-              <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
-              <div className="flex justify-between font-bold text-[#2A2522] text-base pt-2 border-t border-black/5">
-                <span>รวมทั้งสิ้น</span>
-                <span>{formatCurrency(total)}</span>
-              </div>
-              <p className="text-xs text-[#2A2522]/40">
-                {ratePlan === 'flexible' ? '✓ ยกเลิกฟรีภายใน 24 ชั่วโมงก่อนเช็คอิน' : '⚠️ อัตรานี้ไม่สามารถยกเลิกคืนเงินได้'}
-              </p>
-            </div>
-          </Section>
-        </div>
-
-        <button onClick={handleBook} disabled={submitting}
-          className="w-full py-4 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-2xl font-bold text-base transition-colors disabled:opacity-60 flex items-center justify-center gap-3">
-          {submitting ? <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck className="h-5 w-5" />}
-          {submitting ? 'กำลังยืนยัน...' : `ยืนยันการจอง ${formatCurrency(total)}`}
-        </button>
-        <p className="text-center text-xs text-[#2A2522]/40 mt-3">
-          การกดยืนยันถือว่าคุณยอมรับ <Link href="/terms" className="underline">เงื่อนไขการใช้งาน</Link> และ <Link href="/privacy" className="underline">นโยบายความเป็นส่วนตัว</Link>
-        </p>
       </div>
     </PublicLayout>
   );
@@ -849,9 +735,9 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 function PublicLayout({ hotel, user, step, children }: any) {
   const STEP_LABELS: Record<string, string> = {
     dates: 'เลือกวันที่', rooms: 'เลือกห้อง', details: 'กรอกข้อมูล',
-    addons: 'บริการเสริม', review: 'ตรวจสอบ', confirmed: 'เสร็จสิ้น',
+    confirmed: 'เสร็จสิ้น',
   };
-  const STEP_ORDER = ['dates', 'rooms', 'details', 'addons', 'review', 'confirmed'];
+  const STEP_ORDER = ['dates', 'rooms', 'details', 'confirmed'];
   const currentIdx = STEP_ORDER.indexOf(step);
 
   return (

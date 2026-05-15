@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     .select('id, hotel_id, guest_id, check_in, check_out, guests(*), hotels(name,address)')
     .eq('check_in', yesterday)
     .in('status', ['checked_in', 'checked_out'])
-    .or('tm30_reported.is.null,tm30_reported.eq.false');
+    .is('tm30_reported', false);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
