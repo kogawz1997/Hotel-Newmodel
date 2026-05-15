@@ -38,7 +38,7 @@ export default async function DashboardPage() {
     .single();
 
   // Role-specific redirect: send operational staff straight to their workspace
-  const role = profile?.role;
+  const role = profile?.role || 'staff';
   if (role === 'housekeeping') redirect('/dashboard/housekeeping');
   if (role === 'front_desk') redirect('/dashboard/front-desk');
   if (role === 'maintenance') redirect('/dashboard/rooms');
@@ -76,7 +76,6 @@ export default async function DashboardPage() {
     );
   }
 
-  const role = profile?.role || 'staff';
   const today = new Date().toISOString().slice(0, 10);
   const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
 
@@ -101,6 +100,7 @@ export default async function DashboardPage() {
     const revenueToday = (revenueRows || []).reduce((s: number, r: any) => s + Number(r.amount || 0), 0);
     const occupancyRate = roomsTotal ? Math.round((roomsOccupied / roomsTotal) * 100) : 0;
     const { data: arrivals } = await supabase.from('reservations').select('id,reservation_code,check_in,check_out,status,guests(first_name,last_name),room_types(name)').eq('hotel_id', hotel.id).eq('check_in', today).order('created_at', { ascending: false }).limit(6);
+    const { data: departures } = await supabase.from('reservations').select('id,reservation_code,check_in,check_out,status,guests(first_name,last_name),room_types(name)').eq('hotel_id', hotel.id).eq('check_out', today).eq('status', 'checked_in').order('created_at', { ascending: false }).limit(6);
 
     return (
       <main className="space-y-6 p-6 md:p-8">
@@ -119,36 +119,43 @@ export default async function DashboardPage() {
       <DashboardShortcuts />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((item) => (
-          <Link key={item.label} href={item.href} className="group">
-            <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
-              <CardContent className="flex items-start justify-between p-5">
-                <div>
-                  <p className="text-sm text-muted-foreground">{item.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle>Check-out วันนี้ ({checkOuts})</CardTitle></CardHeader>
-            <CardContent className="space-y-2">
-              {!(departures?.length) ? <p className="text-sm text-muted-foreground text-center py-4">ไม่มีการ check-out วันนี้</p> : departures?.map((r: any) => (
-                <div key={r.id} className="flex items-center justify-between rounded-lg border p-3 gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm truncate">{r.guests?.first_name} {r.guests?.last_name}</p>
-                    <p className="text-xs text-muted-foreground">{r.reservation_code} · {r.room_types?.name}</p>
+          {[
+            { label: 'Check-in วันนี้', value: checkIns, sub: 'รอเช็คอิน', href: '/dashboard/front-desk' },
+            { label: 'Check-out วันนี้', value: checkOuts, sub: 'รอเช็คเอาต์', href: '/dashboard/front-desk' },
+            { label: 'ห้องว่าง', value: `${roomsAvailable}/${roomsTotal}`, sub: `Occupancy ${occupancyRate}%`, href: '/dashboard/rooms' },
+            { label: 'รายได้วันนี้', value: formatCurrency(revenueToday, hotel.currency || 'THB'), sub: 'Payment สำเร็จ', href: '/dashboard/accounting' },
+          ].map((item) => (
+            <Link key={item.label} href={item.href} className="group">
+              <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
+                <CardContent className="flex items-start justify-between p-5">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{item.label}</p>
+                    <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Badge variant="info">checked_in</Badge>
-                    <ReservationActionButtons reservationId={r.id} status={r.status} compact />
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </section>
+
+        <Card>
+          <CardHeader><CardTitle>Check-out วันนี้ ({checkOuts})</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            {!(departures?.length) ? <p className="text-sm text-muted-foreground text-center py-4">ไม่มีการ check-out วันนี้</p> : departures?.map((r: any) => (
+              <div key={r.id} className="flex items-center justify-between rounded-lg border p-3 gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-sm truncate">{r.guests?.first_name} {r.guests?.last_name}</p>
+                  <p className="text-xs text-muted-foreground">{r.reservation_code} · {r.room_types?.name}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge variant="info">checked_in</Badge>
+                  <ReservationActionButtons reservationId={r.id} status={r.status} compact />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </main>
     );
   }
@@ -191,23 +198,24 @@ export default async function DashboardPage() {
           ))}
         </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { title: 'สร้างการจอง', href: '/dashboard/reservations', desc: 'เปิด calendar/list แล้วกดจองใหม่' },
-          { title: 'Walk-in 3 คลิก', href: '/dashboard/front-desk/walk-in', desc: 'หน้าเคาน์เตอร์ใช้งานเร็ว' },
-          { title: 'ตอบ Inbox', href: '/dashboard/inbox', desc: `${openInbox} งานเปิดอยู่` },
-          { title: 'อัปเดตห้อง', href: '/dashboard/rooms', desc: `${roomsAvailable} ห้องพร้อมขาย` },
-          { title: 'งานแม่บ้าน', href: '/dashboard/housekeeping', desc: `${hkPending} งานต้องตาม` },
-        ].map((item) => (
-          <Link key={item.title} href={item.href} className="rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="font-medium">{item.title}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { title: 'สร้างการจอง', href: '/dashboard/reservations', desc: 'เปิด calendar/list แล้วกดจองใหม่' },
+            { title: 'Walk-in 3 คลิก', href: '/dashboard/front-desk/walk-in', desc: 'หน้าเคาน์เตอร์ใช้งานเร็ว' },
+            { title: 'ตอบ Inbox', href: '/dashboard/inbox', desc: `${openInbox} งานเปิดอยู่` },
+            { title: 'งานแม่บ้าน', href: '/dashboard/housekeeping', desc: `${hkPending} งานต้องตาม` },
+          ].map((item) => (
+            <Link key={item.title} href={item.href} className="rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-medium">{item.title}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </div>
-            ))}
-          </CardContent>
-        </Card>
+            </Link>
+          ))}
+        </section>
 
         <div className="text-center">
           <Button asChild size="lg"><Link href="/dashboard/housekeeping">ดูรายการงานทั้งหมด</Link></Button>
