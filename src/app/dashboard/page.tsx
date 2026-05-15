@@ -116,17 +116,148 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-      <DashboardShortcuts />
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { label: 'Occupancy', value: `${occupancyRate}%`, sub: `${roomsOccupied}/${roomsTotal} ห้อง`, icon: BedDouble, href: '/dashboard/rooms' },
+            { label: 'Check-in วันนี้', value: checkIns, sub: `Check-out ${checkOuts}`, icon: CalendarCheck, href: '/dashboard/front-desk' },
+            { label: 'รายได้วันนี้', value: formatCurrency(revenueToday, hotel.currency || 'THB'), sub: 'payment completed', icon: CircleDollarSign, href: '/dashboard/accounting' },
+            { label: 'Inbox เปิดอยู่', value: openInbox, sub: 'ต้องตอบลูกค้า', icon: MessageSquareWarning, href: '/dashboard/inbox' },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.label} href={item.href} className="group">
+                <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
+                  <CardContent className="flex items-start justify-between p-5">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{item.label}</p>
+                      <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/50 p-2 transition group-hover:bg-accent/10"><Icon className="h-5 w-5" /></div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((item) => (
-          <Link key={item.label} href={item.href} className="group">
-            <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
-              <CardContent className="flex items-start justify-between p-5">
-                <div>
-                  <p className="text-sm text-muted-foreground">{item.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { title: 'Front Desk', href: '/dashboard/front-desk', desc: `Check-in ${checkIns} · Check-out ${checkOuts}` },
+            { title: 'Inbox', href: '/dashboard/inbox', desc: `${openInbox} งานเปิดอยู่` },
+            { title: 'ห้องพัก', href: '/dashboard/rooms', desc: `${roomsAvailable} ห้องพร้อมขาย` },
+            { title: 'แม่บ้าน', href: '/dashboard/housekeeping', desc: `${hkPending} งานค้างอยู่` },
+          ].map((item) => (
+            <Link key={item.title} href={item.href} className="rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div><p className="font-medium">{item.title}</p><p className="mt-1 text-xs text-muted-foreground">{item.desc}</p></div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </Link>
+          ))}
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-[1.4fr_0.8fr]">
+          <Card>
+            <CardHeader><CardTitle>Arrivals วันนี้</CardTitle><CardDescription>รายชื่อที่ควรเตรียมต้อนรับ</CardDescription></CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {!(arrivals?.length) ? (
+                  <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">ยังไม่มี check-in วันนี้</div>
+                ) : arrivals?.map((item: any) => (
+                  <div key={item.reservation_code} className="flex flex-col gap-2 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="font-medium">{item.guests?.first_name} {item.guests?.last_name || ''}</p>
+                      <p className="text-sm text-muted-foreground">{item.reservation_code} · {item.room_types?.name} · {item.check_in} → {item.check_out}</p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant={item.status === 'confirmed' ? 'success' : 'warning'}>{item.status}</Badge>
+                      <ReservationActionButtons reservationId={item.id} status={item.status} compact />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>งานที่ต้องจับตา</CardTitle><CardDescription>จุดเสี่ยงประจำวัน</CardDescription></CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { href: '/dashboard/housekeeping', icon: Sparkles, label: 'Housekeeping pending', value: hkPending, variant: hkPending ? 'warning' : 'success' },
+                { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุงเปิดอยู่', value: maintOpen, variant: maintOpen ? 'warning' : 'success' },
+                { href: '/dashboard/guests', icon: UsersRound, label: 'Guest database', value: guestsTotal, variant: 'outline' },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link key={item.label} href={item.href} className="flex items-center justify-between rounded-xl border p-4 transition hover:bg-muted/50">
+                    <span className="flex items-center gap-3"><Icon className="h-5 w-5" />{item.label}</span>
+                    <Badge variant={item.variant as any}>{item.value}</Badge>
+                  </Link>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </section>
+      </main>
+    );
+  }
+
+  // ── Front Desk / Receptionist ───────────────────────────────────────────────
+  if (['front_desk', 'receptionist'].includes(role)) {
+    const [roomsOccupied, roomsTotal, roomsAvailable] = await Promise.all([
+      count(supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).eq('status', 'occupied')),
+      count(supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id)),
+      count(supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).eq('status', 'available')),
+    ]);
+    const { data: arrivals } = await supabase.from('reservations').select('id,reservation_code,check_in,check_out,status,guests(first_name,last_name),room_types(name)').eq('hotel_id', hotel.id).eq('check_in', today).order('created_at', { ascending: false }).limit(8);
+    const { data: departures } = await supabase.from('reservations').select('id,reservation_code,check_in,check_out,status,guests(first_name,last_name),room_types(name)').eq('hotel_id', hotel.id).eq('check_out', today).eq('status', 'checked_in').limit(8);
+
+    return (
+      <main className="space-y-6 p-6 md:p-8">
+        <section className="flex items-end justify-between gap-4">
+          <div>
+            <Badge variant="outline" className="mb-2">Front Desk</Badge>
+            <h1 className="font-display text-2xl font-semibold">{hotel.name}</h1>
+            <p className="text-sm text-muted-foreground mt-1">วันนี้ {formatDate(today)} · เช็คอิน {hotel.check_in_time?.slice(0,5)} · เช็คเอาต์ {hotel.check_out_time?.slice(0,5)}</p>
+          </div>
+          <Button asChild><Link href="/dashboard/front-desk">เปิด Front Desk</Link></Button>
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { label: 'Check-in วันนี้', value: checkIns, icon: CalendarCheck, color: 'text-green-600', href: '/dashboard/front-desk' },
+            { label: 'Check-out วันนี้', value: checkOuts, icon: ArrowRight, color: 'text-blue-600', href: '/dashboard/front-desk' },
+            { label: 'ห้องว่าง', value: roomsAvailable, icon: BedDouble, color: 'text-purple-600', href: '/dashboard/rooms' },
+            { label: 'Inbox', value: openInbox, icon: MessageSquareWarning, color: 'text-orange-600', href: '/dashboard/inbox' },
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <Link key={s.label} href={s.href} className="group">
+                <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <div className={`rounded-xl bg-muted p-3 group-hover:bg-accent/10 transition ${s.color}`}><Icon className="h-5 w-5" /></div>
+                    <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle>Check-in วันนี้ ({checkIns})</CardTitle></CardHeader>
+            <CardContent className="space-y-2">
+              {!(arrivals?.length) ? <p className="text-sm text-muted-foreground text-center py-4">ไม่มีการ check-in วันนี้</p> : arrivals?.map((r: any) => (
+                <div key={r.id} className="flex items-center justify-between rounded-lg border p-3 gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">{r.guests?.first_name} {r.guests?.last_name}</p>
+                    <p className="text-xs text-muted-foreground">{r.reservation_code} · {r.room_types?.name}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant={r.status === 'confirmed' ? 'success' : 'warning'}>{r.status}</Badge>
+                    <ReservationActionButtons reservationId={r.id} status={r.status} compact />
+                  </div>
                 </div>
               ))}
             </CardContent>
@@ -303,14 +434,17 @@ export default async function DashboardPage() {
             { label: 'รายได้เดือนนี้', value: formatCurrency(revenueMonthTotal, hotel.currency || 'THB'), icon: CircleDollarSign, color: 'text-blue-600' },
             { label: 'ใบแจ้งหนี้ draft', value: invoicesPending, icon: Receipt, color: 'text-orange-600' },
             { label: 'ใบแจ้งหนี้ทั้งหมด', value: invoicesTotal, icon: Receipt, color: 'text-purple-600' },
-          ].map((s) => (
-            <Card key={s.label}>
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className={`rounded-xl bg-muted p-3 ${s.color}`}><s.icon className="h-5 w-5" /></div>
-                <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-xl font-bold leading-tight mt-1">{s.value}</p></div>
-              </CardContent>
-            </Card>
-          ))}
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <Card key={s.label}>
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className={`rounded-xl bg-muted p-3 ${s.color}`}><Icon className="h-5 w-5" /></div>
+                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-xl font-bold leading-tight mt-1">{s.value}</p></div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </section>
 
         <Card>
@@ -362,16 +496,19 @@ export default async function DashboardPage() {
             { label: 'รอดำเนินการ', value: pendingReqs, icon: ClipboardList, color: 'text-orange-600' },
             { label: 'ข้อความที่ยังไม่ตอบ', value: msgOpen, icon: MessageSquareWarning, color: 'text-red-600' },
             { label: 'Arrivals วันนี้', value: todayArrivals, icon: UserCheck, color: 'text-green-600' },
-          ].map((s) => (
-            <Link key={s.label} href={s.label.includes('ข้อความ') ? '/dashboard/inbox' : '/dashboard/concierge'} className="group">
-              <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className={`rounded-xl bg-muted p-3 group-hover:bg-accent/10 ${s.color}`}><s.icon className="h-5 w-5" /></div>
-                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <Link key={s.label} href={s.label.includes('ข้อความ') ? '/dashboard/inbox' : '/dashboard/concierge'} className="group">
+                <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <div className={`rounded-xl bg-muted p-3 group-hover:bg-accent/10 ${s.color}`}><Icon className="h-5 w-5" /></div>
+                    <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </section>
 
         <section className="grid gap-4 xl:grid-cols-2">
@@ -437,14 +574,17 @@ export default async function DashboardPage() {
             { label: 'เหตุการณ์ที่เปิดอยู่', value: openIncidents, color: openIncidents ? 'text-red-600' : 'text-green-600', icon: ShieldCheck },
             { label: 'เหตุการณ์วิกฤต', value: criticalInc, color: criticalInc ? 'text-red-700' : 'text-green-600', icon: AlertTriangle },
             { label: 'ผู้เยี่ยมในพื้นที่', value: activeVisitors, color: 'text-blue-600', icon: UserCheck },
-          ].map((s) => (
-            <Card key={s.label}>
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className={`rounded-xl bg-muted p-3 ${s.color}`}><s.icon className="h-5 w-5" /></div>
-                <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
-              </CardContent>
-            </Card>
-          ))}
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <Card key={s.label}>
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className={`rounded-xl bg-muted p-3 ${s.color}`}><Icon className="h-5 w-5" /></div>
+                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </section>
 
         <section className="grid gap-4 xl:grid-cols-2">
@@ -496,16 +636,19 @@ export default async function DashboardPage() {
           { label: 'Check-in วันนี้', value: checkIns, href: '/dashboard/front-desk', icon: CalendarCheck },
           { label: 'Check-out วันนี้', value: checkOuts, href: '/dashboard/front-desk', icon: ArrowRight },
           { label: 'Inbox เปิดอยู่', value: openInbox, href: '/dashboard/inbox', icon: MessageSquareWarning },
-        ].map((s) => (
-          <Link key={s.label} href={s.href} className="group">
-            <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="rounded-xl bg-muted p-3 group-hover:bg-accent/10 transition"><s.icon className="h-5 w-5" /></div>
-                <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+        ].map((s) => {
+          const Icon = s.icon;
+          return (
+            <Link key={s.label} href={s.href} className="group">
+              <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="rounded-xl bg-muted p-3 group-hover:bg-accent/10 transition"><Icon className="h-5 w-5" /></div>
+                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </section>
     </main>
   );
