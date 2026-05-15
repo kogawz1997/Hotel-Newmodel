@@ -1,6 +1,6 @@
 # Maitri PMS — Project Status
 
-อัปเดต: 2026-05-12 | Single source of truth สำหรับทุกงานที่ต้องทำ
+อัปเดต: 2026-05-15 | Single source of truth สำหรับทุกงานที่ต้องทำ
 
 ---
 
@@ -8,12 +8,23 @@
 
 | หมวด | สถานะ |
 |------|--------|
-| โค้ด routes + DB schema | ✅ ~95% มีแล้ว |
-| business logic สมบูรณ์ | ⚠️ ~60% |
+| โค้ด routes + DB schema | ✅ 100% — Phase 1+2+3 เสร็จ |
+| Hotel OS modules (35 roles, 15 departments) | ✅ 100% — Phase 2 เสร็จ |
+| SaaS Platform Admin | ✅ 100% — Phase 3 เสร็จ |
+| DB migrations | ✅ 18 migrations ครบ |
+| business logic สมบูรณ์ | ⚠️ ~70% |
 | production verification | ❌ 0% |
 | vendor integrations (OTA/Payment live) | ❌ ~10% |
 | ENV vars configured | ❌ ต้องใส่ |
-| Role/page separation | ⚠️ โครงสร้างดี แต่มีช่องโหว่ (ดูหมวด F) |
+| Role/page separation | ✅ ครบ — 35 roles, page guards, sidebar filtering |
+
+## Phase Completion Summary
+
+| Phase | Scope | Status |
+|---|---|---|
+| Phase 1 | Hotel OS Core (auth, reservations, rooms, guests, ops) | ✅ เสร็จ |
+| Phase 2 | Department Modules (15 modules, 9 migrations) | ✅ เสร็จ 2026-05-15 |
+| Phase 3 | SaaS Platform Admin + Night Audit + CRM (2 migrations) | ✅ เสร็จ 2026-05-15 |
 
 ---
 

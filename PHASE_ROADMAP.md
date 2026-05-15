@@ -90,20 +90,20 @@
 
 ---
 
-### ❌ ยังไม่มีเลย — ต้องสร้างใน Phase 3 (SaaS Platform)
+### ✅ Phase 3 (SaaS Platform) — เสร็จแล้ว 2026-05-15
 
-| ระบบ | Route | Phase |
+| ระบบ | Route | สถานะ |
 |---|---|---|
-| Platform Owner Control Center | `src/app/(platform)/dashboard/` | 3.2 |
-| Billing Admin | `src/app/(platform)/billing/` | 3.3 |
-| Support Admin + Impersonation | `src/app/(platform)/support/` | 3.4 |
-| Platform Ops Admin | `src/app/(platform)/operations/` | 3.5 |
-| Security Admin | `src/app/(platform)/security/` | 3.6 |
-| Sales Admin CRM | `src/app/(platform)/sales/` | 3.7 |
-| Product Admin (feature flags / A/B) | `src/app/(platform)/product/` | 3.8 |
-| Developer / Engineering Admin | `src/app/(platform)/engineering/` | 3.9 |
-| Night Audit (full UI) | `src/app/dashboard/night-audit/` | 3.10 |
-| Advanced CRM + Loyalty Full | `src/app/dashboard/crm/` | 3.11 |
+| Platform Owner Control Center | `src/app/admin/` | ✅ มีอยู่แล้ว |
+| Billing Admin | `src/app/admin/billing/` | ✅ เสร็จ |
+| Support Admin + Impersonation | `src/app/admin/support/` | ✅ เสร็จ |
+| Platform Ops Admin | `src/app/admin/operations/` | ✅ เสร็จ |
+| Security Admin | `src/app/admin/security/` | ✅ เสร็จ |
+| Sales Admin CRM | `src/app/admin/sales/` | ✅ เสร็จ |
+| Product Admin (feature flags / A/B) | `src/app/admin/product/` | ✅ เสร็จ |
+| Developer / Engineering Admin | `src/app/admin/engineering/` | ✅ เสร็จ |
+| Night Audit (full UI) | `src/app/dashboard/night-audit/` | ✅ เสร็จ |
+| Advanced CRM + Loyalty Full | `src/app/dashboard/crm/` | ✅ เสร็จ |
 
 ---
 
@@ -667,9 +667,33 @@
 
 ---
 
-## PHASE 3 — SaaS Platform + Advanced Systems
+## PHASE 3 — SaaS Platform + Advanced Systems ✅ เสร็จแล้ว
+**สถานะ:** ✅ Complete — 2026-05-15  
 **ระยะเวลา:** 10–14 สัปดาห์  
 **เป้าหมาย:** app.maitriapp.com/owner ครบวงจร + Revenue/CRM/Night Audit
+
+### Phase 3 DB Migrations
+| Migration | Tables |
+|---|---|
+| `20260801000000_platform_core.sql` | billing_subscriptions, billing_invoices, billing_credits, platform_addons |
+| `20260801100000_platform_ops.sql` | platform_audit_logs, system_health_log, platform_sales_leads, feature_flags, ab_tests, webhook_events |
+
+### Phase 3 Files Implemented
+| Section | Page | Client | API Routes |
+|---|---|---|---|
+| 3.2 Platform Dashboard | `/admin/page.tsx` | `admin-panel-client.tsx` | `/api/admin/orgs/`, `/api/admin/usage/` |
+| 3.3 Billing Admin | `/admin/billing/page.tsx` | `billing-client.tsx` | `/api/admin/billing/`, `billing/credits/`, `billing/retry/` |
+| 3.4 Support Admin | `/admin/support/page.tsx` + `[ticketId]/page.tsx` | `support-client.tsx` + `ticket-detail-client.tsx` | `/api/admin/support/tickets/`, `diagnostics/` |
+| 3.5 Platform Ops | `/admin/operations/page.tsx` | `operations-client.tsx` | `/api/admin/ops/health/` |
+| 3.6 Security Admin | `/admin/security/page.tsx` | `security-client.tsx` | `/api/admin/security/sessions/` |
+| 3.7 Sales CRM | `/admin/sales/page.tsx` | `sales-client.tsx` | `/api/admin/sales/leads/` |
+| 3.8 Product Admin | `/admin/product/page.tsx` | `product-client.tsx` | `/api/admin/flags/`, `/api/admin/ab-tests/` |
+| 3.9 Engineering Admin | `/admin/engineering/page.tsx` | `engineering-client.tsx` | `/api/admin/webhooks/`, `webhooks/replay/` |
+| 3.10 Night Audit | `/dashboard/night-audit/page.tsx` | `night-audit-client.tsx` | `/api/cron/night-audit/` (existing) |
+| 3.11 Advanced CRM | `/dashboard/crm/page.tsx` | `crm-client.tsx` | guests table (existing) |
+
+**Admin Sidebar** updated with: Billing, Credits, Support, Operations, Security Admin, Sales, Product, Engineering nav groups  
+**Hotel Sidebar** updated with: Night Audit, CRM & Loyalty nav items
 
 ---
 

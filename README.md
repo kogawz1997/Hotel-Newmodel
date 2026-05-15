@@ -92,11 +92,11 @@ Maitri คือ **Hotel PMS แบบ SaaS สำหรับตลาดไท
 - Export CSV (รายงาน + reservations)
 - TM30 compliance dashboard
 
-**👥 Team Management**
-- Role-based access (6 roles)
-- Email invitation flow
+**👥 Team Management (35 Roles)**
+- Role-based access (35 roles across all departments)
+- Email invitation + onboarding flow
 - Audit log ทุก action
-- Multi-staff support
+- HR: payroll, performance reviews, training, onboarding
 
 </td>
 </tr>
@@ -200,7 +200,7 @@ Maitri คือ **Hotel PMS แบบ SaaS สำหรับตลาดไท
            └───────────────────────────────────────────┘
 ```
 
-### Database — 49 Tables, 5 Migrations
+### Database — 80+ Tables, 18 Migrations (Phase 1+2+3)
 
 ```
 organizations ──┬── hotels ──┬── room_types ── rooms
