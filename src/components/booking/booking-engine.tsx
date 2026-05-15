@@ -597,7 +597,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 </div>
                 <div className="border-t border-black/5 pt-2.5 space-y-2">
                   <SummaryRow label={`${formatCurrency(baseRate * rateMultiplier)} × ${nights} คืน`} value={formatCurrency(subtotal)} />
-                  {addOnsTotal > 0 && <SummaryRow label="บริการเสริม" value={formatCurrency(addOnsTotal)} />}
+                  {addOnTotal > 0 && <SummaryRow label="บริการเสริม" value={formatCurrency(addOnTotal)} />}
                   <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
                   {addOnTotal > 0 && <SummaryRow label="Add-ons" value={formatCurrency(addOnTotal)} />}
                   <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
