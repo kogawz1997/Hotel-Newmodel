@@ -73,6 +73,8 @@ const NAV_GROUPS = [
       { href: '/dashboard/my-tasks', icon: ListTodo, label: 'งานของฉัน', roles: OPS_STAFF },
       { href: '/dashboard/work-orders', icon: ClipboardList, label: 'Work Orders', roles: [...MGMT_ROLES, 'front_office_manager', 'housekeeping_manager', 'maintenance_manager', 'fnb_manager', 'security_manager', 'spa_manager', 'front_desk'] },
       { href: '/dashboard/attendance', icon: Clock, label: 'ลงเวลา', roles: ALL_STAFF },
+      { href: '/dashboard/leave', icon: CalendarRange, label: 'ลางาน', roles: ALL_STAFF },
+      { href: '/dashboard/internal-requests', icon: MessageSquare, label: 'คำร้องภายใน', roles: ALL_STAFF },
       { href: '/dashboard/shift-management', icon: Calendar, label: 'จัดกะงาน', roles: [...MGMT_ROLES, 'hr_manager', 'hr_staff', 'housekeeping_manager', 'maintenance_manager'] },
     ],
   },
@@ -136,6 +138,8 @@ const NAV_GROUPS = [
     items: [
       { href: '/dashboard/duty-log', icon: FileText, label: 'Duty Log', roles: MGMT_ROLES },
       { href: '/dashboard/guest-recovery', icon: HeartHandshake, label: 'Guest Recovery', roles: [...MGMT_ROLES, 'guest_relations', 'front_office_manager', 'front_desk'] },
+      { href: '/dashboard/announcements', icon: Megaphone, label: 'ประกาศ', roles: ALL_STAFF },
+      { href: '/dashboard/documents', icon: FileText, label: 'เอกสาร', roles: ALL_STAFF },
       { href: '/dashboard/reports/handover', icon: ClipboardList, label: 'Shift Handover', roles: FRONT_ROLES },
     ],
   },
