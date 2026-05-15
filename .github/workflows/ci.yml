@@ -17,17 +17,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps --no-audit --no-fund
+      - run: npm ci
 
-      - name: Type check
-        run: npm run type-check
+      - run: npm run type-check
 
-      - name: Run test suite
-        run: npm run check
+      - run: npm run check
 
-      - name: Reality check
-        run: npm run reality:check
+      - run: npm run reality:check
 
-      - name: Build
-        run: npm run build
+      - run: npm run build
