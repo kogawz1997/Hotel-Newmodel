@@ -1,420 +1,746 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense, useOptimistic, useTransition } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { formatCurrency, cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { format, addDays } from 'date-fns';
-import { Search, MapPin, Star, Filter, X, ChevronDown, Users, Calendar, SlidersHorizontal, Heart } from 'lucide-react';
+import {
+  Search, MapPin, Star, X, Users, Calendar, SlidersHorizontal,
+  Locate, Check, Tag, ChevronDown, ChevronUp,
+} from 'lucide-react';
 import { HotelCard } from '@/components/public/HotelCard';
 
 const HOTEL_TYPES = [
-  { value: '', label: 'ทุกประเภท' },
-  { value: 'hotel', label: '🏨 Hotel' },
-  { value: 'resort', label: '🌴 Resort' },
-  { value: 'boutique', label: '🏡 Boutique' },
-  { value: 'pool_villa', label: '🏊 Pool Villa' },
-  { value: 'hostel', label: '🎒 Hostel' },
-  { value: 'serviced_apartment', label: '🏢 Serviced Apt.' },
+  { value: '',                    label: 'ทุกประเภท',     emoji: '🏠' },
+  { value: 'hotel',               label: 'Hotel',          emoji: '🏨' },
+  { value: 'resort',              label: 'Resort',         emoji: '🌴' },
+  { value: 'boutique',            label: 'Boutique',       emoji: '🏡' },
+  { value: 'pool_villa',          label: 'Pool Villa',     emoji: '🏊' },
+  { value: 'hostel',              label: 'Hostel',         emoji: '🎒' },
+  { value: 'serviced_apartment',  label: 'Serviced Apt.',  emoji: '🏢' },
 ];
 
-const SORT_OPTIONS = [
-  { value: 'recommended', label: '⭐ แนะนำ' },
-  { value: 'price_asc', label: '💰 ราคาต่ำ-สูง' },
-  { value: 'price_desc', label: '💰 ราคาสูง-ต่ำ' },
-  { value: 'rating', label: '⭐ คะแนนสูงสุด' },
+const AMENITY_CHIPS = [
+  { value: 'wifi',        label: 'Wifi ฟรี' },
+  { value: 'pool',        label: 'สระว่ายน้ำ' },
+  { value: 'gym',         label: 'ฟิตเนส' },
+  { value: 'spa',         label: 'สปา' },
+  { value: 'parking',     label: 'ที่จอดรถ' },
+  { value: 'restaurant',  label: 'ร้านอาหาร' },
 ];
 
+type Query = {
+  city: string;
+  checkIn: string;
+  checkOut: string;
+  adults: number;
+  type: string;
+  sort: string;
+  minPrice: number;
+  maxPrice: number;
+  minRating: number;
+  stars: number[];
+  freeCancel: boolean;
+  breakfast: boolean;
+  amenities: string[];
+};
+
+/* ─── Filter panel (used both in sidebar and mobile sheet) ─── */
+interface FilterPanelProps {
+  query: Query;
+  setQuery: React.Dispatch<React.SetStateAction<Query>>;
+  onApply: () => void;
+  onClear: () => void;
+}
+
+function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
+  const [showAmenities, setShowAmenities] = useState(false);
+
+  const activeCount =
+    query.stars.length +
+    (query.minPrice > 0 || query.maxPrice < 50000 ? 1 : 0) +
+    (query.minRating > 0 ? 1 : 0) +
+    (query.freeCancel ? 1 : 0) +
+    (query.breakfast ? 1 : 0) +
+    query.amenities.length;
+
+  function toggleStar(s: number) {
+    setQuery(p => ({ ...p, stars: p.stars.includes(s) ? p.stars.filter(x => x !== s) : [...p.stars, s] }));
+  }
+  function toggleAmenity(a: string) {
+    setQuery(p => ({ ...p, amenities: p.amenities.includes(a) ? p.amenities.filter(x => x !== a) : [...p.amenities, a] }));
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-[#2A2522]">
+          ตัวกรอง
+          {activeCount > 0 && (
+            <span className="ml-1.5 text-xs bg-[#C66A30] text-white px-1.5 py-0.5 rounded-full">{activeCount}</span>
+          )}
+        </h3>
+        {activeCount > 0 && (
+          <button onClick={onClear} className="text-xs text-[#C66A30] hover:underline">ล้างทั้งหมด</button>
+        )}
+      </div>
+
+      {/* Price range */}
+      <div>
+        <p className="text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5">ราคาต่อคืน (บาท)</p>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            value={query.minPrice || ''}
+            onChange={e => setQuery(p => ({ ...p, minPrice: Number(e.target.value) }))}
+            placeholder="0"
+            className="flex-1 px-3 py-2 bg-[#FAF7F2] border border-black/5 rounded-lg text-sm focus:outline-none"
+          />
+          <span className="text-[#2A2522]/30 text-sm">—</span>
+          <input
+            type="number"
+            value={query.maxPrice < 50000 ? query.maxPrice : ''}
+            onChange={e => setQuery(p => ({ ...p, maxPrice: Number(e.target.value) || 50000 }))}
+            placeholder="ไม่จำกัด"
+            className="flex-1 px-3 py-2 bg-[#FAF7F2] border border-black/5 rounded-lg text-sm focus:outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Star rating */}
+      <div>
+        <p className="text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5">ระดับดาวโรงแรม</p>
+        <div className="flex flex-wrap gap-2">
+          {[5, 4, 3, 2, 1].map(s => (
+            <button
+              key={s}
+              onClick={() => toggleStar(s)}
+              className={cn(
+                'flex items-center gap-0.5 px-3 py-1.5 rounded-full border text-xs transition-all',
+                query.stars.includes(s)
+                  ? 'bg-amber-50 border-amber-400 text-amber-700'
+                  : 'border-black/10 text-[#2A2522]/60 hover:border-amber-300',
+              )}
+            >
+              {Array.from({ length: s }).map((_, i) => (
+                <Star key={i} className="h-2.5 w-2.5 fill-current" />
+              ))}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Guest rating */}
+      <div>
+        <p className="text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5">คะแนนผู้เข้าพัก</p>
+        <div className="space-y-1">
+          {[
+            { v: 4.5, label: 'ยอดเยี่ยมมาก', sub: '4.5+' },
+            { v: 4.0, label: 'ยอดเยี่ยม',    sub: '4.0+' },
+            { v: 3.5, label: 'ดีมาก',         sub: '3.5+' },
+            { v: 3.0, label: 'ดี',            sub: '3.0+' },
+            { v: 0,   label: 'ทั้งหมด',       sub: ''     },
+          ].map(r => (
+            <button
+              key={r.v}
+              onClick={() => setQuery(p => ({ ...p, minRating: r.v }))}
+              className={cn(
+                'w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all text-left',
+                query.minRating === r.v
+                  ? 'bg-[#2A2522] text-white'
+                  : 'hover:bg-[#FAF7F2] text-[#2A2522]/70',
+              )}
+            >
+              <span>{r.label}</span>
+              {r.sub && <span className="text-xs opacity-60">{r.sub}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Popular filters */}
+      <div>
+        <p className="text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5">ฟิลเตอร์ยอดนิยม</p>
+        <div className="space-y-2.5">
+          {([
+            { key: 'freeCancel' as const, label: 'ยกเลิกฟรี' },
+            { key: 'breakfast'  as const, label: 'รวมอาหารเช้า' },
+          ] as const).map(item => (
+            <label key={item.key} className="flex items-center gap-3 cursor-pointer group py-0.5">
+              <div
+                onClick={() => setQuery(p => ({ ...p, [item.key]: !p[item.key] }))}
+                className={cn(
+                  'w-5 h-5 rounded border-2 flex items-center justify-center transition-all shrink-0 cursor-pointer',
+                  query[item.key]
+                    ? 'bg-[#C66A30] border-[#C66A30]'
+                    : 'border-black/20 group-hover:border-[#C66A30]/50',
+                )}
+              >
+                {query[item.key] && <Check className="h-3 w-3 text-white" />}
+              </div>
+              <span className="text-sm text-[#2A2522]/70 select-none">{item.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Amenities */}
+      <div>
+        <button
+          onClick={() => setShowAmenities(p => !p)}
+          className="w-full flex items-center justify-between text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5"
+        >
+          <span>สิ่งอำนวยความสะดวก</span>
+          {showAmenities ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+        </button>
+        {showAmenities && (
+          <div className="flex flex-wrap gap-2">
+            {AMENITY_CHIPS.map(a => (
+              <button
+                key={a.value}
+                onClick={() => toggleAmenity(a.value)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full border text-xs transition-all',
+                  query.amenities.includes(a.value)
+                    ? 'bg-[#2A2522] text-white border-[#2A2522]'
+                    : 'border-black/10 text-[#2A2522]/60 hover:border-[#2A2522]/20',
+                )}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button
+        onClick={onApply}
+        className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl text-sm font-bold transition-colors"
+      >
+        ค้นหา
+      </button>
+    </div>
+  );
+}
+
+/* ─── Main search component ─── */
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [query, setQuery] = useState({
-    city:      searchParams.get('city') || '',
-    checkIn:   searchParams.get('checkIn') || format(addDays(new Date(), 1), 'yyyy-MM-dd'),
-    checkOut:  searchParams.get('checkOut') || format(addDays(new Date(), 2), 'yyyy-MM-dd'),
-    adults:    Number(searchParams.get('adults') || 2),
-    type:      searchParams.get('type') || '',
-    minPrice:  Number(searchParams.get('minPrice') || 0),
-    maxPrice:  Number(searchParams.get('maxPrice') || 50000),
-    minRating: Number(searchParams.get('minRating') || 0),
-    sort:      searchParams.get('sort') || 'recommended',
-  });
+  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+  const dayAfter  = format(addDays(new Date(), 2), 'yyyy-MM-dd');
 
-  const [hotels, setHotels] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(12);
-  const [showFilter, setShowFilter] = useState(false);
-  const [searched, setSearched] = useState(false);
-  const [compareIds, setCompareIds] = useState<string[]>([]);
-  const [recentViewed, setRecentViewed] = useState<any[]>([]);
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const [personalizedMode, setPersonalizedMode] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const [smartFilters, setSmartFilters] = useState({
-    freeBreakfast: false,
+  const [query, setQuery] = useState<Query>({
+    city:       searchParams.get('city') || '',
+    checkIn:    searchParams.get('checkIn') || tomorrow,
+    checkOut:   searchParams.get('checkOut') || dayAfter,
+    adults:     Number(searchParams.get('adults') || 2),
+    type:       searchParams.get('type') || '',
+    sort:       'recommended',
+    minPrice:   0,
+    maxPrice:   50000,
+    minRating:  0,
+    stars:      [],
     freeCancel: false,
-    payAtHotel: false,
+    breakfast:  false,
+    amenities:  [],
   });
-  const [optimisticCompareIds, setOptimisticCompareIds] = useOptimistic(compareIds);
-  const [optimisticSmartFilters, setOptimisticSmartFilters] = useOptimistic(smartFilters);
 
-  const search = useCallback(async (q = query) => {
+  const [hotels,      setHotels]      = useState<any[]>([]);
+  const [loading,     setLoading]     = useState(false);
+  const [searched,    setSearched]    = useState(false);
+  const [total,       setTotal]       = useState(0);
+  const [visibleCount,setVisibleCount]= useState(12);
+  const [showFilter,  setShowFilter]  = useState(false);
+  const [userLat,     setUserLat]     = useState<number | null>(null);
+  const [userLng,     setUserLng]     = useState<number | null>(null);
+  const [geoLoading,  setGeoLoading]  = useState(false);
+  const [recentViewed,setRecentViewed]= useState<any[]>([]);
+
+  const nights = Math.max(1, Math.round(
+    (new Date(query.checkOut).getTime() - new Date(query.checkIn).getTime()) / 86400000,
+  ));
+
+  const search = useCallback(async (
+    q: Query          = query,
+    lat: number | null = userLat,
+    lng: number | null = userLng,
+  ) => {
     setLoading(true);
     setSearched(true);
     const params = new URLSearchParams({
-      city: q.city, checkIn: q.checkIn, checkOut: q.checkOut,
-      adults: String(q.adults), type: q.type, sort: q.sort,
-      minPrice: String(q.minPrice), maxPrice: String(q.maxPrice),
+      city:      q.city,
+      checkIn:   q.checkIn,
+      checkOut:  q.checkOut,
+      adults:    String(q.adults),
+      type:      q.type,
+      sort:      q.sort,
+      minPrice:  String(q.minPrice),
+      maxPrice:  String(q.maxPrice),
       minRating: String(q.minRating),
     });
-    const res = await fetch(`/api/public/search?${params}`);
-    const data = await res.json();
-    const fetchedHotels = data.hotels || [];
-    const normalizedCity = (query.city || '').trim().toLowerCase();
-    const personalized = fetchedHotels
-      .map((hotel: any) => {
-        const ratingScore = Number(hotel.avg_rating || 0) * 20;
-        const price = Math.max(1, Number(hotel.min_price || 0));
-        const priceScore = Math.max(0, 100 - Math.min(100, price / 100));
-        const cityScore = normalizedCity && String(hotel.city || '').toLowerCase().includes(normalizedCity) ? 10 : 0;
-        const recentScore = recentViewed.some((x: any) => x.id === hotel.id) ? 15 : 0;
-        const finalScore = ratingScore + priceScore + cityScore + recentScore;
-        return { ...hotel, _personalizedScore: Math.round(finalScore) };
-      })
-      .sort((a: any, b: any) => (b._personalizedScore || 0) - (a._personalizedScore || 0));
+    if (q.stars.length)    params.set('stars', q.stars.join(','));
+    if (q.freeCancel)      params.set('cancelType', 'free');
+    if (q.amenities.length)params.set('amenities', q.amenities.join(','));
+    if (lat !== null)      params.set('lat', String(lat));
+    if (lng !== null)      params.set('lng', String(lng));
 
-    const nextHotels = q.sort === 'recommended' ? personalized : fetchedHotels;
-    setHotels(nextHotels);
-    setTotal(data.total || 0);
+    try {
+      const res  = await fetch(`/api/public/search?${params}`);
+      const data = await res.json();
+      let list: any[] = data.hotels || [];
+      // client-side breakfast filter (server returns is_breakfast)
+      if (q.breakfast) list = list.filter(h => h.is_breakfast);
+      setHotels(list);
+      setTotal(data.total || 0);
+    } catch { setHotels([]); setTotal(0); }
     setVisibleCount(12);
-    setPersonalizedMode(q.sort === 'recommended');
     setLoading(false);
-  }, [query, recentViewed]);
+  }, [query, userLat, userLng]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (searchParams.get('city') || searchParams.get('checkIn')) search();
-    try { const raw = localStorage.getItem('recent_hotels'); if (raw) setRecentViewed(JSON.parse(raw)); } catch {}
-  }, []);
+    try {
+      const raw = localStorage.getItem('recent_hotels');
+      if (raw) setRecentViewed(JSON.parse(raw));
+    } catch {}
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function doSearch() {
-    const params = new URLSearchParams({
-      city: query.city, checkIn: query.checkIn, checkOut: query.checkOut, adults: String(query.adults),
+  function doSearch(q: Query = query) {
+    const p = new URLSearchParams({
+      city: q.city, checkIn: q.checkIn, checkOut: q.checkOut, adults: String(q.adults),
     });
-    router.push(`/search?${params}`, { scroll: false });
-    search();
+    router.push(`/search?${p}`, { scroll: false });
+    search(q);
   }
 
-
-
-  function toggleCompare(h: any) {
-    startTransition(() => {
-      setOptimisticCompareIds((prev: string[]) => prev.includes(h.id) ? prev.filter((id) => id !== h.id) : prev.length < 3 ? [...prev, h.id] : prev);
-      setCompareIds((prev) => prev.includes(h.id) ? prev.filter((id) => id !== h.id) : prev.length < 3 ? [...prev, h.id] : prev);
-    });
+  async function handleGeolocate() {
+    if (!navigator.geolocation) return;
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async pos => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        setUserLat(lat);
+        setUserLng(lng);
+        let city = query.city;
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=th`,
+            { headers: { 'User-Agent': 'MaitriHotel/1.0' } },
+          );
+          const d = await res.json();
+          city = d.address?.city || d.address?.town || d.address?.county
+               || d.address?.state_district || d.address?.state || city;
+        } catch {}
+        const nq: Query = { ...query, city, sort: 'distance' };
+        setQuery(nq);
+        setGeoLoading(false);
+        search(nq, lat, lng);
+      },
+      () => setGeoLoading(false),
+    );
   }
 
   function trackRecent(h: any) {
-    const next = [h, ...recentViewed.filter((x) => x.id !== h.id)].slice(0, 5);
+    const next = [h, ...recentViewed.filter((x: any) => x.id !== h.id)].slice(0, 5);
     setRecentViewed(next);
     try { localStorage.setItem('recent_hotels', JSON.stringify(next)); } catch {}
   }
 
-  const filteredHotels = hotels.filter((h) => {
-    const amenities = String(h.amenities || '').toLowerCase();
-    const policy = String(h.cancellation_policy || '').toLowerCase();
-    const paymentMethods = String(h.payment_methods || '').toLowerCase();
+  function clearAllFilters() {
+    setQuery(p => ({ ...p, stars: [], minPrice: 0, maxPrice: 50000, minRating: 0, freeCancel: false, breakfast: false, amenities: [] }));
+  }
 
-    if (optimisticSmartFilters.freeBreakfast && !(amenities.includes('breakfast') || amenities.includes('อาหารเช้า'))) return false;
-    if (optimisticSmartFilters.freeCancel && !(policy.includes('free') || policy.includes('ยกเลิกฟรี'))) return false;
-    if (optimisticSmartFilters.payAtHotel && !(paymentMethods.includes('at_hotel') || paymentMethods.includes('pay at hotel') || paymentMethods.includes('จ่ายที่โรงแรม'))) return false;
-    return true;
-  });
+  const activeFilterCount =
+    query.stars.length +
+    (query.minPrice > 0 || query.maxPrice < 50000 ? 1 : 0) +
+    (query.minRating > 0 ? 1 : 0) +
+    (query.freeCancel ? 1 : 0) +
+    (query.breakfast ? 1 : 0) +
+    query.amenities.length;
 
-  const visibleHotels = filteredHotels.slice(0, visibleCount);
-  const compareHotels = filteredHotels.filter((h) => optimisticCompareIds.includes(h.id));
-  const mapClusters = filteredHotels.reduce((acc: Record<string, { city: string; count: number; avgPrice: number }>, h: any) => {
-    const city = String(h.city || 'Unknown');
-    if (!acc[city]) acc[city] = { city, count: 0, avgPrice: 0 };
-    acc[city].count += 1;
-    acc[city].avgPrice += Number(h.min_price || 0);
-    return acc;
-  }, {});
-  const clusterList = (Object.values(mapClusters) as Array<{ city: string; count: number; avgPrice: number }>).map((c) => ({
-    ...c,
-    avgPrice: c.count ? Math.round(c.avgPrice / c.count) : 0,
-  }));
-  const aiRecommended = [...filteredHotels].sort((a,b)=>(Number(b.avg_rating||0)-Number(a.avg_rating||0))).slice(0,3);
-  const daysBeforeCheckIn = Math.max(0, Math.round((new Date(query.checkIn).getTime()-Date.now())/86400000));
-  const isLastMinute = daysBeforeCheckIn <= 3;
-  const lastMinuteDeals = filteredHotels.filter((h)=>Number(h.min_price||0)>0).slice(0,3);
-  const shouldShowPreStayMessage = searched && daysBeforeCheckIn <= 7 && filteredHotels.length > 0;
+  const daysToCheckIn = Math.max(0, Math.round((new Date(query.checkIn).getTime() - Date.now()) / 86400000));
+  const isLastMinute  = daysToCheckIn <= 3;
+  const nearby        = userLat ? hotels.filter(h => h.distance_km !== undefined && h.distance_km <= 10).slice(0, 4) : [];
+  const deals         = hotels.filter(h => h.min_rate && h.min_rate < 3000).slice(0, 4);
+  const visibleHotels = hotels.slice(0, visibleCount);
 
-  const nights = Math.max(1, Math.round(
-    (new Date(query.checkOut).getTime() - new Date(query.checkIn).getTime()) / 86400000
-  ));
+  const SORT_TABS = [
+    { value: 'recommended', label: 'แนะนำ' },
+    { value: 'price_asc',   label: 'ราคาต่ำสุด' },
+    { value: 'rating',      label: 'คะแนนสูงสุด' },
+    ...(userLat ? [{ value: 'distance', label: 'ใกล้ที่สุด' }] : []),
+  ];
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
-      {/* Top nav */}
-      <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/" className="font-serif text-xl font-bold text-[#2A2522] shrink-0">🪷 Maitri</Link>
 
-          {/* Search bar */}
-          <div className="flex-1 flex items-center gap-2 bg-[#FAF7F2] border border-black/8 rounded-xl px-3 py-1.5 max-w-3xl">
-            <MapPin className="h-4 w-4 text-[#C66A30] shrink-0" />
-            <input value={query.city} onChange={e => setQuery(p => ({ ...p, city: e.target.value }))}
-              onKeyDown={e => e.key === 'Enter' && doSearch()}
-              placeholder="ค้นหาเมือง, ที่พัก..."
-              className="flex-1 bg-transparent text-sm focus:outline-none min-w-0" />
-            <div className="hidden md:flex items-center gap-2 border-l border-black/8 pl-3">
-              <Calendar className="h-3.5 w-3.5 text-[#2A2522]/40" />
-              <input type="date" value={query.checkIn}
-                onChange={e => setQuery(p => ({ ...p, checkIn: e.target.value }))}
-                className="text-xs bg-transparent focus:outline-none w-28 text-[#2A2522]/60" />
-              <span className="text-[#2A2522]/20">→</span>
-              <input type="date" value={query.checkOut}
-                onChange={e => setQuery(p => ({ ...p, checkOut: e.target.value }))}
-                className="text-xs bg-transparent focus:outline-none w-28 text-[#2A2522]/60" />
+      {/* ── Sticky nav ── */}
+      <nav className="bg-white border-b border-black/5 sticky top-0 z-40 shadow-sm">
+        <div className="max-w-screen-xl mx-auto px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="font-serif text-xl font-bold text-[#2A2522] shrink-0 hidden md:block">
+              🪷 Maitri
+            </Link>
+
+            {/* Search form */}
+            <div className="flex-1 flex items-center bg-[#FAF7F2] border border-black/10 rounded-2xl overflow-hidden max-w-4xl">
+              {/* Destination */}
+              <div className="flex items-center gap-2 px-4 py-2.5 border-r border-black/8 flex-1 min-w-0">
+                <MapPin className="h-4 w-4 text-[#C66A30] shrink-0" />
+                <input
+                  value={query.city}
+                  onChange={e => setQuery(p => ({ ...p, city: e.target.value }))}
+                  onKeyDown={e => e.key === 'Enter' && doSearch()}
+                  placeholder="ค้นหาเมือง, โรงแรม..."
+                  className="bg-transparent text-sm focus:outline-none min-w-0 w-full"
+                />
+                <button
+                  onClick={handleGeolocate}
+                  disabled={geoLoading}
+                  title="ค้นหาใกล้ฉัน"
+                  className="shrink-0 p-1.5 rounded-lg hover:bg-[#C66A30]/10 text-[#C66A30] transition-colors disabled:opacity-50"
+                >
+                  {geoLoading
+                    ? <div className="h-4 w-4 border-2 border-[#C66A30]/30 border-t-[#C66A30] rounded-full animate-spin" />
+                    : <Locate className="h-4 w-4" />}
+                </button>
+              </div>
+
+              {/* Dates */}
+              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-black/8">
+                <Calendar className="h-3.5 w-3.5 text-[#2A2522]/30 shrink-0" />
+                <input type="date" value={query.checkIn}
+                  onChange={e => setQuery(p => ({ ...p, checkIn: e.target.value }))}
+                  className="text-xs bg-transparent focus:outline-none w-28 text-[#2A2522]/70" />
+              </div>
+              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-black/8">
+                <Calendar className="h-3.5 w-3.5 text-[#2A2522]/30 shrink-0" />
+                <input type="date" value={query.checkOut}
+                  onChange={e => setQuery(p => ({ ...p, checkOut: e.target.value }))}
+                  className="text-xs bg-transparent focus:outline-none w-28 text-[#2A2522]/70" />
+              </div>
+
+              {/* Guests */}
+              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-black/8">
+                <Users className="h-3.5 w-3.5 text-[#2A2522]/30 shrink-0" />
+                <select
+                  value={query.adults}
+                  onChange={e => setQuery(p => ({ ...p, adults: Number(e.target.value) }))}
+                  className="text-xs bg-transparent focus:outline-none text-[#2A2522]/70 cursor-pointer"
+                >
+                  {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n} คน</option>)}
+                </select>
+              </div>
+
+              <button
+                onClick={() => doSearch()}
+                className="px-5 py-2.5 bg-[#C66A30] hover:bg-[#A4522A] text-white font-bold text-sm transition-colors flex items-center gap-2 shrink-0"
+              >
+                <Search className="h-4 w-4" />
+                <span className="hidden md:block">ค้นหา</span>
+              </button>
             </div>
-            <div className="hidden md:flex items-center gap-1 border-l border-black/8 pl-3">
-              <Users className="h-3.5 w-3.5 text-[#2A2522]/40" />
-              <select value={query.adults} onChange={e => setQuery(p => ({ ...p, adults: Number(e.target.value) }))}
-                className="text-xs bg-transparent focus:outline-none text-[#2A2522]/60">
-                {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} คน</option>)}
-              </select>
-            </div>
-            <button onClick={doSearch} className="shrink-0 px-4 py-1.5 bg-[#C66A30] text-white rounded-lg text-sm font-medium hover:bg-[#A4522A] transition-colors">
-              <Search className="h-4 w-4" />
-            </button>
+
+            <Link href="/portal/login" className="hidden lg:block text-sm text-[#C66A30] hover:underline shrink-0">
+              เข้าสู่ระบบ
+            </Link>
           </div>
-
-          <Link href="/portal/login" className="text-sm text-[#C66A30] hover:underline shrink-0 hidden md:block">เข้าสู่ระบบ</Link>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Filter bar */}
-        <div
-          className="flex flex-nowrap md:flex-wrap items-center gap-2 mb-6 overflow-x-auto pb-1 [scrollbar-width:none]"
-          onTouchStart={(e) => setTouchStartX(e.touches[0]?.clientX ?? null)}
-          onTouchEnd={(e) => {
-            if (touchStartX === null) return;
-            const delta = (e.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
-            if (Math.abs(delta) > 50) {
-              const currentIndex = Math.max(0, HOTEL_TYPES.findIndex((t) => t.value === query.type));
-              const nextIndex = delta < 0
-                ? Math.min(HOTEL_TYPES.length - 1, currentIndex + 1)
-                : Math.max(0, currentIndex - 1);
-              const nextType = HOTEL_TYPES[nextIndex]?.value ?? '';
-              setQuery((p) => ({ ...p, type: nextType }));
-              search({ ...query, type: nextType });
-            }
-            setTouchStartX(null);
-          }}
-        >
+      <div className="max-w-screen-xl mx-auto px-4">
+
+        {/* ── Property type pills ── */}
+        <div className="flex items-center gap-2 overflow-x-auto py-4 [scrollbar-width:none]">
           {HOTEL_TYPES.map(t => (
-            <button key={t.value} onClick={() => { setQuery(p => ({ ...p, type: t.value })); search({ ...query, type: t.value }); }}
-              className={cn('px-3 py-1.5 text-xs rounded-full border transition-all shrink-0', query.type === t.value ? 'bg-[#2A2522] text-white border-[#2A2522]' : 'border-black/10 text-[#2A2522]/60 hover:border-[#2A2522]/30')}>
-              {t.label}
+            <button
+              key={t.value}
+              onClick={() => { const nq = { ...query, type: t.value }; setQuery(nq); search(nq); }}
+              className={cn(
+                'flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all shrink-0 whitespace-nowrap',
+                query.type === t.value
+                  ? 'bg-[#2A2522] text-white border-[#2A2522]'
+                  : 'bg-white border-black/10 text-[#2A2522]/60 hover:border-[#2A2522]/30',
+              )}
+            >
+              <span>{t.emoji}</span>{t.label}
             </button>
           ))}
-          <div className="ml-auto flex items-center gap-2">
-            <select value={query.sort} onChange={e => { setQuery(p => ({ ...p, sort: e.target.value })); search({ ...query, sort: e.target.value }); }}
-              className="px-3 py-1.5 text-xs border border-black/10 rounded-full bg-white focus:outline-none text-[#2A2522]/70">
-              {SORT_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
-            <button onClick={() => setShowFilter(p => !p)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-black/10 rounded-full hover:bg-white transition-colors">
-              <SlidersHorizontal className="h-3.5 w-3.5" /> ตัวกรอง
-            </button>
-          </div>
         </div>
 
-        {/* Advanced filter */}
-        {showFilter && (
-          <div className="bg-white rounded-2xl border border-black/5 p-5 mb-6">
-            <div className="grid md:grid-cols-3 gap-5">
-              <div>
-                <label className="text-xs font-medium text-[#2A2522]/60 mb-2 block">ราคาต่อคืน (บาท)</label>
-                <div className="flex items-center gap-2">
-                  <input type="number" value={query.minPrice || ''} onChange={e => setQuery(p => ({ ...p, minPrice: Number(e.target.value) }))}
-                    placeholder="0" className="flex-1 px-3 py-2 bg-[#FAF7F2] rounded-lg text-sm focus:outline-none" />
-                  <span className="text-[#2A2522]/30">—</span>
-                  <input type="number" value={query.maxPrice !== 50000 ? query.maxPrice : ''} onChange={e => setQuery(p => ({ ...p, maxPrice: Number(e.target.value) || 50000 }))}
-                    placeholder="ไม่จำกัด" className="flex-1 px-3 py-2 bg-[#FAF7F2] rounded-lg text-sm focus:outline-none" />
-                </div>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-[#2A2522]/60 mb-2 block">คะแนนขั้นต่ำ</label>
-                <div className="flex gap-2">
-                  {[0,3,4,4.5].map(r => (
-                    <button key={r} onClick={() => setQuery(p => ({ ...p, minRating: r }))}
-                      className={cn('flex-1 py-2 text-xs rounded-lg border transition-all', query.minRating === r ? 'bg-[#2A2522] text-white border-[#2A2522]' : 'border-black/10 hover:border-[#2A2522]/20')}>
-                      {r === 0 ? 'ทั้งหมด' : `≥ ${r}⭐`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-end gap-2">
-                <button onClick={() => search()} className="flex-1 py-2 bg-[#C66A30] text-white rounded-lg text-sm font-medium">ค้นหา</button>
-                <button onClick={() => { setQuery(p => ({ ...p, type: '', minPrice: 0, maxPrice: 50000, minRating: 0 })); setShowFilter(false); }}
-                  className="px-3 py-2 border border-black/10 rounded-lg text-sm hover:bg-black/5">รีเซ็ต</button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* ── Main layout: sidebar + results ── */}
+        <div className="flex gap-6 pb-28">
 
-        {/* Results */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[1,2,3,4,5,6].map(i => <div key={i} className="h-80 bg-white rounded-2xl animate-pulse" />)}
-          </div>
-        ) : !searched ? (
-          <div className="text-center py-24">
-            <div className="text-6xl mb-4">🔍</div>
-            <h2 className="text-xl font-bold text-[#2A2522] mb-2">ค้นหาที่พักที่ใช่</h2>
-            <p className="text-[#2A2522]/50 text-sm">ระบุเมืองและวันที่เพื่อดูห้องว่าง</p>
-          </div>
-        ) : filteredHotels.length === 0 ? (
-          <div className="text-center py-24">
-            <div className="text-5xl mb-4">😔</div>
-            <h2 className="text-lg font-bold text-[#2A2522] mb-2">ไม่พบที่พักในช่วงนี้</h2>
-            <p className="text-[#2A2522]/50 text-sm mb-4">ลองเปลี่ยนวันที่หรือเงื่อนไขการค้นหา</p>
-            <button onClick={() => setQuery(p => ({ ...p, type: '', minPrice: 0, maxPrice: 50000 }))}
-              className="px-5 py-2 bg-[#C66A30] text-white rounded-xl text-sm font-medium">ล้างตัวกรอง</button>
-          </div>
-        ) : (
-          <>
-            <p className="text-sm text-[#2A2522]/50 mb-4">
-              พบ <strong className="text-[#2A2522]">{filteredHotels.length}</strong> จาก {total} ที่พัก
-              {query.city && ` ใน${query.city}`}
-              {` · ${nights} คืน · ${query.adults} ผู้ใหญ่`}
-            </p>
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              {[
-                { key: 'freeBreakfast', label: 'รวมอาหารเช้า' },
-                { key: 'freeCancel', label: 'ยกเลิกฟรี' },
-                { key: 'payAtHotel', label: 'จ่ายที่โรงแรม' },
-              ].map((chip) => {
-                const active = optimisticSmartFilters[chip.key as keyof typeof optimisticSmartFilters];
-                return (
+          {/* ── Filter sidebar (desktop) ── */}
+          <aside className="hidden lg:block w-72 shrink-0">
+            <div className="sticky top-20 bg-white rounded-2xl border border-black/5 p-5">
+              <FilterPanel
+                query={query}
+                setQuery={setQuery}
+                onApply={() => search(query)}
+                onClear={clearAllFilters}
+              />
+            </div>
+          </aside>
+
+          {/* ── Results pane ── */}
+          <div className="flex-1 min-w-0">
+
+            {/* Sort + filter controls */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              {/* Sort tabs */}
+              <div className="flex items-center bg-white border border-black/8 rounded-xl overflow-hidden">
+                {SORT_TABS.map(s => (
                   <button
-                    key={chip.key}
-                    aria-pressed={active}
-                    onClick={() => {
-                      startTransition(() => {
-                        setOptimisticSmartFilters((prev: typeof smartFilters) => ({ ...prev, [chip.key]: !active }));
-                        setSmartFilters((prev) => ({ ...prev, [chip.key]: !active }));
-                      });
-                    }}
+                    key={s.value}
+                    onClick={() => { const nq = { ...query, sort: s.value }; setQuery(nq); search(nq); }}
                     className={cn(
-                      'px-3 py-1.5 rounded-full border text-xs transition-colors',
-                      active ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white border-black/10 text-[#2A2522]/70 hover:border-black/25'
+                      'px-4 py-2 text-xs font-medium transition-colors border-r border-black/8 last:border-0 whitespace-nowrap',
+                      query.sort === s.value ? 'bg-[#2A2522] text-white' : 'text-[#2A2522]/60 hover:bg-[#FAF7F2]',
                     )}
                   >
-                    {chip.label}
+                    {s.label}
                   </button>
-                );
-              })}
-              {(optimisticSmartFilters.freeBreakfast || optimisticSmartFilters.freeCancel || optimisticSmartFilters.payAtHotel) && (
-                <button
-                  onClick={() => {
-                    startTransition(() => {
-                      setOptimisticSmartFilters({ freeBreakfast: false, freeCancel: false, payAtHotel: false });
-                      setSmartFilters({ freeBreakfast: false, freeCancel: false, payAtHotel: false });
-                    });
-                  }}
-                  className="px-3 py-1.5 rounded-full border border-black/15 text-xs text-[#2A2522]/60 hover:bg-black/5"
-                >
-                  ล้าง Smart filters
-                </button>
+                ))}
+              </div>
+
+              {/* Mobile filter button */}
+              <button
+                onClick={() => setShowFilter(true)}
+                className="lg:hidden flex items-center gap-1.5 px-4 py-2 bg-white border border-black/8 rounded-xl text-xs font-medium text-[#2A2522]/70 hover:bg-[#FAF7F2] transition-colors"
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                ตัวกรอง
+                {activeFilterCount > 0 && (
+                  <span className="bg-[#C66A30] text-white text-2xs px-1.5 py-0.5 rounded-full">{activeFilterCount}</span>
+                )}
+              </button>
+
+              {searched && !loading && (
+                <p className="ml-auto text-sm text-[#2A2522]/50 shrink-0">
+                  พบ <strong className="text-[#2A2522]">{total}</strong> ที่พัก
+                  {query.city && ` · ${query.city}`}
+                  {` · ${nights} คืน`}
+                </p>
               )}
             </div>
-            <div className="mb-4 rounded-xl border border-black/10 bg-white p-4">
-              <p className="text-sm font-medium mb-2">Map clustering (by city)</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {clusterList.map((c) => (
-                  <div key={c.city} className="rounded-lg border border-black/10 px-3 py-2 text-xs">
-                    <div className="font-medium">{c.city}</div>
-                    <div className="text-[#2A2522]/60">{c.count} hotels</div>
-                    <div className="text-[#2A2522]/60">avg {formatCurrency(c.avgPrice)}</div>
+
+            {/* Active filter chips */}
+            {activeFilterCount > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {query.stars.map(s => (
+                  <span key={s} className="flex items-center gap-1 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-full">
+                    {s}★
+                    <button onClick={() => setQuery(p => ({ ...p, stars: p.stars.filter(x => x !== s) }))}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                {(query.minPrice > 0 || query.maxPrice < 50000) && (
+                  <span className="flex items-center gap-1 px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 text-xs rounded-full">
+                    ฿{query.minPrice.toLocaleString()}–{query.maxPrice < 50000 ? `฿${query.maxPrice.toLocaleString()}` : 'ไม่จำกัด'}
+                    <button onClick={() => setQuery(p => ({ ...p, minPrice: 0, maxPrice: 50000 }))}><X className="h-3 w-3" /></button>
+                  </span>
+                )}
+                {query.minRating > 0 && (
+                  <span className="flex items-center gap-1 px-3 py-1 bg-green-50 border border-green-200 text-green-700 text-xs rounded-full">
+                    ≥{query.minRating}⭐
+                    <button onClick={() => setQuery(p => ({ ...p, minRating: 0 }))}><X className="h-3 w-3" /></button>
+                  </span>
+                )}
+                {query.freeCancel && (
+                  <span className="flex items-center gap-1 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-full">
+                    ยกเลิกฟรี
+                    <button onClick={() => setQuery(p => ({ ...p, freeCancel: false }))}><X className="h-3 w-3" /></button>
+                  </span>
+                )}
+                {query.breakfast && (
+                  <span className="flex items-center gap-1 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-full">
+                    รวมอาหารเช้า
+                    <button onClick={() => setQuery(p => ({ ...p, breakfast: false }))}><X className="h-3 w-3" /></button>
+                  </span>
+                )}
+                {query.amenities.map(a => (
+                  <span key={a} className="flex items-center gap-1 px-3 py-1 bg-[#2A2522]/5 border border-[#2A2522]/10 text-[#2A2522]/70 text-xs rounded-full">
+                    {AMENITY_CHIPS.find(c => c.value === a)?.label ?? a}
+                    <button onClick={() => setQuery(p => ({ ...p, amenities: p.amenities.filter(x => x !== a) }))}><X className="h-3 w-3" /></button>
+                  </span>
+                ))}
+                <button onClick={clearAllFilters} className="text-xs text-[#C66A30] hover:underline">ล้างทั้งหมด</button>
+              </div>
+            )}
+
+            {/* ── Loading skeletons ── */}
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="bg-white rounded-2xl overflow-hidden border border-black/5">
+                    <div className="h-52 bg-[#2A2522]/5 animate-pulse" />
+                    <div className="p-4 space-y-2.5">
+                      <div className="h-3 bg-[#2A2522]/5 rounded animate-pulse w-1/3" />
+                      <div className="h-4 bg-[#2A2522]/8 rounded animate-pulse" />
+                      <div className="h-3 bg-[#2A2522]/5 rounded animate-pulse w-2/3" />
+                      <div className="h-3 bg-[#2A2522]/5 rounded animate-pulse w-1/2" />
+                      <div className="h-8 bg-[#2A2522]/5 rounded-xl animate-pulse mt-3" />
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-            {compareHotels.length > 0 && (
-              <div className="mb-4 rounded-xl border border-black/10 bg-white p-4">
-                <p className="text-sm font-medium mb-2">Compare hotels ({compareHotels.length}/3){isPending ? ' · updating…' : ''}</p>
-                <div className="grid md:grid-cols-3 gap-3">{compareHotels.map((h)=><div key={h.id} className="border rounded-lg p-3 text-sm"><div className="font-medium">{h.name}</div><div>⭐ {h.avg_rating || '-'} · {formatCurrency(h.min_price||0)}</div></div>)}</div>
-              </div>
-            )}
 
-            {recentViewed.length > 0 && (
-              <div className="mb-4 rounded-xl border border-black/10 bg-white p-4"><p className="text-sm font-medium mb-2">Recently viewed hotels</p><div className="text-xs text-[#2A2522]/60">{recentViewed.map((h)=>h.name).join(' • ')}</div></div>
-            )}
-
-            <div className="mb-4 rounded-xl border border-black/10 bg-white p-4">
-              <p className="text-sm font-medium mb-2">
-                AI-based recommended hotels
-                {personalizedMode && <span className="ml-2 text-[11px] rounded-full bg-[#C66A30]/10 px-2 py-0.5 text-[#C66A30]">Personalized ranking</span>}
-              </p>
-              <div className="text-xs text-[#2A2522]/60">{aiRecommended.map((h)=>`${h.name} (${h.avg_rating || '-'})`).join(' • ')}</div>
-            </div>
-
-            {isLastMinute && lastMinuteDeals.length > 0 && (
-              <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4"><p className="text-sm font-medium text-emerald-700 mb-2">Last-minute deals</p><div className="text-xs text-emerald-700">{lastMinuteDeals.map((h)=>`${h.name} เริ่ม ${formatCurrency(h.min_price||0)}`).join(' • ')}</div></div>
-            )}
-            {shouldShowPreStayMessage && (
-              <div className="mb-4 rounded-xl border border-sky-200 bg-sky-50 p-4">
-                <p className="text-sm font-medium text-sky-700 mb-1">Pre-stay tips ({daysBeforeCheckIn} วันก่อนเข้าพัก)</p>
-                <p className="text-xs text-sky-700">
-                  แนะนำเลือกที่พักที่มี “ยกเลิกฟรี” และ “จ่ายที่โรงแรม” เพื่อความยืดหยุ่นก่อนเดินทาง
-                </p>
-              </div>
-            )}
-
-            <div id="search-results" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 transition-all duration-300">
-              {visibleHotels.map(hotel => (
-                <div
-                  key={hotel.id}
-                  className="space-y-2 transition-transform duration-200 hover:-translate-y-0.5"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && hotel.slug) router.push(`/h/${hotel.slug}`);
-                  }}
-                >
-                  <HotelCard hotel={hotel} nights={nights} checkIn={query.checkIn} checkOut={query.checkOut} />
-                  <div className="flex gap-2">
-                    <button onClick={() => toggleCompare(hotel)} className="text-xs px-2 py-1 border rounded" aria-label={`เปรียบเทียบโรงแรม ${hotel.name}`}>{optimisticCompareIds.includes(hotel.id) ? 'ลบออก compare' : 'เปรียบเทียบ'}</button>
-                    <button onClick={() => trackRecent(hotel)} className="text-xs px-2 py-1 border rounded">บันทึกล่าสุด</button>
-                  </div>
+            ) : !searched ? (
+              /* ── Pre-search (empty) state ── */
+              <div>
+                <div className="text-center py-20 mb-8">
+                  <div className="text-7xl mb-5">🏨</div>
+                  <h2 className="text-2xl font-bold text-[#2A2522] mb-2">ค้นหาที่พักในฝัน</h2>
+                  <p className="text-[#2A2522]/50 mb-6">ระบุปลายทางและวันที่เพื่อดูห้องว่าง</p>
+                  <button
+                    onClick={handleGeolocate}
+                    disabled={geoLoading}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#2A2522] text-white rounded-xl text-sm font-semibold hover:bg-[#2A2522]/80 transition-colors disabled:opacity-50"
+                  >
+                    {geoLoading
+                      ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      : <Locate className="h-4 w-4" />}
+                    ค้นหาโรงแรมใกล้ฉัน
+                  </button>
                 </div>
-              ))}
-            </div>
-            {filteredHotels.length > visibleCount && (
-              <div className="mt-6 flex justify-center">
-                <button
-                  onClick={() => setVisibleCount((n) => n + 12)}
-                  className="px-5 py-2 rounded-full border border-black/15 text-sm font-medium text-[#2A2522] hover:border-[#2A2522]/35 hover:bg-white transition-colors"
-                >
-                  โหลดเพิ่ม ({Math.min(12, filteredHotels.length - visibleCount)} รายการ)
+
+                {recentViewed.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="font-bold text-[#2A2522] mb-3">ดูล่าสุด</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {recentViewed.map(h => (
+                        <Link key={h.id} href={`/h/${h.slug}`}
+                          className="bg-white rounded-xl border border-black/5 overflow-hidden hover:shadow-md transition-shadow">
+                          {h.hero_image_url && (
+                            <img src={h.hero_image_url} alt={h.name} className="w-full h-20 object-cover" />
+                          )}
+                          <div className="p-3">
+                            <p className="text-xs font-semibold text-[#2A2522] line-clamp-1">{h.name}</p>
+                            <p className="text-xs text-[#2A2522]/50">{h.city}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            ) : hotels.length === 0 ? (
+              /* ── No results ── */
+              <div className="text-center py-24">
+                <div className="text-5xl mb-4">😔</div>
+                <h2 className="text-lg font-bold text-[#2A2522] mb-2">ไม่พบที่พักในช่วงนี้</h2>
+                <p className="text-[#2A2522]/50 text-sm mb-5">ลองเปลี่ยนวันที่หรือเงื่อนไขการค้นหา</p>
+                <button onClick={clearAllFilters}
+                  className="px-5 py-2.5 bg-[#C66A30] text-white rounded-xl text-sm font-semibold">
+                  ล้างตัวกรอง
                 </button>
               </div>
+
+            ) : (
+              /* ── Results ── */
+              <div>
+
+                {/* Nearby section (when geolocated) */}
+                {nearby.length > 0 && (
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <MapPin className="h-4 w-4 text-[#C66A30]" />
+                      <h3 className="font-bold text-[#2A2522]">โรงแรมใกล้คุณ</h3>
+                      <span className="text-xs text-[#2A2522]/40 bg-[#2A2522]/5 px-2 py-0.5 rounded-full">ภายใน 10 กม.</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                      {nearby.map(hotel => (
+                        <div key={hotel.id} onClick={() => trackRecent(hotel)}>
+                          <HotelCard hotel={hotel} nights={nights} checkIn={query.checkIn} checkOut={query.checkOut} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="my-6 border-t border-black/5" />
+                  </div>
+                )}
+
+                {/* Last-minute deals */}
+                {isLastMinute && deals.length > 0 && (
+                  <div className="mb-8 rounded-2xl bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Tag className="h-4 w-4 text-red-600" />
+                      <h3 className="font-bold text-red-700">ดีลวันนี้เท่านั้น!</h3>
+                      <span className="text-xs text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
+                        เช็คอิน {daysToCheckIn === 0 ? 'วันนี้' : `${daysToCheckIn} วัน`}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                      {deals.map(hotel => (
+                        <div key={hotel.id} onClick={() => trackRecent(hotel)}>
+                          <HotelCard hotel={hotel} nights={nights} checkIn={query.checkIn} checkOut={query.checkOut} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-6 border-t border-red-100" />
+                  </div>
+                )}
+
+                {/* Full results grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {visibleHotels.map(hotel => (
+                    <div key={hotel.id} onClick={() => trackRecent(hotel)}>
+                      <HotelCard hotel={hotel} nights={nights} checkIn={query.checkIn} checkOut={query.checkOut} />
+                    </div>
+                  ))}
+                </div>
+
+                {hotels.length > visibleCount && (
+                  <div className="mt-8 flex justify-center">
+                    <button
+                      onClick={() => setVisibleCount(n => n + 12)}
+                      className="px-8 py-3 bg-white border border-black/10 rounded-xl text-sm font-medium text-[#2A2522] hover:bg-[#FAF7F2] hover:border-[#2A2522]/20 transition-all"
+                    >
+                      โหลดเพิ่ม ({Math.min(12, hotels.length - visibleCount)} รายการ)
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
-          </>
-        )}
+          </div>
+        </div>
       </div>
 
-      <div className="fixed bottom-0 inset-x-0 z-40 border-t border-black/10 bg-white/95 backdrop-blur p-3 md:hidden">
-        <div className="mx-auto max-w-7xl grid grid-cols-2 gap-2">
-          <button onClick={doSearch} className="py-2.5 bg-[#C66A30] text-white rounded-xl text-sm font-medium transition-colors hover:bg-[#A4522A]">
-            ค้นหาใหม่
+      {/* ── Mobile filter bottom sheet ── */}
+      {showFilter && (
+        <div className="fixed inset-0 z-50 flex items-end lg:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilter(false)} />
+          <div className="relative bg-white w-full max-h-[88vh] overflow-y-auto rounded-t-3xl p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-[#2A2522]">ตัวกรอง</h2>
+              <button onClick={() => setShowFilter(false)} className="p-2 rounded-full hover:bg-[#FAF7F2]">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <FilterPanel
+              query={query}
+              setQuery={setQuery}
+              onApply={() => { search(query); setShowFilter(false); }}
+              onClear={clearAllFilters}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── Mobile sticky bottom bar ── */}
+      <div className="fixed bottom-0 inset-x-0 z-40 border-t border-black/10 bg-white/95 backdrop-blur px-4 py-3 lg:hidden">
+        <div className="max-w-screen-xl mx-auto grid grid-cols-2 gap-3">
+          <button onClick={() => doSearch()} className="py-3 bg-[#C66A30] text-white rounded-xl text-sm font-bold hover:bg-[#A4522A] transition-colors flex items-center justify-center gap-2">
+            <Search className="h-4 w-4" />ค้นหา
           </button>
-          <button onClick={() => setShowFilter((p) => !p)} className="py-2.5 border border-black/15 rounded-xl text-sm font-medium transition-colors hover:bg-black/5">
-            ตัวกรอง
+          <button onClick={() => setShowFilter(true)} className="py-3 border border-black/15 bg-white rounded-xl text-sm font-medium hover:bg-[#FAF7F2] transition-colors flex items-center justify-center gap-2">
+            <SlidersHorizontal className="h-4 w-4" />
+            ตัวกรอง{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
           </button>
         </div>
       </div>
@@ -424,7 +750,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FAF7F2]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FAF7F2] animate-pulse" />}>
       <SearchContent />
     </Suspense>
   );

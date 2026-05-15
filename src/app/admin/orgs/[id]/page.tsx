@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { getOrganizationUsage } from '@/lib/saas/usage';
 import Link from 'next/link';

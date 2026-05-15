@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
 import { ReservationsClient } from '@/components/reservation/reservations-client';
 

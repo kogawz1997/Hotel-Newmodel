@@ -133,7 +133,7 @@ async function processQueue(request: Request) {
           await alertOtaFailure({
             channel: job.provider,
             operation: 'map_reservation',
-            error: result.reason,
+            error: failReason,
             hotelId: job.hotel_id,
           });
         }

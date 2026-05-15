@@ -28,11 +28,12 @@ interface SidebarProps {
 // Role groupings — used in `roles` arrays on nav items.
 // If a nav item has no `roles` array it shows to ALL roles.
 // If it has a `roles` array, only those roles see it.
-const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
+const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
 const MANAGEMENT_ROLES = ['owner', 'admin', 'manager'];
 const OWNER_ADMIN_ROLES = ['owner', 'admin'];
-const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk', 'receptionist'];
-const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
+const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk'];
+const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff'];
+const FLOOR_OPS_ROLES   = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff', 'maintenance'];
 const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
 const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
 const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
@@ -59,6 +60,9 @@ const NAV_GROUPS = [
       { href: '/dashboard/guests/merge', icon: Users, label: 'Merge Guests', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/notifications', icon: Bell, label: 'Notifications', roles: ALL_STAFF },
       { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน', roles: HOUSEKEEPING_ROLES },
+      { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุง', roles: MAINTENANCE_ROLES },
+      { href: '/dashboard/concierge', icon: Headphones, label: 'Concierge', roles: CONCIERGE_ROLES },
+      { href: '/dashboard/security', icon: ShieldCheck, label: 'Security', roles: SECURITY_ROLES },
     ],
   },
   {
@@ -79,6 +83,7 @@ const NAV_GROUPS = [
       { href: '/dashboard/billing', icon: CreditCard, label: 'Billing', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: REVENUE_ROLES },
       { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: REVENUE_ROLES },
+      { href: '/dashboard/reports/incidents', icon: Shield, label: 'Incident Timeline', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/audit', icon: Shield, label: 'Audit Log', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/setup', icon: Zap, label: 'Service Setup', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/system', icon: Settings2, label: 'ระบบ & Integrations', roles: OWNER_ADMIN_ROLES },
@@ -206,10 +211,10 @@ export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: S
 
       <div className="border-t border-border p-3">
         <Link
-          href="/dashboard/settings"
+          href="/dashboard/profile"
           className={cn(
             'flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-secondary transition-colors',
-            pathname.startsWith('/dashboard/settings') && 'bg-secondary'
+            pathname.startsWith('/dashboard/profile') && 'bg-secondary'
           )}
         >
           <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0">

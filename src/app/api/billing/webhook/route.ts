@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { verifyStripeSignature } from '@/lib/billing/stripe';
 import { sendOpsAlert } from '@/lib/ops/alerts';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get('stripe-signature');
 
   if (!verifyStripeSignature(rawBody, signature)) {
-    console.error('[Stripe Webhook] Invalid signature');
+    logger.error('Stripe webhook invalid signature');
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
             stripe_subscription_id: session.subscription,
             trial_ends_at: null,
           }).eq('id', orgId);
-          console.log(`[Stripe] Checkout complete: org=${orgId} plan=${plan}`);
+          logger.info("Stripe checkout complete", { org: orgId, plan });
         }
         break;
       }
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
           subscription_status: 'cancelled',
           subscription_plan: 'starter',
         }).eq('stripe_customer_id', custId);
-        console.log(`[Stripe] Subscription cancelled: customer=${custId}`);
+        logger.info("Stripe subscription cancelled", { customer: custId });
         break;
       }
 
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest) {
           entity_id: String(invoice.id || custId),
           changes: { customer_id: custId, retry_at: retryAt },
         });
-        console.warn(`[Stripe] Payment failed: customer=${custId}; retry_at=${retryAt}`);
+        logger.warn("Stripe payment failed", { customer: custId, retryAt });
         break;
       }
 
@@ -175,7 +176,7 @@ export async function POST(request: NextRequest) {
         break;
     }
   } catch (err: any) {
-    console.error('[Stripe Webhook] Handler error:', err.message);
+    logger.error('Stripe webhook handler error', { error: err.message });
     return NextResponse.json({ error: 'Handler error' }, { status: 500 });
   }
 

@@ -22,7 +22,7 @@ const SplitSchema = z.object({
 export async function POST(request: NextRequest) {
   const body = SplitSchema.parse(await request.json());
 
-  const ctx = await requireHotelAccess(body.hotelId, ['owner', 'admin', 'manager', 'receptionist']);
+  const ctx = await requireHotelAccess(body.hotelId, ['owner', 'admin', 'manager']);
   if (ctx.error) return ctx.error;
 
   const admin = createAdminClient();

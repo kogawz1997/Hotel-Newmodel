@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { action, reason, specialRequests, estimatedArrival } = await request.json();
+  const { action, reason, specialRequests, estimatedArrival, requestNote, newCheckIn, newCheckOut } = await request.json();
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -38,6 +38,26 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       special_requests: specialRequests,
       estimated_arrival: estimatedArrival || null,
     }).eq('id', id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true });
+  }
+
+  // Guest service requests — appended to special_requests as structured notes
+  if (['request_early_checkin', 'request_late_checkout', 'request_upgrade', 'request_date_change'].includes(action)) {
+    const { data: res } = await supabase.from('reservations').select('special_requests').eq('id', id).single();
+    const existing = res?.special_requests || '';
+    const labels: Record<string, string> = {
+      request_early_checkin:  '[Early Check-in Request]',
+      request_late_checkout:  '[Late Checkout Request]',
+      request_upgrade:        '[Room Upgrade Request]',
+      request_date_change:    '[Date Change Request]',
+    };
+    const tag = labels[action];
+    const dateNote = action === 'request_date_change' && newCheckIn && newCheckOut
+      ? ` เช็คอินใหม่: ${newCheckIn}, เช็คเอาท์ใหม่: ${newCheckOut}` : '';
+    const note = requestNote ? ` — ${requestNote}${dateNote}` : dateNote;
+    const updated = existing ? `${existing}\n${tag}${note}` : `${tag}${note}`;
+    const { error } = await supabase.from('reservations').update({ special_requests: updated }).eq('id', id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
   }

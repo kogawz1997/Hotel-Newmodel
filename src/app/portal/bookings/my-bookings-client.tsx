@@ -12,7 +12,9 @@ import { EmptyState } from '@/components/ui/empty-state';
 import {
   Calendar, Bed, MapPin, Clock, Star, Download, MessageSquare,
   X, ChevronRight, User, LogOut, Heart, Settings, QrCode,
+  Sunrise, Sunset, ArrowUpCircle, CalendarDays,
 } from 'lucide-react';
+import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 const STATUS: Record<string, { label: string; color: string }> = {
   confirmed:   { label: 'ยืนยันแล้ว',   color: 'bg-sky-100 text-sky-700' },
@@ -34,8 +36,14 @@ export function MyBookingsClient({ guest }: { guest: any }) {
   const [showCancel, setShowCancel] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [showRequests, setShowRequests] = useState(false);
+  const [showEarlyCheckin, setShowEarlyCheckin] = useState(false);
+  const [showLateCheckout, setShowLateCheckout] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showModifyDates, setShowModifyDates] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [requests, setRequests] = useState({ text: '', arrival: '' });
+  const [serviceNote, setServiceNote] = useState('');
+  const [modifyDates, setModifyDates] = useState({ checkIn: '', checkOut: '' });
   const [review, setReview] = useState({ rating: 5, clean: 5, service: 5, location: 5, value: 5, title: '', comment: '' });
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -107,6 +115,26 @@ export function MyBookingsClient({ guest }: { guest: any }) {
     setShowRequests(false); loadBookings();
   }
 
+  async function doServiceRequest(action: string, successMsg: string) {
+    if (!selected) return;
+    setActionLoading(true);
+    const body: any = { action, requestNote: serviceNote };
+    if (action === 'request_date_change') {
+      body.newCheckIn = modifyDates.checkIn;
+      body.newCheckOut = modifyDates.checkOut;
+    }
+    const res = await fetch(`/api/guest/bookings/${selected.id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    setActionLoading(false);
+    if (!res.ok) { toast.error('เกิดข้อผิดพลาด'); return; }
+    toast.success(successMsg);
+    setShowEarlyCheckin(false); setShowLateCheckout(false);
+    setShowUpgrade(false); setShowModifyDates(false);
+    setServiceNote('');
+  }
+
   async function doReview() {
     if (!selected) return;
     setActionLoading(true);
@@ -146,7 +174,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {/* Header */}
         <div className="mb-8">
           <p className="text-sm text-[#C66A30] font-medium mb-1">สวัสดี 👋</p>
@@ -263,6 +291,22 @@ export function MyBookingsClient({ guest }: { guest: any }) {
                             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium border border-black/10 rounded-lg hover:bg-black/5 transition-colors">
                             <MessageSquare className="h-3.5 w-3.5" /> คำขอพิเศษ
                           </button>
+                          <button onClick={() => { setSelected(b); setShowEarlyCheckin(true); setServiceNote(''); }}
+                            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-black/10 rounded-lg hover:bg-black/5 transition-colors">
+                            <Sunrise className="h-3.5 w-3.5 text-amber-500" /> Early Check-in
+                          </button>
+                          <button onClick={() => { setSelected(b); setShowLateCheckout(true); setServiceNote(''); }}
+                            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-black/10 rounded-lg hover:bg-black/5 transition-colors">
+                            <Sunset className="h-3.5 w-3.5 text-sky-500" /> Late Checkout
+                          </button>
+                          <button onClick={() => { setSelected(b); setShowUpgrade(true); setServiceNote(''); }}
+                            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-black/10 rounded-lg hover:bg-black/5 transition-colors">
+                            <ArrowUpCircle className="h-3.5 w-3.5 text-[#C66A30]" /> อัพเกรดห้อง
+                          </button>
+                          <button onClick={() => { setSelected(b); setShowModifyDates(true); setModifyDates({ checkIn: b.check_in, checkOut: b.check_out }); }}
+                            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-black/10 rounded-lg hover:bg-black/5 transition-colors">
+                            <CalendarDays className="h-3.5 w-3.5" /> เปลี่ยนวันที่
+                          </button>
                           <button onClick={() => { setSelected(b); setShowCancel(true); }}
                             className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
                             <X className="h-3.5 w-3.5" /> ยกเลิก
@@ -348,6 +392,90 @@ export function MyBookingsClient({ guest }: { guest: any }) {
         </Modal>
       )}
 
+      {/* Early check-in modal */}
+      {showEarlyCheckin && (
+        <Modal title="ขอ Early Check-in" onClose={() => setShowEarlyCheckin(false)}>
+          <p className="text-sm text-[#2A2522]/60 mb-4">ส่งคำขอ Early Check-in ให้ทางโรงแรม ขึ้นอยู่กับห้องว่างและดุลยพินิจของโรงแรม</p>
+          <div className="mb-4">
+            <label className="text-xs text-[#2A2522]/50 mb-1.5 block">เวลาที่ต้องการ Check-in</label>
+            <input type="time" value={serviceNote} onChange={e => setServiceNote(e.target.value)}
+              className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => setShowEarlyCheckin(false)} className="flex-1 py-2.5 border border-black/10 rounded-xl text-sm font-medium">ยกเลิก</button>
+            <button onClick={() => doServiceRequest('request_early_checkin', 'ส่งคำขอ Early Check-in แล้ว ทางโรงแรมจะยืนยันเร็วๆ นี้')} disabled={actionLoading}
+              className="flex-1 py-2.5 bg-[#C66A30] text-white rounded-xl text-sm font-medium disabled:opacity-50">
+              {actionLoading ? 'กำลังส่ง...' : 'ส่งคำขอ'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Late checkout modal */}
+      {showLateCheckout && (
+        <Modal title="ขอ Late Checkout" onClose={() => setShowLateCheckout(false)}>
+          <p className="text-sm text-[#2A2522]/60 mb-4">ส่งคำขอ Late Checkout ให้ทางโรงแรม ขึ้นอยู่กับห้องว่างและดุลยพินิจของโรงแรม</p>
+          <div className="mb-4">
+            <label className="text-xs text-[#2A2522]/50 mb-1.5 block">เวลาที่ต้องการ Check-out</label>
+            <input type="time" value={serviceNote} onChange={e => setServiceNote(e.target.value)}
+              className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => setShowLateCheckout(false)} className="flex-1 py-2.5 border border-black/10 rounded-xl text-sm font-medium">ยกเลิก</button>
+            <button onClick={() => doServiceRequest('request_late_checkout', 'ส่งคำขอ Late Checkout แล้ว ทางโรงแรมจะยืนยันเร็วๆ นี้')} disabled={actionLoading}
+              className="flex-1 py-2.5 bg-[#C66A30] text-white rounded-xl text-sm font-medium disabled:opacity-50">
+              {actionLoading ? 'กำลังส่ง...' : 'ส่งคำขอ'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Room upgrade modal */}
+      {showUpgrade && (
+        <Modal title="ขอ Upgrade ห้อง" onClose={() => setShowUpgrade(false)}>
+          <p className="text-sm text-[#2A2522]/60 mb-4">ส่งคำขออัพเกรดห้องพัก ทางโรงแรมจะพิจารณาตามห้องว่างและอาจมีค่าใช้จ่ายเพิ่มเติม</p>
+          <div className="mb-4">
+            <label className="text-xs text-[#2A2522]/50 mb-1.5 block">ประเภทห้องที่ต้องการ (ถ้ามี)</label>
+            <textarea value={serviceNote} onChange={e => setServiceNote(e.target.value)}
+              rows={3} placeholder="เช่น Deluxe Sea View, Suite..."
+              className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => setShowUpgrade(false)} className="flex-1 py-2.5 border border-black/10 rounded-xl text-sm font-medium">ยกเลิก</button>
+            <button onClick={() => doServiceRequest('request_upgrade', 'ส่งคำขออัพเกรดห้องแล้ว ทางโรงแรมจะตอบกลับเร็วๆ นี้')} disabled={actionLoading}
+              className="flex-1 py-2.5 bg-[#C66A30] text-white rounded-xl text-sm font-medium disabled:opacity-50">
+              {actionLoading ? 'กำลังส่ง...' : 'ส่งคำขอ'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modify dates modal */}
+      {showModifyDates && (
+        <Modal title="เปลี่ยนวันที่" onClose={() => setShowModifyDates(false)}>
+          <p className="text-sm text-[#2A2522]/60 mb-4">ส่งคำขอเปลี่ยนวันเช็คอิน-เช็คเอาท์ ทางโรงแรมจะพิจารณาตามห้องว่าง</p>
+          <div className="space-y-3 mb-4">
+            <div>
+              <label className="text-xs text-[#2A2522]/50 mb-1.5 block">วันเช็คอินใหม่</label>
+              <input type="date" value={modifyDates.checkIn} onChange={e => setModifyDates(p => ({ ...p, checkIn: e.target.value }))}
+                className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+            </div>
+            <div>
+              <label className="text-xs text-[#2A2522]/50 mb-1.5 block">วันเช็คเอาท์ใหม่</label>
+              <input type="date" value={modifyDates.checkOut} onChange={e => setModifyDates(p => ({ ...p, checkOut: e.target.value }))}
+                className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => setShowModifyDates(false)} className="flex-1 py-2.5 border border-black/10 rounded-xl text-sm font-medium">ยกเลิก</button>
+            <button onClick={() => doServiceRequest('request_date_change', 'ส่งคำขอเปลี่ยนวันแล้ว ทางโรงแรมจะยืนยันเร็วๆ นี้')} disabled={actionLoading || !modifyDates.checkIn || !modifyDates.checkOut}
+              className="flex-1 py-2.5 bg-[#C66A30] text-white rounded-xl text-sm font-medium disabled:opacity-50">
+              {actionLoading ? 'กำลังส่ง...' : 'ส่งคำขอ'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
       {/* Review modal */}
       {showReview && (
         <Modal title={`รีวิว ${selected?.hotels?.name}`} onClose={() => setShowReview(false)}>
@@ -388,6 +516,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
           </div>
         </Modal>
       )}
+      <PortalBottomNav />
     </div>
   );
 }

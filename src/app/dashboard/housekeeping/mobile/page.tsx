@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { HousekeepingMobileActions } from '@/components/dashboard/housekeeping-mobile-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,10 +76,7 @@ export default async function HousekeepingMobilePage() {
               </div>
             </div>
             {task.notes ? <p className="mt-3 rounded-xl bg-black/20 p-3 text-sm text-stone-300">{task.notes}</p> : null}
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <a className="rounded-xl bg-amber-400 px-4 py-3 text-center text-sm font-semibold text-stone-950" href={`/api/housekeeping/tasks/${task.id}/start`}>เริ่มงาน</a>
-              <a className="rounded-xl bg-emerald-400 px-4 py-3 text-center text-sm font-semibold text-emerald-950" href={`/api/housekeeping/tasks/${task.id}/complete`}>เสร็จแล้ว</a>
-            </div>
+            <HousekeepingMobileActions taskId={task.id} />
           </article>
         ))}
         {(!tasks || tasks.length === 0) ? (

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { BookingEngine } from '@/components/booking/booking-engine';
 import { notFound } from 'next/navigation';

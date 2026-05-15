@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
 import { TopBar } from '@/components/layout/top-bar';
 import { SpaBookingClient } from '@/components/dashboard/spa-booking-client';
