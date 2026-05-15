@@ -525,7 +525,7 @@ maitri/
 | 30 | **Maintenance requests** — parts inventory, PM schedule, before/after photos | ✅ |
 | 31 | **QR check-in** — แขก scan ที่ counter | ✅ |
 | 32 | **Multi-property support** — organizations → hotels hierarchy + admin panel | ✅ |
-| 33 | **Mobile app** — React Native | ⏳ |
+| 33 | **Mobile app** — React Native (Expo SDK 51, `mobile/` scaffold) | ✅ |
 | 34 | **SEA expansion** — Vietnam, Indonesia, Malaysia | 🔄 |
 
 > 📋 รายละเอียดแต่ละ item พร้อม code snippets, ไฟล์ที่ต้องแก้, และ ENV vars อยู่ใน [**ROADMAP.md**](ROADMAP.md)
