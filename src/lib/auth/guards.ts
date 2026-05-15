@@ -6,7 +6,24 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/server';
 
-export type StaffRole = 'owner' | 'admin' | 'manager' | 'front_desk' | 'housekeeping' | 'staff' | 'viewer';
+export type StaffRole =
+  | 'owner' | 'admin' | 'manager' | 'staff' | 'viewer'
+  // management
+  | 'hotel_owner' | 'general_manager' | 'operations_manager'
+  // front office
+  | 'front_office_manager' | 'front_desk' | 'receptionist' | 'reservation_agent' | 'night_auditor'
+  // housekeeping
+  | 'housekeeping' | 'housekeeping_manager' | 'housekeeper' | 'room_inspector'
+  // engineering / maintenance
+  | 'maintenance' | 'maintenance_manager' | 'technician' | 'engineering'
+  // revenue & marketing
+  | 'revenue_manager' | 'marketing_staff' | 'sales'
+  // accounting
+  | 'accounting' | 'accounting_manager' | 'accounting_staff'
+  // f&b
+  | 'fb_manager' | 'waiter' | 'chef' | 'bartender'
+  // hr & support
+  | 'hr_manager' | 'security' | 'driver' | 'concierge' | 'bellboy';
 
 export interface HotelContext {
   user: { id: string; email: string };
