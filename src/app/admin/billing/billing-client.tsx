@@ -12,8 +12,8 @@ const STATUS_COLOR: Record<string, string> = {
   draft: 'text-blue-400 bg-blue-400/10',
 };
 
-export function BillingClient({ invoices, failedSubs, credits }: { invoices: any[]; failedSubs: any[]; credits: any[] }) {
-  const [tab, setTab] = useState<'invoices'|'failed'|'credits'>('invoices');
+export function BillingClient({ invoices, failedSubs, credits, defaultTab = 'invoices' }: { invoices: any[]; failedSubs: any[]; credits: any[]; defaultTab?: 'invoices'|'failed'|'credits' }) {
+  const [tab, setTab] = useState<'invoices'|'failed'|'credits'>(defaultTab);
   const [loading, setLoading] = useState<string|null>(null);
 
   const totalMRR = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.amount), 0);
