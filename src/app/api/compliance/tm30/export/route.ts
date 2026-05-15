@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const hotelId = searchParams.get('hotelId');
   const from = searchParams.get('from') || new Date().toISOString().slice(0, 10);
   const to = searchParams.get('to') || from;
-  const ctx = await requireHotelAccess(hotelId, ['owner', 'admin', 'manager', 'front_desk', 'receptionist']);
+  const ctx = await requireHotelAccess(hotelId, ['owner', 'admin', 'manager', 'front_desk']);
   if (ctx.error) return ctx.error;
 
   const { data: reservations, error } = await ctx.supabase

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { parseJson } from '@/lib/http/validation';
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
       redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/team/accept-invite`,
     });
     if (inviteError) {
-      console.error('[Invite] Error:', inviteError.message);
+      logger.error('Team invite failed', { error: inviteError.message });
       return NextResponse.json({ error: 'ไม่สามารถส่งคำเชิญได้' }, { status: 500 });
     }
   }
@@ -102,7 +103,7 @@ export async function POST(request: Request) {
           </p>
         </div>
       `,
-    }).catch(e => console.error('[Invite email]', e.message));
+    }).catch(e => logger.error('Team invite email failed', { error: e.message }));
   }
 
   await admin.from('audit_logs').insert({

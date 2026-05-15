@@ -4,7 +4,7 @@ import { FrontDeskClient } from './front-desk-client';
 export const dynamic = 'force-dynamic';
 
 export default async function FrontDeskPage() {
-  const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager', 'front_desk', 'receptionist']);
+  const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager', 'front_desk']);
 
   const { data: hotels } = await supabase
     .from('hotels')

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendOpsAlert } from '@/lib/ops/alerts';
 
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
     .is('tm30_submitted_at', null);
 
   if (error) {
-    console.error('[Cron TM30]', error.message);
+    logger.error('Cron TM30 failed', { error: error.message });
     return NextResponse.json({ error: 'DB error' }, { status: 500 });
   }
 
@@ -43,7 +44,7 @@ export async function GET(request: Request) {
       source: 'cron',
     });
   }
-  console.log(`[Cron TM30] ${count} pending TM30 reports for ${yesterday}`);
+  logger.info("Cron TM30 pending reports", { count, date: yesterday });
 
   return NextResponse.json({
     processed: count,

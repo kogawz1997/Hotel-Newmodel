@@ -2,7 +2,7 @@ import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { CheckInWizardClient } from '@/components/dashboard/check-in-wizard-client';
 
 export default async function CheckInWizardPage() {
-  const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager', 'front_desk', 'receptionist']);
+  const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager', 'front_desk']);
 
   const { data: hotel } = await supabase.from('hotels').select('id, name').eq('organization_id', profile.organization_id).limit(1).single();
   if (!hotel) return null;

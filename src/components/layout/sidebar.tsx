@@ -26,17 +26,15 @@ interface SidebarProps {
 // Role groupings — used in `roles` arrays on nav items.
 // If a nav item has no `roles` array it shows to ALL roles.
 // If it has a `roles` array, only those roles see it.
-const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
+const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
 const MANAGEMENT_ROLES = ['owner', 'admin', 'manager'];
 const OWNER_ADMIN_ROLES = ['owner', 'admin'];
-const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk', 'receptionist'];
-const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
-const HOUSEKEEPING_ROLES  = ['owner', 'admin', 'manager', 'housekeeping'];
-const ACCOUNTING_ROLES   = ['owner', 'admin', 'manager', 'accounting'];
-const REVENUE_ROLES      = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
-const MAINTENANCE_ROLES  = ['owner', 'admin', 'manager', 'maintenance'];
-const CONCIERGE_ROLES    = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
-const SECURITY_ROLES     = ['owner', 'admin', 'manager', 'security'];
+const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk'];
+const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff'];
+const FLOOR_OPS_ROLES   = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff', 'maintenance'];
+const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
+const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
+const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
 
 const NAV_GROUPS = [
   {
@@ -52,9 +50,9 @@ const NAV_GROUPS = [
     items: [
       { href: '/dashboard/front-desk', icon: MonitorDot, label: 'Front Desk', roles: FRONT_DESK_ROLES },
       { href: '/dashboard/front-desk/check-in-wizard', icon: MonitorDot, label: 'Check-in Wizard', roles: FRONT_DESK_ROLES },
-      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FLOOR_OPS_ROLES },
       { href: '/dashboard/group-bookings', icon: Users, label: 'Group Booking', roles: FRONT_DESK_ROLES },
-      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: [...FRONT_DESK_ROLES, 'maintenance'] },
+      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: FLOOR_OPS_ROLES },
       { href: '/dashboard/rates', icon: CalendarRange, label: 'ปฏิทินราคา', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/guests', icon: Users, label: 'แขก', roles: OPS_ROLES },
       { href: '/dashboard/guests/merge', icon: Users, label: 'Merge Guests', roles: MANAGEMENT_ROLES },
