@@ -38,7 +38,7 @@ export default async function DashboardPage() {
     .single();
 
   // Role-specific redirect: send staff straight to their primary workspace
-  const role = profile?.role;
+  const role = profile?.role || 'staff';
   // Legacy roles
   if (role === 'housekeeping') redirect('/dashboard/housekeeping');
   if (role === 'front_desk') redirect('/dashboard/front-desk');
@@ -104,7 +104,6 @@ export default async function DashboardPage() {
     );
   }
 
-  const role = profile?.role || 'staff';
   const today = new Date().toISOString().slice(0, 10);
   const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
 
@@ -350,23 +349,21 @@ export default async function DashboardPage() {
           ))}
         </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { title: 'สร้างการจอง', href: '/dashboard/reservations', desc: 'เปิด calendar/list แล้วกดจองใหม่' },
-          { title: 'Walk-in 3 คลิก', href: '/dashboard/front-desk/walk-in', desc: 'หน้าเคาน์เตอร์ใช้งานเร็ว' },
-          { title: 'ตอบ Inbox', href: '/dashboard/inbox', desc: `${openInbox} งานเปิดอยู่` },
-          { title: 'อัปเดตห้อง', href: '/dashboard/rooms', desc: `${roomsAvailable} ห้องพร้อมขาย` },
-          { title: 'งานแม่บ้าน', href: '/dashboard/housekeeping', desc: `${hkPending} งานต้องตาม` },
-        ].map((item) => (
-          <Link key={item.title} href={item.href} className="rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="font-medium">{item.title}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
+        <section className="space-y-2">
+          <h2 className="text-sm font-semibold">งานที่ต้องทำ</h2>
+          {!(myTasks?.length) ? (
+            <p className="text-sm text-muted-foreground text-center py-6">ไม่มีงานค้าง 🎉</p>
+          ) : myTasks.map((t: any) => (
+            <div key={t.id} className="flex items-center justify-between rounded-lg border p-3 gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{t.task_type}</p>
+                <p className="text-xs text-muted-foreground">ห้อง {(t.rooms as any)?.room_number} ชั้น {(t.rooms as any)?.floor}</p>
+                {t.notes && <p className="text-xs text-muted-foreground truncate">{t.notes}</p>}
               </div>
-            ))}
-          </CardContent>
-        </Card>
+              <Badge variant={t.status === 'in_progress' ? 'info' : 'warning'}>{t.status}</Badge>
+            </div>
+          ))}
+        </section>
 
         <div className="text-center">
           <Button asChild size="lg"><Link href="/dashboard/housekeeping">ดูรายการงานทั้งหมด</Link></Button>
