@@ -428,74 +428,105 @@ maitri/
 - [x] Multi-tenant SaaS + Row Level Security
 - [x] CI/CD pipeline (GitHub Actions → Vercel)
 
+### ✅ v2.0 — Phase 2: Department Modules (เสร็จแล้ว 2026-05-15)
+
+- [x] Transport & Bellboy dashboard (airport pickup, luggage tasks)
+- [x] Kitchen KDS — 3-column Kanban, allergy tags, live timer
+- [x] Room Service delivery queue
+- [x] Restaurant POS — table grid, orders, bill with VAT + service charge
+- [x] Housekeeping enhanced — inspection rating, lost & found, laundry batches
+- [x] Engineering enhanced — parts inventory, PM schedule, before/after photos
+- [x] IT Support — ticket queue, device registry
+- [x] HR Full — payroll, performance reviews, training, onboarding
+- [x] Purchasing — POs, suppliers, inventory management
+- [x] Accounting Ops — cashier sessions, expense tracking, tax invoices
+- [x] Security enhanced — patrol timeline, incident report, emergency SOS
+- [x] Spa enhanced — treatment rooms, therapist schedule
+- [x] Revenue enhanced — competitor pricing, dynamic pricing rules
+- [x] Concierge enhanced — requests, VIP tasks, quick transport/luggage create
+- [x] Night Audit full UI (4 tabs: overview, arrivals, cashier, folios)
+- [x] Advanced CRM (guest 360, loyalty tiers, segments)
+- [x] 9 new DB migrations + 35-role system complete
+
+### ✅ v3.0 — Phase 3: SaaS Platform Admin (เสร็จแล้ว 2026-05-15)
+
+- [x] Platform Billing Admin — invoices, failed payments, credit issuance
+- [x] Platform Support Admin — cross-hotel ticket queue, hotel diagnostics, impersonation
+- [x] Platform Operations dashboard — service health traffic-light
+- [x] Security Admin — global audit log, session management
+- [x] Sales CRM — leads Kanban (prospecting → demo → trial → won/lost)
+- [x] Product Admin — feature flags toggle, A/B test management
+- [x] Engineering Admin — webhook events + replay, migration history
+- [x] 2 new DB migrations (platform_core + platform_ops)
+
 ---
 
-### 🔴 v1.1 — Sprint 1: Critical (กำลังทำ)
+### ✅ v1.1 — Sprint 1: Critical (เสร็จแล้ว)
 
 | # | Feature | ไฟล์หลัก | สถานะ |
 |---|---------|---------|-------|
-| 1 | **Booking confirmation email** | `src/app/api/reservations/route.ts` | ☐ |
-| 2 | **Guest reset password page** | `src/app/portal/reset-password/page.tsx` | ☐ |
-| 3 | **Wishlist page + API** | `src/app/portal/wishlist/` | ☐ |
-| 4 | **Terms of Service** | `src/app/terms/page.tsx` | ☐ |
-| 5 | **Privacy Policy (PDPA)** | `src/app/privacy/page.tsx` | ☐ |
-| 6 | **Email verification flow** | Supabase config + login UI | ☐ |
+| 1 | **Booking confirmation email** | `src/app/api/reservations/route.ts` | ✅ |
+| 2 | **Guest reset password page** | `src/app/portal/reset-password/page.tsx` | ✅ |
+| 3 | **Wishlist page + API** | `src/app/portal/wishlist/` | ✅ |
+| 4 | **Terms of Service** | `src/app/terms/page.tsx` | ✅ |
+| 5 | **Privacy Policy (PDPA)** | `src/app/privacy/page.tsx` | ✅ |
+| 6 | **Email verification flow** | Supabase config + login UI | ✅ |
 
 ---
 
-### 🟠 v1.2 — Sprint 2: Core Complete
+### ✅ v1.2 — Sprint 2: Core Complete (เสร็จแล้ว)
 
 | # | Feature | ไฟล์หลัก | สถานะ |
 |---|---------|---------|-------|
-| 7 | **Onboarding wizard** | `src/app/onboarding/` (3 steps) | ☐ |
-| 8 | **Rate calendar UI** | `src/app/dashboard/rates/page.tsx` | ☐ |
-| 9 | **Room type image upload** | `src/components/dashboard/rooms-client.tsx` | ☐ |
-| 10 | **Subscription billing (Stripe)** | `src/app/dashboard/billing/` | ☐ |
-| 11 | **Cancellation email** | `src/app/api/guest/bookings/[id]/route.ts` | ☐ |
-| 12 | **Pay at hotel option** | `src/components/booking/booking-engine.tsx` | ☐ |
+| 7 | **Onboarding wizard** | `src/app/onboarding/` (3 steps) | ✅ |
+| 8 | **Rate calendar UI** | `src/app/dashboard/rates/page.tsx` | ✅ |
+| 9 | **Room type image upload** | `src/components/dashboard/rooms-client.tsx` | ✅ |
+| 10 | **Subscription billing (Stripe)** | `src/app/dashboard/billing/` | ✅ |
+| 11 | **Cancellation email** | `src/app/api/guest/bookings/[id]/route.ts` | ✅ |
+| 12 | **Pay at hotel option** | `src/components/booking/booking-engine.tsx` | ✅ |
 
 ---
 
-### 🟡 v1.3 — Sprint 3: OTA-Level UX
+### ✅ v1.3 — Sprint 3: OTA-Level UX (เสร็จแล้ว)
 
 | # | Feature | ไฟล์หลัก | สถานะ |
 |---|---------|---------|-------|
-| 13 | **Search page** `/search` | `src/app/search/` + `src/app/api/public/search/` | ☐ |
-| 14 | **Price graph 30 วัน** | `src/components/booking/price-graph.tsx` | ☐ |
-| 15 | **Photo lightbox** | `src/components/ui/lightbox.tsx` | ☐ |
-| 16 | **Urgency indicators** | booking-engine.tsx (ใช้ available_rooms ที่มีแล้ว) | ☐ |
-| 17 | **Guest AI chatbot widget** | `src/components/booking/guest-chat-widget.tsx` | ☐ |
-| 18 | **Multi-currency display** | `src/lib/currency.ts` + switcher | ☐ |
-| 19 | **Loyalty points สำหรับแขก** | my-bookings-client.tsx + API | ☐ |
+| 13 | **Search page** `/search` | `src/app/search/` + `src/app/api/public/search/` | ✅ |
+| 14 | **Price graph 30 วัน** | `src/components/booking/price-graph.tsx` | ✅ |
+| 15 | **Photo lightbox** | `src/components/ui/lightbox.tsx` | ✅ |
+| 16 | **Urgency indicators** | booking-engine.tsx (ใช้ available_rooms ที่มีแล้ว) | ✅ |
+| 17 | **Guest AI chatbot widget** | `src/components/booking/guest-chat-widget.tsx` | ✅ |
+| 18 | **Multi-currency display** | `src/lib/currency.ts` + switcher | ✅ |
+| 19 | **Loyalty points สำหรับแขก** | my-bookings-client.tsx + API | ✅ |
 
 ---
 
-### 🟢 v2.0 — Sprint 4: Scale & Legal
+### ✅ v2.0 — Sprint 4: Scale & Legal (เสร็จแล้ว)
 
 | # | Feature | ไฟล์หลัก | สถานะ |
 |---|---------|---------|-------|
-| 20 | **Redis rate limiting** | `src/lib/security/rate-limit.ts` → Upstash | ☐ |
-| 21 | **Cookie consent (PDPA)** | `src/components/ui/cookie-consent.tsx` | ☐ |
-| 22 | **Data export (PDPA)** | `src/app/api/guest/export/route.ts` | ☐ |
-| 23 | **Sentry error tracking** | `sentry.*.config.ts` + next.config.js | ☐ |
-| 24 | **PWA manifest + icons** | `public/manifest.json` + SW | ☐ |
-| 25 | **OpenGraph images** | `src/app/h/[slug]/opengraph-image.tsx` | ☐ |
-| 26 | **Image optimization** | `src/app/api/storage/optimize/route.ts` (sharp) | ☐ |
-| 27 | **DB performance indexes** | `supabase/migrations/00006_performance.sql` | ☐ |
+| 20 | **Redis rate limiting** | `src/lib/security/rate-limit.ts` → Upstash | ✅ |
+| 21 | **Cookie consent (PDPA)** | `src/components/ui/cookie-consent.tsx` | ✅ |
+| 22 | **Data export (PDPA)** | `src/app/api/guest/export/route.ts` | ✅ |
+| 23 | **Sentry error tracking** | `sentry.*.config.ts` + next.config.js | ✅ |
+| 24 | **PWA manifest + icons** | `public/manifest.json` + SW | ✅ |
+| 25 | **OpenGraph images** | `src/app/h/[slug]/opengraph-image.tsx` | ✅ |
+| 26 | **Image optimization** | `src/app/api/storage/optimize/route.ts` (sharp) | ✅ |
+| 27 | **DB performance indexes** | `supabase/migrations/00006_performance.sql` | ✅ |
 
 ---
 
-### ⚡ v3.0 — Sprint 5: Full Platform
+### 🔄 v3.0 — Sprint 5: Full Platform (เกือบเสร็จ)
 
 | # | Feature | สถานะ |
 |---|---------|-------|
-| 28 | **F&B POS** — menu, orders, KOT (schema มีแล้ว) | ☐ |
-| 29 | **Spa booking UI** — services, therapists, calendar (schema มีแล้ว) | ☐ |
-| 30 | **Maintenance requests** — schema มีแล้ว | ☐ |
-| 31 | **QR check-in** — แขก scan ที่ counter | ☐ |
-| 32 | **Multi-property support** — chain hotels | ☐ |
-| 33 | **Mobile app** — React Native | ☐ |
-| 34 | **SEA expansion** — Vietnam, Indonesia, Malaysia | ☐ |
+| 28 | **F&B POS** — menu, orders, KOT (kitchen KDS + restaurant POS + room service) | ✅ |
+| 29 | **Spa booking UI** — services, therapists, calendar | ✅ |
+| 30 | **Maintenance requests** — parts inventory, PM schedule, before/after photos | ✅ |
+| 31 | **QR check-in** — แขก scan ที่ counter | ✅ |
+| 32 | **Multi-property support** — organizations → hotels hierarchy + admin panel | ✅ |
+| 33 | **Mobile app** — React Native | ⏳ |
+| 34 | **SEA expansion** — Vietnam, Indonesia, Malaysia | 🔄 |
 
 > 📋 รายละเอียดแต่ละ item พร้อม code snippets, ไฟล์ที่ต้องแก้, และ ENV vars อยู่ใน [**ROADMAP.md**](ROADMAP.md)
 
