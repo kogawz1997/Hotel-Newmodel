@@ -1,3 +1,18 @@
+# FULL PHASE ROADMAP WITH TASK TRACKING
+
+## TASK STATUS RULES
+- [ ] ยังไม่เริ่ม
+- [-] กำลังทำ
+- [x] เสร็จแล้ว
+
+## IMPORTANT
+- ทุก task ต้องอัปเดตสถานะทันทีเมื่อทำเสร็จ
+- ทุก PR/commit ควรอัปเดต checklist
+- ถ้ามี blocker ให้ระบุ note ใต้ task
+- ห้าม mark done ถ้ายังไม่ผ่าน production verification
+
+---
+
 # Hotel System — Complete Implementation Roadmap v2
 > เปรียบเทียบกับ target spec เต็มรูปแบบ: Hotel OS + SaaS Platform  
 > Branch: `claude/audit-consolidate-docs-mj9Dt`  
@@ -25,33 +40,33 @@
 | DB: department_work_tables | `supabase/migrations/20260514100000` | ✅ เต็ม |
 
 ### ❌ ยังขาดทั้งหมด (Hotel OS)
-- GM Command Center, Operations Manager view, Owner Dashboard with AI summaries
-- Reservation Agent role + full booking module
-- Chat Admin / Omnichannel Inbox with AI replies, SLA timer, translations
-- Room Inspector app, Housekeeper mobile view
-- Technician mobile view, parts tracking
-- Kitchen Queue / KDS
-- Room Service Delivery app
-- Restaurant POS (table orders, room charge, split bill)
-- Bellboy / Porter tasks
-- Transport Staff app
-- Revenue Manager tools (competitor pricing, dynamic pricing, OTA performance)
-- Marketing tools (campaigns, abandoned bookings, LINE campaigns)
-- Accounting OS (folio, cashier close, tax invoices, reconciliation)
-- Night Audit full flow
-- Spa full (treatment rooms, therapist assignment)
-- HR full (onboarding, training mode, payroll)
-- IT Support tickets
+- [ ] GM Command Center, Operations Manager view, Owner Dashboard with AI summaries
+- [ ] Reservation Agent role + full booking module
+- [ ] Chat Admin / Omnichannel Inbox with AI replies, SLA timer, translations
+- [ ] Room Inspector app, Housekeeper mobile view
+- [ ] Technician mobile view, parts tracking
+- [ ] Kitchen Queue / KDS
+- [ ] Room Service Delivery app
+- [ ] Restaurant POS (table orders, room charge, split bill)
+- [ ] Bellboy / Porter tasks
+- [ ] Transport Staff app
+- [ ] Revenue Manager tools (competitor pricing, dynamic pricing, OTA performance)
+- [ ] Marketing tools (campaigns, abandoned bookings, LINE campaigns)
+- [ ] Accounting OS (folio, cashier close, tax invoices, reconciliation)
+- [ ] Night Audit full flow
+- [ ] Spa full (treatment rooms, therapist assignment)
+- [ ] HR full (onboarding, training mode, payroll)
+- [ ] IT Support tickets
 
 ### ❌ ยังขาดทั้งหมด (SaaS Platform — app.maitriapp.com/owner)
-- Platform Owner Control Center (MRR, churn, AI usage, webhook failures)
-- Billing Admin (failed payments, subscription lifecycle, refunds, credits)
-- Support Admin (impersonation, diagnostics, onboarding)
-- Platform Ops Admin (uptime, queue, WebSocket health, OTA health)
-- Security Admin (access logs, session revocation, API abuse)
-- Sales Admin CRM (hotel leads, demos, trial tracking, onboarding pipeline)
-- Product Admin (feature flags, A/B testing, module toggles)
-- Developer / Engineering Admin (logs, deployments, webhook replay)
+- [ ] Platform Owner Control Center (MRR, churn, AI usage, webhook failures)
+- [ ] Billing Admin (failed payments, subscription lifecycle, refunds, credits)
+- [ ] Support Admin (impersonation, diagnostics, onboarding)
+- [ ] Platform Ops Admin (uptime, queue, WebSocket health, OTA health)
+- [ ] Security Admin (access logs, session revocation, API abuse)
+- [ ] Sales Admin CRM (hotel leads, demos, trial tracking, onboarding pipeline)
+- [ ] Product Admin (feature flags, A/B testing, module toggles)
+- [ ] Developer / Engineering Admin (logs, deployments, webhook replay)
 
 ---
 
@@ -357,15 +372,15 @@
 | `src/app/api/inbox/ai-reply/route.ts` | **POST: AI suggested reply** |
 
 **Inbox Client Features:**
-- Platform filter: All / LINE / WhatsApp / Facebook / Website Chat / Room QR / OTA / Email
-- SLA response timer (ไฟเขียว/เหลือง/แดง ตามเวลาที่เหลือ)
-- AI reply suggestion button (เรียก Claude API → แนะนำข้อความตอบ)
-- Auto-translation toggle (แปลเป็นภาษาที่พนักงานเข้าใจ)
-- Guest timeline sidebar: ประวัติการเข้าพัก, requests, เรื่องร้องเรียน
-- Booking context: หากแชทจาก OTA → แสดง reservation ที่เชื่อมโยง
-- Convert to request: ส่งงานไปยังแผนกที่รับผิดชอบ
-- Follow-up reminder: ตั้งเวลาเตือนติดตาม
-- Canned responses: ข้อความสำเร็จรูปแยกตาม category
+- [ ] Platform filter: All / LINE / WhatsApp / Facebook / Website Chat / Room QR / OTA / Email
+- [ ] SLA response timer (ไฟเขียว/เหลือง/แดง ตามเวลาที่เหลือ)
+- [ ] AI reply suggestion button (เรียก Claude API → แนะนำข้อความตอบ)
+- [ ] Auto-translation toggle (แปลเป็นภาษาที่พนักงานเข้าใจ)
+- [ ] Guest timeline sidebar: ประวัติการเข้าพัก, requests, เรื่องร้องเรียน
+- [ ] Booking context: หากแชทจาก OTA → แสดง reservation ที่เชื่อมโยง
+- [ ] Convert to request: ส่งงานไปยังแผนกที่รับผิดชอบ
+- [ ] Follow-up reminder: ตั้งเวลาเตือนติดตาม
+- [ ] Canned responses: ข้อความสำเร็จรูปแยกตาม category
 
 ---
 
@@ -422,10 +437,10 @@
 | `src/components/live/emergency-alert-bar.tsx` | ✅ เสร็จแล้ว |
 
 **GM Controls (เพิ่มใน live-board-client.tsx):**
-- Reassign task (drag & drop หรือ modal)
-- Override SLA (เพิ่มเวลา + หมายเหตุ)
-- Approve room block / upgrade / late checkout / discount
-- Broadcast internal announcement
+- [ ] Reassign task (drag & drop หรือ modal)
+- [ ] Override SLA (เพิ่มเวลา + หมายเหตุ)
+- [ ] Approve room block / upgrade / late checkout / discount
+- [ ] Broadcast internal announcement
 
 ---
 
@@ -607,23 +622,23 @@
 ### 2.7 Concierge (Enhanced)
 
 **ปรับปรุง `concierge-client.tsx`:**
-- Tab: Transportation — จองรถ, airport transfer, tour
-- Tab: Luggage — สั่ง bellboy ไปรับ/ส่งกระเป๋า
-- Tab: Restaurant Reservations — จองร้านอาหารนอก
-- Tab: Local Recommendations — ข้อมูล curated ตาม preference
-- Tab: VIP Tasks — checklist สำหรับ VIP guest
-- Integration กับ transport tasks + bellboy tasks (auto-create)
+- [ ] Tab: Transportation — จองรถ, airport transfer, tour
+- [ ] Tab: Luggage — สั่ง bellboy ไปรับ/ส่งกระเป๋า
+- [ ] Tab: Restaurant Reservations — จองร้านอาหารนอก
+- [ ] Tab: Local Recommendations — ข้อมูล curated ตาม preference
+- [ ] Tab: VIP Tasks — checklist สำหรับ VIP guest
+- [ ] Integration กับ transport tasks + bellboy tasks (auto-create)
 
 ---
 
 ### 2.8 Security (Enhanced)
 
 **ปรับปรุง `security-client.tsx`:**
-- Tab: Incidents — report, update, escalate
-- Tab: Visitors — register, checkout
-- Tab: Patrol Log — checkpoint list, timer, notes per point
-- Tab: Emergency — ปุ่ม Emergency Alert (broadcast ไปยัง GM + security team)
-- Tab: Lost & Found — ประสานกับ Housekeeping
+- [ ] Tab: Incidents — report, update, escalate
+- [ ] Tab: Visitors — register, checkout
+- [ ] Tab: Patrol Log — checkpoint list, timer, notes per point
+- [ ] Tab: Emergency — ปุ่ม Emergency Alert (broadcast ไปยัง GM + security team)
+- [ ] Tab: Lost & Found — ประสานกับ Housekeeping
 
 | ไฟล์ | ฟีเจอร์ |
 |---|---|
@@ -825,14 +840,14 @@ src/app/(platform)/                  ← Route group สำหรับ Platform
 | OTA Sync Failures | ล้มเหลวส่ง/รับ OTA |
 
 **Platform Owner Controls:**
-- Suspend/unsuspend hotel
-- Feature flags (per org หรือ global rollout%)
-- Plan management (upgrade/downgrade)
-- Impersonation (login as hotel_owner)
-- Billing override (add credits, extend trial)
-- Quota management (max seats, AI calls, QR scans)
-- AI limits per plan
-- Maintenance mode (hotel-level หรือ global)
+- [ ] Suspend/unsuspend hotel
+- [ ] Feature flags (per org หรือ global rollout%)
+- [ ] Plan management (upgrade/downgrade)
+- [ ] Impersonation (login as hotel_owner)
+- [ ] Billing override (add credits, extend trial)
+- [ ] Quota management (max seats, AI calls, QR scans)
+- [ ] AI limits per plan
+- [ ] Maintenance mode (hotel-level หรือ global)
 
 ---
 
@@ -1471,9 +1486,9 @@ CREATE TABLE nearby_experiences (
 | `src/components/website-editor/seo-preview.tsx` | Preview ว่า Google จะแสดงอย่างไร |
 
 **Revenue Controls (เพิ่มในหน้า website management):**
-- Blackout dates (ปิดห้องบางวัน)
-- Minimum stay rules
-- Member pricing (ราคาพิเศษสำหรับ loyalty tier)
+- [ ] Blackout dates (ปิดห้องบางวัน)
+- [ ] Minimum stay rules
+- [ ] Member pricing (ราคาพิเศษสำหรับ loyalty tier)
 
 | ไฟล์ | รายละเอียด |
 |---|---|
@@ -1705,3 +1720,367 @@ CREATE TABLE custom_domains (
 ---
 
 *อัพเดตล่าสุด: 2026-05-14 | Branch: `claude/audit-consolidate-docs-mj9Dt`*
+
+
+---
+
+# P1 — Critical Production Core
+
+## Multi-Property Foundation
+- [ ] Hotel Group Management
+- [ ] Multi-property dashboard
+- [ ] Cross-property analytics
+- [ ] Shared guest profiles
+- [ ] Centralized staff management
+
+## Reliability / Disaster Recovery
+- [ ] Automated backup system
+- [ ] Point-in-time restore
+- [ ] Queue retry system
+- [ ] Failed webhook recovery
+- [ ] OTA retry queue
+- [ ] Cron health monitoring
+- [ ] Service status dashboard
+- [ ] Emergency maintenance mode
+
+## Enterprise Security
+- [ ] MFA enforcement
+- [ ] Device/session management
+- [ ] IP allowlist
+- [ ] Brute-force protection
+- [ ] Security alerts
+- [ ] Guest data export/delete
+- [ ] PDPA consent center
+
+## Core Product Rules
+- [ ] Mobile-first ทุกหน้า
+- [ ] ทุก action ต้องมี audit log
+- [ ] ทุก API ต้อง rate-limited
+- [ ] ทุก cron ต้อง monitor ได้
+- [ ] ทุก integration ต้อง retry ได้
+
+---
+
+# P2 — Market Competitive Features
+
+## Advanced Booking Experience
+- [ ] Room comparison UI
+- [ ] Rich room gallery
+- [ ] Video room preview
+- [ ] Smart room recommendation
+- [ ] Upsell engine
+- [ ] Add-on packages
+- [ ] Dynamic checkout UI
+- [ ] Guest wishlist/favorites
+- [ ] Real-time availability calendar
+- [ ] Agoda/Trip-style checkout UX
+
+## Analytics / BI
+- [ ] Custom dashboard builder
+- [ ] Occupancy heatmaps
+- [ ] Revenue forecasting AI
+- [ ] Labor cost analytics
+- [ ] OTA profitability reports
+- [ ] KPI benchmarking
+- [ ] Revenue anomaly detection
+
+## Workflow Automation
+- [ ] Visual automation builder
+- [ ] Auto task assignment
+- [ ] Smart housekeeping dispatch
+- [ ] Auto guest reminders
+- [ ] Auto room upgrade
+- [ ] Scheduled workflows
+- [ ] SLA escalation automation
+
+## Customer Experience / Loyalty
+- [ ] Loyalty tiers
+- [ ] Rewards points
+- [ ] Personalized offers
+- [ ] VIP recognition
+- [ ] Referral system
+- [ ] Guest preference memory
+
+---
+
+# P3 — Platform Expansion & Ecosystem
+
+## Public API & Integration Platform
+- [ ] Public REST API
+- [ ] API Keys management
+- [ ] OAuth integrations
+- [ ] Webhook subscriptions
+- [ ] API usage analytics
+- [ ] Zapier integration
+- [ ] n8n integration
+- [ ] Integration sandbox
+- [ ] Developer portal
+
+## AI Hotel Copilot
+- [ ] AI occupancy analysis
+- [ ] AI pricing suggestions
+- [ ] AI staffing suggestions
+- [ ] AI operational summaries
+- [ ] AI revenue recommendations
+- [ ] AI anomaly detection
+- [ ] AI smart search across PMS
+
+## Marketplace / Add-ons
+- [ ] Plugin marketplace
+- [ ] Theme marketplace
+- [ ] Paid add-ons
+- [ ] White-label modules
+- [ ] Hotel app store
+
+## Offline & Low Connectivity Support
+- [ ] Offline reservation cache
+- [ ] Offline housekeeping mode
+- [ ] Sync when reconnect
+- [ ] Local queue persistence
+- [ ] Low-bandwidth mode
+
+
+---
+
+# FEATURE MASTER TRACKING
+
+## STATUS LEGEND
+- [ ] ยังไม่เริ่ม
+- [-] กำลังทำ
+- [x] เสร็จแล้ว
+
+---
+
+# CORE HOTEL OPERATIONS
+
+## Reservations
+- [ ] Reservation lifecycle
+- [ ] Walk-in booking
+- [ ] Group booking
+- [ ] Reservation modification
+- [ ] Cancellation workflow
+- [ ] No-show workflow
+
+## Front Desk
+- [ ] Check-in workflow
+- [ ] Check-out workflow
+- [ ] Room move
+- [ ] Deposit handling
+- [ ] Shift handover
+
+## Housekeeping
+- [ ] Housekeeping board
+- [ ] Mobile housekeeping mode
+- [ ] Room inspection
+- [ ] Lost & found
+
+---
+
+# GUEST EXPERIENCE
+
+## Booking Engine
+- [ ] Mobile-first booking UI
+- [ ] Room comparison UI
+- [ ] Rich room gallery
+- [ ] Promo codes
+- [ ] Add-on packages
+- [ ] Upsell engine
+- [ ] Agoda/Trip-style checkout
+
+## Guest Portal
+- [ ] Guest login/register
+- [ ] Booking history
+- [ ] Modify booking
+- [ ] Cancel booking
+- [ ] Digital invoices
+- [ ] Guest messaging
+
+## Loyalty
+- [ ] Loyalty tiers
+- [ ] Reward points
+- [ ] VIP guest recognition
+
+---
+
+# PAYMENTS & ACCOUNTING
+
+## Payments
+- [ ] Omise integration
+- [ ] Stripe integration
+- [ ] PromptPay QR
+- [ ] Refund workflow
+
+## Accounting
+- [ ] Folio system
+- [ ] Cashier session
+- [ ] Night audit
+- [ ] Revenue reports
+
+---
+
+# OTA & CHANNEL MANAGER
+
+## OTA Integrations
+- [ ] Booking.com
+- [ ] Agoda
+- [ ] Airbnb
+- [ ] Expedia
+
+## OTA Features
+- [ ] Room mapping
+- [ ] Rate mapping
+- [ ] Inventory sync
+- [ ] Duplicate booking detection
+
+---
+
+# AI & COMMUNICATIONS
+
+## Omnichannel Inbox
+- [ ] LINE integration
+- [ ] WhatsApp integration
+- [ ] Unified inbox
+- [ ] AI suggested reply
+
+## AI Hotel Copilot
+- [ ] AI occupancy analysis
+- [ ] AI pricing suggestions
+- [ ] AI operational summaries
+
+---
+
+# SAAS PLATFORM
+
+## Tenant Management
+- [ ] Multi-tenant support
+- [ ] Hotel groups
+- [ ] Tenant billing
+- [ ] Feature flags
+
+## Owner Dashboard
+- [ ] MRR dashboard
+- [ ] Churn analytics
+- [ ] SaaS admin panel
+
+---
+
+# SECURITY & RELIABILITY
+
+## Security
+- [ ] RBAC permissions
+- [ ] MFA enforcement
+- [ ] Audit logging
+
+## Reliability
+- [ ] Automated backups
+- [ ] Queue retry system
+- [ ] Cron monitoring
+
+---
+
+# API & ECOSYSTEM
+
+## Developer Platform
+- [ ] Public REST API
+- [ ] API keys
+- [ ] Webhook subscriptions
+
+## Marketplace
+- [ ] Plugin marketplace
+- [ ] Theme marketplace
+
+
+
+---
+
+# IMPLEMENTATION FILE TRACKING — NEW FEATURES
+
+## วิธีใช้ส่วนนี้
+- `[x]` = มีไฟล์/โค้ดในโปรเจคแล้ว แต่ยังควรตรวจ business logic อีกครั้ง
+- `[ ]` = ยังไม่พบไฟล์ตาม path ที่กำหนด หรือยังต้องสร้างเพิ่ม
+- `[-]` = กำลังทำ / partial
+- ทุกครั้งที่ implement เสร็จ ให้เปลี่ยน checkbox หน้าไฟล์นั้นทันที
+- ถ้าไฟล์อยู่คนละ path ให้ใส่ `Actual Path` เพิ่มไว้ด้านหลัง
+- ห้ามติ๊ก `[x]` แค่เพราะสร้างไฟล์เปล่า ต้องมี logic ใช้งานจริงด้วย
+
+---
+
+## AI & COMMUNICATIONS — Unified Inbox File Checklist
+
+**หน้าหลัก:** `src/app/dashboard/inbox/`
+
+| สถานะ | ไฟล์ | ฟีเจอร์ | หมายเหตุ |
+|---|---|---|---|
+| [x] | `src/app/dashboard/inbox/page.tsx` | Server: ดึง conversations ทุก platform | พบไฟล์แล้ว แต่ใช้ `@/components/inbox/inbox-client` |
+| [x] | `src/components/inbox/inbox-client.tsx` | Unified inbox UI | พบไฟล์จริงใน path นี้ |
+| [ ] | `src/app/dashboard/inbox/inbox-client.tsx` | Unified inbox UI | path ที่ลิสไว้ยังไม่มี ถ้าจะใช้ path นี้ต้องย้าย/สร้าง |
+| [ ] | `src/app/dashboard/inbox/[id]/page.tsx` | Single conversation + guest profile | ยังไม่พบไฟล์ |
+| [ ] | `src/app/api/inbox/messages/route.ts` | GET/POST messages | ยังไม่พบไฟล์ |
+| [ ] | `src/app/api/inbox/assign/route.ts` | Assign to dept/staff | ยังไม่พบไฟล์ |
+| [ ] | `src/app/api/inbox/webhooks/line/route.ts` | LINE webhook | ยังไม่พบไฟล์ |
+| [ ] | `src/app/api/inbox/webhooks/whatsapp/route.ts` | WhatsApp Business webhook | ยังไม่พบไฟล์ |
+| [ ] | `src/app/api/inbox/webhooks/facebook/route.ts` | Facebook Messenger webhook | ยังไม่พบไฟล์ |
+| [ ] | `src/app/api/inbox/ai-reply/route.ts` | POST: AI suggested reply | ยังไม่พบไฟล์ |
+
+### Required Completion Rules
+- [ ] Single conversation page ต้องเปิด conversation ตาม `id` ได้จริง
+- [ ] ต้องแสดง guest profile ข้าง conversation
+- [ ] GET `/api/inbox/messages` ต้องดึง message ตาม conversation/hotel/tenant ได้
+- [ ] POST `/api/inbox/messages` ต้องส่ง message และบันทึก audit log
+- [ ] Assign API ต้องเช็ค RBAC ก่อน assign
+- [ ] Webhook ทุกช่องต้อง verify signature/token
+- [ ] Webhook ทุกช่องต้องกัน duplicate event
+- [ ] AI suggested reply ต้องไม่ auto-send ทันที ต้องให้ staff กดยืนยันก่อน
+- [ ] ทุก API ต้องมี tenant isolation
+- [ ] ทุก action สำคัญต้องเขียน audit log
+
+---
+
+## AI & COMMUNICATIONS — Suggested Implementation Paths
+
+| สถานะ | ไฟล์ | หน้าที่ |
+|---|---|---|
+| [ ] | `src/lib/inbox/normalize-message.ts` | normalize ข้อความจาก LINE/WhatsApp/Facebook ให้เป็น format กลาง |
+| [ ] | `src/lib/inbox/webhook-verify.ts` | verify signature/token ของ webhook |
+| [ ] | `src/lib/inbox/inbox-service.ts` | service กลางสำหรับ conversations/messages |
+| [ ] | `src/lib/inbox/ai-reply-service.ts` | logic เรียก AI เพื่อสร้าง suggested reply |
+| [ ] | `src/lib/inbox/assignment-service.ts` | logic assign conversation ให้ staff/department |
+| [ ] | `src/lib/inbox/tenant-guard.ts` | ตรวจ hotel/organization ก่อน query ข้อมูล |
+| [ ] | `src/lib/inbox/dedupe.ts` | กัน webhook event ซ้ำ |
+| [ ] | `src/lib/inbox/audit.ts` | helper สำหรับเขียน audit log |
+
+---
+
+## AI & COMMUNICATIONS — Database Tracking
+
+| สถานะ | Table / Migration | ใช้ทำอะไร |
+|---|---|---|
+| [ ] | `conversations` | เก็บ thread/conversation ทุก platform |
+| [ ] | `conversation_messages` | เก็บ message รายข้อความ |
+| [ ] | `conversation_assignments` | เก็บ assign staff/department |
+| [ ] | `conversation_participants` | map guest/staff/channel |
+| [ ] | `channel_connections` | เก็บ config LINE/WhatsApp/Facebook |
+| [ ] | `webhook_events` | เก็บ webhook raw event + dedupe key |
+| [ ] | `ai_reply_suggestions` | เก็บ suggested reply ก่อน staff ส่งจริง |
+| [ ] | `audit_logs` | บันทึก action สำคัญ |
+
+---
+
+## AI & COMMUNICATIONS — Test Checklist
+
+| สถานะ | Test | ต้องตรวจอะไร |
+|---|---|---|
+| [ ] | Inbox page render test | หน้า inbox โหลดได้เมื่อ login แล้ว |
+| [ ] | Tenant isolation test | staff โรงแรม A เห็นเฉพาะ conversation ของตัวเอง |
+| [ ] | Message GET test | ดึง messages ได้ถูก conversation |
+| [ ] | Message POST test | ส่ง message แล้วบันทึก DB |
+| [ ] | Assign API test | assign staff/dept ได้ และกัน permission ผิด |
+| [ ] | LINE webhook test | รับ event แล้วสร้าง conversation/message |
+| [ ] | WhatsApp webhook test | รับ event แล้วสร้าง conversation/message |
+| [ ] | Facebook webhook test | รับ event แล้วสร้าง conversation/message |
+| [ ] | AI reply test | สร้าง suggested reply ได้ แต่ไม่ auto-send |
+| [ ] | Duplicate webhook test | event ซ้ำไม่สร้าง message ซ้ำ |
+| [ ] | Audit log test | action สำคัญถูกบันทึกครบ |
+
+---
+

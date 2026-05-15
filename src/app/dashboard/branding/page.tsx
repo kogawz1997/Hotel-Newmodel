@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { BrandingClient } from './branding-client';
 import { requireDashboardRole } from '@/lib/auth/page-guards';
 
