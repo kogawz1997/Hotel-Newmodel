@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 import { BILLING_PLANS } from '@/lib/billing/plans';
 import { BillingClient } from './billing-client';

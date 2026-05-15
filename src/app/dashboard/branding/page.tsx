@@ -1,4 +1,6 @@
-import { requireDashboardRole } from '@/lib/auth/page-guards';
+export const dynamic = 'force-dynamic';
+import { createClient } from '@/lib/supabase/server';
+import Link from 'next/link';
 import { BrandingClient } from './branding-client';
 
 export default async function BrandingPage() {
