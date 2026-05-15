@@ -9,7 +9,7 @@ import {
   Settings, LogOut, ChevronDown, Building2, Shield, Settings2, Palette, CreditCard,
   Rocket, Zap, MonitorDot, Bell, Wrench, Headphones, ShieldCheck, ClipboardList,
   ListTodo, Clock, HeartHandshake, FileText, MapPin, Monitor, Tv2, Car,
-  BriefcaseBusiness, ChefHat, Flower2, ShoppingCart, TrendingUp, Users2,
+  BriefcaseBusiness, ChefHat, Flower2, ShoppingCart, TrendingUp, Users2, Moon, ContactRound,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -149,6 +149,8 @@ const NAV_GROUPS = [
     items: [
       { href: '/dashboard/duty-log', icon: FileText, label: 'Duty Log', roles: MGMT_ROLES },
       { href: '/dashboard/guest-recovery', icon: HeartHandshake, label: 'Guest Recovery', roles: [...MGMT_ROLES, 'guest_relations', 'front_office_manager', 'front_desk'] },
+      { href: '/dashboard/night-audit', icon: Moon, label: 'Night Audit', roles: ['hotel_owner','general_manager','operations_manager','accounting_manager','night_auditor'] },
+      { href: '/dashboard/crm', icon: ContactRound, label: 'CRM & Loyalty', roles: ['hotel_owner','general_manager','operations_manager','revenue_manager','marketing_staff'] },
       { href: '/dashboard/announcements', icon: Megaphone, label: 'ประกาศ', roles: ALL_STAFF },
       { href: '/dashboard/documents', icon: FileText, label: 'เอกสาร', roles: ALL_STAFF },
       { href: '/dashboard/reports/handover', icon: ClipboardList, label: 'Shift Handover', roles: FRONT_ROLES },
