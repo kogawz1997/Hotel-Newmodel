@@ -1308,4 +1308,354 @@ export const keyCard: KeyCardAdapter = new MockKeyCard();
 
 ---
 
+---
+
+## MASTER SPEC GAPS — สิ่งที่ยังขาดจาก Master System List
+
+> เปรียบเทียบ Master List กับ roadmap ทั้งหมดข้างบน เพิ่มเฉพาะ item ที่ยังไม่มี
+
+---
+
+### 🌐 A. PUBLIC HOTEL WEBSITE (ยังขาดทั้งหมด)
+> ปัจจุบันมีแค่ `/portal` (guest login area) — ยังไม่มีหน้า public website ของโรงแรม
+
+**DB:**
+```sql
+-- hotel_content: CMS content per hotel
+CREATE TABLE hotel_content (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  section      TEXT NOT NULL,  -- 'home'|'about'|'facilities'|'faq'|'policy'|'blog'
+  slug         TEXT,
+  title        JSONB DEFAULT '{}',        -- { th, en, zh, ja }
+  body         JSONB DEFAULT '{}',        -- multilingual content
+  media        JSONB DEFAULT '[]',        -- [{ url, type, alt }]
+  seo          JSONB DEFAULT '{}',        -- { title, description, keywords, schema }
+  published    BOOLEAN DEFAULT false,
+  published_at TIMESTAMPTZ,
+  created_at   TIMESTAMPTZ DEFAULT now(),
+  updated_at   TIMESTAMPTZ DEFAULT now()
+);
+
+-- nearby_experiences: attractions, tours, restaurants
+CREATE TABLE nearby_experiences (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  type         TEXT NOT NULL,  -- 'attraction'|'tour'|'restaurant'|'nightlife'|'family'
+  name         JSONB DEFAULT '{}',
+  description  JSONB DEFAULT '{}',
+  photo_url    TEXT,
+  distance_km  NUMERIC(5,2),
+  price_range  TEXT,
+  maps_url     TEXT,
+  sort_order   INT DEFAULT 0,
+  active       BOOLEAN DEFAULT true
+);
+```
+
+**Pages:**
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/[hotelSlug]/page.tsx` | Homepage: hero video/banner, booking widget, review score, featured rooms, facilities, social proof, sticky CTA |
+| `src/app/[hotelSlug]/rooms/page.tsx` | Rooms listing: comparison, urgency labels, recommended, upgrade suggestions |
+| `src/app/[hotelSlug]/rooms/[roomSlug]/page.tsx` | Room detail: fullscreen gallery, 360 tour (embed), amenities, occupancy, cancellation policy |
+| `src/app/[hotelSlug]/promotions/page.tsx` | Promotions: early bird, long stay, staycation, packages (room+breakfast, room+spa, transfer) |
+| `src/app/[hotelSlug]/experiences/page.tsx` | Experiences: local attractions, tours, nightlife, restaurants, family activities |
+| `src/app/[hotelSlug]/about/page.tsx` | About, facilities, map/location, FAQ, trust badges |
+| `src/app/[hotelSlug]/blog/[slug]/page.tsx` | Blog / articles (hotel news, travel guides) |
+| `src/components/hotel-site/booking-widget.tsx` | Realtime pricing widget: fast calendar, room recommendations, promo apply, guest selector |
+| `src/components/hotel-site/room-comparison.tsx` | Side-by-side room comparison |
+| `src/components/hotel-site/urgency-badge.tsx` | "เหลือ 2 ห้อง" urgency label |
+| `src/components/hotel-site/review-score.tsx` | Review score aggregate (Google/Booking/TripAdvisor) |
+| `src/components/hotel-site/personalized-recs.tsx` | AI-personalized room/package recommendations |
+
+**Checkout Enhancements:**
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/[hotelSlug]/book/page.tsx` | One-page checkout: social login, autofill, guest memory |
+| `src/app/[hotelSlug]/book/addons/page.tsx` | Add-ons: airport transfer, breakfast, spa, early check-in |
+| `src/components/hotel-site/payment-selector.tsx` | PromptPay, card, bank transfer, TrueMoney, pay at hotel |
+| `src/components/hotel-site/addon-picker.tsx` | Add-on selector during checkout |
+
+**Guest Portal Enhancements:**
+
+| ไฟล์ | Feature ที่ขาด |
+|---|---|
+| `src/app/portal/bookings/[id]/modify/page.tsx` | Modify booking (date, room type, add-ons) |
+| `src/app/portal/bookings/[id]/cancel/page.tsx` | Cancel booking + refund policy display |
+| `src/app/portal/check-in/signature/page.tsx` | Digital signature บน check-in form |
+| `src/app/portal/invoices/page.tsx` | Download invoices / receipts |
+| `src/app/portal/saved-cards/page.tsx` | Saved payment methods |
+| `src/app/portal/requests/page.tsx` | Full request history (all stays) |
+| `src/components/portal/request-tracker.tsx` | ETA + assigned staff status + completion confirmation |
+
+**SEO:**
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/[hotelSlug]/sitemap.xml/route.ts` | Dynamic sitemap per hotel |
+| `src/app/[hotelSlug]/rooms/[slug]/opengraph-image/route.ts` | OG image per room |
+| `src/lib/seo/schema.ts` | JSON-LD schema: Hotel, Room, Offer, Review markup |
+| `src/lib/seo/multilingual-meta.ts` | hreflang tags + multilingual meta per page |
+
+---
+
+### 🏗️ B. WEBSITE MANAGEMENT CMS (ยังขาดทั้งหมด)
+> Hotel staff จัดการ content เว็บโรงแรมเองได้ — ไม่ต้องขอ dev
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/dashboard/website/page.tsx` | Website Manager Dashboard: preview + publish status |
+| `src/app/dashboard/website/website-client.tsx` | Tabs: หน้าหลัก / ห้องพัก / แกลเลอรี / SEO / สถานที่ / FAQ / นโยบาย |
+| `src/app/dashboard/website/homepage/page.tsx` | Homepage editor: hero media, tagline, featured rooms selector |
+| `src/app/dashboard/website/rooms/[id]/page.tsx` | Room content editor: description, gallery, amenities, 360 tour URL |
+| `src/app/dashboard/website/gallery/page.tsx` | Gallery manager: upload, sort, tag (room/facility/dining/spa) |
+| `src/app/dashboard/website/seo/page.tsx` | SEO editor: meta title/desc per page, keywords, schema toggle |
+| `src/app/dashboard/website/experiences/page.tsx` | Nearby attractions editor: add/edit/sort |
+| `src/app/dashboard/website/faq/page.tsx` | FAQ editor: Q&A drag-and-drop sort |
+| `src/app/dashboard/website/policies/page.tsx` | Policies editor: check-in time, cancellation, pet, smoking |
+| `src/app/dashboard/website/blog/page.tsx` | Blog editor: WYSIWYG, publish/draft |
+| `src/app/dashboard/website/preview/page.tsx` | Live preview: เห็น draft ก่อน publish |
+| `src/app/api/website/content/route.ts` | GET/POST/PATCH hotel_content |
+| `src/app/api/website/publish/route.ts` | POST: publish draft (requires manager approval) |
+| `src/components/website-editor/rich-text.tsx` | WYSIWYG editor (Tiptap) |
+| `src/components/website-editor/media-picker.tsx` | เลือก/อัพโหลดรูป + วิดีโอ |
+| `src/components/website-editor/seo-preview.tsx` | Preview ว่า Google จะแสดงอย่างไร |
+
+**Revenue Controls (เพิ่มในหน้า website management):**
+- Blackout dates (ปิดห้องบางวัน)
+- Minimum stay rules
+- Member pricing (ราคาพิเศษสำหรับ loyalty tier)
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/dashboard/website/availability/page.tsx` | Booking rules: min stay, blackout dates, room availability toggle |
+| `src/app/dashboard/website/member-pricing/page.tsx` | Member-only rates per tier (Bronze/Silver/Gold/Platinum) |
+| `src/app/api/website/booking-rules/route.ts` | GET/POST booking rules |
+
+---
+
+### ⚙️ C. AUTOMATION ENGINE (ยังขาดทั้งหมด)
+> Visual rule builder: IF trigger → condition → action
+
+**DB:**
+```sql
+CREATE TABLE automation_rules (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  name         TEXT NOT NULL,
+  enabled      BOOLEAN DEFAULT true,
+  trigger_type TEXT NOT NULL,
+  -- 'guest_checkout'|'guest_checkin'|'request_created'|'task_completed'
+  -- 'time_of_day'|'room_status_change'|'sla_breach'|'new_review'
+  trigger_config JSONB DEFAULT '{}',
+  conditions   JSONB DEFAULT '[]',  -- [{ field, operator, value }]
+  actions      JSONB DEFAULT '[]',  -- [{ type, params }]
+  -- action types: 'create_task'|'send_notification'|'assign_staff'|
+  --               'send_line'|'escalate'|'update_room_status'|'post_charge'
+  retry_count  INT DEFAULT 0,
+  last_run_at  TIMESTAMPTZ,
+  run_count    INT DEFAULT 0,
+  created_by   UUID REFERENCES user_profiles(id),
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE automation_runs (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  rule_id      UUID NOT NULL REFERENCES automation_rules(id),
+  trigger_data JSONB,
+  status       TEXT DEFAULT 'success',  -- 'success'|'failed'|'skipped'
+  error        TEXT,
+  ran_at       TIMESTAMPTZ DEFAULT now()
+);
+```
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/dashboard/automation/page.tsx` | Automation Dashboard: active rules, run history, failure alerts |
+| `src/app/dashboard/automation/automation-client.tsx` | List of rules + enable/disable toggle |
+| `src/app/dashboard/automation/rules/[id]/page.tsx` | Rule editor: trigger picker, condition builder, action chain |
+| `src/app/dashboard/automation/rules/new/page.tsx` | Create new rule (templates: checkout→clean, SLA breach→escalate) |
+| `src/app/dashboard/automation/logs/page.tsx` | Run logs: filter by rule, status, date |
+| `src/app/api/automation/rules/route.ts` | POST/GET rules |
+| `src/app/api/automation/rules/[id]/run/route.ts` | POST: manual trigger for testing |
+| `src/lib/automation/runner.ts` | Core engine: evaluate trigger → check conditions → execute actions |
+| `src/lib/automation/actions.ts` | Action handlers: createTask, sendNotification, assignStaff, sendLine... |
+| `src/lib/automation/triggers.ts` | Trigger listeners: hook into Supabase Realtime + cron events |
+| `src/components/automation/rule-builder.tsx` | Visual IF/THEN builder |
+| `src/components/automation/trigger-picker.tsx` | Dropdown: เลือก trigger event |
+| `src/components/automation/action-chain.tsx` | Chain หลาย actions + retry config |
+
+**Preset Templates:**
+```
+IF guest_checkout → create housekeeping task (priority: high)
+IF sla_breach → notify GM + escalate to next staff
+IF new_review (score < 3) → alert guest_relations + create recovery task
+IF 08:00 daily → send daily report to owner LINE
+IF room_service_ordered → create kitchen + delivery task chain
+IF checkin_today → send welcome LINE message
+```
+
+---
+
+### 🤖 D. AI OPERATIONAL COPILOT (ขยายจากที่มี)
+> ปัจจุบันมีแค่ AI reply stub และ sentiment — ต้องเพิ่ม operational AI ครบ
+
+| ไฟล์ | Feature | Input → Output |
+|---|---|---|
+| `src/app/api/ai/guest-summary/route.ts` | Guest AI Summary | profile + history → "Mr. Smith พัก 3 ครั้ง ชอบห้องชั้น 5+ แพ้น้ำหอม มีเรื่องร้องเรียนครั้งก่อน" |
+| `src/app/api/ai/dispatch-suggest/route.ts` | Dispatch Suggestion | task type + staff availability → แนะนำว่าควรส่งใคร |
+| `src/app/api/ai/sla-warning/route.ts` | SLA Risk Prediction | task age + type + staff load → "งาน #123 มีความเสี่ยงสูงที่จะเกิน SLA" |
+| `src/app/api/ai/complaint-risk/route.ts` | Complaint Risk Score | chat history + sentiment → คะแนนความเสี่ยง + แนะนำวิธีรับมือ |
+| `src/app/api/ai/workload-balance/route.ts` | Workload Balance | staff tasks + availability → แนะนำ rebalance |
+| `src/app/api/ai/ops-summary/route.ts` | Operations Summary | daily data → paragraph สรุปวันนี้สำหรับ GM (กี่ request, SLA rate, ปัญหาหลัก) |
+| `src/components/ai/copilot-panel.tsx` | Floating copilot panel สำหรับ manager | query + stream response |
+| `src/components/ai/guest-summary-card.tsx` | Guest AI summary ที่แสดงตอน check-in | |
+| `src/components/ai/ops-briefing.tsx` | Morning briefing widget บน GM dashboard | |
+
+---
+
+### 👤 E. MULTI-ROLE ACCOUNTS + WORKSPACE ARCHITECTURE (ยังขาดทั้งหมด)
+> ปัจจุบัน: 1 account = 1 role fixed  
+> ที่ต้องการ: 1 account มี role หลายตัว + switch workspace ได้
+
+**DB:**
+```sql
+-- User สามารถมีหลาย role ในโรงแรมเดียว
+CREATE TABLE user_roles (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id      UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  role         TEXT NOT NULL,
+  is_primary   BOOLEAN DEFAULT false,
+  granted_by   UUID REFERENCES user_profiles(id),
+  created_at   TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (user_id, hotel_id, role)
+);
+
+-- Active workspace ที่ user เลือกอยู่ตอนนี้
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS active_workspace TEXT;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS active_hotel_id UUID REFERENCES hotels(id);
+```
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/dashboard/workspace-switcher.tsx` | Dropdown: เปลี่ยน workspace/role ได้ทันที ไม่ต้อง logout |
+| `src/app/api/auth/switch-workspace/route.ts` | POST: เปลี่ยน active_workspace + active_hotel_id |
+| `src/lib/workspace.ts` | `getWorkspaceConfig(role)` → sidebar items, dashboard view, permissions |
+| `src/middleware.ts` | อัพเดต: ตรวจสอบ active_workspace แทน single role |
+
+**Workspace Definitions:**
+```typescript
+const WORKSPACES = {
+  front_office:   { label: 'Front Office',   roles: ['front_desk','receptionist','reservation_agent'] },
+  operations:     { label: 'Operations',     roles: ['housekeeping_manager','housekeeper','room_inspector','maintenance_manager','technician'] },
+  management:     { label: 'Management',     roles: ['hotel_owner','general_manager','operations_manager'] },
+  marketing_web:  { label: 'Marketing & Web', roles: ['marketing_staff','revenue_manager'] },
+  communications: { label: 'Communications', roles: ['chat_admin','guest_relations'] },
+  kitchen:        { label: 'Kitchen',        roles: ['fnb_manager','kitchen_staff','room_service_staff'] },
+  accounting:     { label: 'Accounting',     roles: ['accounting_manager','accounting_staff','night_auditor'] },
+  hr:             { label: 'HR',             roles: ['hr_manager','hr_staff'] },
+  it:             { label: 'IT',             roles: ['it_admin','it_support'] },
+}
+```
+
+---
+
+### 🔔 F. STAFF PRESENCE + CLAIM LOCK + SOUND ALERTS (ยังขาดทั้งหมด)
+
+**DB:**
+```sql
+CREATE TABLE staff_presence (
+  user_id      UUID PRIMARY KEY REFERENCES user_profiles(id) ON DELETE CASCADE,
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  status       TEXT DEFAULT 'offline',  -- 'online'|'busy'|'break'|'offline'
+  floor        TEXT,    -- zone/floor ที่ assigned
+  zone         TEXT,
+  last_seen_at TIMESTAMPTZ DEFAULT now(),
+  socket_id    TEXT      -- สำหรับ WebSocket tracking
+);
+
+-- Atomic claim lock สำหรับ task
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMPTZ;
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS claim_expires_at TIMESTAMPTZ;
+-- claim lock: expire หลัง 30 วินาทีถ้าไม่มีการยืนยัน
+```
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/api/presence/heartbeat/route.ts` | POST: อัพเดต last_seen_at ทุก 30 วินาที |
+| `src/app/api/presence/floor/route.ts` | POST: อัพเดต floor/zone assignment |
+| `src/app/api/work-orders/[id]/claim/route.ts` | POST: atomic claim lock (race condition safe) |
+| `src/app/api/work-orders/[id]/acknowledge/route.ts` | POST: staff กด acknowledge รับทราบ task |
+| `src/lib/presence.ts` | Presence helper: heartbeat timer, status management |
+| `src/components/live/staff-presence-grid.tsx` | Grid: สีตามสถานะ online/busy/break/offline + floor |
+| `src/components/tasks/claim-button.tsx` | Atomic claim: lock → confirm ภายใน 30s → release ถ้าไม่ confirm |
+| `src/components/notifications/sound-alert.tsx` | เล่นเสียงแจ้งเตือนเมื่อมี task ใหม่ (Web Audio API) |
+| `src/components/notifications/acknowledge-toast.tsx` | Toast ที่ต้องกด "รับทราบ" ก่อนถึงจะหาย |
+
+---
+
+### 🌍 G. PUBLIC SAAS WEBSITE (ยังขาดทั้งหมด)
+> maitriapp.com — หน้าขายระบบ ทำให้ hotel สมัครได้เองโดยไม่ต้องติดต่อ sales
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/app/(marketing)/page.tsx` | Landing page: hero, value prop, social proof, CTA |
+| `src/app/(marketing)/pricing/page.tsx` | Pricing: plan comparison table + ROI calculator |
+| `src/app/(marketing)/features/hotel-os/page.tsx` | Hotel OS feature showcase |
+| `src/app/(marketing)/features/room-qr/page.tsx` | Room QR feature showcase |
+| `src/app/(marketing)/features/ai/page.tsx` | AI features showcase |
+| `src/app/(marketing)/demo/page.tsx` | Interactive demo: sandboxed hotel data ลองใช้ได้เลยไม่ต้องสมัคร |
+| `src/app/(marketing)/demo/dispatch/page.tsx` | Live dispatch demo: แสดง real-time task routing |
+| `src/app/(marketing)/case-studies/page.tsx` | Case studies: ตัวอย่างโรงแรมที่ใช้ + ผลลัพธ์ |
+| `src/app/(marketing)/blog/page.tsx` | SaaS blog: hotel industry tips, product updates |
+| `src/app/(marketing)/trial/page.tsx` | Free trial signup: กรอกข้อมูลโรงแรม → เปิดใช้ทันที |
+| `src/components/marketing-site/pricing-table.tsx` | Plan comparison: features per plan |
+| `src/components/marketing-site/roi-calculator.tsx` | "โรงแรม X ห้อง ประหยัด Y บาท/เดือน" |
+| `src/components/marketing-site/live-demo-widget.tsx` | Embedded live demo |
+
+---
+
+### 🔧 H. GLOBAL-READY ADDITIONS (ที่ยังขาด)
+
+**Custom Domains:**
+```sql
+CREATE TABLE custom_domains (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id     UUID NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+  domain       TEXT NOT NULL UNIQUE,  -- 'www.myhotel.com'
+  verified     BOOLEAN DEFAULT false,
+  ssl_active   BOOLEAN DEFAULT false,
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+```
+
+| ไฟล์ | รายละเอียด |
+|---|---|
+| `src/middleware.ts` | อัพเดต: route by custom domain → hotel slug mapping |
+| `src/app/api/platform/domains/route.ts` | POST: register domain, GET: verify DNS |
+| `src/app/(platform)/domains/page.tsx` | Domain management (platform admin) |
+| `src/lib/timezone.ts` | Timezone-aware datetime helpers (แสดงเวลาตาม timezone โรงแรม) |
+| `src/lib/currency.ts` | Multi-currency formatter: amount + currency code → localized string |
+| `src/app/api/auth/sso/route.ts` | SSO endpoint (SAML/OAuth สำหรับ hotel chains) |
+| `src/app/dashboard/security/2fa/page.tsx` | 2FA setup: TOTP (Google Authenticator) |
+| `src/app/api/auth/2fa/route.ts` | POST: enable/verify/disable TOTP |
+| `src/app/(platform)/marketplace/page.tsx` | Integration marketplace: browse + install add-ons |
+
+---
+
+### 📊 UPDATED GRAND TOTAL
+
+| Category | มีอยู่แล้ว | Phase 1 | Phase 1 Add | Integration Stubs | Phase 2 | Phase 3 | Master Gaps | **Grand Total** |
+|---|---|---|---|---|---|---|---|---|
+| DB Tables | 30+ | 9 | — | 7 | 18 | 15 | 8 | **87+** |
+| API Routes | 20+ | 20 | 12 | — | 38 | 24 | 15 | **129+** |
+| Pages/Clients | 30+ | 18 | 14 | — | 44 | 28 | 32 | **166+** |
+| Components | 40+ | 12 | 8 | — | 32 | 20 | 20 | **132+** |
+
+---
+
 *อัพเดตล่าสุด: 2026-05-14 | Branch: `claude/audit-consolidate-docs-mj9Dt`*
