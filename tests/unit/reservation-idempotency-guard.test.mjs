@@ -26,7 +26,7 @@ if (!route.includes('Missing x-idempotency-key for public booking')) {
 if (!route.includes('Invalid idempotency key length')) {
   fail('idempotency key length guard must exist');
 } else pass('idempotency key length guard exists');
-const migration = read('supabase/migrations/20260509113000_p1_reservation_idempotency.sql');
+const migration = read('supabase/migrations/0002_phase_buildout.sql');
 if (!migration.includes('UNIQUE (hotel_id, idempotency_key)')) {
   fail('migration must enforce unique idempotency key per hotel');
 } else pass('migration enforces unique idempotency key per hotel');
@@ -39,7 +39,7 @@ if (!route.includes('Duplicate booking detected') || !route.includes(".in('statu
 
 
 
-const activeUniqueMigration = read('supabase/migrations/20260509120000_p1_active_reservation_uniqueness.sql');
+const activeUniqueMigration = read('supabase/migrations/0002_phase_buildout.sql');
 if (!activeUniqueMigration.includes("status IN ('pending_payment', 'confirmed')") || !activeUniqueMigration.includes('CREATE UNIQUE INDEX')) {
   fail('active reservation uniqueness migration must enforce DB-level duplicate prevention');
 } else pass('active reservation uniqueness migration enforces DB-level duplicate prevention');
