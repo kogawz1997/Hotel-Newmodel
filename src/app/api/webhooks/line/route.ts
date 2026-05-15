@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { translateText, detectLanguage, type Language } from '@/lib/ai';
@@ -92,7 +93,7 @@ export async function POST(request: Request) {
 
           translatedText = result.translated;
         } catch (e) {
-          console.error('Translation failed:', e);
+          logger.error('Translation failed', { error: e instanceof Error ? e.message : String(e) });
         }
       }
 
@@ -112,7 +113,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('LINE webhook error:', error);
+    logger.error('LINE webhook error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {

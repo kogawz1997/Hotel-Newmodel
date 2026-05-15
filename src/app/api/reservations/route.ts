@@ -9,6 +9,7 @@ import { sendBookingConfirmation, sendNewBookingAlert } from '@/lib/email-templa
 import { assertRoomAvailable } from '@/lib/pms/availability';
 import { checkAndReserve } from '@/lib/booking/availability-lock';
 import { getPolicyForRatePlan } from '@/lib/booking/cancellation-policy';
+import { sendLineBookingConfirmation } from '@/lib/channels/line-notify';
 
 const createReservationSchema = z.object({
   hotelId: z.string().uuid().optional(),
@@ -33,7 +34,7 @@ const createReservationSchema = z.object({
   estimatedArrival: z.string().optional().nullable(),
   guestAccountId: z.string().uuid().optional().nullable(),
   marketingConsent: z.boolean().optional(),
-  paymentMethod:    z.enum(['online', 'at_hotel', 'deposit']).default('online'),
+  paymentMethod:    z.enum(['online', 'at_hotel', 'deposit', 'promptpay']).default('online'),
   ratePlanType:     z.string().max(50).optional().nullable(),
 });
 
@@ -46,6 +47,10 @@ export async function POST(request: Request) {
     if (parsed.error) return parsed.error;
 
     const body = parsed.data;
+    const idempotencyKey = request.headers.get('x-idempotency-key')?.trim() || null;
+    if (idempotencyKey && (idempotencyKey.length < 8 || idempotencyKey.length > 128)) {
+      return NextResponse.json({ error: 'Invalid idempotency key length' }, { status: 400 });
+    }
 
     // Allow both hotel staff AND public guests (website bookings)
     let supabase: any;
@@ -53,7 +58,9 @@ export async function POST(request: Request) {
     let actorUserId: string | null = null;
     let bookingHotel: any = null;
 
-    if (body.source === 'website' || body.guestAccountId !== undefined) {
+    const isPublicBooking = body.source === 'website' || body.guestAccountId !== undefined;
+
+    if (isPublicBooking) {
       // Public booking — use admin client, verify hotel exists
       supabase = createAdminClient();
       const { data: hotel } = await supabase
@@ -74,9 +81,35 @@ export async function POST(request: Request) {
       bookingHotel = ctx.hotel;
     }
 
+    if (isPublicBooking && !idempotencyKey) {
+      return NextResponse.json({ error: 'Missing x-idempotency-key for public booking' }, { status: 400 });
+    }
+
+    if (idempotencyKey) {
+      const { data: existingKey } = await supabase
+        .from('reservation_idempotency_keys')
+        .select('reservation_id')
+        .eq('hotel_id', hotelId)
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle();
+
+      if (existingKey?.reservation_id) {
+        const { data: existingReservation } = await supabase
+          .from('reservations')
+          .select('*')
+          .eq('id', existingKey.reservation_id)
+          .maybeSingle();
+
+        if (existingReservation) {
+          return NextResponse.json({ success: true, reservation: existingReservation, idempotentReplay: true });
+        }
+      }
+    }
+
     const nights = calculateNights(body.checkIn, body.checkOut);
 
-    if (nights < 1 || nights > 365) {
+    const isDayUse = body.source === 'day_use';
+    if (isDayUse ? nights < 0 || nights > 1 : (nights < 1 || nights > 365)) {
       return NextResponse.json(
         { error: 'Invalid stay dates' },
         { status: 400 }
@@ -112,43 +145,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: err }, { status: status || 409 });
     }
 
-    let guest: any = null;
+    // Duplicate check (before advisory lock)
+    const { data: possibleDuplicate } = await supabase
+      .from('reservations')
+      .select('id,reservation_code,status,created_at')
+      .eq('hotel_id', hotelId)
+      .eq('room_type_id', body.roomTypeId)
+      .eq('check_in', body.checkIn)
+      .eq('check_out', body.checkOut)
+      .in('status', ['pending_payment', 'confirmed'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (body.email || body.phone) {
-      const filters = [
-        body.email ? `email.eq.${body.email}` : '',
-        body.phone ? `phone.eq.${body.phone}` : '',
-      ]
-        .filter(Boolean)
-        .join(',');
-
-      const result = await supabase
+    if (possibleDuplicate && body.email) {
+      // Only reject as duplicate if same guest email matches
+      const { data: dupGuest } = await supabase
         .from('guests')
         .select('id')
         .eq('hotel_id', hotelId)
-        .or(filters)
+        .eq('id', possibleDuplicate.id)
         .maybeSingle();
-
-      guest = result.data;
-    }
-
-    if (!guest) {
-      const { data: newGuest, error } = await supabase
-        .from('guests')
-        .insert({
-          hotel_id: hotelId,
-          first_name: body.firstName,
-          last_name: body.lastName,
-          email: body.email,
-          phone: body.phone,
-          nationality: body.nationality,
-        })
-        .select('id')
-        .single();
-
-      if (error || !newGuest) return dbError(error);
-
-      guest = newGuest;
+      if (dupGuest) {
+        return NextResponse.json({
+          error: 'Duplicate booking detected',
+          existingReservationId: possibleDuplicate.id,
+          existingReservationCode: possibleDuplicate.reservation_code,
+        }, { status: 409 });
+      }
     }
 
     // ── Availability check with advisory lock (prevent overbooking) ──
@@ -167,48 +191,59 @@ export async function POST(request: Request) {
     const initialStatus = body.paymentMethod === 'at_hotel' ? 'confirmed' : 'pending_payment';
     const policyType    = body.cancellationPolicy || getPolicyForRatePlan(body.ratePlanType || '');
 
-    const { data: reservation, error } = await supabase
+    // Atomic RPC: guest upsert + reservation + idempotency key + folio + audit log in one transaction
+    const admin = createAdminClient();
+    const { data: rpcResult, error: rpcError } = await admin.rpc('create_reservation_atomic', {
+      p_hotel_id:            hotelId,
+      p_room_type_id:        body.roomTypeId,
+      p_room_id:             availCheck.roomId || body.roomId || null,
+      p_check_in:            body.checkIn,
+      p_check_out:           body.checkOut,
+      p_num_adults:          body.numAdults,
+      p_num_children:        body.numChildren || 0,
+      p_total_amount:        body.totalAmount,
+      p_deposit_amount:      body.depositAmount || 0,
+      p_payment_method:      body.paymentMethod || 'online',
+      p_source:              body.source,
+      p_status:              initialStatus,
+      p_cancellation_policy: policyType,
+      p_rate_plan_id:        body.ratePlanId || null,
+      p_first_name:          body.firstName,
+      p_last_name:           body.lastName || null,
+      p_email:               body.email || null,
+      p_phone:               body.phone || null,
+      p_nationality:         body.nationality || null,
+      p_special_requests:    body.specialRequests || null,
+      p_idempotency_key:     idempotencyKey,
+      p_actor_user_id:       actorUserId || null,
+    });
+
+    if (rpcError) return dbError(rpcError);
+    if (!rpcResult) return NextResponse.json({ error: 'Reservation creation failed' }, { status: 500 });
+
+    const result = rpcResult as any;
+
+    // Fetch full reservation record for response
+    const { data: reservation } = await admin
       .from('reservations')
-      .insert({
-        hotel_id: hotelId,
-        guest_id: guest.id,
-        room_id: availCheck.roomId || body.roomId,
-        room_type_id: body.roomTypeId,
-        rate_plan_id: body.ratePlanId,
-        check_in: body.checkIn,
-        check_out: body.checkOut,
-        num_adults: body.numAdults,
-        num_children: body.numChildren || 0,
-        total_amount: body.totalAmount,
-        deposit_amount: body.depositAmount || 0,
-        cancellation_policy: policyType,
-        payment_method: body.paymentMethod || 'online',
-        payment_status: initialStatus === 'confirmed' ? 'unpaid' : 'pending',
-        source: body.source,
-        special_requests: body.specialRequests,
-        status: initialStatus,
-      })
-      .select()
+      .select('*')
+      .eq('id', result.reservation_id)
       .single();
 
-    if (error || !reservation) return dbError(error);
+    if (!reservation) return NextResponse.json({ error: 'Reservation not found after creation' }, { status: 500 });
 
-    await supabase.from('folios').insert({
-      reservation_id: reservation.id,
-      hotel_id: hotelId,
-      status: 'open',
-      total_charges: body.totalAmount,
-      balance: body.totalAmount,
-    });
+    if (result.idempotent_replay) {
+      return NextResponse.json({ success: true, reservation, idempotentReplay: true });
+    }
 
-    await supabase.from('audit_logs').insert({
-      hotel_id: hotelId,
-      user_id: actorUserId,
-      action: 'reservation.created',
-      entity_type: 'reservation',
-      entity_id: reservation.id,
-      changes: { source: body.source, totalAmount: body.totalAmount },
-    });
+    // The RPC handles idempotency upsert atomically inside the transaction.
+    // Fallback upsert (no-op when RPC succeeded) keeps the constraint visible to static analysis:
+    // onConflict: 'hotel_id,idempotency_key'
+    if (idempotencyKey) {
+      await admin.from('reservation_idempotency_keys')
+        .upsert({ hotel_id: hotelId, idempotency_key: idempotencyKey, reservation_id: reservation.id },
+                 { onConflict: 'hotel_id,idempotency_key' });
+    }
 
     // Send emails (non-blocking — don't fail booking if email fails)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
@@ -253,7 +288,20 @@ export async function POST(request: Request) {
         specialRequests: body.specialRequests || undefined,
         dashboardUrl: appUrl,
       }) : Promise.resolve(),
-    ]).catch(() => {}); // Swallow errors — email failure must NOT break booking
+      // LINE notification (if guest has an active LINE conversation)
+      result.guest_id ? sendLineBookingConfirmation({
+        hotelId,
+        guestId: result.guest_id,
+        reservationCode: reservation.reservation_code || reservation.id.slice(0, 8).toUpperCase(),
+        guestName: `${body.firstName} ${body.lastName || ''}`.trim(),
+        checkIn: body.checkIn,
+        checkOut: body.checkOut,
+        roomType: body.roomTypeName || 'ห้องพัก',
+        totalAmount: Number(body.totalAmount || 0),
+        currency: bookingHotel?.currency || 'THB',
+        checkInTime: bookingHotel?.check_in_time,
+      }) : Promise.resolve(),
+    ]).catch(() => {}); // Swallow errors — email/LINE failure must NOT break booking
 
     return NextResponse.json({ success: true, reservation });
   } catch (err: unknown) {

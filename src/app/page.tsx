@@ -1,11 +1,14 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { AnimatedNumber } from '@/components/ui/animated-number';
+import { SearchHeader } from '@/components/public/SearchHeader';
+import { FAQSection } from '@/components/public/FAQSection';
+import { SeasonalBanner } from '@/components/public/SeasonalBanner';
+import { RecentlyViewed } from '@/components/public/RecentlyViewed';
 import { IMAGES } from '@/lib/images';
 import {
-  ArrowRight, Sparkles, Globe2, Layers, ShieldCheck,
-  Zap, MessageSquareText, Check, Star, ChevronRight,
-  BarChart3, Calendar, Users, Receipt, Clock, Bot,
+  ArrowRight, Globe2, Check, Star, ChevronRight,
+  BarChart3, Calendar, Users, Receipt, Bot,
+  ShieldCheck, Tag, CreditCard,
 } from 'lucide-react';
 
 const STATS = [
@@ -53,22 +56,18 @@ const PLANS = [
 
 
 const DESTINATIONS = [
-  { name: 'Bangkok', emoji: '🌆' },
-  { name: 'Chiang Mai', emoji: '🏞️' },
-  { name: 'Phuket', emoji: '🏝️' },
-  { name: 'Samui', emoji: '🌴' },
+  { name: 'Bangkok',    nameTh: 'กรุงเทพฯ',    img: IMAGES.bangkok,   hotels: 1240 },
+  { name: 'Chiang Mai', nameTh: 'เชียงใหม่',    img: IMAGES.chiangMai, hotels: 420  },
+  { name: 'Phuket',     nameTh: 'ภูเก็ต',      img: IMAGES.phuket,    hotels: 890  },
+  { name: 'Samui',      nameTh: 'เกาะสมุย',    img: IMAGES.samui,     hotels: 310  },
+  { name: 'Krabi',      nameTh: 'กระบี่',      img: IMAGES.krabi,     hotels: 260  },
+  { name: 'Chiang Rai', nameTh: 'เชียงราย',    img: IMAGES.chiangRai, hotels: 180  },
 ];
 
 const TRUST_SIGNALS = [
-  'Best price guarantee',
-  'Free cancellation on selected rates',
-  'Secure payment & PDPA-ready',
-];
-
-const FEATURED_HOTELS = [
-  { name: "Maitri Riverside Bangkok", rating: 4.8 },
-  { name: "Maitri Nimman Chiang Mai", rating: 4.7 },
-  { name: "Maitri Beachfront Phuket", rating: 4.9 },
+  { icon: Tag,          title: 'ราคาดีที่สุด',      desc: 'จองตรงกับโรงแรม ได้ราคาพิเศษกว่า OTA' },
+  { icon: ShieldCheck,  title: 'ยกเลิกฟรี',         desc: 'เลือกเรทที่ยกเลิกได้ฟรี ไม่มีค่าปรับ' },
+  { icon: CreditCard,   title: 'ชำระเงินปลอดภัย',   desc: 'รองรับทุกธนาคาร PromptPay และบัตรเครดิต' },
 ];
 
 const TESTIMONIALS = [
@@ -148,13 +147,16 @@ export default function HomePage() {
 
       {/* ─── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Background image */}
+        {/* Cinematic video hero with image fallback */}
         <div className="absolute inset-0 -z-10">
-          <img
-            src={IMAGES.heroLobby}
-            alt="Luxury hotel lobby"
+          <video
+            autoPlay muted loop playsInline
+            poster={IMAGES.heroLobby}
             className="w-full h-full object-cover"
-          />
+          >
+            {/* Hotel can upload their own video — fallback to poster image */}
+            <source src="/hero-video.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-[#1A1614]/70 via-[#1A1614]/50 to-[#1A1614]/80" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#1A1614]/40 to-transparent" />
         </div>
@@ -197,8 +199,13 @@ export default function HomePage() {
               ทร.30 และ e-Tax ครบในที่เดียว — ออกแบบเฉพาะสำหรับโรงแรมไทย
             </p>
 
+            {/* Hero search form */}
+            <div className="animate-fade-in mb-6" style={{ animationDelay: '300ms' }}>
+              <SearchHeader variant="hero" />
+            </div>
+
             {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-3 animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <div className="flex flex-wrap items-center gap-3 animate-fade-in" style={{ animationDelay: '400ms' }}>
               <Link href="/auth/signup"
                 className="btn-shimmer group flex items-center gap-2 bg-[#C66A30] text-white px-7 py-3.5 rounded-full font-medium text-sm hover:bg-[#A4522A] transition-colors">
                 เริ่มต้นฟรีเลย
@@ -206,12 +213,12 @@ export default function HomePage() {
               </Link>
               <Link href="/search"
                 className="flex items-center gap-2 glass text-white px-7 py-3.5 rounded-full font-medium text-sm hover:bg-white/15 transition-colors">
-                ดูตัวอย่างสด
+                ดูโรงแรมทั้งหมด
               </Link>
             </div>
 
             {/* Social proof */}
-            <div className="flex flex-wrap items-center gap-6 mt-10 animate-fade-in" style={{ animationDelay: '400ms' }}>
+            <div className="flex flex-wrap items-center gap-6 mt-10 animate-fade-in" style={{ animationDelay: '500ms' }}>
               <div className="flex -space-x-2">
                 {['🏨','🌴','🏡','🏯','🌊'].map((e, i) => (
                   <div key={i} className="h-8 w-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-sm">
@@ -253,30 +260,80 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-14 bg-white/50">
+      {/* ─── Seasonal Campaign ────────────────────────────────────────────── */}
+      <SeasonalBanner />
+
+      {/* ─── Recently Viewed ─────────────────────────────────────────────── */}
+      <RecentlyViewed />
+
+      {/* ─── Destinations ─────────────────────────────────────────────────── */}
+      <section className="py-16 bg-white/50">
         <div className="container max-w-7xl px-4">
-          <h3 className="font-serif text-3xl mb-6">จุดหมายปลายทางยอดนิยม</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            {DESTINATIONS.map((d) => (
-              <div key={d.name} className="rounded-2xl border border-black/10 bg-white p-5 text-center">
-                <div className="text-3xl mb-2">{d.emoji}</div>
-                <div className="font-medium">{d.name}</div>
-              </div>
-            ))}
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <p className="overline text-[#C66A30] mb-1">สำรวจ</p>
+              <h2 className="font-serif text-3xl md:text-4xl font-medium">จุดหมายยอดนิยม</h2>
+            </div>
+            <Link href="/search" className="hidden md:flex items-center gap-1 text-sm text-[#C66A30] hover:underline">
+              ดูทั้งหมด <ChevronRight className="h-4 w-4" />
+            </Link>
           </div>
-          <h3 className="font-serif text-3xl mb-4">Featured hotels</h3>
-          <div className="grid md:grid-cols-3 gap-4 mb-8">
-            {FEATURED_HOTELS.map((h) => (
-              <div key={h.name} className="rounded-xl border border-black/10 bg-white p-4">
-                <div className="font-medium">{h.name}</div>
-                <div className="text-sm text-[#2A2522]/60">⭐ {h.rating}</div>
-              </div>
+
+          {/* Big 2 + small 4 grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            {DESTINATIONS.slice(0, 2).map(d => (
+              <Link key={d.name} href={`/search?city=${d.name}`}
+                className="relative rounded-2xl overflow-hidden h-48 md:h-64 group cursor-pointer">
+                <img src={d.img} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                <div className="absolute bottom-4 left-4">
+                  <p className="text-white font-bold text-lg">{d.nameTh}</p>
+                  <p className="text-white/70 text-xs">{d.hotels.toLocaleString()} ที่พัก</p>
+                </div>
+              </Link>
+            ))}
+            <div className="grid grid-rows-2 gap-3 md:gap-4">
+              {DESTINATIONS.slice(2, 4).map(d => (
+                <Link key={d.name} href={`/search?city=${d.name}`}
+                  className="relative rounded-2xl overflow-hidden h-[calc(50%-6px)] min-h-[100px] group cursor-pointer">
+                  <img src={d.img} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-3 left-3">
+                    <p className="text-white font-semibold text-sm">{d.nameTh}</p>
+                    <p className="text-white/60 text-xs">{d.hotels.toLocaleString()} ที่พัก</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            {DESTINATIONS.slice(4).map(d => (
+              <Link key={d.name} href={`/search?city=${d.name}`}
+                className="relative rounded-2xl overflow-hidden h-28 md:h-36 group cursor-pointer hidden md:block">
+                <img src={d.img} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-3 left-3">
+                  <p className="text-white font-semibold text-sm">{d.nameTh}</p>
+                  <p className="text-white/60 text-xs">{d.hotels.toLocaleString()} ที่พัก</p>
+                </div>
+              </Link>
             ))}
           </div>
 
-          <h3 className="font-serif text-3xl mb-4">ทำไมต้องจองกับเรา</h3>
-          <div className="grid md:grid-cols-3 gap-3">
-            {TRUST_SIGNALS.map((t) => <div key={t} className="rounded-xl bg-[#2A2522] text-white/90 px-4 py-3 text-sm">✓ {t}</div>)}
+          {/* Trust signals */}
+          <div className="grid md:grid-cols-3 gap-4 mt-12">
+            {TRUST_SIGNALS.map(t => {
+              const Icon = t.icon;
+              return (
+                <div key={t.title} className="flex items-start gap-4 bg-white rounded-2xl border border-black/5 p-5">
+                  <div className="h-10 w-10 bg-[#C66A30]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <Icon className="h-5 w-5 text-[#C66A30]" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[#2A2522] text-sm mb-1">{t.title}</p>
+                    <p className="text-xs text-[#2A2522]/50 leading-relaxed">{t.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -319,6 +376,94 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── Services showcase ───────────────────────────────────────────── */}
+      <section className="py-24 md:py-32 bg-[#2A2522]">
+        <div className="container max-w-7xl px-4">
+          <div className="text-center mb-16">
+            <div className="overline text-[#C66A30] mb-4">บริการครบวงจร</div>
+            <h2 className="font-serif text-4xl md:text-5xl font-medium tracking-tight mb-4 text-white">
+              ครบทุกบริการในที่เดียว<br/>
+              <span className="italic text-[#C66A30]">เพิ่มรายได้ทุกจุดสัมผัส</span>
+            </h2>
+            <p className="text-white/60 max-w-xl mx-auto">
+              Maitri ไม่ได้แค่จัดการห้องพัก — รองรับทุกบริการที่โรงแรมคุณมี
+              เพื่อเพิ่มรายได้จาก F&B สปา กิจกรรม และสิ่งอำนวยความสะดวกทั้งหมด
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { emoji: '🍽️', title: 'ร้านอาหาร',        desc: 'จัดการเมนู สั่งอาหาร F&B' },
+              { emoji: '💆', title: 'สปา',              desc: 'จอง Spa ออนไลน์ ไม่พลาดรายได้' },
+              { emoji: '🏊', title: 'สระว่ายน้ำ',       desc: 'จัดการการใช้งานสิ่งอำนวยความสะดวก' },
+              { emoji: '🎯', title: 'กิจกรรม',          desc: 'แพ็กเกจและประสบการณ์พิเศษ' },
+            ].map((service) => (
+              <div key={service.title}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl p-8 text-center transition-colors group cursor-default">
+                <div className="text-5xl mb-5">{service.emoji}</div>
+                <h3 className="font-semibold text-white text-lg mb-2">{service.title}</h3>
+                <p className="text-sm text-white/50 leading-relaxed">{service.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Promotions & packages ───────────────────────────────────────── */}
+      <section className="py-24 md:py-32 bg-[#FAF7F2]">
+        <div className="container max-w-7xl px-4">
+          <div className="text-center mb-16">
+            <div className="overline text-[#C66A30] mb-4">โปรโมชั่น</div>
+            <h2 className="font-serif text-4xl md:text-5xl font-medium tracking-tight mb-4">
+              โปรโมชั่นและแพ็กเกจ<br/>
+              <span className="italic text-[#C66A30]">สร้างเองได้ง่ายๆ</span>
+            </h2>
+            <p className="text-[#2A2522]/60 max-w-xl mx-auto">
+              สร้างโปรโมชั่นและแพ็กเกจพิเศษให้แขกของคุณได้ภายในไม่กี่นาที
+              ตัวอย่างด้านล่างคือสิ่งที่โรงแรมที่ใช้ Maitri สร้างได้
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: 'Early Bird',
+                desc:  'จองล่วงหน้า 30 วัน รับส่วนลด 20%',
+                color: 'from-amber-500 to-orange-600',
+              },
+              {
+                title: 'Honeymoon Package',
+                desc:  'ห้อง Deluxe + อาหารเช้า + Welcome cake',
+                color: 'from-rose-500 to-pink-600',
+              },
+              {
+                title: 'Long Stay',
+                desc:  'พัก 3 คืนขึ้นไป รับคืนที่ 4 ฟรี',
+                color: 'from-emerald-500 to-teal-600',
+              },
+            ].map((offer) => (
+              <div key={offer.title}
+                className="bg-white rounded-3xl border border-black/5 p-8 flex flex-col gap-5 shadow-sm hover:shadow-md transition-shadow">
+                <div>
+                  <span className={`inline-block text-xs font-semibold text-white px-3 py-1 rounded-full bg-gradient-to-r ${offer.color} mb-4`}>
+                    โปรโมชั่น
+                  </span>
+                  <h3 className="font-semibold text-[#2A2522] text-xl mb-2">{offer.title}</h3>
+                  <p className="text-sm text-[#2A2522]/60 leading-relaxed">{offer.desc}</p>
+                </div>
+                <Link href="/auth/signup"
+                  className="mt-auto inline-flex items-center gap-1 text-sm text-[#C66A30] font-medium hover:underline">
+                  สร้างโปรโมชั่นแบบนี้ได้ <ChevronRight className="h-4 w-4" />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ ─────────────────────────────────────────────────────────── */}
+      <FAQSection />
 
       {/* ─── Visual showcase ──────────────────────────────────────────────── */}
       <section className="py-16 bg-[#2A2522] overflow-hidden">

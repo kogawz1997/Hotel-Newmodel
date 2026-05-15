@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
@@ -8,6 +8,7 @@ import { PriceGraph } from '@/components/booking/price-graph';
 import { GuestChatWidget } from '@/components/booking/guest-chat-widget';
 import { CurrencySwitcher } from '@/components/ui/currency-switcher';
 import { TrustBadges } from '@/components/public/TrustBadges';
+import { PromptPayQR } from '@/components/payments/PromptPayQR';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -15,7 +16,7 @@ import {
   MapPin, Phone, Mail, Star, Wifi, Wind, Coffee, Waves,
   Tv, Car, Users, Maximize2, Bed, Calendar, ChevronRight,
   ChevronLeft, Check, X, ShieldCheck, Clock, Info, Heart,
-  Tag, AlertCircle, Globe2, User,
+  Tag, AlertCircle, Globe2, User, Flame,
 } from 'lucide-react';
 
 const AMENITY_ICONS: Record<string, any> = {
@@ -23,8 +24,16 @@ const AMENITY_ICONS: Record<string, any> = {
   pool: Waves, tv: Tv, parking: Car, balcony: Globe2,
 };
 
-const POLICY_STEPS = ['dates', 'rooms', 'details', 'review', 'confirmed'] as const;
+const POLICY_STEPS = ['dates', 'rooms', 'details', 'confirmed'] as const;
 type Step = typeof POLICY_STEPS[number];
+
+const ADDONS_CATALOG = [
+  { code: 'airport_transfer', emoji: '🚗', name: 'Airport Transfer', desc: 'รับ-ส่งสนามบิน (ราคาต่อเที่ยว)', price: 1200 },
+  { code: 'breakfast',        emoji: '🍳', name: 'อาหารเช้า',         desc: 'บุฟเฟ่ต์มื้อเช้า (ต่อคน/วัน)', price: 350, perPersonPerNight: true },
+  { code: 'flowers',          emoji: '💐', name: 'ดอกไม้โรแมนติก',   desc: 'จัดดอกไม้ตกแต่งห้องต้อนรับ', price: 800 },
+  { code: 'spa_credit',       emoji: '💆', name: 'Spa Credit',        desc: 'เครดิตใช้บริการ Spa (ต่อคน)', price: 1000 },
+  { code: 'welcome_cake',     emoji: '🎂', name: 'Welcome Cake',      desc: 'เค้กต้อนรับพิเศษ ตกแต่งห้อง', price: 500 },
+] as const;
 
 export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: any; roomTypes: any[] }) {
   const supabase = createClient();
@@ -33,7 +42,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [availableRooms, setAvailableRooms] = useState<any[]>(initialRoomTypes);
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [selected, setSelected] = useState<any>(null);
-  const [ratePlan, setRatePlan] = useState<'flexible' | 'non_refundable'>('flexible');
+  const [ratePlan, setRatePlan] = useState<'flexible' | 'non_refundable' | 'early_bird' | 'member' | 'package'>('flexible');
   const [guestInfo, setGuestInfo] = useState({
     firstName: '', lastName: '', email: '', phone: '',
     nationality: '', specialRequests: '', estimatedArrival: '',
@@ -46,19 +55,36 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [promoCode, setPromoCode]           = useState('');
   const [promoResult, setPromoResult]       = useState<any>(null);
   const [promoLoading, setPromoLoading]     = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel'>('online');
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel' | 'promptpay' | 'truemoney' | 'bank_transfer'>('promptpay');
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
 
   const nights = search.checkIn && search.checkOut
     ? Math.max(0, differenceInDays(new Date(search.checkOut), new Date(search.checkIn)))
     : 0;
 
   const baseRate = selected ? Number(selected.effective_rate || selected.base_rate) : 0;
-  const rateMultiplier = ratePlan === 'non_refundable' ? 0.9 : 1;
+  const daysBeforeCheckIn = search.checkIn ? Math.max(0, Math.floor((new Date(search.checkIn+'T00:00:00').getTime() - new Date().getTime()) / 86400000)) : 0;
+  const isBlackout = search.checkIn ? [5,6].includes(new Date(search.checkIn+'T00:00:00').getDay()) : false;
+  const memberEligible = !!user;
+  const rateMultipliers: Record<string, number> = {
+    flexible: 1,
+    non_refundable: 0.9,
+    early_bird: daysBeforeCheckIn >= 14 && !isBlackout ? 0.85 : 1,
+    member: memberEligible ? 0.88 : 1,
+    package: 1.12,
+  };
+  const rateMultiplier = rateMultipliers[ratePlan] || 1;
   const subtotal = baseRate * rateMultiplier * nights;
   const vat = subtotal * Number(hotel.vat_rate || 0.07);
-  const total = subtotal + vat;
+  const addOnCatalog: Record<string, { label: string; price: number }> = {
+    breakfast: { label: 'Breakfast', price: 250 },
+    airport: { label: 'Airport transfer', price: 900 },
+    late_checkout: { label: 'Late checkout', price: 600 },
+  };
+  const addOnTotal = selectedAddOns.reduce((sum, key) => sum + (addOnCatalog[key]?.price || 0), 0);
+  const total = subtotal + vat + addOnTotal;
 
   useEffect(() => {
     async function loadUser() {
@@ -105,18 +131,18 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     if (!code) return;
     setPromoLoading(true);
     try {
-      const demoPromos: Record<string, { description: string; percent: number }> = {
-        SAVE10: { description: 'ส่วนลด 10% สำหรับการจองตรง', percent: 10 },
-        MAITRI5: { description: 'ส่วนลด 5% โปรโมชั่นพิเศษ', percent: 5 },
-      };
-      const promo = demoPromos[code];
-      if (!promo) {
+      const res = await fetch('/api/public/promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hotelId: hotel.id, code, amount: subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
         setPromoResult({ valid: false });
-        toast.error('โค้ดส่วนลดไม่ถูกต้อง');
+        toast.error(data.error || 'โค้ดส่วนลดไม่ถูกต้อง');
         return;
       }
-      const discountAmount = Math.round((subtotal * promo.percent) / 100);
-      setPromoResult({ valid: true, description: promo.description, discountAmount, code });
+      setPromoResult({ valid: true, description: data.description, discountAmount: data.discountAmount, code: data.code });
       toast.success('ใช้โค้ดส่วนลดสำเร็จ');
     } finally {
       setPromoLoading(false);
@@ -126,8 +152,10 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   async function handleBook() {
     if (!guestInfo.firstName || !guestInfo.email) { toast.error('กรุณากรอกข้อมูลให้ครบ'); return; }
     setSubmitting(true);
+    const idempotencyKey = `${hotel.id}-${selected.id}-${search.checkIn}-${search.checkOut}-${guestInfo.email}-${Date.now()}`;
     const res = await fetch('/api/reservations', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-idempotency-key': idempotencyKey },
       body: JSON.stringify({
         hotelId: hotel.id,
         roomTypeId: selected.id,
@@ -136,11 +164,13 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         firstName: guestInfo.firstName, lastName: guestInfo.lastName,
         email: guestInfo.email, phone: guestInfo.phone,
         nationality: guestInfo.nationality,
-        specialRequests: guestInfo.specialRequests,
+        specialRequests: [guestInfo.specialRequests, selectedAddOns.length ? `Add-ons: ${selectedAddOns.join(', ')}` : ''].filter(Boolean).join(' | '),
         estimatedArrival: guestInfo.estimatedArrival,
         source: 'website',
         totalAmount: total,
         guestAccountId: guestAccount?.id || null,
+        paymentMethod: paymentMethod === 'online' ? 'online' : paymentMethod,
+        roomTypeName: selected.name,
       }),
     });
     const data = await res.json();
@@ -275,18 +305,29 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
           </div>
         )}
 
-        <div className="space-y-4">
-          {availableRooms.map(rt => {
+        <div className="space-y-5">
+          {availableRooms.map((rt, idx) => {
             const amenities: string[] = rt.amenities || [];
             const imgs: any[] = rt.room_type_images || [];
-            const rate = Number(rt.effective_rate || rt.base_rate);
-            const isAvail = rt.is_available !== false;
+            const rate     = Number(rt.effective_rate || rt.base_rate);
+            const total    = rate * nights;
+            const isAvail  = rt.is_available !== false;
+            const isLow    = isAvail && rt.available_rooms > 0 && rt.available_rooms <= 3;
+            const isPopular = idx === 0 && isAvail;
 
             return (
-              <div key={rt.id} className={`bg-white rounded-2xl border overflow-hidden ${isAvail ? 'border-black/5' : 'border-black/5 opacity-60'}`}>
+              <div key={rt.id} className={`bg-white rounded-2xl border overflow-hidden transition-shadow hover:shadow-md ${isAvail ? (isPopular ? 'border-[#C66A30]/40 ring-1 ring-[#C66A30]/20' : 'border-black/8') : 'border-black/5 opacity-60'}`}>
+                {/* Popular banner */}
+                {isPopular && (
+                  <div className="bg-[#C66A30] px-4 py-1.5 flex items-center gap-2">
+                    <Flame className="h-3.5 w-3.5 text-white" />
+                    <span className="text-white text-xs font-semibold">ห้องยอดนิยม — เลือกมากที่สุด</span>
+                  </div>
+                )}
+
                 <div className="md:flex">
                   {/* Image */}
-                  <div className="md:w-64 h-48 md:h-auto bg-[#FAF7F2] shrink-0">
+                  <div className="md:w-60 h-52 md:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden">
                     {imgs[0]?.image_url ? (
                       <img src={imgs[0].image_url} alt={rt.name} className="w-full h-full object-cover" />
                     ) : (
@@ -294,33 +335,43 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                         <Bed className="h-12 w-12" />
                       </div>
                     )}
+                    {imgs.length > 1 && (
+                      <div className="absolute bottom-2 right-2 bg-black/60 text-white text-2xs px-2 py-0.5 rounded-full">
+                        {imgs.length} รูป
+                      </div>
+                    )}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-start justify-between mb-2 gap-3">
                       <div>
-                        <h3 className="font-bold text-[#2A2522]">{rt.name}</h3>
-                        <div className="flex items-center gap-3 text-xs text-[#2A2522]/50 mt-1">
-                          {rt.size_sqm && <span className="flex items-center gap-1"><Maximize2 className="h-3 w-3" />{rt.size_sqm} ตร.ม.</span>}
+                        <h3 className="font-bold text-[#2A2522] text-base">{rt.name}</h3>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#2A2522]/50 mt-1">
+                          {rt.size_sqm     && <span className="flex items-center gap-1"><Maximize2 className="h-3 w-3" />{rt.size_sqm} ตร.ม.</span>}
                           {rt.max_occupancy && <span className="flex items-center gap-1"><Users className="h-3 w-3" />สูงสุด {rt.max_occupancy} คน</span>}
-                          {rt.bed_type && <span className="flex items-center gap-1"><Bed className="h-3 w-3" />{rt.bed_type}</span>}
+                          {rt.bed_type      && <span className="flex items-center gap-1"><Bed className="h-3 w-3" />{rt.bed_type}</span>}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold text-[#2A2522]">{formatCurrency(rate)}</div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xl font-bold text-[#C66A30]">{formatCurrency(rate)}</div>
                         <div className="text-xs text-[#2A2522]/40">/ คืน</div>
+                        {nights > 1 && (
+                          <div className="text-xs font-semibold text-[#2A2522]/60 mt-0.5">
+                            รวม {formatCurrency(total)} ({nights} คืน)
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {rt.description && <p className="text-xs text-[#2A2522]/50 mb-3 line-clamp-2">{rt.description}</p>}
+                    {rt.description && <p className="text-xs text-[#2A2522]/50 mb-3 line-clamp-2 leading-relaxed">{rt.description}</p>}
 
                     {amenities.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {amenities.slice(0, 6).map((a: string) => {
                           const Icon = AMENITY_ICONS[a.toLowerCase()] || Check;
                           return (
-                            <span key={a} className="flex items-center gap-1 text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-1 rounded-full">
+                            <span key={a} className="flex items-center gap-1 text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-1 rounded-full border border-black/5">
                               <Icon className="h-3 w-3" />{a}
                             </span>
                           );
@@ -329,17 +380,28 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                       </div>
                     )}
 
-                    <div className="mt-auto flex items-center justify-between">
+                    {/* Status row */}
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {isAvail ? (
-                        <span className="text-xs text-emerald-600 flex items-center gap-1"><Check className="h-3.5 w-3.5" />ว่าง {rt.available_rooms > 0 ? rt.available_rooms : ''} ห้อง</span>
+                        <span className="flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                          <Check className="h-3.5 w-3.5" />ยกเลิกฟรี 24 ชม.
+                        </span>
                       ) : (
-                        <span className="text-xs text-red-500 flex items-center gap-1"><X className="h-3.5 w-3.5" />เต็มแล้ว</span>
+                        <span className="flex items-center gap-1 text-xs text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
+                          <X className="h-3.5 w-3.5" />เต็มแล้ว
+                        </span>
                       )}
-                      <button onClick={() => { setSelected(rt); setStep('details'); }} disabled={!isAvail}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
-                      </button>
+                      {isLow && (
+                        <span className="flex items-center gap-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full font-semibold">
+                          เหลือเพียง {rt.available_rooms} ห้อง!
+                        </span>
+                      )}
                     </div>
+
+                    <button onClick={() => { setSelected(rt); setStep('details'); }} disabled={!isAvail}
+                      className="mt-auto w-full sm:w-auto sm:self-end flex items-center justify-center gap-2 px-6 py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                      เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -418,11 +480,15 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
               <h3 className="font-bold text-[#2A2522] mb-4">แผนราคา</h3>
               <div className="space-y-3">
                 {[
-                  { key: 'flexible', label: 'Standard Rate', desc: 'ยกเลิกฟรี 24 ชม.ก่อนเช็คอิน', rate: baseRate, badge: null },
-                  { key: 'non_refundable', label: 'Non-refundable', desc: 'ราคาประหยัด ไม่สามารถยกเลิกคืนเงินได้', rate: baseRate * 0.9, badge: 'ประหยัด 10%' },
+                  { key: 'flexible', label: 'Standard Rate', desc: 'ยกเลิกฟรี 24 ชม.ก่อนเช็คอิน', rate: baseRate, badge: null, disabled: false },
+                  { key: 'non_refundable', label: 'Non-refundable', desc: 'ราคาประหยัด ไม่สามารถยกเลิกคืนเงินได้', rate: baseRate * 0.9, badge: 'ประหยัด 10%', disabled: false },
+                  { key: 'early_bird', label: 'Early Bird', desc: daysBeforeCheckIn >= 14 && !isBlackout ? 'จองล่วงหน้า 14+ วัน ลดเพิ่ม' : 'ต้องจองล่วงหน้า 14 วัน และไม่ใช่ blackout', rate: baseRate * 0.85, badge: 'ลด 15%', disabled: !(daysBeforeCheckIn >= 14 && !isBlackout) },
+                  { key: 'member', label: 'Member Rate', desc: memberEligible ? 'ราคาเฉพาะสมาชิก' : 'เข้าสู่ระบบเพื่อรับราคาสมาชิก', rate: baseRate * 0.88, badge: 'Member', disabled: !memberEligible },
+                  { key: 'package', label: 'Package Rate', desc: 'รวมชุดอาหารเช้าและ late checkout', rate: baseRate * 1.12, badge: 'Package', disabled: false },
                 ].map(plan => (
-                  <label key={plan.key} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${ratePlan === plan.key ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30'}`}>
+                  <label key={plan.key} className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${plan.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${ratePlan === plan.key ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30'}`}>
                     <input type="radio" name="ratePlan" value={plan.key} checked={ratePlan === plan.key}
+                      disabled={plan.disabled}
                       onChange={() => setRatePlan(plan.key as any)} className="accent-[#C66A30]" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -466,17 +532,43 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
               )}
             </div>
 
+            {/* Upsell add-ons */}
+            <div className="bg-white rounded-2xl border border-black/5 p-6">
+              <h3 className="font-bold text-[#2A2522] mb-4">Add-ons แนะนำ</h3>
+              <div className="space-y-2">
+                {Object.entries(addOnCatalog).map(([key, item]) => {
+                  const checked = selectedAddOns.includes(key);
+                  return (
+                    <label key={key} className="flex items-center justify-between rounded-xl border border-black/10 px-3 py-2 text-sm">
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => setSelectedAddOns((prev) => checked ? prev.filter((x) => x !== key) : [...prev, key])}
+                        />
+                        {item.label}
+                      </span>
+                      <span className="font-medium">{formatCurrency(item.price)}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Payment method */}
             <div className="bg-white rounded-2xl border border-black/5 p-6">
               <h3 className="font-bold text-[#2A2522] mb-4">วิธีชำระเงิน</h3>
               <div className="space-y-3">
                 {[
-                  { key: 'online', label: 'ชำระออนไลน์ตอนนี้', desc: 'บัตรเครดิต/เดบิต, PromptPay — ปลอดภัยและยืนยันทันที', badge: '🔒 แนะนำ' },
+                  { key: 'promptpay', label: 'PromptPay QR', desc: 'สแกน QR ผ่าน Mobile Banking — ยืนยันอัตโนมัติทันที', badge: '⚡ เร็วที่สุด' },
+                  { key: 'online', label: 'บัตรเครดิต/เดบิต', desc: 'ชำระด้วยบัตรออนไลน์ — ปลอดภัยและยืนยันทันที', badge: '🔒 ปลอดภัย' },
+                  { key: 'truemoney', label: 'TrueMoney Wallet', desc: 'ชำระผ่าน TrueMoney — รองรับทุก True Card และ eWallet', badge: '💳 True' },
+                  { key: 'bank_transfer', label: 'โอนเงินผ่านธนาคาร', desc: 'โอนเงินเข้าบัญชีโรงแรมและแนบสลิป — ยืนยันภายใน 30 นาที', badge: '' },
                   { key: 'at_hotel', label: 'ชำระที่โรงแรม (Pay at Hotel)', desc: 'จ่ายเมื่อเช็คอิน — ยกเลิกได้ฟรีทุกเมื่อก่อนวันเช็คอิน', badge: '' },
                 ].map(pm => (
-                  <label key={pm.key} className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === pm.key ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30'}`}>
+                  <label key={pm.key} className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === pm.key ? 'border-[#004B87] bg-[#004B87]/5' : 'border-black/8 hover:border-[#004B87]/30'}`}>
                     <input type="radio" name="paymentMethod" value={pm.key} checked={paymentMethod === pm.key}
-                      onChange={() => setPaymentMethod(pm.key as any)} className="accent-[#C66A30] mt-0.5" />
+                      onChange={() => setPaymentMethod(pm.key as any)} className="accent-[#004B87] mt-0.5" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-[#2A2522]">{pm.label}</span>
@@ -505,16 +597,19 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 </div>
                 <div className="border-t border-black/5 pt-2.5 space-y-2">
                   <SummaryRow label={`${formatCurrency(baseRate * rateMultiplier)} × ${nights} คืน`} value={formatCurrency(subtotal)} />
+                  {addOnsTotal > 0 && <SummaryRow label="บริการเสริม" value={formatCurrency(addOnsTotal)} />}
                   <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
+                  {addOnTotal > 0 && <SummaryRow label="Add-ons" value={formatCurrency(addOnTotal)} />}
                   <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
                     <span>รวมทั้งสิ้น</span>
                     <span className="text-lg">{formatCurrency(total)}</span>
                   </div>
                 </div>
               </div>
-              <button onClick={() => setStep('review')} disabled={!guestInfo.firstName || !guestInfo.email}
-                className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50">
-                ถัดไป: ตรวจสอบข้อมูล
+              <button onClick={handleBook} disabled={submitting || !guestInfo.firstName || !guestInfo.email}
+                className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                {submitting ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                {submitting ? 'กำลังยืนยัน...' : `ยืนยันการจอง ${formatCurrency(total)}`}
               </button>
               <div className="flex items-center gap-2 mt-3 text-xs text-[#2A2522]/40 justify-center">
                 <ShieldCheck className="h-3.5 w-3.5" /> ข้อมูลของคุณได้รับการปกป้อง
@@ -526,78 +621,50 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     </PublicLayout>
   );
 
-  // ─── STEP: REVIEW ────────────────────────────────────────────────────
-  if (step === 'review') return (
-    <PublicLayout hotel={hotel} user={user} step={step}>
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <button onClick={() => setStep('details')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
-          <ChevronLeft className="h-4 w-4" /> แก้ไขข้อมูล
-        </button>
+  // ─── STEP: CONFIRMED — PromptPay flow ────────────────────────────────
+  if (step === 'confirmed' && paymentMethod === 'promptpay' && reservation) {
+    return (
+      <PublicLayout hotel={hotel} user={user} step={step}>
+        <div className="max-w-2xl mx-auto px-4 py-12">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-[#2A2522]">ชำระเงินด้วย PromptPay</h2>
+            <p className="text-[#2A2522]/60 mt-1">รหัสการจอง <span className="font-mono font-bold text-[#C66A30]">{reservation.reservation_code}</span></p>
+          </div>
 
-        <h2 className="text-xl font-bold text-[#2A2522] mb-6">ตรวจสอบและยืนยันการจอง</h2>
+          <PromptPayQR
+            reservationId={reservation.id}
+            amount={total}
+            description={`จองห้องพัก ${selected?.name} — ${hotel.name}`}
+            onSuccess={() => {
+              toast.success('ชำระเงินสำเร็จ! การจองได้รับการยืนยันแล้ว');
+            }}
+            onExpired={() => toast.warning('QR Code หมดอายุ กรุณาสร้างใหม่')}
+            className="mx-auto"
+          />
 
-        <div className="space-y-4 mb-6">
-          <Section title="ที่พัก">
-            <div className="flex items-start gap-4">
-              {hotel.hero_image_url && <img src={hotel.hero_image_url} alt={hotel.name} className="h-20 w-28 object-cover rounded-lg" />}
-              <div>
-                <div className="font-semibold text-[#2A2522]">{hotel.name}</div>
-                <div className="text-sm text-[#2A2522]/60">{selected?.name}</div>
-                {hotel.city && <div className="text-xs text-[#2A2522]/40 flex items-center gap-1 mt-1"><MapPin className="h-3 w-3" />{hotel.city}</div>}
-              </div>
+          <div className="mt-8 bg-white rounded-2xl border border-black/5 p-5 text-sm space-y-2">
+            <SummaryRow label="โรงแรม" value={hotel.name} />
+            <SummaryRow label="ห้องพัก" value={selected?.name} />
+            <SummaryRow label="เช็คอิน" value={format(new Date(search.checkIn+'T00:00:00'), 'd MMMM yyyy', { locale: th })} />
+            <SummaryRow label="เช็คเอาท์" value={format(new Date(search.checkOut+'T00:00:00'), 'd MMMM yyyy', { locale: th })} />
+            <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
+              <span>ยอดชำระ</span><span>{formatCurrency(total)}</span>
             </div>
-          </Section>
+          </div>
 
-          <Section title="วันที่เข้าพัก">
-            <div className="grid grid-cols-3 gap-4 text-sm">
-              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">เช็คอิน</div><div className="font-medium">{format(new Date(search.checkIn+'T00:00:00'), 'EEE d MMM yyyy', { locale: th })}</div><div className="text-xs text-[#2A2522]/50">หลัง {hotel.check_in_time || '14:00'} น.</div></div>
-              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">เช็คเอาท์</div><div className="font-medium">{format(new Date(search.checkOut+'T00:00:00'), 'EEE d MMM yyyy', { locale: th })}</div><div className="text-xs text-[#2A2522]/50">ก่อน {hotel.check_out_time || '12:00'} น.</div></div>
-              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">ระยะเวลา</div><div className="font-medium">{nights} คืน</div><div className="text-xs text-[#2A2522]/50">{search.adults} ผู้ใหญ่</div></div>
-            </div>
-          </Section>
-
-          <Section title="ข้อมูลผู้เข้าพัก">
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div><div className="text-xs text-[#2A2522]/40">ชื่อ-นามสกุล</div><div className="font-medium">{guestInfo.firstName} {guestInfo.lastName}</div></div>
-              <div><div className="text-xs text-[#2A2522]/40">อีเมล</div><div className="font-medium">{guestInfo.email}</div></div>
-              {guestInfo.phone && <div><div className="text-xs text-[#2A2522]/40">โทร</div><div className="font-medium">{guestInfo.phone}</div></div>}
-              {guestInfo.nationality && <div><div className="text-xs text-[#2A2522]/40">สัญชาติ</div><div className="font-medium">{guestInfo.nationality}</div></div>}
-            </div>
-            {guestInfo.specialRequests && (
-              <div className="mt-3 p-3 bg-[#FAF7F2] rounded-lg text-xs text-[#2A2522]/60">
-                <span className="font-medium">คำขอพิเศษ: </span>{guestInfo.specialRequests}
-              </div>
-            )}
-          </Section>
-
-          <Section title="ยอดชำระ">
-            <div className="space-y-2 text-sm">
-              <SummaryRow label={`ค่าห้อง ${formatCurrency(baseRate * rateMultiplier)} × ${nights} คืน`} value={formatCurrency(subtotal)} />
-              <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
-              <div className="flex justify-between font-bold text-[#2A2522] text-base pt-2 border-t border-black/5">
-                <span>รวมทั้งสิ้น</span>
-                <span>{formatCurrency(total)}</span>
-              </div>
-              <p className="text-xs text-[#2A2522]/40">
-                {ratePlan === 'flexible' ? '✓ ยกเลิกฟรีภายใน 24 ชั่วโมงก่อนเช็คอิน' : '⚠️ อัตรานี้ไม่สามารถยกเลิกคืนเงินได้'}
-              </p>
-            </div>
-          </Section>
+          <div className="mt-4 flex gap-3 justify-center">
+            {user ? (
+              <Link href="/portal/bookings" className="flex items-center gap-2 px-5 py-2.5 border border-black/10 text-[#2A2522] rounded-xl font-medium text-sm hover:bg-black/5 transition-colors">
+                ดูการจองของฉัน <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : null}
+          </div>
         </div>
+      </PublicLayout>
+    );
+  }
 
-        <button onClick={handleBook} disabled={submitting}
-          className="w-full py-4 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-2xl font-bold text-base transition-colors disabled:opacity-60 flex items-center justify-center gap-3">
-          {submitting ? <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck className="h-5 w-5" />}
-          {submitting ? 'กำลังยืนยัน...' : `ยืนยันการจอง ${formatCurrency(total)}`}
-        </button>
-        <p className="text-center text-xs text-[#2A2522]/40 mt-3">
-          การกดยืนยันถือว่าคุณยอมรับ <Link href="/terms" className="underline">เงื่อนไขการใช้งาน</Link> และ <Link href="/privacy" className="underline">นโยบายความเป็นส่วนตัว</Link>
-        </p>
-      </div>
-    </PublicLayout>
-  );
-
-  // ─── STEP: CONFIRMED ─────────────────────────────────────────────────
+  // ─── STEP: CONFIRMED — standard flow ─────────────────────────────────
   return (
     <PublicLayout hotel={hotel} user={user} step={step}>
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
@@ -610,6 +677,25 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
           {reservation?.reservation_code}
         </div>
         <p className="text-sm text-[#2A2522]/50 mb-8">ระบบส่งอีเมลยืนยันไปที่ <strong>{guestInfo.email}</strong> แล้ว</p>
+        {paymentMethod === 'at_hotel' && (
+          <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            ชำระที่โรงแรมเมื่อเช็คอิน — กรุณาแสดงรหัสการจองแก่พนักงาน
+          </div>
+        )}
+        {paymentMethod === 'truemoney' && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="font-semibold mb-1">ชำระผ่าน TrueMoney Wallet</p>
+            <p>เปิดแอป TrueMoney → โอนเงิน → ใส่เบอร์โรงแรม → ส่งสลิปมาที่อีเมลโรงแรม</p>
+            <p className="mt-1 text-xs text-red-600">ทีมงานจะยืนยันการจองภายใน 30 นาทีหลังได้รับสลิป</p>
+          </div>
+        )}
+        {paymentMethod === 'bank_transfer' && (
+          <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+            <p className="font-semibold mb-1">โอนเงินผ่านธนาคาร</p>
+            <p>โอนเงินเข้าบัญชีโรงแรมและแนบสลิปในอีเมลยืนยันการจอง</p>
+            <p className="mt-1 text-xs text-blue-600">จะยืนยันภายใน 30 นาทีในเวลาทำการ 8:00–20:00 น.</p>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl border border-black/5 p-6 text-left mb-6">
           <h3 className="font-semibold text-[#2A2522] mb-4">สรุปการจอง</h3>
@@ -649,9 +735,9 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 function PublicLayout({ hotel, user, step, children }: any) {
   const STEP_LABELS: Record<string, string> = {
     dates: 'เลือกวันที่', rooms: 'เลือกห้อง', details: 'กรอกข้อมูล',
-    review: 'ตรวจสอบ', confirmed: 'เสร็จสิ้น',
+    confirmed: 'เสร็จสิ้น',
   };
-  const STEP_ORDER = ['dates', 'rooms', 'details', 'review', 'confirmed'];
+  const STEP_ORDER = ['dates', 'rooms', 'details', 'confirmed'];
   const currentIdx = STEP_ORDER.indexOf(step);
 
   return (

@@ -5,10 +5,13 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   Tag,
+  Star,
   LayoutDashboard, Calendar, CalendarRange, MessageSquare, Users, Bed,
   Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed,
   Heart, Award, Megaphone, Settings, LogOut, ChevronDown,
   Building2, Shield, Settings2, Palette, CreditCard, Rocket, Zap,
+  MonitorDot,
+  Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -22,26 +25,44 @@ interface SidebarProps {
   userRole?: string;
 }
 
+// Role groupings — used in `roles` arrays on nav items.
+// If a nav item has no `roles` array it shows to ALL roles.
+// If it has a `roles` array, only those roles see it.
+const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
 const MANAGEMENT_ROLES = ['owner', 'admin', 'manager'];
 const OWNER_ADMIN_ROLES = ['owner', 'admin'];
+const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk'];
+const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff'];
+const FLOOR_OPS_ROLES   = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff', 'maintenance'];
+const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
+const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
+const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
 
 const NAV_GROUPS = [
   {
     label: 'ภาพรวม',
     items: [
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
+      { href: '/dashboard', icon: LayoutDashboard, label: 'Overview', roles: OPS_ROLES },
       { href: '/dashboard/inbox', icon: MessageSquare, label: 'Inbox', showUnread: true },
-      { href: '/dashboard/ai-concierge', icon: Sparkles, label: 'AI Concierge' },
+      { href: '/dashboard/ai-concierge', icon: Sparkles, label: 'AI Concierge', roles: OPS_ROLES },
     ],
   },
   {
     label: 'การดำเนินงาน',
     items: [
-      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง' },
-      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง' },
+      { href: '/dashboard/front-desk', icon: MonitorDot, label: 'Front Desk', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/front-desk/check-in-wizard', icon: MonitorDot, label: 'Check-in Wizard', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/group-bookings', icon: Users, label: 'Group Booking', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: [...FRONT_DESK_ROLES, 'maintenance'] },
       { href: '/dashboard/rates', icon: CalendarRange, label: 'ปฏิทินราคา', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/guests', icon: Users, label: 'แขก' },
-      { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน' },
+      { href: '/dashboard/guests', icon: Users, label: 'แขก', roles: OPS_ROLES },
+      { href: '/dashboard/guests/merge', icon: Users, label: 'Merge Guests', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/notifications', icon: Bell, label: 'Notifications', roles: ALL_STAFF },
+      { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน', roles: HOUSEKEEPING_ROLES },
+      { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุง', roles: MAINTENANCE_ROLES },
+      { href: '/dashboard/concierge', icon: Headphones, label: 'Concierge', roles: CONCIERGE_ROLES },
+      { href: '/dashboard/security', icon: ShieldCheck, label: 'Security', roles: SECURITY_ROLES },
     ],
   },
   {
@@ -50,18 +71,21 @@ const NAV_GROUPS = [
       { href: '/dashboard/channels', icon: Globe2, label: 'Channel Manager', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/ota', icon: Globe2, label: 'OTA Sync', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/marketing', icon: Megaphone, label: 'Marketing', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด' },
+      { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/reviews', icon: Star, label: 'Review Aggregator', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/booking-widget', icon: Globe2, label: 'Booking Widget', roles: MANAGEMENT_ROLES },
     ],
   },
   {
     label: 'การเงิน',
     items: [
-      { href: '/dashboard/accounting', icon: Receipt, label: 'บัญชี & ภาษี', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/accounting', icon: Receipt, label: 'บัญชี & ภาษี', roles: ACCOUNTING_ROLES },
       { href: '/dashboard/billing', icon: CreditCard, label: 'Billing', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: REVENUE_ROLES },
+      { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: REVENUE_ROLES },
+      { href: '/dashboard/reports/incidents', icon: Shield, label: 'Incident Timeline', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/audit', icon: Shield, label: 'Audit Log', roles: OWNER_ADMIN_ROLES },
-      { href: '/dashboard/setup', icon: Zap, label: 'Service Setup' },
+      { href: '/dashboard/setup', icon: Zap, label: 'Service Setup', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/system', icon: Settings2, label: 'ระบบ & Integrations', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/launch', icon: Rocket, label: 'Launch Readiness', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/go-live', icon: Rocket, label: 'Go-Live Control', roles: OWNER_ADMIN_ROLES },
@@ -187,10 +211,10 @@ export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: S
 
       <div className="border-t border-border p-3">
         <Link
-          href="/dashboard/settings"
+          href="/dashboard/profile"
           className={cn(
             'flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-secondary transition-colors',
-            pathname.startsWith('/dashboard/settings') && 'bg-secondary'
+            pathname.startsWith('/dashboard/profile') && 'bg-secondary'
           )}
         >
           <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0">

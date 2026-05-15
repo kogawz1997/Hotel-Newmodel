@@ -47,6 +47,8 @@ const securityHeaders = [
 
 const nextConfig = {
   poweredByHeader: false,
+  transpilePackages: ['recharts', 'victory-vendor'],
+  serverExternalPackages: ['@line/bot-sdk'],
   eslint: {
     // Keep CI/dev linting via explicit `npm run lint`, but avoid warning noise in `next build`.
     ignoreDuringBuilds: true,

@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { CalendarDays, Heart, UserRound } from 'lucide-react';
+import { CalendarDays, Heart, UserRound, ClipboardCheck } from 'lucide-react';
 import { CookieConsent } from '@/components/ui/cookie-consent';
 
 const tabs = [
   { href: '/portal/bookings', label: 'Bookings', icon: CalendarDays },
+  { href: '/portal/check-in', label: 'Check-in', icon: ClipboardCheck },
   { href: '/portal/wishlist', label: 'Wishlist', icon: Heart },
   { href: '/portal/profile', label: 'Profile', icon: UserRound },
 ];
@@ -31,7 +32,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#D8B27A]/25 bg-[#140F0B]/90 backdrop-blur-xl">
-        <div className="mx-auto grid max-w-md grid-cols-3">
+        <div className="mx-auto grid max-w-xl grid-cols-4">
           {tabs.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}

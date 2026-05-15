@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Heart, MapPin, ArrowLeft, Bed, Users, Maximize2, ChevronRight, Calendar } from 'lucide-react';
+import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 export function WishlistClient({ guest, wishlists: initial }: { guest: any; wishlists: any[] }) {
   const [items, setItems] = useState(initial);
@@ -29,7 +30,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {items.length === 0 ? (
           <div className="text-center py-24">
             <div className="h-16 w-16 bg-[#FAF7F2] border-2 border-dashed border-black/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -105,6 +106,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
           </div>
         )}
       </div>
+      <PortalBottomNav />
     </div>
   );
 }

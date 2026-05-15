@@ -14,7 +14,7 @@ const required = [
   'scripts/deploy-local.sh',
   'scripts/deploy-local.ps1',
   '.github/workflows/deploy-check.yml',
-  'docs/DEPLOYMENT_MATRIX.md'
+  'docs/STATUS.md'
 ];
 
 let failed = false;

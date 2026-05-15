@@ -12,6 +12,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import sgMail from '@sendgrid/mail';
 import { format, addDays } from 'date-fns';
 import { th } from 'date-fns/locale';
+import { sendLinePreArrival } from '@/lib/channels/line-notify';
 
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
   ] as [number, string, string][]) {
     const { data: reservations } = await admin
       .from('reservations')
-      .select('id, reservation_code, check_in, check_out, nights, num_adults, special_requests, guests(first_name, last_name, email), hotels(name, city, phone, email, address, check_in_time, check_out_time, hero_image_url, slug), room_types(name)')
+      .select('id, guest_id, hotel_id, reservation_code, check_in, check_out, nights, num_adults, special_requests, guests(first_name, last_name, email), hotels(name, city, phone, email, address, check_in_time, check_out_time, hero_image_url, slug), room_types(name)')
       .eq('check_in', checkInDate)
       .in('status', ['confirmed'])
       .not('guests.email', 'is', null);
@@ -80,6 +81,19 @@ export async function GET(request: NextRequest) {
           });
         }
         sent++;
+        // LINE notification (non-blocking — no-op if guest has no LINE conversation)
+        if (r.guest_id && r.hotel_id) {
+          sendLinePreArrival({
+            hotelId: r.hotel_id,
+            guestId: r.guest_id,
+            guestName: `${guest.first_name} ${guest.last_name || ''}`.trim(),
+            reservationCode: r.reservation_code,
+            checkIn: r.check_in,
+            daysUntilArrival: daysOut as number,
+            checkInTime: hotel.check_in_time,
+            hotelName: hotel.name,
+          }).catch(() => {});
+        }
       } catch (err: any) {
         errors.push(`${guest.email}: ${err.message}`);
       }
