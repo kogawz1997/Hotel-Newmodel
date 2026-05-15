@@ -13,9 +13,11 @@ export async function requireDashboardRole(allowedRoles: StaffRole[]) {
     redirect('/auth/login');
   }
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+
+  const { data: profile } = await admin
     .from('user_profiles')
-    .select('id, role, organization_id')
+    .select('id, role, organization_id, hotel_id')
     .eq('id', user.id)
     .single();
 
