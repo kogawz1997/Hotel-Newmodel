@@ -1,4 +1,5 @@
-import { requireDashboardRole } from '@/lib/auth/page-guards';
+export const dynamic = 'force-dynamic';
+import { createClient } from '@/lib/supabase/server';
 import { ReportsClient } from '@/components/dashboard/reports-client';
 
 export default async function ReportsPage() {

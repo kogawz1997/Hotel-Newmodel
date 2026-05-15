@@ -4,14 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  Tag,
-  Star,
+  Tag, TrendingUp,
   LayoutDashboard, Calendar, CalendarRange, MessageSquare, Users, Bed,
   Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed,
   Heart, Award, Megaphone, Settings, LogOut, ChevronDown,
   Building2, Shield, Settings2, Palette, CreditCard, Rocket, Zap,
-  MonitorDot,
-  Bell,
+  MonitorDot, Wrench, Headphones, ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -33,9 +31,12 @@ const MANAGEMENT_ROLES = ['owner', 'admin', 'manager'];
 const OWNER_ADMIN_ROLES = ['owner', 'admin'];
 const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk', 'receptionist'];
 const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
-const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
-const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
-const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
+const HOUSEKEEPING_ROLES  = ['owner', 'admin', 'manager', 'housekeeping'];
+const ACCOUNTING_ROLES   = ['owner', 'admin', 'manager', 'accounting'];
+const REVENUE_ROLES      = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
+const MAINTENANCE_ROLES  = ['owner', 'admin', 'manager', 'maintenance'];
+const CONCIERGE_ROLES    = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
+const SECURITY_ROLES     = ['owner', 'admin', 'manager', 'security'];
 
 const NAV_GROUPS = [
   {
@@ -59,6 +60,9 @@ const NAV_GROUPS = [
       { href: '/dashboard/guests/merge', icon: Users, label: 'Merge Guests', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/notifications', icon: Bell, label: 'Notifications', roles: ALL_STAFF },
       { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน', roles: HOUSEKEEPING_ROLES },
+      { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุง', roles: MAINTENANCE_ROLES },
+      { href: '/dashboard/concierge', icon: Headphones, label: 'Concierge', roles: CONCIERGE_ROLES },
+      { href: '/dashboard/security', icon: ShieldCheck, label: 'Security', roles: SECURITY_ROLES },
     ],
   },
   {
@@ -68,8 +72,7 @@ const NAV_GROUPS = [
       { href: '/dashboard/ota', icon: Globe2, label: 'OTA Sync', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/marketing', icon: Megaphone, label: 'Marketing', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/reviews', icon: Star, label: 'Review Aggregator', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/booking-widget', icon: Globe2, label: 'Booking Widget', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/ranking', icon: TrendingUp, label: 'Search Ranking', roles: MANAGEMENT_ROLES },
     ],
   },
   {
@@ -207,10 +210,10 @@ export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: S
 
       <div className="border-t border-border p-3">
         <Link
-          href="/dashboard/settings"
+          href="/dashboard/profile"
           className={cn(
             'flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-secondary transition-colors',
-            pathname.startsWith('/dashboard/settings') && 'bg-secondary'
+            pathname.startsWith('/dashboard/profile') && 'bg-secondary'
           )}
         >
           <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0">

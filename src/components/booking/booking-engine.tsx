@@ -16,7 +16,7 @@ import {
   MapPin, Phone, Mail, Star, Wifi, Wind, Coffee, Waves,
   Tv, Car, Users, Maximize2, Bed, Calendar, ChevronRight,
   ChevronLeft, Check, X, ShieldCheck, Clock, Info, Heart,
-  Tag, AlertCircle, Globe2, User,
+  Tag, AlertCircle, Globe2, User, Flame,
 } from 'lucide-react';
 
 const AMENITY_ICONS: Record<string, any> = {
@@ -24,8 +24,16 @@ const AMENITY_ICONS: Record<string, any> = {
   pool: Waves, tv: Tv, parking: Car, balcony: Globe2,
 };
 
-const POLICY_STEPS = ['dates', 'rooms', 'details', 'confirmed'] as const;
+const POLICY_STEPS = ['dates', 'rooms', 'details', 'addons', 'review', 'confirmed'] as const;
 type Step = typeof POLICY_STEPS[number];
+
+const ADDONS_CATALOG = [
+  { code: 'airport_transfer', emoji: '🚗', name: 'Airport Transfer', desc: 'รับ-ส่งสนามบิน (ราคาต่อเที่ยว)', price: 1200 },
+  { code: 'breakfast',        emoji: '🍳', name: 'อาหารเช้า',         desc: 'บุฟเฟ่ต์มื้อเช้า (ต่อคน/วัน)', price: 350, perPersonPerNight: true },
+  { code: 'flowers',          emoji: '💐', name: 'ดอกไม้โรแมนติก',   desc: 'จัดดอกไม้ตกแต่งห้องต้อนรับ', price: 800 },
+  { code: 'spa_credit',       emoji: '💆', name: 'Spa Credit',        desc: 'เครดิตใช้บริการ Spa (ต่อคน)', price: 1000 },
+  { code: 'welcome_cake',     emoji: '🎂', name: 'Welcome Cake',      desc: 'เค้กต้อนรับพิเศษ ตกแต่งห้อง', price: 500 },
+] as const;
 
 export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: any; roomTypes: any[] }) {
   const supabase = createClient();
@@ -47,7 +55,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [promoCode, setPromoCode]           = useState('');
   const [promoResult, setPromoResult]       = useState<any>(null);
   const [promoLoading, setPromoLoading]     = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel' | 'promptpay'>('online');
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel' | 'promptpay' | 'truemoney' | 'bank_transfer'>('promptpay');
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
@@ -69,14 +77,14 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   };
   const rateMultiplier = rateMultipliers[ratePlan] || 1;
   const subtotal = baseRate * rateMultiplier * nights;
-  const vat = subtotal * Number(hotel.vat_rate || 0.07);
-  const addOnCatalog: Record<string, { label: string; price: number }> = {
-    breakfast: { label: 'Breakfast', price: 250 },
-    airport: { label: 'Airport transfer', price: 900 },
-    late_checkout: { label: 'Late checkout', price: 600 },
-  };
-  const addOnTotal = selectedAddOns.reduce((sum, key) => sum + (addOnCatalog[key]?.price || 0), 0);
-  const total = subtotal + vat + addOnTotal;
+  const addOnsTotal = selectedAddOns.reduce((sum, code) => {
+    const a = ADDONS_CATALOG.find(x => x.code === code);
+    if (!a) return sum;
+    const qty = (a as any).perPersonPerNight ? (search.adults || 1) * Math.max(nights, 1) : 1;
+    return sum + a.price * qty;
+  }, 0);
+  const vat = (subtotal + addOnsTotal) * Number(hotel.vat_rate || 0.07);
+  const total = subtotal + addOnsTotal + vat;
 
   useEffect(() => {
     async function loadUser() {
@@ -297,18 +305,29 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
           </div>
         )}
 
-        <div className="space-y-4">
-          {availableRooms.map(rt => {
+        <div className="space-y-5">
+          {availableRooms.map((rt, idx) => {
             const amenities: string[] = rt.amenities || [];
             const imgs: any[] = rt.room_type_images || [];
-            const rate = Number(rt.effective_rate || rt.base_rate);
-            const isAvail = rt.is_available !== false;
+            const rate     = Number(rt.effective_rate || rt.base_rate);
+            const total    = rate * nights;
+            const isAvail  = rt.is_available !== false;
+            const isLow    = isAvail && rt.available_rooms > 0 && rt.available_rooms <= 3;
+            const isPopular = idx === 0 && isAvail;
 
             return (
-              <div key={rt.id} className={`bg-white rounded-2xl border overflow-hidden ${isAvail ? 'border-black/5' : 'border-black/5 opacity-60'}`}>
+              <div key={rt.id} className={`bg-white rounded-2xl border overflow-hidden transition-shadow hover:shadow-md ${isAvail ? (isPopular ? 'border-[#C66A30]/40 ring-1 ring-[#C66A30]/20' : 'border-black/8') : 'border-black/5 opacity-60'}`}>
+                {/* Popular banner */}
+                {isPopular && (
+                  <div className="bg-[#C66A30] px-4 py-1.5 flex items-center gap-2">
+                    <Flame className="h-3.5 w-3.5 text-white" />
+                    <span className="text-white text-xs font-semibold">ห้องยอดนิยม — เลือกมากที่สุด</span>
+                  </div>
+                )}
+
                 <div className="md:flex">
                   {/* Image */}
-                  <div className="md:w-64 h-48 md:h-auto bg-[#FAF7F2] shrink-0">
+                  <div className="md:w-60 h-52 md:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden">
                     {imgs[0]?.image_url ? (
                       <img src={imgs[0].image_url} alt={rt.name} className="w-full h-full object-cover" />
                     ) : (
@@ -316,33 +335,43 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                         <Bed className="h-12 w-12" />
                       </div>
                     )}
+                    {imgs.length > 1 && (
+                      <div className="absolute bottom-2 right-2 bg-black/60 text-white text-2xs px-2 py-0.5 rounded-full">
+                        {imgs.length} รูป
+                      </div>
+                    )}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-start justify-between mb-2 gap-3">
                       <div>
-                        <h3 className="font-bold text-[#2A2522]">{rt.name}</h3>
-                        <div className="flex items-center gap-3 text-xs text-[#2A2522]/50 mt-1">
-                          {rt.size_sqm && <span className="flex items-center gap-1"><Maximize2 className="h-3 w-3" />{rt.size_sqm} ตร.ม.</span>}
+                        <h3 className="font-bold text-[#2A2522] text-base">{rt.name}</h3>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#2A2522]/50 mt-1">
+                          {rt.size_sqm     && <span className="flex items-center gap-1"><Maximize2 className="h-3 w-3" />{rt.size_sqm} ตร.ม.</span>}
                           {rt.max_occupancy && <span className="flex items-center gap-1"><Users className="h-3 w-3" />สูงสุด {rt.max_occupancy} คน</span>}
-                          {rt.bed_type && <span className="flex items-center gap-1"><Bed className="h-3 w-3" />{rt.bed_type}</span>}
+                          {rt.bed_type      && <span className="flex items-center gap-1"><Bed className="h-3 w-3" />{rt.bed_type}</span>}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold text-[#2A2522]">{formatCurrency(rate)}</div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xl font-bold text-[#C66A30]">{formatCurrency(rate)}</div>
                         <div className="text-xs text-[#2A2522]/40">/ คืน</div>
+                        {nights > 1 && (
+                          <div className="text-xs font-semibold text-[#2A2522]/60 mt-0.5">
+                            รวม {formatCurrency(total)} ({nights} คืน)
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {rt.description && <p className="text-xs text-[#2A2522]/50 mb-3 line-clamp-2">{rt.description}</p>}
+                    {rt.description && <p className="text-xs text-[#2A2522]/50 mb-3 line-clamp-2 leading-relaxed">{rt.description}</p>}
 
                     {amenities.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {amenities.slice(0, 6).map((a: string) => {
                           const Icon = AMENITY_ICONS[a.toLowerCase()] || Check;
                           return (
-                            <span key={a} className="flex items-center gap-1 text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-1 rounded-full">
+                            <span key={a} className="flex items-center gap-1 text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-1 rounded-full border border-black/5">
                               <Icon className="h-3 w-3" />{a}
                             </span>
                           );
@@ -351,17 +380,28 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                       </div>
                     )}
 
-                    <div className="mt-auto flex items-center justify-between">
+                    {/* Status row */}
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {isAvail ? (
-                        <span className="text-xs text-emerald-600 flex items-center gap-1"><Check className="h-3.5 w-3.5" />ว่าง {rt.available_rooms > 0 ? rt.available_rooms : ''} ห้อง</span>
+                        <span className="flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                          <Check className="h-3.5 w-3.5" />ยกเลิกฟรี 24 ชม.
+                        </span>
                       ) : (
-                        <span className="text-xs text-red-500 flex items-center gap-1"><X className="h-3.5 w-3.5" />เต็มแล้ว</span>
+                        <span className="flex items-center gap-1 text-xs text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
+                          <X className="h-3.5 w-3.5" />เต็มแล้ว
+                        </span>
                       )}
-                      <button onClick={() => { setSelected(rt); setStep('details'); }} disabled={!isAvail}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
-                      </button>
+                      {isLow && (
+                        <span className="flex items-center gap-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full font-semibold">
+                          เหลือเพียง {rt.available_rooms} ห้อง!
+                        </span>
+                      )}
                     </div>
+
+                    <button onClick={() => { setSelected(rt); setStep('details'); }} disabled={!isAvail}
+                      className="mt-auto w-full sm:w-auto sm:self-end flex items-center justify-center gap-2 px-6 py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                      เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -522,6 +562,8 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 {[
                   { key: 'promptpay', label: 'PromptPay QR', desc: 'สแกน QR ผ่าน Mobile Banking — ยืนยันอัตโนมัติทันที', badge: '⚡ เร็วที่สุด' },
                   { key: 'online', label: 'บัตรเครดิต/เดบิต', desc: 'ชำระด้วยบัตรออนไลน์ — ปลอดภัยและยืนยันทันที', badge: '🔒 ปลอดภัย' },
+                  { key: 'truemoney', label: 'TrueMoney Wallet', desc: 'ชำระผ่าน TrueMoney — รองรับทุก True Card และ eWallet', badge: '💳 True' },
+                  { key: 'bank_transfer', label: 'โอนเงินผ่านธนาคาร', desc: 'โอนเงินเข้าบัญชีโรงแรมและแนบสลิป — ยืนยันภายใน 30 นาที', badge: '' },
                   { key: 'at_hotel', label: 'ชำระที่โรงแรม (Pay at Hotel)', desc: 'จ่ายเมื่อเช็คอิน — ยกเลิกได้ฟรีทุกเมื่อก่อนวันเช็คอิน', badge: '' },
                 ].map(pm => (
                   <label key={pm.key} className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === pm.key ? 'border-[#004B87] bg-[#004B87]/5' : 'border-black/8 hover:border-[#004B87]/30'}`}>
@@ -555,6 +597,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 </div>
                 <div className="border-t border-black/5 pt-2.5 space-y-2">
                   <SummaryRow label={`${formatCurrency(baseRate * rateMultiplier)} × ${nights} คืน`} value={formatCurrency(subtotal)} />
+                  {addOnsTotal > 0 && <SummaryRow label="บริการเสริม" value={formatCurrency(addOnsTotal)} />}
                   <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
                   {addOnTotal > 0 && <SummaryRow label="Add-ons" value={formatCurrency(addOnTotal)} />}
                   <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
@@ -563,10 +606,9 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   </div>
                 </div>
               </div>
-              <button onClick={handleBook} disabled={submitting || !guestInfo.firstName || !guestInfo.email}
-                className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-                {submitting ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-                {submitting ? 'กำลังยืนยัน...' : `ยืนยันการจอง ${formatCurrency(total)}`}
+              <button onClick={() => setStep('addons')} disabled={!guestInfo.firstName || !guestInfo.email}
+                className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50">
+                ถัดไป: เพิ่มบริการพิเศษ
               </button>
               <div className="flex items-center gap-2 mt-3 text-xs text-[#2A2522]/40 justify-center">
                 <ShieldCheck className="h-3.5 w-3.5" /> ข้อมูลของคุณได้รับการปกป้อง
@@ -574,6 +616,121 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             </div>
           </div>
         </div>
+      </div>
+    </PublicLayout>
+  );
+
+  // ─── STEP: ADD-ONS ───────────────────────────────────────────────────
+  if (step === 'addons') return (
+    <PublicLayout hotel={hotel} user={user} step={step}>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <button onClick={() => setStep('details')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
+          <ChevronLeft className="h-4 w-4" /> แก้ไขข้อมูล
+        </button>
+        <h2 className="text-xl font-bold text-[#2A2522] mb-2">บริการเสริมและของขวัญ</h2>
+        <p className="text-sm text-[#2A2522]/50 mb-6">เพิ่มความพิเศษให้การเข้าพักของคุณ (ไม่บังคับ)</p>
+        <div className="grid gap-4 mb-6">
+          {ADDONS_CATALOG.map(a => {
+            const qty = (a as any).perPersonPerNight ? (search.adults || 1) * Math.max(nights, 1) : 1;
+            const itemTotal = a.price * qty;
+            const checked = selectedAddOns.includes(a.code);
+            return (
+              <label key={a.code} className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${checked ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30 bg-white'}`}>
+                <input type="checkbox" checked={checked} className="accent-[#C66A30] h-4 w-4 shrink-0"
+                  onChange={() => setSelectedAddOns(p => checked ? p.filter(c => c !== a.code) : [...p, a.code])} />
+                <span className="text-2xl">{a.emoji}</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm text-[#2A2522]">{a.name}</p>
+                  <p className="text-xs text-[#2A2522]/50 mt-0.5">{a.desc}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-[#C66A30] text-sm">฿{itemTotal.toLocaleString()}</p>
+                  {qty > 1 && <p className="text-2xs text-[#2A2522]/40">{qty} หน่วย</p>}
+                </div>
+              </label>
+            );
+          })}
+        </div>
+        {addOnsTotal > 0 && (
+          <div className="mb-4 p-4 bg-[#2A2522] rounded-xl flex items-center justify-between text-white">
+            <span className="text-sm">บริการเสริมที่เลือก</span>
+            <span className="font-bold">+฿{addOnsTotal.toLocaleString()}</span>
+          </div>
+        )}
+        <button onClick={() => setStep('review')} className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors">
+          {addOnsTotal > 0 ? `ถัดไป: ตรวจสอบข้อมูล (฿${total.toLocaleString()})` : 'ถัดไป: ตรวจสอบข้อมูล (ข้ามบริการเสริม)'}
+        </button>
+      </div>
+    </PublicLayout>
+  );
+
+  // ─── STEP: REVIEW ────────────────────────────────────────────────────
+  if (step === 'review') return (
+    <PublicLayout hotel={hotel} user={user} step={step}>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <button onClick={() => setStep('addons')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
+          <ChevronLeft className="h-4 w-4" /> แก้ไขบริการเสริม
+        </button>
+
+        <h2 className="text-xl font-bold text-[#2A2522] mb-6">ตรวจสอบและยืนยันการจอง</h2>
+
+        <div className="space-y-4 mb-6">
+          <Section title="ที่พัก">
+            <div className="flex items-start gap-4">
+              {hotel.hero_image_url && <img src={hotel.hero_image_url} alt={hotel.name} className="h-20 w-28 object-cover rounded-lg" />}
+              <div>
+                <div className="font-semibold text-[#2A2522]">{hotel.name}</div>
+                <div className="text-sm text-[#2A2522]/60">{selected?.name}</div>
+                {hotel.city && <div className="text-xs text-[#2A2522]/40 flex items-center gap-1 mt-1"><MapPin className="h-3 w-3" />{hotel.city}</div>}
+              </div>
+            </div>
+          </Section>
+
+          <Section title="วันที่เข้าพัก">
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">เช็คอิน</div><div className="font-medium">{format(new Date(search.checkIn+'T00:00:00'), 'EEE d MMM yyyy', { locale: th })}</div><div className="text-xs text-[#2A2522]/50">หลัง {hotel.check_in_time || '14:00'} น.</div></div>
+              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">เช็คเอาท์</div><div className="font-medium">{format(new Date(search.checkOut+'T00:00:00'), 'EEE d MMM yyyy', { locale: th })}</div><div className="text-xs text-[#2A2522]/50">ก่อน {hotel.check_out_time || '12:00'} น.</div></div>
+              <div><div className="text-xs text-[#2A2522]/40 mb-0.5">ระยะเวลา</div><div className="font-medium">{nights} คืน</div><div className="text-xs text-[#2A2522]/50">{search.adults} ผู้ใหญ่</div></div>
+            </div>
+          </Section>
+
+          <Section title="ข้อมูลผู้เข้าพัก">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div><div className="text-xs text-[#2A2522]/40">ชื่อ-นามสกุล</div><div className="font-medium">{guestInfo.firstName} {guestInfo.lastName}</div></div>
+              <div><div className="text-xs text-[#2A2522]/40">อีเมล</div><div className="font-medium">{guestInfo.email}</div></div>
+              {guestInfo.phone && <div><div className="text-xs text-[#2A2522]/40">โทร</div><div className="font-medium">{guestInfo.phone}</div></div>}
+              {guestInfo.nationality && <div><div className="text-xs text-[#2A2522]/40">สัญชาติ</div><div className="font-medium">{guestInfo.nationality}</div></div>}
+            </div>
+            {guestInfo.specialRequests && (
+              <div className="mt-3 p-3 bg-[#FAF7F2] rounded-lg text-xs text-[#2A2522]/60">
+                <span className="font-medium">คำขอพิเศษ: </span>{guestInfo.specialRequests}
+              </div>
+            )}
+          </Section>
+
+          <Section title="ยอดชำระ">
+            <div className="space-y-2 text-sm">
+              <SummaryRow label={`ค่าห้อง ${formatCurrency(baseRate * rateMultiplier)} × ${nights} คืน`} value={formatCurrency(subtotal)} />
+              <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
+              <div className="flex justify-between font-bold text-[#2A2522] text-base pt-2 border-t border-black/5">
+                <span>รวมทั้งสิ้น</span>
+                <span>{formatCurrency(total)}</span>
+              </div>
+              <p className="text-xs text-[#2A2522]/40">
+                {ratePlan === 'flexible' ? '✓ ยกเลิกฟรีภายใน 24 ชั่วโมงก่อนเช็คอิน' : '⚠️ อัตรานี้ไม่สามารถยกเลิกคืนเงินได้'}
+              </p>
+            </div>
+          </Section>
+        </div>
+
+        <button onClick={handleBook} disabled={submitting}
+          className="w-full py-4 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-2xl font-bold text-base transition-colors disabled:opacity-60 flex items-center justify-center gap-3">
+          {submitting ? <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck className="h-5 w-5" />}
+          {submitting ? 'กำลังยืนยัน...' : `ยืนยันการจอง ${formatCurrency(total)}`}
+        </button>
+        <p className="text-center text-xs text-[#2A2522]/40 mt-3">
+          การกดยืนยันถือว่าคุณยอมรับ <Link href="/terms" className="underline">เงื่อนไขการใช้งาน</Link> และ <Link href="/privacy" className="underline">นโยบายความเป็นส่วนตัว</Link>
+        </p>
       </div>
     </PublicLayout>
   );
@@ -639,6 +796,20 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             ชำระที่โรงแรมเมื่อเช็คอิน — กรุณาแสดงรหัสการจองแก่พนักงาน
           </div>
         )}
+        {paymentMethod === 'truemoney' && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p className="font-semibold mb-1">ชำระผ่าน TrueMoney Wallet</p>
+            <p>เปิดแอป TrueMoney → โอนเงิน → ใส่เบอร์โรงแรม → ส่งสลิปมาที่อีเมลโรงแรม</p>
+            <p className="mt-1 text-xs text-red-600">ทีมงานจะยืนยันการจองภายใน 30 นาทีหลังได้รับสลิป</p>
+          </div>
+        )}
+        {paymentMethod === 'bank_transfer' && (
+          <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+            <p className="font-semibold mb-1">โอนเงินผ่านธนาคาร</p>
+            <p>โอนเงินเข้าบัญชีโรงแรมและแนบสลิปในอีเมลยืนยันการจอง</p>
+            <p className="mt-1 text-xs text-blue-600">จะยืนยันภายใน 30 นาทีในเวลาทำการ 8:00–20:00 น.</p>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl border border-black/5 p-6 text-left mb-6">
           <h3 className="font-semibold text-[#2A2522] mb-4">สรุปการจอง</h3>
@@ -678,9 +849,9 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 function PublicLayout({ hotel, user, step, children }: any) {
   const STEP_LABELS: Record<string, string> = {
     dates: 'เลือกวันที่', rooms: 'เลือกห้อง', details: 'กรอกข้อมูล',
-    confirmed: 'เสร็จสิ้น',
+    addons: 'บริการเสริม', review: 'ตรวจสอบ', confirmed: 'เสร็จสิ้น',
   };
-  const STEP_ORDER = ['dates', 'rooms', 'details', 'confirmed'];
+  const STEP_ORDER = ['dates', 'rooms', 'details', 'addons', 'review', 'confirmed'];
   const currentIdx = STEP_ORDER.indexOf(step);
 
   return (

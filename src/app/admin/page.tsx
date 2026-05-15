@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
 import { AdminPanelClient } from './admin-panel-client';
@@ -24,18 +24,16 @@ export default async function AdminPanelPage() {
       hotels(count),
       user_profiles(count)
     `).order('created_at', { ascending: false }).limit(50),
-
     admin.from('organizations').select('*', { count: 'exact', head: true }),
     admin.from('hotels').select('*', { count: 'exact', head: true }),
-
     admin.from('organizations').select('id, name, subscription_plan, created_at')
       .gte('created_at', format(subDays(new Date(), 30), 'yyyy-MM-dd'))
       .order('created_at', { ascending: false }),
   ]);
 
-  // MRR calculation
   const planPrices: Record<string, number> = { starter: 1490, standard: 2990, pro: 5990, enterprise: 0 };
-  const mrr = (orgs || []).filter(o => o.subscription_status === 'active').reduce((s, o) => s + (planPrices[o.subscription_plan] || 0), 0);
+  const mrr = (orgs || []).filter(o => o.subscription_status === 'active')
+    .reduce((s, o) => s + (planPrices[o.subscription_plan] || 0), 0);
 
   return (
     <AdminPanelClient
