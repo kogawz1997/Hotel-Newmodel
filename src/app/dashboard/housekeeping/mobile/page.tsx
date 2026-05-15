@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { HousekeepingMobileActions } from '@/components/dashboard/housekeeping-mobile-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,23 @@ export default async function HousekeepingMobilePage() {
         <p className="text-sm text-stone-400">{hotel?.name || 'Hotel'} · งานค้าง {tasks?.length || 0} รายการ</p>
       </header>
 
+
+      <section className="mb-4 grid grid-cols-3 gap-2 text-center text-xs">
+        <div className="rounded-xl border border-amber-300/30 bg-amber-300/10 px-2 py-2">รอดำเนินการ
+          <div className="mt-1 text-lg font-semibold text-amber-200">{(tasks || []).filter((t:any) => t.status === 'pending').length}</div>
+        </div>
+        <div className="rounded-xl border border-sky-300/30 bg-sky-300/10 px-2 py-2">กำลังทำ
+          <div className="mt-1 text-lg font-semibold text-sky-200">{(tasks || []).filter((t:any) => t.status === 'in_progress').length}</div>
+        </div>
+        <div className="rounded-xl border border-rose-300/30 bg-rose-300/10 px-2 py-2">ตรวจซ้ำ
+          <div className="mt-1 text-lg font-semibold text-rose-200">{(tasks || []).filter((t:any) => t.status === 'failed_inspection').length}</div>
+        </div>
+      </section>
+
+      <div className="mb-4 rounded-xl border border-white/15 bg-white/[0.04] p-3 text-xs text-stone-300">
+        เคล็ดลับ: เพิ่มหน้านี้ลง Home Screen เพื่อใช้งานแบบแอป (PWA-like) บนมือถือแม่บ้าน
+      </div>
+
       <section className="grid gap-3">
         {(tasks || []).map((task: any) => (
           <article key={task.id} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-lg">
@@ -58,16 +76,18 @@ export default async function HousekeepingMobilePage() {
               </div>
             </div>
             {task.notes ? <p className="mt-3 rounded-xl bg-black/20 p-3 text-sm text-stone-300">{task.notes}</p> : null}
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <a className="rounded-xl bg-amber-400 px-4 py-3 text-center text-sm font-semibold text-stone-950" href={`/api/housekeeping/tasks/${task.id}/start`}>เริ่มงาน</a>
-              <a className="rounded-xl bg-emerald-400 px-4 py-3 text-center text-sm font-semibold text-emerald-950" href={`/api/housekeeping/tasks/${task.id}/complete`}>เสร็จแล้ว</a>
-            </div>
+            <HousekeepingMobileActions taskId={task.id} />
           </article>
         ))}
         {(!tasks || tasks.length === 0) ? (
           <div className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-stone-400">ไม่มีงานค้าง แม่บ้านได้พักบ้าง โลกยังพอมีเมตตา 🧹</div>
         ) : null}
       </section>
+
+      <div className="sticky bottom-2 mt-4 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-stone-900/90 p-2 backdrop-blur">
+        <a href="/dashboard/housekeeping" className="rounded-xl bg-white/10 px-3 py-3 text-center text-sm font-medium">เปิดบอร์ดเต็ม</a>
+        <a href="/dashboard/front-desk" className="rounded-xl bg-amber-400 px-3 py-3 text-center text-sm font-semibold text-stone-950">ไป Front Desk</a>
+      </div>
     </main>
   );
 }

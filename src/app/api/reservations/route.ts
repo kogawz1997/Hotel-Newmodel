@@ -9,6 +9,7 @@ import { sendBookingConfirmation, sendNewBookingAlert } from '@/lib/email-templa
 import { assertRoomAvailable } from '@/lib/pms/availability';
 import { checkAndReserve } from '@/lib/booking/availability-lock';
 import { getPolicyForRatePlan } from '@/lib/booking/cancellation-policy';
+import { sendLineBookingConfirmation } from '@/lib/channels/line-notify';
 
 const createReservationSchema = z.object({
   hotelId: z.string().uuid().optional(),
@@ -107,7 +108,8 @@ export async function POST(request: Request) {
 
     const nights = calculateNights(body.checkIn, body.checkOut);
 
-    if (nights < 1 || nights > 365) {
+    const isDayUse = body.source === 'day_use';
+    if (isDayUse ? nights < 0 || nights > 1 : (nights < 1 || nights > 365)) {
       return NextResponse.json(
         { error: 'Invalid stay dates' },
         { status: 400 }
@@ -286,7 +288,20 @@ export async function POST(request: Request) {
         specialRequests: body.specialRequests || undefined,
         dashboardUrl: appUrl,
       }) : Promise.resolve(),
-    ]).catch(() => {}); // Swallow errors — email failure must NOT break booking
+      // LINE notification (if guest has an active LINE conversation)
+      result.guest_id ? sendLineBookingConfirmation({
+        hotelId,
+        guestId: result.guest_id,
+        reservationCode: reservation.reservation_code || reservation.id.slice(0, 8).toUpperCase(),
+        guestName: `${body.firstName} ${body.lastName || ''}`.trim(),
+        checkIn: body.checkIn,
+        checkOut: body.checkOut,
+        roomType: body.roomTypeName || 'ห้องพัก',
+        totalAmount: Number(body.totalAmount || 0),
+        currency: bookingHotel?.currency || 'THB',
+        checkInTime: bookingHotel?.check_in_time,
+      }) : Promise.resolve(),
+    ]).catch(() => {}); // Swallow errors — email/LINE failure must NOT break booking
 
     return NextResponse.json({ success: true, reservation });
   } catch (err: unknown) {

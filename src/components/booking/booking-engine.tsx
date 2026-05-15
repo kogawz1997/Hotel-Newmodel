@@ -42,7 +42,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [availableRooms, setAvailableRooms] = useState<any[]>(initialRoomTypes);
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [selected, setSelected] = useState<any>(null);
-  const [ratePlan, setRatePlan] = useState<'flexible' | 'non_refundable'>('flexible');
+  const [ratePlan, setRatePlan] = useState<'flexible' | 'non_refundable' | 'early_bird' | 'member' | 'package'>('flexible');
   const [guestInfo, setGuestInfo] = useState({
     firstName: '', lastName: '', email: '', phone: '',
     nationality: '', specialRequests: '', estimatedArrival: '',
@@ -65,7 +65,17 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     : 0;
 
   const baseRate = selected ? Number(selected.effective_rate || selected.base_rate) : 0;
-  const rateMultiplier = ratePlan === 'non_refundable' ? 0.9 : 1;
+  const daysBeforeCheckIn = search.checkIn ? Math.max(0, Math.floor((new Date(search.checkIn+'T00:00:00').getTime() - new Date().getTime()) / 86400000)) : 0;
+  const isBlackout = search.checkIn ? [5,6].includes(new Date(search.checkIn+'T00:00:00').getDay()) : false;
+  const memberEligible = !!user;
+  const rateMultipliers: Record<string, number> = {
+    flexible: 1,
+    non_refundable: 0.9,
+    early_bird: daysBeforeCheckIn >= 14 && !isBlackout ? 0.85 : 1,
+    member: memberEligible ? 0.88 : 1,
+    package: 1.12,
+  };
+  const rateMultiplier = rateMultipliers[ratePlan] || 1;
   const subtotal = baseRate * rateMultiplier * nights;
   const addOnsTotal = selectedAddOns.reduce((sum, code) => {
     const a = ADDONS_CATALOG.find(x => x.code === code);
@@ -121,18 +131,18 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     if (!code) return;
     setPromoLoading(true);
     try {
-      const demoPromos: Record<string, { description: string; percent: number }> = {
-        SAVE10: { description: 'ส่วนลด 10% สำหรับการจองตรง', percent: 10 },
-        MAITRI5: { description: 'ส่วนลด 5% โปรโมชั่นพิเศษ', percent: 5 },
-      };
-      const promo = demoPromos[code];
-      if (!promo) {
+      const res = await fetch('/api/public/promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hotelId: hotel.id, code, amount: subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
         setPromoResult({ valid: false });
-        toast.error('โค้ดส่วนลดไม่ถูกต้อง');
+        toast.error(data.error || 'โค้ดส่วนลดไม่ถูกต้อง');
         return;
       }
-      const discountAmount = Math.round((subtotal * promo.percent) / 100);
-      setPromoResult({ valid: true, description: promo.description, discountAmount, code });
+      setPromoResult({ valid: true, description: data.description, discountAmount: data.discountAmount, code: data.code });
       toast.success('ใช้โค้ดส่วนลดสำเร็จ');
     } finally {
       setPromoLoading(false);
@@ -154,7 +164,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         firstName: guestInfo.firstName, lastName: guestInfo.lastName,
         email: guestInfo.email, phone: guestInfo.phone,
         nationality: guestInfo.nationality,
-        specialRequests: guestInfo.specialRequests,
+        specialRequests: [guestInfo.specialRequests, selectedAddOns.length ? `Add-ons: ${selectedAddOns.join(', ')}` : ''].filter(Boolean).join(' | '),
         estimatedArrival: guestInfo.estimatedArrival,
         source: 'website',
         totalAmount: total,
@@ -470,11 +480,15 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
               <h3 className="font-bold text-[#2A2522] mb-4">แผนราคา</h3>
               <div className="space-y-3">
                 {[
-                  { key: 'flexible', label: 'Standard Rate', desc: 'ยกเลิกฟรี 24 ชม.ก่อนเช็คอิน', rate: baseRate, badge: null },
-                  { key: 'non_refundable', label: 'Non-refundable', desc: 'ราคาประหยัด ไม่สามารถยกเลิกคืนเงินได้', rate: baseRate * 0.9, badge: 'ประหยัด 10%' },
+                  { key: 'flexible', label: 'Standard Rate', desc: 'ยกเลิกฟรี 24 ชม.ก่อนเช็คอิน', rate: baseRate, badge: null, disabled: false },
+                  { key: 'non_refundable', label: 'Non-refundable', desc: 'ราคาประหยัด ไม่สามารถยกเลิกคืนเงินได้', rate: baseRate * 0.9, badge: 'ประหยัด 10%', disabled: false },
+                  { key: 'early_bird', label: 'Early Bird', desc: daysBeforeCheckIn >= 14 && !isBlackout ? 'จองล่วงหน้า 14+ วัน ลดเพิ่ม' : 'ต้องจองล่วงหน้า 14 วัน และไม่ใช่ blackout', rate: baseRate * 0.85, badge: 'ลด 15%', disabled: !(daysBeforeCheckIn >= 14 && !isBlackout) },
+                  { key: 'member', label: 'Member Rate', desc: memberEligible ? 'ราคาเฉพาะสมาชิก' : 'เข้าสู่ระบบเพื่อรับราคาสมาชิก', rate: baseRate * 0.88, badge: 'Member', disabled: !memberEligible },
+                  { key: 'package', label: 'Package Rate', desc: 'รวมชุดอาหารเช้าและ late checkout', rate: baseRate * 1.12, badge: 'Package', disabled: false },
                 ].map(plan => (
-                  <label key={plan.key} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${ratePlan === plan.key ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30'}`}>
+                  <label key={plan.key} className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${plan.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${ratePlan === plan.key ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30'}`}>
                     <input type="radio" name="ratePlan" value={plan.key} checked={ratePlan === plan.key}
+                      disabled={plan.disabled}
                       onChange={() => setRatePlan(plan.key as any)} className="accent-[#C66A30]" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -516,6 +530,29 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   <button onClick={() => { setPromoResult(null); setPromoCode(''); }} className="text-emerald-600 hover:text-emerald-800 text-lg">×</button>
                 </div>
               )}
+            </div>
+
+            {/* Upsell add-ons */}
+            <div className="bg-white rounded-2xl border border-black/5 p-6">
+              <h3 className="font-bold text-[#2A2522] mb-4">Add-ons แนะนำ</h3>
+              <div className="space-y-2">
+                {Object.entries(addOnCatalog).map(([key, item]) => {
+                  const checked = selectedAddOns.includes(key);
+                  return (
+                    <label key={key} className="flex items-center justify-between rounded-xl border border-black/10 px-3 py-2 text-sm">
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => setSelectedAddOns((prev) => checked ? prev.filter((x) => x !== key) : [...prev, key])}
+                        />
+                        {item.label}
+                      </span>
+                      <span className="font-medium">{formatCurrency(item.price)}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Payment method */}
@@ -562,6 +599,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   <SummaryRow label={`${formatCurrency(baseRate * rateMultiplier)} × ${nights} คืน`} value={formatCurrency(subtotal)} />
                   {addOnsTotal > 0 && <SummaryRow label="บริการเสริม" value={formatCurrency(addOnsTotal)} />}
                   <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
+                  {addOnTotal > 0 && <SummaryRow label="Add-ons" value={formatCurrency(addOnTotal)} />}
                   <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
                     <span>รวมทั้งสิ้น</span>
                     <span className="text-lg">{formatCurrency(total)}</span>

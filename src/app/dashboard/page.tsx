@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { ReservationActionButtons } from '@/components/dashboard/reservation-action-buttons';
+import { DashboardShortcuts } from '@/components/dashboard/dashboard-shortcuts';
 
 async function count(query: any) {
   const { count } = await query;
@@ -35,6 +36,12 @@ export default async function DashboardPage() {
     .eq('organization_id', profile?.organization_id)
     .limit(1)
     .single();
+
+  // Role-specific redirect: send operational staff straight to their workspace
+  const role = profile?.role;
+  if (role === 'housekeeping') redirect('/dashboard/housekeeping');
+  if (role === 'front_desk' || role === 'receptionist') redirect('/dashboard/front-desk');
+  if (role === 'maintenance') redirect('/dashboard/rooms');
 
   if (!hotel) {
     return (

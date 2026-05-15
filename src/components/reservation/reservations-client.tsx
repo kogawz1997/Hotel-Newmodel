@@ -55,6 +55,7 @@ const STATUS_LABELS: Record<string, string> = {
 export function ReservationsClient({ hotelId }: { hotelId: string }) {
   const supabase = createClient();
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  const [isMobile, setIsMobile] = useState(false);
   const [startDate, setStartDate] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
@@ -90,6 +91,17 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
   }, [hotelId, startDate]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    const applyViewport = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setView(current => (mobile && current === 'calendar' ? 'list' : current));
+    };
+    applyViewport();
+    window.addEventListener('resize', applyViewport);
+    return () => window.removeEventListener('resize', applyViewport);
+  }, []);
 
   function getReservationForRoomDay(roomId: string, day: Date) {
     return reservations.find(r => {
@@ -132,9 +144,11 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
             <div className="flex items-center bg-secondary rounded-lg p-1">
               <button
                 onClick={() => setView('calendar')}
+                disabled={isMobile}
                 className={cn(
                   'px-3 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1',
-                  view === 'calendar' ? 'bg-card shadow-sm' : 'text-muted-foreground'
+                  view === 'calendar' ? 'bg-card shadow-sm' : 'text-muted-foreground',
+                  isMobile && 'opacity-50 cursor-not-allowed'
                 )}
               >
                 <Calendar className="h-3.5 w-3.5" /> Calendar
@@ -308,7 +322,7 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
             </span>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm">
               <thead className="border-b border-border bg-secondary/30">
                 <tr>
@@ -362,6 +376,39 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="md:hidden divide-y divide-border">
+            {paginatedReservations.length === 0 ? (
+              <EmptyState icon={Calendar} title="ไม่พบการจอง" description="ลองเปลี่ยนเงื่อนไขการค้นหา" />
+            ) : paginatedReservations.map(r => (
+              <button
+                key={r.id}
+                onClick={() => setSelectedReservation(r)}
+                className="w-full text-left p-4 hover:bg-secondary/30 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-medium">{r.guests?.first_name} {r.guests?.last_name || ''}</div>
+                    <div className="text-xs text-muted-foreground font-mono">{r.reservation_code}</div>
+                  </div>
+                  <Badge variant={
+                    r.status === 'confirmed' ? 'info' :
+                    r.status === 'checked_in' ? 'success' :
+                    r.status === 'pending' ? 'warning' :
+                    'secondary'
+                  }>{STATUS_LABELS[r.status] || r.status}</Badge>
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {format(parseDateLocal(r.check_in), 'd MMM', { locale: th })} → {format(parseDateLocal(r.check_out), 'd MMM yyyy', { locale: th })}
+                </div>
+                <div className="mt-1 text-sm">{r.rooms?.room_number || r.room_types?.name || '—'}</div>
+                <div className="mt-2 font-medium">{formatCurrency(r.total_amount)}</div>
+                {r.balance_amount > 0 && (
+                  <div className="text-xs text-destructive mt-0.5">ค้าง {formatCurrency(r.balance_amount)}</div>
+                )}
+              </button>
+            ))}
           </div>
 
           {/* Pagination */}

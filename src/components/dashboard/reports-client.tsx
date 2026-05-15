@@ -13,6 +13,7 @@ import { formatCurrency } from '@/lib/utils';
 import { format, subDays, eachDayOfInterval, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { TrendingUp, TrendingDown, DollarSign, Bed, Activity, Download } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 
 const CHART_COLORS = ['#C66A30', '#7A8471', '#B8956A', '#2A2522', '#A4522A', '#854329'];
@@ -154,6 +155,15 @@ export function ReportsClient({ hotelId }: { hotelId: string }) {
             </button>
           );
         })}
+      </div>
+
+      <div className="mb-6">
+        <Link href="/dashboard/reports/operations" className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium hover:bg-muted">
+          เปิด Daily operational reports (arrival/departure/cashier close)
+        </Link>
+        <Link href="/dashboard/reports/handover" className="ml-2 inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium hover:bg-muted">
+          เปิด Shift handover report
+        </Link>
       </div>
 
       {/* KPI Grid */}

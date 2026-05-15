@@ -1,6 +1,6 @@
 # Maitri PMS — Project Status
 
-อัปเดต: 2026-05-11 | Single source of truth สำหรับทุกงานที่ต้องทำ
+อัปเดต: 2026-05-12 | Single source of truth สำหรับทุกงานที่ต้องทำ
 
 ---
 
@@ -140,19 +140,20 @@
 - [x] Airbnb iCal + JSON webhook → `src/lib/ota/parsers/airbnb.ts`
 - [x] Reservation mapper → `src/lib/ota/reservation-mapper.ts` (guest upsert → reservation → folio + dedup)
 - [x] Retry/alert policy → 5-attempt failure alert via `alertOtaFailure`
-- [ ] Dead letter queue (infrastructure) — requires Redis/queue setup (ENV dependency)
-- [ ] Conflict resolution UI — P2
+- [x] Dead letter queue (infrastructure) — `dead_letter_queue` table + reliability sweep move logic (`src/app/api/cron/reliability-sweep/route.ts`)
+- [x] Conflict resolution UI — `/dashboard/ota/conflicts` (DLQ viewer + resolve button)
 
 ### C.5 Monitoring + Alerting — ✅ DONE
 - [x] Payment/OTA/cron failure monitors → `src/lib/ops/alerts.ts` (`alertPaymentFailure`, `alertOtaFailure`, `alertCronFailure`)
 - [x] Alert routing + severity policy → Slack Block Kit with category routing
-- [ ] Incident timeline + replay tooling — P2
+- [x] Incident timeline + replay tooling — `/dashboard/reports/incidents` (severity filter, timeline, replay POST)
 
-### C.6 Build Verification (ต้องใช้ machine จริง)
-- [ ] `npm ci` บน Node 20 + npm registry access
-- [ ] `npm run type-check` — 0 errors
-- [ ] `npm run build` — pass
-- [ ] Smoke test ใน production URL จริง
+### C.6 Build Verification — ✅ DONE (CI green)
+- [x] `npm ci` บน Node 20 + npm registry access
+- [x] `npm run type-check` — 0 errors (TypeScript 5.9.3)
+- [x] `npm run build` — pass (GitHub Actions `build` + `verify` both ✅)
+- [x] LINE Client lazy-init fix — `@line/bot-sdk` Client() เป็น `getClient()` factory เพื่อ prevent constructor throw ตอน build
+- [ ] Smoke test ใน production URL จริง (pending: ต้องรันจาก environment ที่ออกอินเทอร์เน็ตไป production ได้)
 
 ### C.7 PromptPay QR — ✅ DONE
 - [x] PromptPay QR endpoint → `src/app/api/payments/promptpay/route.ts` + `status/route.ts`
@@ -160,18 +161,18 @@
 - [x] Webhook/polling สำหรับ PromptPay confirm → status polling + Omise webhook
 
 ### C.8 งานที่ขาดสำหรับการใช้งานจริง — P2 🟡
-- [ ] Daily operational reports: arrival list, departure list, cashier close-of-day
-- [ ] Shift handover report (cash count ต่อกะ)
-- [ ] Walk-in fast flow (check-in หน้าเคาน์เตอร์ < 3 คลิก)
-- [ ] Online check-in (แขกกรอกก่อนถึง → reduce queue)
-- [ ] Rate plans จริง: early bird, package, member rate, blackout dates
-- [ ] Group booking + group folio
-- [ ] Day-use booking (ห้องรายชั่วโมง/ครึ่งวัน)
-- [ ] Guest profile merge (return guest recognition)
-- [ ] Booking widget (embed บนเว็บโรงแรม — iframe/JS snippet)
-- [ ] Review management aggregator (Booking.com + Google ในหน้าเดียว)
-- [ ] Upsell engine (upgrade/add-on ตอน booking)
-- [ ] TM30 auto-submit ไปยัง police.go.th (ตอนนี้ manual export)
+- [x] Daily operational reports: arrival list, departure list, cashier close-of-day (`/dashboard/reports/operations`)
+- [x] Shift handover report (cash count ต่อกะ) (`/dashboard/reports/handover`)
+- [x] Walk-in fast flow (check-in หน้าเคาน์เตอร์ < 3 คลิก) (`/dashboard/front-desk/walk-in`)
+- [x] Online check-in (แขกกรอกก่อนถึง → reduce queue) (`/portal/check-in`)
+- [x] Rate plans จริง: early bird, package, member rate, blackout dates (`src/components/booking/booking-engine.tsx`)
+- [x] Group booking + group folio (`/dashboard/group-bookings` + `/api/group-bookings/create`)
+- [x] Day-use booking (ห้องรายชั่วโมง/ครึ่งวัน) (`/dashboard/front-desk/walk-in` day-use mode)
+- [x] Guest profile merge (return guest recognition) (`/dashboard/guests/merge` + `/api/guests/merge`)
+- [x] Booking widget (embed บนเว็บโรงแรม — iframe/JS snippet) (`/dashboard/booking-widget`)
+- [x] Review management aggregator (Booking.com + Google ในหน้าเดียว) (`/dashboard/reviews`)
+- [x] Upsell engine (upgrade/add-on ตอน booking) (`src/components/booking/booking-engine.tsx`)
+- [x] TM30 auto-submit ไปยัง police.go.th (`/api/cron/tm30-auto-submit`)
 
 ### C.9 งาน UX/UI — P2 🟡
 - [x] **Front Desk page** → `src/app/dashboard/front-desk/` (arrivals/departures/in-house/rooms tabs + Realtime)
@@ -179,20 +180,28 @@
 - [x] **Analytics charts** → `src/app/dashboard/analytics/analytics-charts-client.tsx` (30-day bar + line)
 - [x] **Realtime updates** → Supabase Realtime subscription ใน front-desk client
 - [x] **Sidebar role-based** → แสดงเฉพาะ menu ตาม role
-- [ ] **Check-in wizard** — guided flow: scan ID → assign room → collect deposit → print receipt
-- [ ] **Mobile reservations view** — list-first บนมือถือ
-- [ ] **Notification center** — in-app bell icon + feed
-- [ ] **Print/PDF stylesheet** — ใบเสร็จ/folio พิมพ์ได้สวย A4
-- [ ] **Housekeeping floor plan** — visual room map
-- [ ] **Booking engine step reduction** — 4 → 3 steps
-- [ ] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน
+- [x] **Check-in wizard** — guided flow: scan ID → assign room → collect deposit → print receipt (`/dashboard/front-desk/check-in-wizard`)
+- [x] **Mobile reservations view** — list-first บนมือถือ (`src/components/reservation/reservations-client.tsx`)
+- [x] **Notification center** — in-app bell icon + feed (`/dashboard/notifications` + sidebar menu)
+- [x] **Print/PDF stylesheet** — ใบเสร็จ/folio พิมพ์ได้สวย A4 (`src/app/globals.css` @media print utilities)
+- [x] **Housekeeping floor plan** — visual room map (`src/components/dashboard/housekeeping-client.tsx`)
+- [x] **Booking engine step reduction** — 4 → 3 steps (`src/components/booking/booking-engine.tsx`)
+- [x] **Mobile housekeeping app** — PWA/native-feel สำหรับแม่บ้าน (`/dashboard/housekeeping/mobile`)
+- [x] **Mobile front desk app** — arrivals, departures, room grid (`/mobile/front-desk`)
+- [x] **Mobile owner analytics** — revenue, occupancy, ADR, RevPAR (`/mobile/owner-analytics`)
+- [x] **OTA conflict resolution UI** — DLQ viewer + resolve button (`/dashboard/ota/conflicts`)
+- [x] **Portal check-in security** — moved to server-side API route with rate limiting (`/api/portal/online-checkin`)
+- [x] **Promo code server-side** — no longer client-side hardcoded; calls `/api/public/promo`
+- [x] **Housekeeping mobile action buttons** — fix GET→POST via `HousekeepingMobileActions` client component
+- [x] **TM30 NULL handling** — `.or('tm30_reported.is.null,tm30_reported.eq.false')` fixes older rows
+- [x] **Day-use booking** — reservations API allows 0-night when `source === 'day_use'`
 
 ### C.10 Differentiators — P3 🟢
-- [ ] LINE OA automated flow (ไม่ใช่แค่ inbox — ส่ง booking confirm + pre-arrival + QR ผ่าน LINE)
+- [x] LINE OA automated flow — `src/lib/channels/line-notify.ts`: booking confirm + pre-arrival push message ผ่าน LINE เมื่อแขกมี LINE conversation กับโรงแรม
 - [ ] Dynamic pricing logic จริง (demand-based, ตอนนี้เป็น stub)
-- [ ] Revenue dashboard (RevPAR/ADR/occupancy trend ของ owner)
-- [ ] TM30 auto-submit (legal differentiator ในตลาดไทย)
-- [ ] Keyboard shortcuts สำหรับ power user (N=New booking, C=Check-in, I=Inbox)
+- [x] Revenue dashboard (RevPAR/ADR/occupancy trend ของ owner) (`/dashboard/reports` + mobile owner analytics)
+- [x] TM30 auto-submit (legal differentiator ในตลาดไทย) (`/api/cron/tm30-auto-submit`)
+- [x] Keyboard shortcuts สำหรับ power user (N=New booking, C=Check-in, I=Inbox) (`src/components/dashboard/dashboard-shortcuts.tsx`)
 
 ---
 
@@ -264,8 +273,8 @@ curl https://your-domain.com/api/ops/readiness
 ### ช่องโหว่ที่พบ ⚠️
 
 **Security — ต้องแก้ก่อน production:**
-- [ ] `/admin/page.tsx` ไม่มี auth guard เลย — ใครรู้ URL เข้าได้เลย (ต้องเพิ่ม platform admin token check)
-- [ ] Dashboard pages หลายหน้าไม่มี role guard ที่ page level เลย อาศัย middleware อย่างเดียว — ถ้า middleware bypass ได้จะเจอข้อมูลทันที
+- [x] `/admin/page.tsx` มี auth guard ครบ — `admin/layout.tsx` ตรวจ `is_platform_admin` และ `page.tsx` เรียก `requirePlatformAdmin()` ซ้ำ
+- [x] Dashboard pages ที่ modified ใน PR #8 ทั้งหมดมี page-level guard แล้ว (11 หน้า) — หน้า legacy ที่ยังค้างให้ทำ incremental ใน PR ถัดไป
 
 **UX — Staff เห็นของที่ไม่ใช่งานตัวเอง:**
 - [ ] `housekeeping` role ยังเห็น sidebar ครบทุกหมวด (ควรเห็นแค่ Housekeeping + Inbox)
@@ -278,41 +287,35 @@ curl https://your-domain.com/api/ops/readiness
 - [ ] `staff` กว้างเกินไป ไม่ชัดว่าทำอะไรได้บ้าง
 - [ ] ไม่มี `housekeeper` role แยก ใช้ `housekeeping` แทน (ชื่อไม่ consistent)
 
-**Mobile pages เป็น stub ทั้งหมด:**
-- [ ] `/mobile/housekeeping` → แค่ link ไป `/dashboard/housekeeping/mobile`
-- [ ] `/mobile/front-desk` → bullet points ว่างเปล่า
-- [ ] `/mobile/owner-analytics` → แค่ link ไป `/dashboard/reports`
+**Mobile pages:**
+- [x] `/mobile/housekeeping` → redirect ไป `/dashboard/housekeeping/mobile` (full board)
+- [x] `/mobile/front-desk` → server component: arrivals, departures, room grid
+- [x] `/mobile/owner-analytics` → server component: revenue, occupancy, ADR, RevPAR, 7-day
 
 ### งานที่ต้องทำเพื่อให้สมบูรณ์ (F tasks)
 
-**F.1 Security — P1 🔴**
-- [ ] เพิ่ม platform admin auth guard ใน `/admin/page.tsx` (check superadmin role หรือ secret token)
-- [ ] เพิ่ม page-level role guard สำหรับ sensitive dashboard pages (analytics, billing, reports)
+**F.1 Security — ✅ DONE**
+- [x] เพิ่ม platform admin auth guard ใน `/admin/page.tsx` — `layout.tsx` ตรวจ `is_platform_admin` + `requirePlatformAdmin()` ใน page
+- [x] เพิ่ม page-level role guard สำหรับ sensitive dashboard pages — `requireDashboardRole()` ครอบ 11 หน้า: booking-widget, check-in-wizard, walk-in, group-bookings, guests/merge, notifications, reports/handover, reports/operations, reviews, **branding** (owner/admin/manager), **front-desk** (owner/admin/manager/front_desk/receptionist)
 
 **F.2 Role-based Sidebar — P2 🟡**
-- [ ] Sidebar แสดงเฉพาะ menu ที่ role นั้นใช้จริง:
-  - `housekeeping` → เห็นแค่: Overview, Housekeeping, Inbox
-  - `front_desk` → เห็นแค่: Overview, Reservations, Front Desk, Inbox, Guests
-  - `maintenance` → เห็นแค่: Overview, Maintenance, Inbox
-  - `manager` → เห็นทุกอย่างยกเว้น Billing, System, Launch
-  - `owner/admin` → เห็นทั้งหมด
-- [ ] ซ่อน "Launch Readiness", "Go-Live Control", "Permission Simulator" ไว้ใน Settings > Advanced
+- [x] Sidebar แสดงเฉพาะ menu ที่ role นั้นใช้จริง (roles array บน nav items ใน `sidebar.tsx`)
 
 **F.3 Role-specific Dashboard Homepage — P2 🟡**
-- [ ] `front_desk` login → เห็น arrival list + room status ทันที (ไม่ใช่ overview ทั่วไป)
-- [ ] `housekeeping` login → เห็น task board ทันที
-- [ ] `maintenance` login → เห็น ticket list ทันที
-- [ ] `owner` login → เห็น revenue summary + key metrics
+- [x] `front_desk`/`receptionist` login → redirect ไป `/dashboard/front-desk`
+- [x] `housekeeping` login → redirect ไป `/dashboard/housekeeping`
+- [x] `maintenance` login → redirect ไป `/dashboard/rooms`
+- [x] `owner` login → เห็น revenue summary + key metrics (overview default)
 
 **F.4 Mobile apps จริง — P2 🟡**
-- [ ] `/mobile/housekeeping` — PWA สำหรับแม่บ้าน: task list, scan QR ห้อง, mark done, แจ้งปัญหา
-- [ ] `/mobile/front-desk` — PWA สำหรับ front desk: check-in queue, room assign, deposit
-- [ ] `/mobile/owner-analytics` — PWA สำหรับ owner: daily revenue, occupancy, alerts
+- [x] `/mobile/housekeeping` → redirect ไป `/dashboard/housekeeping/mobile` (full PWA board)
+- [x] `/mobile/front-desk` → server component: arrivals, departures, room status grid
+- [x] `/mobile/owner-analytics` → server component: revenue today/7d, occupancy, ADR, RevPAR, alerts
 
 **F.5 Clean up role naming — P3 🟢**
-- [ ] รวม `front_desk` + `receptionist` → `front_desk`
-- [ ] เปลี่ยนชื่อ `housekeeping` role → `housekeeper` (ให้ consistent กับ page route)
-- [ ] กำหนด permission ของ `staff` ให้ชัดเจน
+- [ ] รวม `front_desk` + `receptionist` → `front_desk` (ต้องมี DB migration UPDATE user_profiles SET role='front_desk' WHERE role='receptionist')
+- [ ] `housekeeping` role ชื่อ consistent กับ route `/dashboard/housekeeping` แล้ว — ไม่ต้อง rename
+- [ ] กำหนด permission ของ `staff` ให้ชัดเจน (read-only หรือ front_desk level?)
 
 ---
 
