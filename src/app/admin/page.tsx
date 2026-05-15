@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
 import { AdminPanelClient } from './admin-panel-client';

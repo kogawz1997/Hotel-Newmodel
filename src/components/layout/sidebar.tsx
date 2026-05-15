@@ -11,7 +11,7 @@ import {
   Heart, Award, Megaphone, Settings, LogOut, ChevronDown,
   Building2, Shield, Settings2, Palette, CreditCard, Rocket, Zap,
   MonitorDot,
-  Bell,
+  Bell, Wrench, Headphones, ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -34,9 +34,12 @@ const OWNER_ADMIN_ROLES = ['owner', 'admin'];
 const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk'];
 const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff'];
 const FLOOR_OPS_ROLES   = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff', 'maintenance'];
-const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
-const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
-const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
+const HOUSEKEEPING_ROLES  = ['owner', 'admin', 'manager', 'housekeeping'];
+const MAINTENANCE_ROLES   = ['owner', 'admin', 'manager', 'maintenance'];
+const CONCIERGE_ROLES     = ['owner', 'admin', 'manager', 'concierge'];
+const SECURITY_ROLES      = ['owner', 'admin', 'manager', 'security'];
+const ACCOUNTING_ROLES    = ['owner', 'admin', 'manager', 'accounting'];
+const REVENUE_ROLES       = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
 
 const NAV_GROUPS = [
   {
