@@ -115,20 +115,23 @@ export default async function DashboardPage() {
             { label: 'Check-in วันนี้', value: checkIns, sub: `Check-out ${checkOuts}`, icon: CalendarCheck, href: '/dashboard/front-desk' },
             { label: 'รายได้วันนี้', value: formatCurrency(revenueToday, hotel.currency || 'THB'), sub: 'payment completed', icon: CircleDollarSign, href: '/dashboard/accounting' },
             { label: 'Inbox เปิดอยู่', value: openInbox, sub: 'ต้องตอบลูกค้า', icon: MessageSquareWarning, href: '/dashboard/inbox' },
-          ].map((item) => (
-            <Link key={item.label} href={item.href} className="group">
-              <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
-                <CardContent className="flex items-start justify-between p-5">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{item.label}</p>
-                    <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
-                  </div>
-                  <div className="rounded-xl border bg-muted/50 p-2 transition group-hover:bg-accent/10"><item.icon className="h-5 w-5" /></div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.label} href={item.href} className="group">
+                <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
+                  <CardContent className="flex items-start justify-between p-5">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{item.label}</p>
+                      <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/50 p-2 transition group-hover:bg-accent/10"><Icon className="h-5 w-5" /></div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </section>
 
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -176,12 +179,15 @@ export default async function DashboardPage() {
                 { href: '/dashboard/housekeeping', icon: Sparkles, label: 'Housekeeping pending', value: hkPending, variant: hkPending ? 'warning' : 'success' },
                 { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุงเปิดอยู่', value: maintOpen, variant: maintOpen ? 'warning' : 'success' },
                 { href: '/dashboard/guests', icon: UsersRound, label: 'Guest database', value: guestsTotal, variant: 'outline' },
-              ].map((item) => (
-                <Link key={item.label} href={item.href} className="flex items-center justify-between rounded-xl border p-4 transition hover:bg-muted/50">
-                  <span className="flex items-center gap-3"><item.icon className="h-5 w-5" />{item.label}</span>
-                  <Badge variant={item.variant as any}>{item.value}</Badge>
-                </Link>
-              ))}
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link key={item.label} href={item.href} className="flex items-center justify-between rounded-xl border p-4 transition hover:bg-muted/50">
+                    <span className="flex items-center gap-3"><Icon className="h-5 w-5" />{item.label}</span>
+                    <Badge variant={item.variant as any}>{item.value}</Badge>
+                  </Link>
+                );
+              })}
             </CardContent>
           </Card>
         </section>
@@ -216,16 +222,19 @@ export default async function DashboardPage() {
             { label: 'Check-out วันนี้', value: checkOuts, icon: ArrowRight, color: 'text-blue-600', href: '/dashboard/front-desk' },
             { label: 'ห้องว่าง', value: roomsAvailable, icon: BedDouble, color: 'text-purple-600', href: '/dashboard/rooms' },
             { label: 'Inbox', value: openInbox, icon: MessageSquareWarning, color: 'text-orange-600', href: '/dashboard/inbox' },
-          ].map((s) => (
-            <Link key={s.label} href={s.href} className="group">
-              <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className={`rounded-xl bg-muted p-3 group-hover:bg-accent/10 transition ${s.color}`}><s.icon className="h-5 w-5" /></div>
-                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <Link key={s.label} href={s.href} className="group">
+                <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <div className={`rounded-xl bg-muted p-3 group-hover:bg-accent/10 transition ${s.color}`}><Icon className="h-5 w-5" /></div>
+                    <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </section>
 
         <section className="grid gap-4 xl:grid-cols-2">
@@ -415,14 +424,17 @@ export default async function DashboardPage() {
             { label: 'รายได้เดือนนี้', value: formatCurrency(revenueMonthTotal, hotel.currency || 'THB'), icon: CircleDollarSign, color: 'text-blue-600' },
             { label: 'ใบแจ้งหนี้ draft', value: invoicesPending, icon: Receipt, color: 'text-orange-600' },
             { label: 'ใบแจ้งหนี้ทั้งหมด', value: invoicesTotal, icon: Receipt, color: 'text-purple-600' },
-          ].map((s) => (
-            <Card key={s.label}>
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className={`rounded-xl bg-muted p-3 ${s.color}`}><s.icon className="h-5 w-5" /></div>
-                <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-xl font-bold leading-tight mt-1">{s.value}</p></div>
-              </CardContent>
-            </Card>
-          ))}
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <Card key={s.label}>
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className={`rounded-xl bg-muted p-3 ${s.color}`}><Icon className="h-5 w-5" /></div>
+                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-xl font-bold leading-tight mt-1">{s.value}</p></div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </section>
 
         <Card>
@@ -474,16 +486,19 @@ export default async function DashboardPage() {
             { label: 'รอดำเนินการ', value: pendingReqs, icon: ClipboardList, color: 'text-orange-600' },
             { label: 'ข้อความที่ยังไม่ตอบ', value: msgOpen, icon: MessageSquareWarning, color: 'text-red-600' },
             { label: 'Arrivals วันนี้', value: todayArrivals, icon: UserCheck, color: 'text-green-600' },
-          ].map((s) => (
-            <Link key={s.label} href={s.label.includes('ข้อความ') ? '/dashboard/inbox' : '/dashboard/concierge'} className="group">
-              <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className={`rounded-xl bg-muted p-3 group-hover:bg-accent/10 ${s.color}`}><s.icon className="h-5 w-5" /></div>
-                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <Link key={s.label} href={s.label.includes('ข้อความ') ? '/dashboard/inbox' : '/dashboard/concierge'} className="group">
+                <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <div className={`rounded-xl bg-muted p-3 group-hover:bg-accent/10 ${s.color}`}><Icon className="h-5 w-5" /></div>
+                    <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </section>
 
         <section className="grid gap-4 xl:grid-cols-2">
@@ -549,14 +564,17 @@ export default async function DashboardPage() {
             { label: 'เหตุการณ์ที่เปิดอยู่', value: openIncidents, color: openIncidents ? 'text-red-600' : 'text-green-600', icon: ShieldCheck },
             { label: 'เหตุการณ์วิกฤต', value: criticalInc, color: criticalInc ? 'text-red-700' : 'text-green-600', icon: AlertTriangle },
             { label: 'ผู้เยี่ยมในพื้นที่', value: activeVisitors, color: 'text-blue-600', icon: UserCheck },
-          ].map((s) => (
-            <Card key={s.label}>
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className={`rounded-xl bg-muted p-3 ${s.color}`}><s.icon className="h-5 w-5" /></div>
-                <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
-              </CardContent>
-            </Card>
-          ))}
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <Card key={s.label}>
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className={`rounded-xl bg-muted p-3 ${s.color}`}><Icon className="h-5 w-5" /></div>
+                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </section>
 
         <section className="grid gap-4 xl:grid-cols-2">
@@ -608,16 +626,19 @@ export default async function DashboardPage() {
           { label: 'Check-in วันนี้', value: checkIns, href: '/dashboard/front-desk', icon: CalendarCheck },
           { label: 'Check-out วันนี้', value: checkOuts, href: '/dashboard/front-desk', icon: ArrowRight },
           { label: 'Inbox เปิดอยู่', value: openInbox, href: '/dashboard/inbox', icon: MessageSquareWarning },
-        ].map((s) => (
-          <Link key={s.label} href={s.href} className="group">
-            <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="rounded-xl bg-muted p-3 group-hover:bg-accent/10 transition"><s.icon className="h-5 w-5" /></div>
-                <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+        ].map((s) => {
+          const Icon = s.icon;
+          return (
+            <Link key={s.label} href={s.href} className="group">
+              <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="rounded-xl bg-muted p-3 group-hover:bg-accent/10 transition"><Icon className="h-5 w-5" /></div>
+                  <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold">{s.value}</p></div>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </section>
     </main>
   );
