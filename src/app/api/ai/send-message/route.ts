@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { translateText, detectLanguage, type Language } from '@/lib/ai';
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
     channelMessageId = result.messageId;
     status = result.status;
   } catch (e) {
-    console.error('Channel send error:', e);
+    logger.error('Channel send error', { error: e instanceof Error ? e.message : String(e) });
     status = 'failed';
   }
 

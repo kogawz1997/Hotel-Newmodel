@@ -1,12 +1,12 @@
 import { Client, validateSignature } from '@line/bot-sdk';
 import type { ChannelAdapter, ChannelMessage, SendMessageOptions } from './types';
 
-const lineConfig = {
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
-  channelSecret: process.env.LINE_CHANNEL_SECRET || '',
-};
-
-const client = new Client(lineConfig);
+function getClient() {
+  return new Client({
+    channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
+    channelSecret: process.env.LINE_CHANNEL_SECRET || '',
+  });
+}
 
 export const lineAdapter: ChannelAdapter = {
   channel: 'line',
@@ -16,7 +16,7 @@ export const lineAdapter: ChannelAdapter = {
       ? { type: 'image' as const, originalContentUrl: opts.mediaUrl, previewImageUrl: opts.mediaUrl }
       : { type: 'text' as const, text: opts.text };
 
-    await client.pushMessage(opts.channelUserId, message);
+    await getClient().pushMessage(opts.channelUserId, message);
     return { messageId: `line-${Date.now()}`, status: 'sent' };
   },
 
@@ -42,12 +42,12 @@ export const lineAdapter: ChannelAdapter = {
   },
 
   verifyWebhook(body: string, signature: string): boolean {
-    return validateSignature(body, lineConfig.channelSecret, signature);
+    return validateSignature(body, process.env.LINE_CHANNEL_SECRET || '', signature);
   },
 
   async getUserProfile(userId: string) {
     try {
-      const profile = await client.getProfile(userId);
+      const profile = await getClient().getProfile(userId);
       return {
         name: profile.displayName,
         avatarUrl: profile.pictureUrl,

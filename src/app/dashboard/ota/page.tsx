@@ -1,4 +1,5 @@
-import { WifiOff, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { WifiOff, RefreshCw, AlertTriangle } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { requireHotelAccess } from '@/lib/auth/guards';
 
@@ -21,10 +22,15 @@ export default async function OtaPage() {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <div>
-        <p className="text-sm text-muted-foreground">Phase 5</p>
-        <h1 className="text-2xl font-semibold tracking-tight">OTA Sync Foundation</h1>
-        <p className="text-sm text-muted-foreground">เตรียมฐานสำหรับ Booking.com, Agoda, Expedia และ channel อื่น ๆ ก่อนใส่ credential จริง</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-sm text-muted-foreground">Phase 5</p>
+          <h1 className="text-2xl font-semibold tracking-tight">OTA Sync Foundation</h1>
+          <p className="text-sm text-muted-foreground">เตรียมฐานสำหรับ Booking.com, Agoda, Expedia และ channel อื่น ๆ ก่อนใส่ credential จริง</p>
+        </div>
+        <Link href="/dashboard/ota/conflicts" className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-500/20 transition-colors dark:text-amber-300">
+          <AlertTriangle className="h-4 w-4" /> Conflict Resolution
+        </Link>
       </div>
       <div className="rounded-xl border bg-card p-4">
         <h2 className="mb-3 font-semibold">Connections</h2>

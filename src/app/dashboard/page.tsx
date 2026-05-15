@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { ReservationActionButtons } from '@/components/dashboard/reservation-action-buttons';
+import { DashboardShortcuts } from '@/components/dashboard/dashboard-shortcuts';
 
 async function count(query: any) {
   const { count } = await query;
@@ -35,6 +36,12 @@ export default async function DashboardPage() {
     .eq('organization_id', profile?.organization_id)
     .limit(1)
     .single();
+
+  // Role-specific redirect: send operational staff straight to their workspace
+  const role = profile?.role;
+  if (role === 'housekeeping') redirect('/dashboard/housekeeping');
+  if (role === 'front_desk') redirect('/dashboard/front-desk');
+  if (role === 'maintenance') redirect('/dashboard/rooms');
 
   if (!hotel) {
     return (
@@ -315,16 +322,19 @@ export default async function DashboardPage() {
           ))}
         </section>
 
-        <Card>
-          <CardHeader><CardTitle>งานที่รอทำ ({hkPending + hkInProgress})</CardTitle><CardDescription>กดปุ่ม "ดูรายการงาน" เพื่อจัดการทั้งหมด</CardDescription></CardHeader>
-          <CardContent className="space-y-2">
-            {!(myTasks?.length) ? <p className="text-sm text-muted-foreground text-center py-6">ไม่มีงานค้างอยู่ 🎉</p> : myTasks?.map((t: any) => (
-              <div key={t.id} className="flex items-center justify-between rounded-lg border p-3 gap-3">
-                <div className="min-w-0">
-                  <p className="font-medium text-sm">ห้อง {t.rooms?.room_number} {t.rooms?.floor ? `(ชั้น ${t.rooms.floor})` : ''}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{t.task_type} {t.notes ? `· ${t.notes}` : ''}</p>
-                </div>
-                <Badge variant={t.status === 'in_progress' ? 'info' : 'warning'}>{t.status}</Badge>
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          { title: 'สร้างการจอง', href: '/dashboard/reservations', desc: 'เปิด calendar/list แล้วกดจองใหม่' },
+          { title: 'Walk-in 3 คลิก', href: '/dashboard/front-desk/walk-in', desc: 'หน้าเคาน์เตอร์ใช้งานเร็ว' },
+          { title: 'ตอบ Inbox', href: '/dashboard/inbox', desc: `${openInbox} งานเปิดอยู่` },
+          { title: 'อัปเดตห้อง', href: '/dashboard/rooms', desc: `${roomsAvailable} ห้องพร้อมขาย` },
+          { title: 'งานแม่บ้าน', href: '/dashboard/housekeeping', desc: `${hkPending} งานต้องตาม` },
+        ].map((item) => (
+          <Link key={item.title} href={item.href} className="rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-medium">{item.title}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </CardContent>

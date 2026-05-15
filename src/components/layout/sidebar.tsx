@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  Tag, TrendingUp,
+  Tag,
+  Star,
   LayoutDashboard, Calendar, CalendarRange, MessageSquare, Users, Bed,
   Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed,
   Heart, Award, Megaphone, Settings, LogOut, ChevronDown,
   Building2, Shield, Settings2, Palette, CreditCard, Rocket, Zap,
-  MonitorDot, Wrench, Headphones, ShieldCheck,
+  MonitorDot,
+  Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -26,17 +28,15 @@ interface SidebarProps {
 // Role groupings — used in `roles` arrays on nav items.
 // If a nav item has no `roles` array it shows to ALL roles.
 // If it has a `roles` array, only those roles see it.
-const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
+const ALL_STAFF = ['owner', 'admin', 'manager', 'front_desk', 'housekeeping', 'concierge', 'accounting', 'maintenance', 'security', 'staff', 'viewer'];
 const MANAGEMENT_ROLES = ['owner', 'admin', 'manager'];
 const OWNER_ADMIN_ROLES = ['owner', 'admin'];
-const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk', 'receptionist'];
-const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
-const HOUSEKEEPING_ROLES  = ['owner', 'admin', 'manager', 'housekeeping'];
-const ACCOUNTING_ROLES   = ['owner', 'admin', 'manager', 'accounting'];
-const REVENUE_ROLES      = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
-const MAINTENANCE_ROLES  = ['owner', 'admin', 'manager', 'maintenance'];
-const CONCIERGE_ROLES    = ['owner', 'admin', 'manager', 'front_desk', 'receptionist', 'concierge'];
-const SECURITY_ROLES     = ['owner', 'admin', 'manager', 'security'];
+const FRONT_DESK_ROLES  = ['owner', 'admin', 'manager', 'front_desk'];
+const OPS_ROLES         = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff'];
+const FLOOR_OPS_ROLES   = ['owner', 'admin', 'manager', 'front_desk', 'concierge', 'staff', 'maintenance'];
+const HOUSEKEEPING_ROLES = ['owner', 'admin', 'manager', 'housekeeping'];
+const ACCOUNTING_ROLES  = ['owner', 'admin', 'manager', 'accounting'];
+const REVENUE_ROLES     = ['owner', 'admin', 'manager', 'accounting', 'viewer'];
 
 const NAV_GROUPS = [
   {
@@ -51,10 +51,14 @@ const NAV_GROUPS = [
     label: 'การดำเนินงาน',
     items: [
       { href: '/dashboard/front-desk', icon: MonitorDot, label: 'Front Desk', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/front-desk/check-in-wizard', icon: MonitorDot, label: 'Check-in Wizard', roles: FRONT_DESK_ROLES },
       { href: '/dashboard/reservations', icon: Calendar, label: 'การจอง', roles: FRONT_DESK_ROLES },
+      { href: '/dashboard/group-bookings', icon: Users, label: 'Group Booking', roles: FRONT_DESK_ROLES },
       { href: '/dashboard/rooms', icon: Bed, label: 'ห้อง', roles: [...FRONT_DESK_ROLES, 'maintenance'] },
       { href: '/dashboard/rates', icon: CalendarRange, label: 'ปฏิทินราคา', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/guests', icon: Users, label: 'แขก', roles: OPS_ROLES },
+      { href: '/dashboard/guests/merge', icon: Users, label: 'Merge Guests', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/notifications', icon: Bell, label: 'Notifications', roles: ALL_STAFF },
       { href: '/dashboard/housekeeping', icon: Sparkles, label: 'แม่บ้าน', roles: HOUSEKEEPING_ROLES },
       { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุง', roles: MAINTENANCE_ROLES },
       { href: '/dashboard/concierge', icon: Headphones, label: 'Concierge', roles: CONCIERGE_ROLES },
@@ -68,7 +72,8 @@ const NAV_GROUPS = [
       { href: '/dashboard/ota', icon: Globe2, label: 'OTA Sync', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/marketing', icon: Megaphone, label: 'Marketing', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/marketing/promos', icon: Tag, label: 'โค้ดส่วนลด', roles: MANAGEMENT_ROLES },
-      { href: '/dashboard/ranking', icon: TrendingUp, label: 'Search Ranking', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/reviews', icon: Star, label: 'Review Aggregator', roles: MANAGEMENT_ROLES },
+      { href: '/dashboard/booking-widget', icon: Globe2, label: 'Booking Widget', roles: MANAGEMENT_ROLES },
     ],
   },
   {
@@ -78,6 +83,7 @@ const NAV_GROUPS = [
       { href: '/dashboard/billing', icon: CreditCard, label: 'Billing', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/analytics', icon: BarChart3, label: 'Analytics', roles: REVENUE_ROLES },
       { href: '/dashboard/reports', icon: BarChart3, label: 'รายงาน', roles: REVENUE_ROLES },
+      { href: '/dashboard/reports/incidents', icon: Shield, label: 'Incident Timeline', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/audit', icon: Shield, label: 'Audit Log', roles: OWNER_ADMIN_ROLES },
       { href: '/dashboard/setup', icon: Zap, label: 'Service Setup', roles: MANAGEMENT_ROLES },
       { href: '/dashboard/system', icon: Settings2, label: 'ระบบ & Integrations', roles: OWNER_ADMIN_ROLES },

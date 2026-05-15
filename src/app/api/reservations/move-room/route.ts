@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   const raw  = await request.json();
   const body = MoveSchema.parse(raw);
 
-  const ctx = await requireHotelAccess(body.hotelId, ['owner', 'admin', 'manager', 'receptionist']);
+  const ctx = await requireHotelAccess(body.hotelId, ['owner', 'admin', 'manager']);
   if (ctx.error) return ctx.error;
 
   const admin = createAdminClient();

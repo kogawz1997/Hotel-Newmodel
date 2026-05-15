@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   })();
   if (!body) return NextResponse.json({ error: 'Validation failed' }, { status: 400 });
 
-  const ctx = await requireHotelAccess(body.hotelId, ['owner', 'admin', 'manager', 'receptionist']);
+  const ctx = await requireHotelAccess(body.hotelId, ['owner', 'admin', 'manager']);
   if (ctx.error) return ctx.error;
 
   const admin = createAdminClient();
