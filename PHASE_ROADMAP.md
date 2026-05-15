@@ -16,7 +16,7 @@
 # Hotel System — Complete Implementation Roadmap v2
 > เปรียบเทียบกับ target spec เต็มรูปแบบ: Hotel OS + SaaS Platform  
 > Branch: `claude/audit-consolidate-docs-mj9Dt`  
-> อัพเดต: 2026-05-14
+> อัพเดต: 2026-05-15
 
 ---
 
@@ -259,13 +259,36 @@
 
 ---
 
-## PHASE 1 — Core Daily Operations
+## PHASE 1 — Core Daily Operations ✅ เสร็จแล้ว
 **ระยะเวลา:** 4–6 สัปดาห์  
-**เป้าหมาย:** ทุก role เข้าระบบได้และทำงานพื้นฐานได้
+**เป้าหมาย:** ทุก role เข้าระบบได้และทำงานพื้นฐานได้  
+**สถานะ:** ✅ 1.1–1.3, 1.5–1.8 เสร็จ | ⚠️ 1.4 Inbox (ยังไม่ครบ webhooks/AI)
+
+### Phase 1 Additions — ✅ ทำเพิ่มเติม
+
+| ฟีเจอร์ | ไฟล์ | สถานะ |
+|---|---|---|
+| Guest Recovery | `src/app/dashboard/guest-recovery/` | ✅ เสร็จแล้ว |
+| Guest Blacklist | `src/app/dashboard/guests/blacklist/` + `src/app/api/guests/[id]/blacklist/` | ✅ เสร็จแล้ว |
+| Compliance TM30 | `src/app/dashboard/compliance/tm30/` | ✅ เสร็จแล้ว |
+| Compliance PDPA | `src/app/dashboard/compliance/pdpa/` + `src/app/api/compliance/pdpa/consent/` | ✅ เสร็จแล้ว |
+| Duty Log | `src/app/dashboard/duty-log/` | ✅ เสร็จแล้ว |
+| AI Review Reply | `src/app/api/ai/review-reply/` | ✅ Claude Haiku |
+| AI Sentiment | `src/app/api/ai/sentiment/` | ✅ Claude Haiku |
+| Portal Folio | `src/app/portal/folio/` + `express-checkout/` | ✅ เสร็จแล้ว |
+| Portal Request Tracker | `src/app/portal/requests/[id]/` + `src/components/portal/request-tracker.tsx` | ✅ Realtime |
+| Portal Compendium | `src/app/portal/compendium/` | ✅ เสร็จแล้ว |
+| Portal AI Chat | `src/components/portal/ai-chat-widget.tsx` + `src/app/api/portal/chat/` | ✅ Claude Haiku |
+| VIP Alert Banner | `src/components/dashboard/vip-alert-banner.tsx` | ✅ เสร็จแล้ว |
+| Geofence Clock | `src/components/attendance/geofence-clock.tsx` + `src/lib/geofence.ts` | ✅ GPS |
+| Checklist Templates | `src/lib/checklist-templates.ts` | ✅ เสร็จแล้ว |
+| SLA Widget | `src/app/dashboard/live-board/sla-widget.tsx` | ✅ เสร็จแล้ว |
+| 35-Role Migration | `supabase/migrations/20260601400000_roles_expanded.sql` | ✅ เสร็จแล้ว |
+| Leave/Docs Migration | `supabase/migrations/20260601300000_leave_documents.sql` | ✅ เสร็จแล้ว |
 
 ---
 
-### 1.1 Role-Adaptive Dashboard (ขยายจากที่มี)
+### ✅ 1.1 Role-Adaptive Dashboard (ขยายจากที่มี)
 
 **ไฟล์ที่ต้องแก้:** `src/app/dashboard/page.tsx`
 
@@ -303,35 +326,36 @@
 
 ---
 
-### 1.2 Attendance & Shift System
+### ✅ 1.2 Attendance & Shift System
 *(รายละเอียดเหมือนเดิม — ครบอยู่แล้ว)*
 
 | ไฟล์ | สถานะ |
 |---|---|
-| `src/app/dashboard/attendance/` | ❌ สร้างใหม่ |
-| `src/app/dashboard/shift-management/` | ❌ สร้างใหม่ |
-| `src/app/api/attendance/clock/route.ts` | ❌ สร้างใหม่ |
-| `src/app/api/shifts/` | ❌ สร้างใหม่ |
+| `src/app/dashboard/attendance/` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/shift-management/` | ✅ เสร็จแล้ว |
+| `src/app/api/attendance/clock/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/api/shifts/` | ✅ เสร็จแล้ว |
 
 ---
 
-### 1.3 Task Auto-Router + Work Order System
+### ✅ 1.3 Task Auto-Router + Work Order System
 
 | ไฟล์ | สถานะ |
 |---|---|
-| `src/lib/task-router.ts` | ❌ สร้างใหม่ |
-| `src/app/api/work-orders/route.ts` | ❌ สร้างใหม่ |
-| `src/app/api/work-orders/[id]/route.ts` | ❌ สร้างใหม่ |
-| `src/app/dashboard/work-orders/page.tsx` | ❌ สร้างใหม่ |
-| `src/app/dashboard/my-tasks/page.tsx` | ❌ สร้างใหม่ (housekeeper/technician/bellboy view) |
-| `src/components/tasks/task-card.tsx` | ❌ สร้างใหม่ |
-| `src/components/tasks/photo-upload.tsx` | ❌ สร้างใหม่ (before/after photos) |
+| `src/lib/task-router.ts` | ✅ เสร็จแล้ว |
+| `src/app/api/work-orders/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/api/work-orders/[id]/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/work-orders/page.tsx` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/my-tasks/page.tsx` | ✅ เสร็จแล้ว (housekeeper/technician/bellboy view) |
+| `src/components/tasks/task-card.tsx` | ✅ เสร็จแล้ว |
+| `src/components/tasks/photo-upload.tsx` | ✅ เสร็จแล้ว (before/after photos) |
 
 **Photo Upload Flow:** พนักงานอัพโหลดรูป → Supabase Storage → URL บันทึกใน `task_photos`
 
 ---
 
-### 1.4 Omnichannel Inbox — Chat Admin
+### ⚠️ 1.4 Omnichannel Inbox — Chat Admin
+*(โครงสร้างหลักมีอยู่แล้ว — webhook integrations / AI reply / SLA timer ยังไม่ครบ)*
 
 **หน้าหลัก:** `src/app/dashboard/inbox/`
 
@@ -360,35 +384,57 @@
 
 ---
 
-### 1.5 Leave Management
-*(รายละเอียดเหมือน roadmap เดิม)*
+### ✅ 1.5 Leave Management
+
+| ไฟล์ | สถานะ |
+|---|---|
+| `src/app/api/leave/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/api/leave/[id]/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/leave/page.tsx` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/leave/leave-client.tsx` | ✅ เสร็จแล้ว |
 
 ---
 
-### 1.6 Document & Request Workflow
-*(รายละเอียดเหมือน roadmap เดิม)*
+### ✅ 1.6 Document & Request Workflow
+
+| ไฟล์ | สถานะ |
+|---|---|
+| `src/app/api/documents/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/api/documents/[id]/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/api/internal-requests/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/api/internal-requests/[id]/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/documents/page.tsx` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/documents/documents-client.tsx` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/internal-requests/page.tsx` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/internal-requests/internal-requests-client.tsx` | ✅ เสร็จแล้ว |
 
 ---
 
-### 1.7 Announcements
-*(รายละเอียดเหมือน roadmap เดิม)*
+### ✅ 1.7 Announcements
+
+| ไฟล์ | สถานะ |
+|---|---|
+| `src/app/api/announcements/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/api/announcements/[id]/route.ts` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/announcements/page.tsx` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/announcements/announcements-client.tsx` | ✅ เสร็จแล้ว |
 
 ---
 
-### 1.8 Manager Live Board (GM Command Center)
+### ✅ 1.8 Manager Live Board (GM Command Center)
 
 **สำหรับ:** `general_manager`, `operations_manager`, `hotel_owner`
 
 | ไฟล์ | รายละเอียด |
 |---|---|
-| `src/app/dashboard/live-board/page.tsx` | Server component |
-| `src/app/dashboard/live-board/live-board-client.tsx` | Real-time via Supabase Realtime |
-| `src/components/live/occupancy-map.tsx` | แผนผังห้อง real-time (by floor) |
-| `src/components/live/staff-status-grid.tsx` | Grid: ออนไลน์/ติดงาน/ออฟไลน์ |
-| `src/components/live/task-queue-widget.tsx` | คิวงานแต่ละแผนก |
-| `src/components/live/alerts-feed.tsx` | Feed: incidents + SLA breaches + urgent requests |
-| `src/components/live/vip-arrivals-widget.tsx` | VIP ที่จะมาถึงวันนี้ |
-| `src/components/live/emergency-alert-bar.tsx` | Emergency alerts (แสดงด้านบนสุด) |
+| `src/app/dashboard/live-board/page.tsx` | ✅ เสร็จแล้ว |
+| `src/app/dashboard/live-board/live-board-client.tsx` | ✅ เสร็จแล้ว — Supabase Realtime |
+| `src/components/live/occupancy-map.tsx` | ✅ เสร็จแล้ว |
+| `src/components/live/staff-status-grid.tsx` | ✅ เสร็จแล้ว |
+| `src/components/live/task-queue-widget.tsx` | ✅ เสร็จแล้ว |
+| `src/components/live/alerts-feed.tsx` | ✅ เสร็จแล้ว |
+| `src/components/live/vip-arrivals-widget.tsx` | ✅ เสร็จแล้ว |
+| `src/components/live/emergency-alert-bar.tsx` | ✅ เสร็จแล้ว |
 
 **GM Controls (เพิ่มใน live-board-client.tsx):**
 - [ ] Reassign task (drag & drop หรือ modal)

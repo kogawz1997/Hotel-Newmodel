@@ -37,11 +37,39 @@ export default async function DashboardPage() {
     .limit(1)
     .single();
 
-  // Role-specific redirect: send operational staff straight to their workspace
+  // Role-specific redirect: send staff straight to their primary workspace
   const role = profile?.role || 'staff';
+  // Legacy roles
   if (role === 'housekeeping') redirect('/dashboard/housekeeping');
   if (role === 'front_desk') redirect('/dashboard/front-desk');
   if (role === 'maintenance') redirect('/dashboard/rooms');
+  // New 35-role system — management goes to live-board
+  if (role === 'general_manager') redirect('/dashboard/live-board');
+  if (role === 'operations_manager') redirect('/dashboard/live-board');
+  if (role === 'hotel_owner') redirect('/dashboard/live-board');
+  // Operational staff go to my-tasks
+  if (['housekeeper', 'room_inspector', 'technician', 'bellboy', 'transport_driver',
+       'room_service_staff', 'kitchen_staff', 'security_staff', 'spa_staff', 'restaurant_staff'].includes(role ?? '')) {
+    redirect('/dashboard/my-tasks');
+  }
+  // Front office
+  if (role === 'front_office_manager') redirect('/dashboard/front-desk');
+  if (role === 'reservation_agent') redirect('/dashboard/reservations');
+  if (role === 'night_auditor') redirect('/dashboard/reports/handover');
+  // Department managers go to their module
+  if (role === 'housekeeping_manager') redirect('/dashboard/housekeeping');
+  if (role === 'maintenance_manager') redirect('/dashboard/maintenance');
+  if (role === 'revenue_manager') redirect('/dashboard/revenue');
+  if (role === 'accounting_manager' || role === 'accounting_staff') redirect('/dashboard/accounting');
+  if (role === 'hr_manager' || role === 'hr_staff') redirect('/dashboard/team');
+  if (role === 'spa_manager' || role === 'spa_staff') redirect('/dashboard/spa');
+  if (role === 'concierge' || role === 'guest_relations') redirect('/dashboard/concierge');
+  if (role === 'security_manager') redirect('/dashboard/security');
+  if (role === 'fnb_manager') redirect('/dashboard/fb');
+  if (role === 'chat_admin') redirect('/dashboard/inbox');
+  if (role === 'it_admin' || role === 'it_support') redirect('/dashboard/integrations');
+  if (role === 'marketing_staff') redirect('/dashboard/marketing');
+  if (role === 'purchasing_manager' || role === 'purchasing_staff') redirect('/dashboard/team');
 
   if (!hotel) {
     return (
@@ -198,22 +226,19 @@ export default async function DashboardPage() {
           ))}
         </section>
 
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { title: 'สร้างการจอง', href: '/dashboard/reservations', desc: 'เปิด calendar/list แล้วกดจองใหม่' },
-            { title: 'Walk-in 3 คลิก', href: '/dashboard/front-desk/walk-in', desc: 'หน้าเคาน์เตอร์ใช้งานเร็ว' },
-            { title: 'ตอบ Inbox', href: '/dashboard/inbox', desc: `${openInbox} งานเปิดอยู่` },
-            { title: 'งานแม่บ้าน', href: '/dashboard/housekeeping', desc: `${hkPending} งานต้องตาม` },
-          ].map((item) => (
-            <Link key={item.title} href={item.href} className="rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-medium">{item.title}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+        <section className="space-y-2">
+          <h2 className="text-sm font-semibold">งานที่ต้องทำ</h2>
+          {!(myTasks?.length) ? (
+            <p className="text-sm text-muted-foreground text-center py-6">ไม่มีงานค้าง 🎉</p>
+          ) : myTasks.map((t: any) => (
+            <div key={t.id} className="flex items-center justify-between rounded-lg border p-3 gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{t.task_type}</p>
+                <p className="text-xs text-muted-foreground">ห้อง {(t.rooms as any)?.room_number} ชั้น {(t.rooms as any)?.floor}</p>
+                {t.notes && <p className="text-xs text-muted-foreground truncate">{t.notes}</p>}
               </div>
-            </Link>
+              <Badge variant={t.status === 'in_progress' ? 'info' : 'warning'}>{t.status}</Badge>
+            </div>
           ))}
         </section>
 
