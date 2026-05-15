@@ -9,7 +9,7 @@ import {
   Settings, LogOut, ChevronDown, Building2, Shield, Settings2, Palette, CreditCard,
   Rocket, Zap, MonitorDot, Bell, Wrench, Headphones, ShieldCheck, ClipboardList,
   ListTodo, Clock, HeartHandshake, FileText, MapPin, Monitor, Tv2, Car,
-  BriefcaseBusiness, ChefHat, Flower2, ShoppingCart, TrendingUp, Users2,
+  BriefcaseBusiness, ChefHat, Flower2, ShoppingCart, TrendingUp, Users2, Moon, ContactRound,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -76,6 +76,8 @@ const NAV_GROUPS = [
       { href: '/dashboard/leave', icon: CalendarRange, label: 'ลางาน', roles: ALL_STAFF },
       { href: '/dashboard/internal-requests', icon: MessageSquare, label: 'คำร้องภายใน', roles: ALL_STAFF },
       { href: '/dashboard/shift-management', icon: Calendar, label: 'จัดกะงาน', roles: [...MGMT_ROLES, 'hr_manager', 'hr_staff', 'housekeeping_manager', 'maintenance_manager'] },
+      { href: '/dashboard/bellboy', icon: BriefcaseBusiness, label: 'Porter', roles: [...MGMT_ROLES, 'concierge', 'bellboy', 'front_office_manager', 'front_desk'] },
+      { href: '/dashboard/transport', icon: Car, label: 'Transport', roles: [...MGMT_ROLES, 'concierge', 'transport_driver', 'front_office_manager'] },
     ],
   },
   {
@@ -91,6 +93,15 @@ const NAV_GROUPS = [
       { href: '/dashboard/maintenance', icon: Wrench, label: 'ซ่อมบำรุง', roles: MAINT_ROLES },
       { href: '/dashboard/concierge', icon: Headphones, label: 'Concierge', roles: CON_ROLES },
       { href: '/dashboard/security', icon: ShieldCheck, label: 'Security', roles: SEC_ROLES },
+      { href: '/dashboard/housekeeping/inspect', icon: Sparkles, label: 'ตรวจห้อง', roles: [...MGMT_ROLES, 'housekeeping_manager', 'room_inspector'] },
+      { href: '/dashboard/housekeeping/lost-found', icon: Tag, label: 'ของหาย', roles: [...MGMT_ROLES, 'housekeeping_manager', 'housekeeper', 'front_desk'] },
+      { href: '/dashboard/housekeeping/laundry', icon: Sparkles, label: 'ผ้า/ซักรีด', roles: [...MGMT_ROLES, 'housekeeping_manager', 'housekeeper'] },
+      { href: '/dashboard/maintenance/my-repairs', icon: Wrench, label: 'งานซ่อมของฉัน', roles: [...MGMT_ROLES, 'maintenance_manager', 'technician'] },
+      { href: '/dashboard/maintenance/parts', icon: Wrench, label: 'อะไหล่', roles: [...MGMT_ROLES, 'maintenance_manager', 'technician'] },
+      { href: '/dashboard/maintenance/pm', icon: Calendar, label: 'PM Schedule', roles: [...MGMT_ROLES, 'maintenance_manager'] },
+      { href: '/dashboard/kitchen', icon: ChefHat, label: 'ครัว / KDS', roles: [...MGMT_ROLES, 'fnb_manager', 'kitchen_staff'] },
+      { href: '/dashboard/room-service', icon: UtensilsCrossed, label: 'Room Service', roles: [...MGMT_ROLES, 'fnb_manager', 'room_service_staff'] },
+      { href: '/dashboard/restaurant', icon: UtensilsCrossed, label: 'Restaurant POS', roles: [...MGMT_ROLES, 'fnb_manager', 'restaurant_staff'] },
     ],
   },
   {
@@ -138,9 +149,15 @@ const NAV_GROUPS = [
     items: [
       { href: '/dashboard/duty-log', icon: FileText, label: 'Duty Log', roles: MGMT_ROLES },
       { href: '/dashboard/guest-recovery', icon: HeartHandshake, label: 'Guest Recovery', roles: [...MGMT_ROLES, 'guest_relations', 'front_office_manager', 'front_desk'] },
+      { href: '/dashboard/night-audit', icon: Moon, label: 'Night Audit', roles: ['hotel_owner','general_manager','operations_manager','accounting_manager','night_auditor'] },
+      { href: '/dashboard/crm', icon: ContactRound, label: 'CRM & Loyalty', roles: ['hotel_owner','general_manager','operations_manager','revenue_manager','marketing_staff'] },
       { href: '/dashboard/announcements', icon: Megaphone, label: 'ประกาศ', roles: ALL_STAFF },
       { href: '/dashboard/documents', icon: FileText, label: 'เอกสาร', roles: ALL_STAFF },
       { href: '/dashboard/reports/handover', icon: ClipboardList, label: 'Shift Handover', roles: FRONT_ROLES },
+      { href: '/dashboard/accounting-ops', icon: Receipt, label: 'Cashier', roles: ACC_ROLES },
+      { href: '/dashboard/purchasing', icon: ShoppingCart, label: 'จัดซื้อ', roles: [...MGMT_ROLES, 'purchasing_manager', 'purchasing_staff', 'accounting_manager'] },
+      { href: '/dashboard/it', icon: Monitor, label: 'IT Support', roles: IT_ROLES },
+      { href: '/dashboard/hr', icon: Users2, label: 'HR', roles: HR_ROLES },
     ],
   },
   {

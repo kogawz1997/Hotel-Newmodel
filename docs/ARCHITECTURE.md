@@ -42,7 +42,7 @@
                              ▼
 ┌────────────────────────────────────────────────────────────┐
 │              Supabase (Postgres + Auth + Realtime)          │
-│  40+ tables · RLS per organization · Realtime subscriptions │
+│  80+ tables · 18 migrations · RLS per organization · Realtime subscriptions │
 └────────────────────────────────────────────────────────────┘
 ```
 

@@ -7,6 +7,7 @@ import { useAdminLang } from '@/contexts/admin-lang-context';
 import {
   LayoutDashboard, Building2, TrendingUp, Settings, AlertTriangle,
   LogOut, Globe, ChevronRight, Shield,
+  CreditCard, Gift, LifeBuoy, Activity, ShieldAlert, BarChart3, Layers, Code2,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -39,6 +40,29 @@ const NAV = [
     groupKey: 'nav.system',
     items: [
       { href: '/admin/errors', icon: AlertTriangle, labelKey: 'nav.errorLogs' },
+    ],
+  },
+  {
+    groupKey: 'nav.billing_group',
+    items: [
+      { href: '/admin/billing', icon: CreditCard, labelKey: 'nav.billing' },
+      { href: '/admin/billing/credits', icon: Gift, labelKey: 'nav.credits' },
+    ],
+  },
+  {
+    groupKey: 'nav.support_group',
+    items: [
+      { href: '/admin/support', icon: LifeBuoy, labelKey: 'nav.support' },
+    ],
+  },
+  {
+    groupKey: 'nav.platform_group',
+    items: [
+      { href: '/admin/operations', icon: Activity, labelKey: 'nav.operations' },
+      { href: '/admin/security', icon: ShieldAlert, labelKey: 'nav.securityAdmin' },
+      { href: '/admin/sales', icon: BarChart3, labelKey: 'nav.sales' },
+      { href: '/admin/product', icon: Layers, labelKey: 'nav.product' },
+      { href: '/admin/engineering', icon: Code2, labelKey: 'nav.engineering' },
     ],
   },
 ];

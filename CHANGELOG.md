@@ -5,6 +5,43 @@ All notable changes to Maitri are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-15
+
+### Added — Phase 2 & 3 Complete (Full Hotel OS + SaaS Platform)
+
+#### Phase 2 — Department Modules (15 modules)
+- **Transport**: airport pickup/drop, driver assignment, status tracking
+- **Bellboy/Porter**: luggage task queue, claim/start/complete flow
+- **Kitchen KDS**: 3-column Kanban, allergy tags, live timer, 30s auto-refresh
+- **Room Service**: delivery queue, claim/deliver/tray-return flow
+- **Restaurant POS**: table grid, order management, bill with VAT (7%) + service charge (10%)
+- **Housekeeping (enhanced)**: inspection 5-star rating, lost & found, laundry batch tracking
+- **Engineering (enhanced)**: parts inventory, before/after photos, PM schedule with color coding
+- **IT Support**: internal ticket queue, device registry, system health
+- **HR Full Module**: payroll periods, performance reviews, training records, onboarding
+- **Purchasing**: purchase orders, supplier management, inventory + stock transactions
+- **Accounting Ops**: cashier sessions, expense tracking, tax invoices
+- **Security (enhanced)**: patrol timeline, incident report, emergency SOS button
+- **Spa (enhanced)**: treatment rooms, therapist schedule, booking management
+- **Revenue (enhanced)**: competitor pricing, dynamic pricing rules, abandoned bookings
+- **Concierge (enhanced)**: requests, transport/luggage quick-create, VIP task board
+- 9 new DB migrations covering all department tables
+- 15 new sidebar nav items across department groups
+
+#### Phase 3 — SaaS Platform Admin + Advanced Systems
+- **Billing Admin** (`/admin/billing`): invoices, failed payments, credit issuance
+- **Support Admin** (`/admin/support`): cross-hotel ticket queue, hotel diagnostics panel, impersonation
+- **Platform Operations** (`/admin/operations`): service health traffic-light dashboard
+- **Security Admin** (`/admin/security`): global audit log, session management
+- **Sales CRM** (`/admin/sales`): leads Kanban (prospecting→demo→trial→negotiation→won/lost)
+- **Product Admin** (`/admin/product`): feature flags toggle, A/B test management
+- **Engineering Admin** (`/admin/engineering`): webhook events + replay, migration history, log viewer
+- **Night Audit** (`/dashboard/night-audit`): 4-tab audit (overview/arrivals/cashier/folios), run audit button
+- **Advanced CRM** (`/dashboard/crm`): guest 360, loyalty tier breakdown, segment analytics
+- 2 new DB migrations: platform_core + platform_ops (billing, audit logs, feature flags, sales leads, A/B tests, webhook events)
+- 13 new platform API routes under `/api/admin/`
+- Admin sidebar expanded with 8 new nav groups
+
 ## [0.3.1] - 2026-05-09
 
 ### Fixed
