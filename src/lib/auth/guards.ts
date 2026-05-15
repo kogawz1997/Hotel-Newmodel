@@ -6,7 +6,34 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/server';
 
-export type StaffRole = 'owner' | 'admin' | 'manager' | 'front_desk' | 'housekeeping' | 'staff' | 'viewer';
+export type StaffRole =
+  // Legacy roles
+  | 'owner' | 'admin' | 'manager' | 'front_desk' | 'housekeeping' | 'staff' | 'viewer'
+  | 'maintenance' | 'security' | 'concierge' | 'accounting'
+  // Management
+  | 'hotel_owner' | 'general_manager' | 'operations_manager'
+  // Front office
+  | 'front_office_manager' | 'reservation_agent' | 'night_auditor'
+  // Housekeeping
+  | 'housekeeping_manager' | 'housekeeper' | 'room_inspector'
+  // Maintenance / Engineering
+  | 'maintenance_manager' | 'technician'
+  // Security
+  | 'security_manager' | 'security_staff'
+  // Concierge / Guest services
+  | 'guest_relations' | 'bellboy' | 'transport_driver'
+  // Accounting / Finance
+  | 'accounting_manager' | 'accounting_staff'
+  // HR
+  | 'hr_manager' | 'hr_staff'
+  // Revenue / Marketing
+  | 'revenue_manager' | 'marketing_staff'
+  // Spa & Wellness
+  | 'spa_manager' | 'spa_staff'
+  // F&B
+  | 'fnb_manager' | 'kitchen_staff' | 'room_service_staff' | 'restaurant_staff'
+  // IT
+  | 'it_admin' | 'it_support';
 
 export interface HotelContext {
   user: { id: string; email: string };
