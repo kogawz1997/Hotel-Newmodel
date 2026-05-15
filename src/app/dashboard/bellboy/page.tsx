@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { redirect } from 'next/navigation';
 import { requireDashboardRole } from '@/lib/auth/page-guards';
+import type { StaffRole } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { BellboyClient } from './bellboy-client';
 
@@ -16,7 +17,7 @@ export default async function BellboyPage() {
     'bellboy',
     'front_desk',
     'front_office_manager',
-  ]);
+  ] as StaffRole[]);
 
   const admin = createAdminClient();
 

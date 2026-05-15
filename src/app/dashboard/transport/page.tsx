@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { redirect } from 'next/navigation';
 import { requireDashboardRole } from '@/lib/auth/page-guards';
+import type { StaffRole } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { TransportClient } from './transport-client';
 
@@ -16,7 +17,7 @@ export default async function TransportPage() {
     'transport_driver',
     'front_desk',
     'front_office_manager',
-  ]);
+  ] as StaffRole[]);
 
   const admin = createAdminClient();
 

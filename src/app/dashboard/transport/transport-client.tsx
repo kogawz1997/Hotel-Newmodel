@@ -272,15 +272,13 @@ function TaskCard({
               ถึงจุดหมาย
             </button>
           )}
-          {task.status !== 'cancelled' && (
-            <button
-              disabled={loading}
-              onClick={() => handleAction('cancelled')}
-              className="px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-red-600 hover:border-red-300 disabled:opacity-60 transition-colors"
-            >
-              ยกเลิก
-            </button>
-          )}
+          <button
+            disabled={loading}
+            onClick={() => handleAction('cancelled')}
+            className="px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-red-600 hover:border-red-300 disabled:opacity-60 transition-colors"
+          >
+            ยกเลิก
+          </button>
         </div>
       )}
     </div>
