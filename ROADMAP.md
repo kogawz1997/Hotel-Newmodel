@@ -120,7 +120,7 @@
   - [x] `blocked` ✅
 - [x] block room ตามช่วงวัน ✅
 - [x] room detail drawer ✅
-- [ ] room timeline 🔄 — UI ต้องตรวจสอบ
+- [x] room timeline ✅ — GET /api/rooms/[id]/timeline + ประวัติ modal ใน rooms-client.tsx
 
 #### Rates
 - [x] rate plan ✅
@@ -415,8 +415,8 @@
 - [x] push rates ✅ — 🔑
 - [x] push restrictions ✅ — 🔑
 - [x] pull bookings ✅ — 🔑
-- [ ] pull cancellations 🔄 — logic บางส่วน ต้องทำ webhook handler ครบ
-- [ ] pull modifications 🔄
+- [x] pull cancellations ✅ — reservation-mapper.ts handles status=cancelled, updates DB + audit log
+- [x] pull modifications ✅ — reservation-mapper.ts detects existing by externalId → update flow
 - [x] prevent duplicate bookings ✅ — idempotency key
 - [x] conflict resolver ✅
 - [x] manual sync ✅
@@ -482,8 +482,8 @@
 - [x] repeat guest offer ✅
 
 #### Review
-- [ ] post-stay review request 🔄
-- [ ] collect review 🔄
+- [x] post-stay review request ✅ — POST /api/reviews/request sends email via SendGrid + audit log
+- [x] collect review ✅ — /api/guest/reviews + booking_reviews table + review_requests migration
 - [ ] AI response draft 🔑 — ต้องใส่ Anthropic key
 - [ ] sentiment dashboard 🔄
 - [ ] Google/Tripadvisor/OTA review tracking 🔄

@@ -10,7 +10,7 @@ import { Select } from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { TopBar } from '@/components/layout/top-bar';
-import { Plus, Bed, Users, Maximize2, MoreHorizontal } from 'lucide-react';
+import { Plus, Bed, Clock, Users, Maximize2 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -29,6 +29,19 @@ export function RoomsClient({ hotelId }: { hotelId: string }) {
   const [showRoomTypeModal, setShowRoomTypeModal] = useState(false);
   const [showRoomModal, setShowRoomModal] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<{ roomId: string; status: string; roomNumber: string } | null>(null);
+  const [timelineRoom, setTimelineRoom] = useState<{ id: string; number: string } | null>(null);
+  const [timelineEvents, setTimelineEvents] = useState<any[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+
+  async function loadTimeline(roomId: string, roomNumber: string) {
+    setTimelineRoom({ id: roomId, number: roomNumber });
+    setTimelineEvents([]);
+    setTimelineLoading(true);
+    try {
+      const res = await fetch(`/api/rooms/${roomId}/timeline`);
+      if (res.ok) { const d = await res.json(); setTimelineEvents(d.events || []); }
+    } finally { setTimelineLoading(false); }
+  }
 
   useEffect(() => { load(); }, []);
 
@@ -161,6 +174,12 @@ export function RoomsClient({ hotelId }: { hotelId: string }) {
                         <option key={k} value={k}>{v.label}</option>
                       ))}
                     </select>
+                    <button
+                      onClick={() => loadTimeline(r.id, r.room_number)}
+                      className="w-full mt-1 flex items-center justify-center gap-1 text-2xs text-muted-foreground hover:text-accent transition-colors py-0.5"
+                    >
+                      <Clock className="h-3 w-3" /> ประวัติ
+                    </button>
                   </div>
                 );
               })}
@@ -168,6 +187,47 @@ export function RoomsClient({ hotelId }: { hotelId: string }) {
           )}
         </CardContent>
       </Card>
+
+      {/* Room Timeline Modal */}
+      <Dialog open={!!timelineRoom} onOpenChange={(o) => !o && setTimelineRoom(null)}>
+        <DialogContent className="max-w-md max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>ประวัติห้อง {timelineRoom?.number}</DialogTitle>
+            <DialogDescription>การจอง แม่บ้าน และซ่อมบำรุง</DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto pr-1 space-y-2">
+            {timelineLoading && <p className="text-sm text-center text-muted-foreground py-4">กำลังโหลด...</p>}
+            {!timelineLoading && timelineEvents.length === 0 && (
+              <p className="text-sm text-center text-muted-foreground py-4">ยังไม่มีประวัติ</p>
+            )}
+            {timelineEvents.map((ev: any) => (
+              <div key={ev.id} className="flex gap-3 text-sm p-2 rounded-lg hover:bg-secondary/30 transition-colors">
+                <div className={cn('mt-1 h-2.5 w-2.5 rounded-full shrink-0',
+                  ev.type === 'reservation' ? 'bg-blue-500' :
+                  ev.type === 'housekeeping' ? 'bg-emerald-500' :
+                  ev.type === 'maintenance' ? 'bg-amber-500' : 'bg-muted-foreground'
+                )} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{ev.label}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(ev.date).toLocaleDateString('th-TH')}
+                    {ev.endDate ? ` → ${new Date(ev.endDate).toLocaleDateString('th-TH')}` : ''}
+                    {ev.meta?.amount ? ` · ฿${Number(ev.meta.amount).toLocaleString()}` : ''}
+                    {ev.meta?.cost ? ` · ค่าใช้จ่าย ฿${Number(ev.meta.cost).toLocaleString()}` : ''}
+                    {ev.meta?.photos ? ` · ${ev.meta.photos} รูป` : ''}
+                  </div>
+                </div>
+                {ev.status && (
+                  <Badge variant="secondary" className="text-2xs shrink-0">{ev.status}</Badge>
+                )}
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTimelineRoom(null)}>ปิด</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm status change dialog */}
       <Dialog open={!!pendingStatus} onOpenChange={(o) => !o && setPendingStatus(null)}>
