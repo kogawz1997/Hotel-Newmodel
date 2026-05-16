@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { apiError } from '@/lib/http/errors';
+import { queueNotification } from '@/lib/notifications';
+import { writeAuditLog } from '@/lib/audit';
 
 const createOrderSchema = z.object({
   reservationId: z.string().uuid(),
@@ -200,6 +202,18 @@ export async function PATCH(request: Request) {
     .eq('id', order.id);
 
   if (updateError) return apiError(updateError);
+
+  // Notify kitchen on new order; notify room service when ready
+  const STATUS_NOTIF: Record<string, { roles: any; title: string; body: string }> = {
+    preparing: { roles: ['kitchen_staff', 'fnb_manager'], title: 'ออเดอร์ใหม่', body: `Order ${order.order_number} กำลังทำอาหาร` },
+    served:    { roles: ['room_service_staff', 'restaurant_staff', 'fnb_manager'], title: 'อาหารพร้อมเสิร์ฟ', body: `Order ${order.order_number} พร้อมแล้ว` },
+  };
+  if (STATUS_NOTIF[body.status]) {
+    const n = STATUS_NOTIF[body.status];
+    await queueNotification({ hotelId: ctx.hotelId!, type: `fb_order_${body.status}`, priority: 'normal', roles: n.roles, title: n.title, body: n.body, deepLink: '/dashboard/kitchen', metadata: { order_id: order.id } });
+  }
+
+  await writeAuditLog({ hotelId: ctx.hotelId!, actorId: ctx.user.id, action: 'fb_order_status_changed', entityType: 'fb_order', entityId: order.id, metadata: { from: order.status, to: body.status } });
 
   if (body.status === 'paid' && body.paymentMethod === 'room_charge') {
     const folio = await ensureOpenFolio(ctx.supabase, ctx.hotelId!, order.reservation_id);

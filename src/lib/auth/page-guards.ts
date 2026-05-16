@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/server';
-import type { StaffRole } from '@/lib/auth/guards';
+import type { StaffRole } from '@/lib/auth/roles';
 
 export async function requireDashboardRole(allowedRoles: StaffRole[]) {
   const supabase = await createClient();

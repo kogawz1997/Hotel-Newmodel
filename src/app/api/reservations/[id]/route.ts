@@ -4,6 +4,8 @@ import { assertReservationAccess, requireHotelAccess } from '@/lib/auth/guards';
 import { parseJson } from '@/lib/http/validation';
 import { calculateCancellationQuote } from '@/lib/pms/cancellation-policy';
 import { redactPii } from '@/lib/utils/redact';
+import { onCheckIn, onCheckout } from '@/lib/workflows/room-status';
+import { writeAuditLog } from '@/lib/audit';
 
 const patchSchema = z.object({
   action: z.enum(['check_in', 'check_out', 'cancel']).optional(),
@@ -114,6 +116,7 @@ export async function PATCH(
 
     if (body.action === 'check_in') {
       updates.status = 'checked_in';
+      updates.actual_check_in = new Date().toISOString();
 
       if (body.roomId) {
         const { data: room, error: roomError } = await supabase
@@ -130,7 +133,7 @@ export async function PATCH(
           );
         }
 
-        if (['maintenance', 'blocked'].includes(room.status)) {
+        if (['out_of_order', 'blocked', 'maintenance'].includes(room.status)) {
           return NextResponse.json(
             { error: 'Room is not available' },
             { status: 409 }
@@ -138,25 +141,33 @@ export async function PATCH(
         }
 
         updates.room_id = body.roomId;
-
-        await supabase
-          .from('rooms')
-          .update({ status: 'occupied' })
-          .eq('id', body.roomId)
-          .eq('hotel_id', hotelId);
+        await onCheckIn(hotelId, body.roomId, roleCtx.profile!.id, id);
       }
+
+      await writeAuditLog({
+        hotelId,
+        actorId:    roleCtx.profile!.id,
+        action:     'reservation_check_in',
+        entityType: 'reservation',
+        entityId:   id,
+        metadata:   { room_id: body.roomId },
+      });
     } else if (body.action === 'check_out') {
       updates.status = 'checked_out';
+      updates.actual_check_out = new Date().toISOString();
 
       if (ctx.reservation.room_id) {
-        await supabase
-          .from('rooms')
-          .update({ status: 'cleaning' })
-          .eq('id', ctx.reservation.room_id)
-          .eq('hotel_id', hotelId);
-
-        // DB trigger auto_create_checkout_housekeeping creates the turnover task.
+        await onCheckout(hotelId, ctx.reservation.room_id, roleCtx.profile!.id, id);
       }
+
+      await writeAuditLog({
+        hotelId,
+        actorId:    roleCtx.profile!.id,
+        action:     'reservation_check_out',
+        entityType: 'reservation',
+        entityId:   id,
+        metadata:   { room_id: ctx.reservation.room_id },
+      });
     } else if (body.action === 'cancel') {
       const quote = calculateCancellationQuote({
         checkIn: ctx.reservation.check_in,
