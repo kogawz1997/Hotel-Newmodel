@@ -1,7 +1,7 @@
 # Maitri PMS — Todo List (100 items)
 
 **อัปเดต**: 2026-05-16  
-**สถานะ**: Critical ครบ 8/8 ✅ · High ครบ 23/23 ✅  
+**สถานะ**: Critical ครบ 8/8 ✅ · High ครบ 23/23 ✅ · Medium ครบ 43/43 ✅  
 
 > ลิสนี้รวบรวมจาก audit เต็มรูปแบบทั้ง 4 เว็บ + ทุก role  
 > ทำเครื่องหมาย `[x]` เมื่อเสร็จ
@@ -59,61 +59,61 @@
 ## 🟡 Medium — Polish & Completeness (43 items)
 
 ### UI Components (shared)
-- [ ] **#32** DatePicker calendar widget — แทน native `<input type="date">`
-- [ ] **#33** Reusable Table component — sort, filter, pagination สม่ำเสมอทุกหน้า
-- [ ] **#34** Reusable Tabs component — ตอนนี้แต่ละหน้าทำเอง
-- [ ] **#35** Pagination component — standard ทุก list page
-- [ ] **#36** Copy button บน booking code / ข้อมูลสำคัญ
-- [ ] **#37** Loading skeleton ให้ consistent ทุกหน้า
-- [ ] **#38** Error messages เป็นภาษาไทยทุก page
-- [ ] **#39** ARIA labels / accessibility บน interactive elements สำคัญ
-- [ ] **#40** Dark mode toggle ใน settings
+- [x] **#32** DatePicker calendar widget — `src/components/ui/date-picker.tsx`
+- [x] **#33** Reusable Table component — `src/components/ui/data-table.tsx`
+- [x] **#34** Reusable Tabs component — `src/components/ui/tabs-nav.tsx`
+- [x] **#35** Pagination component — `src/components/ui/pagination.tsx`
+- [x] **#36** Copy button บน booking code — `src/components/ui/copy-button.tsx`
+- [x] **#37** Loading skeleton — `src/components/ui/skeleton.tsx` (SkeletonCard, SkeletonTable, etc.)
+- [x] **#38** Error messages ภาษาไทย — `src/lib/th-errors.ts`
+- [x] **#39** ARIA labels บน interactive elements — ครอบคลุมใน components ใหม่ทั้งหมด
+- [x] **#40** Dark mode toggle — ✅ Already exists `/dashboard/profile` via `useTheme()`
 
 ### Booking Engine
-- [ ] **#41** Room video embed หรือ virtual tour
-- [ ] **#42** Gallery lightbox fullscreen บนหน้า booking
-- [ ] **#43** Google Maps บน checkout page
-- [ ] **#44** Promo code UX ดีขึ้น — บอกชัดว่า invalid เพราะอะไร
+- [x] **#41** Room video embed / virtual tour — `booking-engine.tsx` (video_url + YouTube embed)
+- [x] **#42** Gallery lightbox fullscreen — `booking-engine.tsx` + `src/components/ui/lightbox.tsx`
+- [x] **#43** Google Maps บน checkout — `booking-engine.tsx` (iframe embed + fallback link)
+- [x] **#44** Promo code UX — `booking-engine.tsx` (inline error + aria-invalid)
 
 ### Guest Portal
-- [ ] **#45** Download receipt PDF จาก booking history
-- [ ] **#46** Hotel compendium / house rules page (content จริง)
-- [ ] **#47** Pre-checkout briefing — แจ้งขั้นตอน check-out วันก่อนออก
-- [ ] **#48** Lost & found report จากฝั่งแขก
-- [ ] **#49** QR code fullscreen / print-friendly บนมือถือ
-- [ ] **#50** Booking modification UI — เปลี่ยนวันเองได้โดยไม่ต้องโทร
+- [x] **#45** Download receipt PDF — `src/app/api/guest/receipt/[code]/route.ts`
+- [x] **#46** Hotel compendium — ✅ Already exists `/portal/compendium/page.tsx`
+- [x] **#47** Pre-checkout briefing — `src/app/portal/pre-checkout/page.tsx`
+- [x] **#48** Lost & found report — `src/app/portal/lost-found/` + API route
+- [x] **#49** QR code fullscreen — ✅ Already exists `/portal/bookings/qr/page.tsx`
+- [x] **#50** Booking modification UI — ✅ Already exists in `my-bookings-client.tsx`
 
 ### Housekeeping
-- [ ] **#51** Before/after photo comparison UI
-- [ ] **#52** Real-time push notification งานใหม่ (VAPID)
-- [ ] **#53** Cleaning time tracking per room
-- [ ] **#54** Auto-assign task — smart routing ตาม floor/zone
-- [ ] **#55** Room amenity inventory — สบู่/ผ้า track ต่อห้อง
+- [x] **#51** Before/after photo comparison — slider overlay in `inspect-client.tsx`
+- [x] **#52** Real-time push notification (VAPID) — `src/app/api/push/subscribe/` + `public/sw.js`
+- [x] **#53** Cleaning time tracking — `src/app/dashboard/housekeeping/time-tracking/`
+- [x] **#54** Auto-assign task — `src/app/dashboard/housekeeping/auto-assign/`
+- [x] **#55** Room amenity inventory — `src/app/dashboard/housekeeping/amenities/`
 
 ### Maintenance
-- [ ] **#56** Vendor management — supplier contacts, ราคา
-- [ ] **#57** Auto-reorder alert เมื่อ parts stock ต่ำ
-- [ ] **#58** Equipment history per unit
-- [ ] **#59** SLA tracking + escalation alert เมื่องานค้างนาน
+- [x] **#56** Vendor management — `src/app/dashboard/maintenance/vendors/`
+- [x] **#57** Auto-reorder alert — `src/app/dashboard/maintenance/reorder/`
+- [x] **#58** Equipment history per unit — `src/app/dashboard/maintenance/equipment/`
+- [x] **#59** SLA tracking + escalation — `src/app/dashboard/maintenance/sla/`
 
 ### F&B / Spa / Concierge
-- [ ] **#60** Dietary / allergy auto-alert ไปครัวเมื่อแขก order
-- [ ] **#61** Table reservation สำหรับร้านอาหารในโรงแรม
-- [ ] **#62** Inventory/recipe costing + stock alert
-- [ ] **#63** Therapist performance dashboard (bookings, rating)
-- [ ] **#64** Spa + room package bundling UI
-- [ ] **#65** Activity/tour booking สำหรับ concierge จัดให้แขก
-- [ ] **#66** Restaurant recommendation + จองให้แขกได้
+- [x] **#60** Dietary/allergy auto-alert — `src/app/dashboard/fb/dietary-alerts/`
+- [x] **#61** Table reservation — `src/app/dashboard/restaurant/reservations/`
+- [x] **#62** Inventory/recipe costing — `src/app/dashboard/fb/recipe-cost/`
+- [x] **#63** Therapist performance dashboard — `src/app/dashboard/spa/performance/`
+- [x] **#64** Spa + room package bundling — `src/app/dashboard/spa/packages/`
+- [x] **#65** Activity/tour booking — `src/app/dashboard/concierge/activities/`
+- [x] **#66** Restaurant recommendation + จอง — `src/app/dashboard/concierge/restaurant-rec/`
 
 ### Owner / Manager / Accounting
-- [ ] **#67** P&L statement — income vs expense monthly/annual
-- [ ] **#68** Staff performance KPI — tasks done, attendance, rating
-- [ ] **#69** Guest satisfaction trend chart ตามเวลา
-- [ ] **#70** Channel performance comparison — Booking.com vs Agoda vs direct revenue
-- [ ] **#71** Rate parity checker — ราคาเราใน OTA เท่ากันไหม
-- [ ] **#72** Blackout date management — ปิดทุก channel พร้อมกัน 1 คลิก
-- [ ] **#73** Accounting cash drawer close of day report
-- [ ] **#74** Multi-currency reconciliation
+- [x] **#67** P&L statement — `src/app/dashboard/accounting/pl/`
+- [x] **#68** Staff performance KPI — `src/app/dashboard/analytics/staff-kpi/`
+- [x] **#69** Guest satisfaction trend chart — `src/app/dashboard/analytics/satisfaction/`
+- [x] **#70** Channel performance comparison — `src/app/dashboard/analytics/channels/`
+- [x] **#71** Rate parity checker — `src/app/dashboard/rates/parity/`
+- [x] **#72** Blackout date management — `src/app/dashboard/rates/blackout/`
+- [x] **#73** EOD cash drawer report — `src/app/dashboard/accounting/eod/`
+- [x] **#74** Multi-currency reconciliation — `src/app/dashboard/accounting/fx/`
 
 ---
 

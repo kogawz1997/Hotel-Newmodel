@@ -7,7 +7,29 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { TopBar } from '@/components/layout/top-bar';
-import { CheckCircle, XCircle, ClipboardList, Star, Clock, ImageIcon } from 'lucide-react';
+import { CheckCircle, XCircle, ClipboardList, Star, Clock, ImageIcon, SplitSquareHorizontal } from 'lucide-react';
+
+function PhotoCompare({ before, after }: { before: string; after: string }) {
+  const [split, setSplit] = useState(50);
+  return (
+    <div className="relative w-full h-48 rounded-xl overflow-hidden select-none border border-border">
+      <img src={after} alt="หลัง" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - split}% 0 0)` }}>
+        <img src={before} alt="ก่อน" className="absolute inset-0 w-full h-full object-cover" />
+      </div>
+      <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg" style={{ left: `${split}%` }}>
+        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-white shadow-md flex items-center justify-center">
+          <SplitSquareHorizontal className="h-4 w-4 text-stone-700" />
+        </div>
+      </div>
+      <input type="range" min={0} max={100} value={split} onChange={e => setSplit(Number(e.target.value))}
+        aria-label="เลื่อนเปรียบเทียบก่อน-หลัง"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize" />
+      <div className="absolute top-2 left-2 bg-black/50 text-white text-2xs px-1.5 py-0.5 rounded">ก่อน</div>
+      <div className="absolute top-2 right-2 bg-black/50 text-white text-2xs px-1.5 py-0.5 rounded">หลัง</div>
+    </div>
+  );
+}
 
 type Task = {
   id: string;
@@ -170,22 +192,19 @@ function TaskCard({
         )}
       </div>
 
-      {task.photo_urls && task.photo_urls.length > 0 && (
+      {task.photo_urls && task.photo_urls.length >= 2 && (
+        <div className="mt-3">
+          <p className="text-2xs text-muted-foreground mb-1.5 flex items-center gap-1">
+            <SplitSquareHorizontal className="h-3 w-3" />เปรียบเทียบก่อน-หลัง (เลื่อนแถบ)
+          </p>
+          <PhotoCompare before={task.photo_urls[0]} after={task.photo_urls[task.photo_urls.length - 1]} />
+        </div>
+      )}
+      {task.photo_urls && task.photo_urls.length === 1 && (
         <div className="mt-3 flex gap-2 overflow-x-auto">
-          {task.photo_urls.slice(0, 4).map((url, i) => (
-            <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-              <img
-                src={url}
-                alt={`รูปที่ ${i + 1}`}
-                className="h-16 w-16 flex-shrink-0 rounded-lg object-cover ring-1 ring-stone-200 dark:ring-stone-700"
-              />
-            </a>
-          ))}
-          {task.photo_urls.length > 4 && (
-            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-stone-100 text-xs text-stone-500 dark:bg-stone-700 dark:text-stone-400">
-              +{task.photo_urls.length - 4}
-            </div>
-          )}
+          <a href={task.photo_urls[0]} target="_blank" rel="noopener noreferrer">
+            <img src={task.photo_urls[0]} alt="รูปที่ 1" className="h-16 w-16 flex-shrink-0 rounded-lg object-cover ring-1 ring-stone-200 dark:ring-stone-700" />
+          </a>
         </div>
       )}
     </div>

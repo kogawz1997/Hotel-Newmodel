@@ -9,6 +9,7 @@ import { GuestChatWidget } from '@/components/booking/guest-chat-widget';
 import { CurrencySwitcher } from '@/components/ui/currency-switcher';
 import { TrustBadges } from '@/components/public/TrustBadges';
 import { PromptPayQR } from '@/components/payments/PromptPayQR';
+import { Lightbox } from '@/components/ui/lightbox';
 import { format, differenceInDays, addDays, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay as getDayOfWeek } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -55,8 +56,13 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [promoCode, setPromoCode]           = useState('');
   const [promoResult, setPromoResult]       = useState<any>(null);
   const [promoLoading, setPromoLoading]     = useState(false);
+  const [promoError, setPromoError]         = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'at_hotel' | 'promptpay' | 'truemoney' | 'bank_transfer'>('promptpay');
   const [galleryIdx, setGalleryIdx] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(0);
+  const [roomLightbox, setRoomLightbox] = useState<{ images: any[]; idx: number } | null>(null);
+  const [videoModal, setVideoModal] = useState<string | null>(null);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [lang, setLang] = useState<'th' | 'en'>('th');
@@ -151,6 +157,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     const code = promoCode.trim().toUpperCase();
     if (!code) return;
     setPromoLoading(true);
+    setPromoError('');
     try {
       const res = await fetch('/api/public/promo', {
         method: 'POST',
@@ -159,10 +166,12 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
       });
       const data = await res.json();
       if (!res.ok || !data.valid) {
+        const msg = data.error || 'โค้ดส่วนลดไม่ถูกต้อง';
         setPromoResult({ valid: false });
-        toast.error(data.error || 'โค้ดส่วนลดไม่ถูกต้อง');
+        setPromoError(msg);
         return;
       }
+      setPromoError('');
       setPromoResult({ valid: true, description: data.description, discountAmount: data.discountAmount, code: data.code });
       toast.success('ใช้โค้ดส่วนลดสำเร็จ');
     } finally {
@@ -270,32 +279,41 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   }
 
   const gallery = hotel.hotel_gallery || [];
+  const galleryImages = gallery.map((g: any) => ({ url: g.image_url, alt: hotel.name }));
 
   // ─── STEP: DATES ─────────────────────────────────────────────────────
   if (step === 'dates') return (
     <PublicLayout hotel={hotel} user={user} step={step} lang={lang} setLang={setLang}>
-      {/* Hero */}
-      <div className="relative h-[50vh] min-h-72 overflow-hidden">
+      {/* Hero gallery */}
+      <div className="relative h-[50vh] min-h-72 overflow-hidden cursor-pointer" onClick={() => { if (gallery.length > 0) { setLightboxIdx(galleryIdx); setLightboxOpen(true); } }}>
         {gallery.length > 0 ? (
           <>
             <img src={gallery[galleryIdx]?.image_url || hotel.hero_image_url} alt={hotel.name}
               className="w-full h-full object-cover transition-opacity duration-500" />
             {gallery.length > 1 && (
               <>
-                <button onClick={() => setGalleryIdx(p => (p - 1 + gallery.length) % gallery.length)}
+                <button onClick={e => { e.stopPropagation(); setGalleryIdx(p => (p - 1 + gallery.length) % gallery.length); }}
+                  aria-label="ภาพก่อนหน้า"
                   className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-colors">
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <button onClick={() => setGalleryIdx(p => (p + 1) % gallery.length)}
+                <button onClick={e => { e.stopPropagation(); setGalleryIdx(p => (p + 1) % gallery.length); }}
+                  aria-label="ภาพถัดไป"
                   className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-colors">
                   <ChevronRight className="h-5 w-5" />
                 </button>
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
                   {gallery.slice(0, 8).map((_: any, i: number) => (
-                    <button key={i} onClick={() => setGalleryIdx(i)}
+                    <button key={i} onClick={e => { e.stopPropagation(); setGalleryIdx(i); }}
+                      aria-label={`ภาพที่ ${i + 1}`}
                       className={`h-1.5 rounded-full transition-all ${i === galleryIdx ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`} />
                   ))}
                 </div>
+                <button onClick={e => { e.stopPropagation(); setLightboxIdx(galleryIdx); setLightboxOpen(true); }}
+                  aria-label="ดูรูปทั้งหมด"
+                  className="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full hover:bg-black/80 transition-colors">
+                  ดูทั้งหมด {gallery.length} รูป
+                </button>
               </>
             )}
           </>
@@ -306,12 +324,18 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             <span className="text-white/20 text-8xl font-serif">{hotel.name.charAt(0)}</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute bottom-6 left-6 text-white">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute bottom-6 left-6 text-white pointer-events-none">
           <h1 className="text-3xl font-bold mb-1">{hotel.name}</h1>
           {hotel.city && <p className="flex items-center gap-1.5 text-sm opacity-90"><MapPin className="h-4 w-4" />{hotel.city}, {hotel.country || 'Thailand'}</p>}
         </div>
       </div>
+      {lightboxOpen && galleryImages.length > 0 && (
+        <Lightbox images={galleryImages} index={lightboxIdx}
+          onClose={() => setLightboxOpen(false)}
+          onNext={() => setLightboxIdx(p => (p + 1) % galleryImages.length)}
+          onPrev={() => setLightboxIdx(p => (p - 1 + galleryImages.length) % galleryImages.length)} />
+      )}
 
       {/* Search bar */}
       <div className="max-w-4xl mx-auto px-4 -mt-8 relative z-10 mb-8">
@@ -461,10 +485,11 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 )}
 
                 <div className="md:flex">
-                  {/* Image */}
-                  <div className="md:w-60 h-52 md:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden">
+                  {/* Image / Video */}
+                  <div className="md:w-60 h-52 md:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden group cursor-pointer"
+                    onClick={() => { if (imgs.length > 0) setRoomLightbox({ images: imgs.map((i: any) => ({ url: i.image_url, alt: rt.name })), idx: 0 }); }}>
                     {imgs[0]?.image_url ? (
-                      <img src={imgs[0].image_url} alt={rt.name} className="w-full h-full object-cover" />
+                      <img src={imgs[0].image_url} alt={rt.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#2A2522]/20">
                         <Bed className="h-12 w-12" />
@@ -475,7 +500,44 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                         {imgs.length} รูป
                       </div>
                     )}
+                    {rt.video_url && (
+                      <button
+                        onClick={e => { e.stopPropagation(); setVideoModal(rt.video_url); }}
+                        aria-label="ดูวิดีโอห้องพัก"
+                        className="absolute top-2 right-2 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors">
+                        <svg className="h-4 w-4 fill-white" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                      </button>
+                    )}
                   </div>
+                  {/* Room lightbox */}
+                  {roomLightbox && (
+                    <Lightbox images={roomLightbox.images} index={roomLightbox.idx}
+                      onClose={() => setRoomLightbox(null)}
+                      onNext={() => setRoomLightbox(p => p && { ...p, idx: (p.idx + 1) % p.images.length })}
+                      onPrev={() => setRoomLightbox(p => p && { ...p, idx: (p.idx - 1 + p.images.length) % p.images.length })} />
+                  )}
+                  {/* Video modal */}
+                  {videoModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setVideoModal(null)}>
+                      <div className="relative w-full max-w-3xl aspect-video mx-4" onClick={e => e.stopPropagation()}>
+                        <button onClick={() => setVideoModal(null)} aria-label="ปิดวิดีโอ"
+                          className="absolute -top-10 right-0 text-white/70 hover:text-white">
+                          <X className="h-6 w-6" />
+                        </button>
+                        {videoModal.includes('youtube.com') || videoModal.includes('youtu.be') ? (
+                          <iframe
+                            src={videoModal.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
+                            className="w-full h-full rounded-xl"
+                            allow="autoplay; fullscreen"
+                            allowFullScreen
+                            title="Room video"
+                          />
+                        ) : (
+                          <video src={videoModal} controls autoPlay className="w-full h-full rounded-xl" />
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Info */}
                   <div className="flex-1 p-5 flex flex-col">
@@ -709,22 +771,31 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
               <div className="flex gap-2">
                 <input
                   value={promoCode}
-                  onChange={e => { setPromoCode(e.target.value.toUpperCase()); setPromoResult(null); }}
+                  onChange={e => { setPromoCode(e.target.value.toUpperCase()); setPromoResult(null); setPromoError(''); }}
                   placeholder="ใส่โค้ดส่วนลด"
-                  className="flex-1 px-4 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30"
+                  aria-label="โค้ดส่วนลด"
+                  aria-describedby={promoError ? 'promo-error' : undefined}
+                  aria-invalid={!!promoError}
+                  className={`flex-1 px-4 py-2.5 bg-[#FAF7F2] border rounded-xl text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30 ${promoError ? 'border-red-400' : 'border-black/8'}`}
                 />
                 <button onClick={applyPromo} disabled={promoLoading || !promoCode.trim()}
                   className="px-5 py-2.5 bg-[#2A2522] text-white rounded-xl text-sm font-medium disabled:opacity-50 transition-colors">
                   {promoLoading ? '...' : 'ใช้โค้ด'}
                 </button>
               </div>
+              {promoError && (
+                <p id="promo-error" role="alert" className="mt-2 flex items-center gap-1.5 text-sm text-red-600">
+                  <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {promoError}
+                </p>
+              )}
               {promoResult?.valid && (
                 <div className="mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-emerald-700">{promoResult.description}</p>
                     <p className="text-xs text-emerald-600">ส่วนลด ฿{promoResult.discountAmount?.toLocaleString()}</p>
                   </div>
-                  <button onClick={() => { setPromoResult(null); setPromoCode(''); }} className="text-emerald-600 hover:text-emerald-800 text-lg">×</button>
+                  <button onClick={() => { setPromoResult(null); setPromoCode(''); setPromoError(''); }} aria-label="ลบโค้ดส่วนลด" className="text-emerald-600 hover:text-emerald-800 text-lg">×</button>
                 </div>
               )}
             </div>
@@ -920,6 +991,38 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             <SummaryRow label="ยอดรวม" value={formatCurrency(total)} />
           </div>
         </div>
+
+        {/* Google Maps / location */}
+        {(hotel.latitude && hotel.longitude) ? (
+          <div className="mb-6 rounded-2xl overflow-hidden border border-black/5">
+            <iframe
+              title="ที่ตั้งโรงแรม"
+              className="w-full h-56"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps?q=${hotel.latitude},${hotel.longitude}&z=15&output=embed`}
+            />
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${hotel.latitude},${hotel.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-2.5 text-sm text-[#C66A30] font-medium hover:bg-[#C66A30]/5 transition-colors"
+            >
+              <MapPin className="h-4 w-4" aria-hidden="true" />
+              เปิดใน Google Maps — นำทางมาโรงแรม
+            </a>
+          </div>
+        ) : hotel.address ? (
+          <a
+            href={`https://www.google.com/maps/search/${encodeURIComponent(hotel.name + ' ' + hotel.address)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-6 flex items-center justify-center gap-2 rounded-2xl border border-black/5 bg-white py-3 text-sm text-[#C66A30] font-medium hover:bg-[#C66A30]/5 transition-colors"
+          >
+            <MapPin className="h-4 w-4" aria-hidden="true" />
+            ดูที่ตั้งบน Google Maps
+          </a>
+        ) : null}
 
         <div className="flex gap-3 justify-center">
           {user ? (
