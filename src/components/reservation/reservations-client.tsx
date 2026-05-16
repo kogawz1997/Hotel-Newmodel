@@ -64,6 +64,8 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [loading, setLoading] = useState(true);
   const [dragResvId, setDragResvId] = useState<string | null>(null);
+  const [resizeResvId, setResizeResvId] = useState<string | null>(null);
+  const [resizeTargetDay, setResizeTargetDay] = useState<Date | null>(null);
   const [listSearch, setListSearch] = useState('');
   const [listStatus, setListStatus] = useState('');
   const [listPage, setListPage] = useState(0);
@@ -121,6 +123,30 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
       toast.error(e.message);
     } finally {
       setDragResvId(null);
+    }
+  }
+
+  async function handleResizeDrop(targetDay: Date) {
+    if (!resizeResvId || !resizeTargetDay) { setResizeResvId(null); setResizeTargetDay(null); return; }
+    const resv = reservations.find(r => r.id === resizeResvId);
+    if (!resv) { setResizeResvId(null); setResizeTargetDay(null); return; }
+    // newCheckOut = day after the target (checkout is exclusive)
+    const newCheckOut = format(addDays(targetDay, 1), 'yyyy-MM-dd');
+    if (newCheckOut <= resv.check_out) { setResizeResvId(null); setResizeTargetDay(null); return; }
+    try {
+      const res = await fetch(`/api/reservations/${resizeResvId}/extend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newCheckOut, additionalAmount: 0, note: 'Drag-resize from calendar' }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'ต่อวันไม่สำเร็จ');
+      toast.success('ต่อวันพักเรียบร้อย');
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setResizeResvId(null);
+      setResizeTargetDay(null);
     }
   }
 
@@ -275,16 +301,29 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
                             const isFirst = resv && ci ? isSameDay(day, ci) : false;
                             const isLast = resv && co ? isSameDay(day, addDays(co, -1)) : false;
                             const isDropTarget = dragResvId && !resv;
+                            const isResizeTarget = resizeResvId && resv?.id === resizeResvId && !isLast;
+                            const isResizeOver = resizeResvId && !resv && resizeTargetDay && day <= resizeTargetDay &&
+                              (() => { const r = reservations.find(x => x.id === resizeResvId); return r?.room_id === room.id && day >= parseDateLocal(r.check_out); })();
                             return (
                               <td
                                 key={day.toString()}
                                 className={cn(
                                   'border-r border-b border-border h-14 p-0 relative overflow-visible',
                                   isToday(day) && !resv && 'bg-accent/5',
-                                  isDropTarget && 'bg-accent/10 ring-1 ring-inset ring-accent/40'
+                                  isDropTarget && 'bg-accent/10 ring-1 ring-inset ring-accent/40',
+                                  isResizeOver && 'bg-emerald-50 dark:bg-emerald-950/20'
                                 )}
-                                onDragOver={isDropTarget ? (e) => e.preventDefault() : undefined}
-                                onDrop={isDropTarget ? () => handleDropOnRoom(room.id) : undefined}
+                                onDragOver={(e) => {
+                                  if (isDropTarget) { e.preventDefault(); return; }
+                                  if (resizeResvId) {
+                                    const r = reservations.find(x => x.id === resizeResvId);
+                                    if (r?.room_id === room.id) { e.preventDefault(); setResizeTargetDay(day); }
+                                  }
+                                }}
+                                onDrop={() => {
+                                  if (isDropTarget) { handleDropOnRoom(room.id); return; }
+                                  if (resizeResvId) handleResizeDrop(day);
+                                }}
                               >
                                 {resv && (
                                   <button
@@ -304,6 +343,21 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
                                       <span className="font-medium truncate">
                                         {resv.guests?.first_name} {resv.guests?.last_name?.[0] || ''}.
                                       </span>
+                                    )}
+                                    {isLast && (
+                                      <span
+                                        draggable
+                                        onDragStart={(e) => {
+                                          e.stopPropagation();
+                                          e.dataTransfer.effectAllowed = 'copy';
+                                          setResizeResvId(resv.id);
+                                          setResizeTargetDay(day);
+                                        }}
+                                        onDragEnd={() => { setResizeResvId(null); setResizeTargetDay(null); }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="ml-auto pl-1 pr-0.5 cursor-col-resize text-current/50 hover:text-current select-none"
+                                        title="ลากเพื่อต่อวันพัก"
+                                      >⋮</span>
                                     )}
                                   </button>
                                 )}

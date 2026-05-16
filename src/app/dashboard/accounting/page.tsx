@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { TopBar } from '@/components/layout/top-bar';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { Receipt, FileText, Globe2, Building2, ArrowRight, AlertCircle } from 'lucide-react';
+import { Receipt, FileText, Globe2, AlertCircle } from 'lucide-react';
+import { InvoiceActions } from '@/components/accounting/invoice-actions';
 
 export default async function AccountingPage() {
   const supabase = await createClient();
@@ -101,14 +102,11 @@ export default async function AccountingPage() {
                       </td>
                       <td className="px-4 py-3"><Badge variant="secondary" className="text-2xs">{inv.status}</Badge></td>
                       <td className="px-4 py-3">
-                        <a
-                          href={`/api/invoices/${inv.id}/pdf`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-accent hover:underline"
-                        >
-                          ดู PDF
-                        </a>
+                        <InvoiceActions
+                          invoiceId={inv.id}
+                          invoiceNumber={inv.invoice_number}
+                          status={inv.status}
+                        />
                       </td>
                     </tr>
                   ))}

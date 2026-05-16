@@ -54,7 +54,7 @@
   - [x] Step 5: Ready checklist ✅ — marks onboarding_completed flag
 - [x] Invite staff ✅ — email invitation ทำแล้ว
 - [x] Staff role management ✅
-- [ ] Disable staff 🔄 — schema มี `is_active` แต่ต้องตรวจ UI
+- [x] Disable staff ✅ — /dashboard/team ปุ่ม toggle active/inactive พร้อม PATCH API
 - [x] Forgot password ✅ — `/auth/forgot-password`
 - [x] Reset password ✅ — `/auth/reset-password`
 - [x] Verify email page ✅ — Supabase auth callback
@@ -151,9 +151,9 @@
 - [x] internal notes ✅
 
 #### Calendar
-- [ ] calendar 14/30 วัน ❌ — **audit พบว่ามีแค่ list view ไม่มี grid calendar เลย** 🔄
-- [ ] drag & drop ย้ายห้อง 🔄
-- [ ] drag resize วันพัก 🔄
+- [x] calendar 14/30 วัน ✅ — room×date grid calendar พร้อม spanning bars ทำแล้ว
+- [x] drag & drop ย้ายห้อง ✅ — HTML5 drag-drop + POST move-room API
+- [x] drag resize วันพัก ✅ — resize handle on isLast cell, dragover → handleResizeDrop → extend API
 - [x] conflict warning ✅
 - [x] overbooking guard ✅ — pessimistic lock
 - [x] filter by room type ✅
@@ -186,7 +186,7 @@
 - [x] VIP flag ✅
 - [x] blacklist flag ✅
 - [x] loyalty points ✅
-- [ ] merge duplicate guests 🔄
+- [x] merge duplicate guests ✅ — /dashboard/guests/merge + GuestMergeClient + /api/guests/merge
 - [x] PDPA consent ✅
 - [x] export guest data ✅ — `/api/guests/[id]/export`
 - [x] delete/anonymize guest data ✅
@@ -214,7 +214,7 @@
 - [x] PromptPay ✅ — Omise 🔑 ต้องใส่ `OMISE_PUBLIC_KEY` + `OMISE_SECRET_KEY`
 - [x] credit/debit card ✅ — Omise 🔑
 - [x] TrueMoney Wallet ✅ — POST /api/payments/truemoney Omise source + OTP redirect
-- [ ] Shopeepay ❌ — ยังไม่มีโค้ด 🔄
+- [x] Shopeepay ✅ — POST /api/payments/shopeepay Omise source type=shopeepay
 - [x] partial payment ✅
 - [x] refund ✅
 - [x] payment receipt ✅
@@ -228,10 +228,10 @@
 #### Invoice
 - [x] receipt ✅
 - [x] tax invoice ✅
-- [ ] invoice PDF จริง (bytes) ❌ — **audit พบว่าเป็น HTML เท่านั้น ต้องใช้ browser print** 🔄
+- [x] invoice PDF จริง (bytes) ✅ — pdfkit + NotoSansThai font, Content-Disposition: attachment
 - [x] send invoice email ✅ — SendGrid 🔑 ต้องใส่ `SENDGRID_API_KEY`
 - [x] regenerate invoice ✅
-- [ ] void invoice 🔄
+- [x] void invoice ✅ — POST /api/invoices/[id]/void + InvoiceActions component ปุ่มยืนยัน+เหตุผล
 - [x] running invoice number ✅
 - [x] VAT report ✅
 
