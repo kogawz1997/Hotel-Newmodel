@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { BrandingClient } from './branding-client';
 import { requireDashboardRole } from '@/lib/auth/page-guards';
 
@@ -8,7 +9,7 @@ export default async function BrandingPage() {
   const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager']);
 
   const { data: hotels } = await supabase.from('hotels').select('*').eq('organization_id', profile.organization_id).limit(1);
-  if (!hotels?.[0]) return null;
+  if (!hotels?.[0]) redirect('/dashboard/onboarding');
 
   const { data: gallery } = await supabase
     .from('hotel_gallery')

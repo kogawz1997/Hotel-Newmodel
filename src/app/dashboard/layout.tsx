@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { Sidebar } from '@/components/layout/sidebar';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { MobileDashboardHeader } from '@/components/layout/mobile-dashboard-header';
+import { TrialNudgeBanner } from '@/components/saas/trial-nudge-banner';
+import { OfflineBanner } from '@/components/ui/offline-banner';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -20,6 +22,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!profile?.organization_id || profile.active === false) {
     redirect('/onboarding');
   }
+
+  const { data: org } = await supabase
+    .from('organizations')
+    .select('subscription_plan, subscription_status, trial_ends_at')
+    .eq('id', profile.organization_id)
+    .single();
 
   const { data: hotels } = await supabase
     .from('hotels')
@@ -50,9 +58,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
       />
       <main className="flex-1 overflow-x-hidden pb-16 md:pb-0">
         <MobileDashboardHeader hotelName={hotel.name || 'My Hotel'} />
+        {org?.trial_ends_at && (
+          <TrialNudgeBanner
+            trialEndsAt={org.trial_ends_at}
+            plan={org.subscription_plan || 'starter'}
+          />
+        )}
         {children}
       </main>
       <MobileNav userRole={profile?.role} />
+      <OfflineBanner />
     </div>
   );
 }

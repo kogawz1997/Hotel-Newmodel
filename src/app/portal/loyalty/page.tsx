@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { cn, formatCurrency } from '@/lib/utils';
-import { Star, ArrowLeft, Gift, Trophy, TrendingUp, ChevronRight, Zap, Cake } from 'lucide-react';
+import { Star, ArrowLeft, Gift, Trophy, TrendingUp, ChevronRight, Zap, Cake, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 const TIERS = [
@@ -19,6 +20,13 @@ const BENEFITS: Record<string, string[]> = {
   gold:     ['คะแนน 2 แต้มต่อ ฿100', 'ส่วนลด 10%', 'เช็คอินก่อนเวลา', 'ห้อง Upgrade (ถ้ามีห้องว่าง)'],
   platinum: ['คะแนน 3 แต้มต่อ ฿100', 'ส่วนลด 15%', 'เช็คอินก่อนเวลา', 'Late checkout', 'ห้อง Upgrade', 'ยกเว้นค่าธรรมเนียมยกเลิก'],
 };
+
+const REDEEM_OPTIONS = [
+  { id: 'discount_50',  points: 500,  label: 'ส่วนลด ฿50',       desc: 'ใช้กับการจองครั้งถัดไป' },
+  { id: 'discount_150', points: 1000, label: 'ส่วนลด ฿150',      desc: 'ใช้กับการจองครั้งถัดไป' },
+  { id: 'discount_400', points: 2000, label: 'ส่วนลด ฿400',      desc: 'ใช้กับการจองครั้งถัดไป' },
+  { id: 'free_night',   points: 5000, label: 'ห้องพัก 1 คืนฟรี', desc: 'สำหรับห้องเริ่มต้น (มูลค่าสูงสุด ฿1,500)' },
+];
 
 const BIRTHDAY_PERKS: Record<string, { discount: number; bonus: number; gift: string }> = {
   bronze:   { discount: 10, bonus: 200,  gift: 'ของที่ระลึกต้อนรับ' },
@@ -39,6 +47,8 @@ export default function LoyaltyPortalPage() {
   const [loading, setLoading] = useState(true);
   const [birthday, setBirthday] = useState('');
   const [birthdaySaved, setBirthdaySaved] = useState(false);
+  const [redeemLoading, setRedeemLoading] = useState(false);
+  const [redeemResult, setRedeemResult] = useState<any>(null);
 
   useEffect(() => {
     fetch('/api/guest/loyalty')
@@ -58,6 +68,24 @@ export default function LoyaltyPortalPage() {
     : 100;
   const toNextTier = nextTier ? Math.max(0, nextTier.minPoints - points) : 0;
   const bPerks = BIRTHDAY_PERKS[tier.id];
+
+  async function redeemPoints(redeemId: string) {
+    setRedeemLoading(true);
+    try {
+      const res = await fetch('/api/guest/loyalty/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ redeemId }),
+      });
+      const d = await res.json();
+      if (!res.ok) { toast.error(d.error || 'เกิดข้อผิดพลาด'); return; }
+      setRedeemResult(d);
+      setData(p => p ? { ...p, points: d.remainingPoints } : null);
+      toast.success('แลกคะแนนสำเร็จ!');
+    } finally {
+      setRedeemLoading(false);
+    }
+  }
 
   function saveBirthday() {
     if (!birthday) return;
@@ -162,6 +190,45 @@ export default function LoyaltyPortalPage() {
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+            </div>
+
+            {/* Redeem Points */}
+            <div className="bg-white rounded-2xl border border-black/5 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Gift className="h-4 w-4 text-[#C66A30]" />
+                  <h2 className="font-bold text-[#2A2522]">แลกคะแนน</h2>
+                </div>
+                <span className="text-sm font-bold text-[#C66A30]">{points.toLocaleString()} แต้มที่แลกได้</span>
+              </div>
+              <div className="space-y-2">
+                {REDEEM_OPTIONS.map(opt => {
+                  const canRedeem = points >= opt.points && !redeemLoading;
+                  return (
+                    <div key={opt.id} className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${canRedeem ? 'border-black/10 hover:border-[#C66A30]/30' : 'border-black/5 opacity-50'}`}>
+                      <div>
+                        <p className="text-sm font-medium text-[#2A2522]">{opt.label}</p>
+                        <p className="text-xs text-[#2A2522]/50">{opt.points.toLocaleString()} แต้ม · {opt.desc}</p>
+                      </div>
+                      <button
+                        disabled={!canRedeem}
+                        onClick={() => redeemPoints(opt.id)}
+                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-[#C66A30] text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#A4522A] transition-colors">
+                        {redeemLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                        แลก
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              {redeemResult && (
+                <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+                  <p className="text-sm font-bold text-emerald-700">แลกคะแนนสำเร็จ! 🎉</p>
+                  <p className="text-xs text-emerald-600 mt-1">รางวัล: {redeemResult.label}</p>
+                  <p className="text-xs text-emerald-600 mt-0.5">โค้ดส่วนลด: <span className="font-mono font-bold tracking-wider">{redeemResult.couponCode}</span></p>
+                  <p className="text-xs text-emerald-600/70 mt-1">นำโค้ดนี้ไปกรอกเมื่อจองครั้งถัดไป</p>
                 </div>
               )}
             </div>

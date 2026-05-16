@@ -1,11 +1,12 @@
 export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireDashboardRole } from '@/lib/auth/page-guards';
+import { redirect } from 'next/navigation';
 import { CrmClient } from './crm-client';
 
 export default async function CrmPage() {
   const access = await requireDashboardRole(['hotel_owner','general_manager','operations_manager','revenue_manager','marketing_staff']);
-  if ('redirect' in access) return null;
+  if ('redirect' in access) redirect('/dashboard');
   const { hotelId } = access;
   const admin = createAdminClient();
   const [

@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateCsrfOrigin } from '@/lib/security/csrf';
 import { redactPii } from '@/lib/utils/redact';
+import { rateLimit } from '@/lib/security/rate-limit';
 
 export async function POST(request: NextRequest) {
+  const limited = await rateLimit(request, 'guest.auth.login', 5, 60_000);
+  if (limited) return limited;
+
   const csrf = validateCsrfOrigin(request);
   if (csrf.ok === false) return NextResponse.json({ error: `CSRF validation failed: ${csrf.reason}` }, { status: 403 });
 

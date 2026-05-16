@@ -310,3 +310,169 @@ export async function sendReviewRequest(data: ReviewRequestData) {
     text: `ขอบคุณที่พักกับ ${data.hotelName} รบกวนเขียนรีวิวที่: ${reviewUrl}`,
   });
 }
+
+// ─── 6. Invoice / Tax Receipt ────────────────────────────────────────────────
+
+interface InvoiceData {
+  to: string;
+  guestName: string;
+  hotelName: string;
+  hotelAddress?: string;
+  hotelTaxId?: string;
+  reservationCode: string;
+  checkIn: string;
+  checkOut: string;
+  roomTypeName: string;
+  lineItems: { description: string; amount: number }[];
+  subtotal: number;
+  vat: number;
+  total: number;
+  currency?: string;
+  appUrl?: string;
+}
+
+export async function sendInvoiceEmail(data: InvoiceData) {
+  const currency = data.currency || 'THB';
+  const fmt = (n: number) => `${currency} ${n.toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+  const lineRows = data.lineItems.map(li => row(li.description, fmt(li.amount))).join('');
+
+  const body = `
+    <h2 style="margin:0 0 4px;font-size:22px;color:#2A2522;">ใบเสร็จรับเงิน / Tax Invoice 🧾</h2>
+    <p style="margin:0 0 24px;color:#888;font-size:14px;">สวัสดีคุณ ${data.guestName}</p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      ${row('โรงแรม', data.hotelName)}
+      ${data.hotelAddress ? row('ที่อยู่', data.hotelAddress) : ''}
+      ${data.hotelTaxId ? row('เลขประจำตัวผู้เสียภาษี', data.hotelTaxId) : ''}
+      ${row('รหัสการจอง', data.reservationCode)}
+      ${row('เช็คอิน', data.checkIn)}
+      ${row('เช็คเอาท์', data.checkOut)}
+      ${row('ห้องพัก', data.roomTypeName)}
+    </table>
+
+    <div style="background:#FAF7F2;border-radius:10px;padding:16px 24px;margin-bottom:24px;">
+      <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:#2A2522;">รายการค่าใช้จ่าย</p>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        ${lineRows}
+        <tr><td colspan="2" style="border-top:1px solid #E5E0DA;padding-top:8px;"></td></tr>
+        ${row('ยอดรวมก่อนภาษี', fmt(data.subtotal))}
+        ${row('VAT 7%', fmt(data.vat))}
+        <tr>
+          <td style="padding:8px 0;font-size:14px;font-weight:700;color:#2A2522;border-top:2px solid #2A2522;">รวมทั้งสิ้น</td>
+          <td style="padding:8px 0;font-size:14px;font-weight:700;color:#C66A30;text-align:right;border-top:2px solid #2A2522;">${fmt(data.total)}</td>
+        </tr>
+      </table>
+    </div>
+
+    ${data.appUrl ? `<p style="text-align:center;margin:0;">${btn('ดาวน์โหลดใบเสร็จ', `${data.appUrl}/portal/folio`)}</p>` : ''}
+  `;
+
+  await sgMail.send({
+    to: data.to,
+    from: FROM,
+    subject: `🧾 ใบเสร็จรับเงิน — ${data.hotelName} (${data.reservationCode})`,
+    html: base('ใบเสร็จรับเงิน', body),
+    text: `ใบเสร็จรับเงินสำหรับการเข้าพักที่ ${data.hotelName} รหัส: ${data.reservationCode} ยอดรวม: ${fmt(data.total)}`,
+  });
+}
+
+// ─── 7. Payment Failed ───────────────────────────────────────────────────────
+
+interface PaymentFailedData {
+  to: string;
+  guestName: string;
+  hotelName: string;
+  reservationCode: string;
+  amount: number;
+  currency?: string;
+  retryUrl?: string;
+}
+
+export async function sendPaymentFailedEmail(data: PaymentFailedData) {
+  const currency = data.currency || 'THB';
+  const fmt = (n: number) => `${currency} ${n.toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+  const retryUrl = data.retryUrl || '';
+
+  const body = `
+    <h2 style="margin:0 0 4px;font-size:22px;color:#2A2522;">การชำระเงินไม่สำเร็จ ⚠️</h2>
+    <p style="margin:0 0 24px;color:#888;font-size:14px;">สวัสดีคุณ ${data.guestName}</p>
+
+    <div style="background:#FEF2F2;border:1px solid #FCA5A5;border-radius:10px;padding:16px 24px;margin-bottom:24px;">
+      <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#DC2626;">การชำระเงินสำหรับการจองของคุณไม่สำเร็จ</p>
+      <p style="margin:0;font-size:13px;color:#EF4444;">กรุณาตรวจสอบบัตร/บัญชีของคุณและลองอีกครั้ง</p>
+    </div>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      ${row('รหัสการจอง', data.reservationCode)}
+      ${row('โรงแรม', data.hotelName)}
+      ${row('ยอดชำระ', fmt(data.amount))}
+    </table>
+
+    <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:24px;">
+      การจองของคุณ <strong>ยังคงถูกสำรองไว้ชั่วคราว</strong> กรุณาชำระภายใน 24 ชั่วโมง มิฉะนั้นระบบจะยกเลิกการจองอัตโนมัติ
+    </p>
+
+    ${retryUrl ? `<p style="text-align:center;margin:0 0 16px;">${btn('ลองชำระอีกครั้ง', retryUrl)}</p>` : ''}
+
+    <p style="font-size:12px;color:#aaa;text-align:center;">หากต้องการความช่วยเหลือ กรุณาติดต่อโรงแรมโดยตรง</p>
+  `;
+
+  await sgMail.send({
+    to: data.to,
+    from: FROM,
+    subject: `⚠️ การชำระเงินไม่สำเร็จ — ${data.hotelName}`,
+    html: base('การชำระเงินไม่สำเร็จ', body),
+    text: `การชำระเงินสำหรับการจอง ${data.reservationCode} ที่ ${data.hotelName} ไม่สำเร็จ กรุณาลองอีกครั้ง`,
+  });
+}
+
+// ─── 8. Refund Confirmation ───────────────────────────────────────────────────
+
+interface RefundConfirmationData {
+  to: string;
+  guestName: string;
+  hotelName: string;
+  reservationCode: string;
+  refundAmount: number;
+  currency?: string;
+  refundMethod?: string;
+  processingDays?: number;
+  appUrl?: string;
+}
+
+export async function sendRefundConfirmationEmail(data: RefundConfirmationData) {
+  const currency = data.currency || 'THB';
+  const fmt = (n: number) => `${currency} ${n.toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+
+  const body = `
+    <h2 style="margin:0 0 4px;font-size:22px;color:#2A2522;">การคืนเงินสำเร็จแล้ว ✅</h2>
+    <p style="margin:0 0 24px;color:#888;font-size:14px;">สวัสดีคุณ ${data.guestName}</p>
+
+    <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;padding:16px 24px;margin-bottom:24px;text-align:center;">
+      <p style="margin:0 0 4px;font-size:13px;color:#16A34A;">ยอดคืนเงิน</p>
+      <p style="margin:0;font-size:32px;font-weight:800;color:#16A34A;">${fmt(data.refundAmount)}</p>
+    </div>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      ${row('รหัสการจอง', data.reservationCode)}
+      ${row('โรงแรม', data.hotelName)}
+      ${data.refundMethod ? row('ช่องทางคืนเงิน', data.refundMethod) : ''}
+      ${row('ระยะเวลา', `${data.processingDays ?? 5}–${(data.processingDays ?? 5) + 2} วันทำการ`)}
+    </table>
+
+    <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:24px;">
+      เงินจะถูกโอนเข้าบัญชี/บัตรของคุณภายใน <strong>${data.processingDays ?? 5}–${(data.processingDays ?? 5) + 2} วันทำการ</strong><br/>
+      หากไม่ได้รับเงินหลังจากระยะเวลานี้ กรุณาติดต่อโรงแรมหรือธนาคารของคุณ
+    </p>
+
+    ${data.appUrl ? `<p style="text-align:center;margin:0;">${btn('ดูประวัติการจอง', `${data.appUrl}/portal/bookings`)}</p>` : ''}
+  `;
+
+  await sgMail.send({
+    to: data.to,
+    from: FROM,
+    subject: `✅ คืนเงินสำเร็จ ${fmt(data.refundAmount)} — ${data.hotelName}`,
+    html: base('การคืนเงิน', body),
+    text: `การคืนเงิน ${fmt(data.refundAmount)} สำหรับการจอง ${data.reservationCode} ที่ ${data.hotelName} ดำเนินการสำเร็จแล้ว`,
+  });
+}

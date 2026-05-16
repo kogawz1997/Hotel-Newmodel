@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
@@ -6,10 +7,10 @@ import { formatCurrency } from '@/lib/utils';
 export default async function OperationsReportsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) redirect('/auth/login');
   const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
   const { data: hotel } = await supabase.from('hotels').select('id, name, currency').eq('organization_id', profile?.organization_id).limit(1).single();
-  if (!hotel) return null;
+  if (!hotel) redirect('/dashboard/onboarding');
 
   const today = new Date().toISOString().slice(0, 10);
   const [arrivals, departures, payments] = await Promise.all([

@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,9 +17,10 @@ export default async function GuestsPage({ searchParams }: { searchParams: Promi
   const page = Number(pageStr || 0);
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user!.id).single();
+  if (!user) redirect('/auth/login');
+  const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
   const { data: hotels } = await supabase.from('hotels').select('id').eq('organization_id', profile?.organization_id).limit(1);
-  if (!hotels?.[0]) return null;
+  if (!hotels?.[0]) redirect('/dashboard/onboarding');
   const hotelId = hotels[0].id;
 
   let query = supabase.from('guests').select('*', { count: 'exact' }).eq('hotel_id', hotelId);

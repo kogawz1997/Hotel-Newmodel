@@ -1,14 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { CheckInWizardClient } from '@/components/dashboard/check-in-wizard-client';
 
 export default async function CheckInWizardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) redirect('/auth/login');
 
   const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
   const { data: hotel } = await supabase.from('hotels').select('id, name').eq('organization_id', profile?.organization_id).limit(1).single();
-  if (!hotel) return null;
+  if (!hotel) redirect('/dashboard/onboarding');
 
   const today = new Date().toISOString().slice(0,10);
   const { data: reservations } = await supabase

@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,11 +13,12 @@ import { InvoiceActions } from '@/components/accounting/invoice-actions';
 export default async function AccountingPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/auth/login');
   const { data: profile } = await supabase
-    .from('user_profiles').select('organization_id').eq('id', user!.id).single();
+    .from('user_profiles').select('organization_id').eq('id', user.id).single();
   const { data: hotels } = await supabase
     .from('hotels').select('id').eq('organization_id', profile?.organization_id).limit(1);
-  if (!hotels?.[0]) return null;
+  if (!hotels?.[0]) redirect('/dashboard/onboarding');
 
   const monthStart = new Date().toISOString().slice(0, 7) + '-01';
 

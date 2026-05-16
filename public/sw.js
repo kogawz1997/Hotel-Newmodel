@@ -1,3 +1,31 @@
+// Push notification support
+self.addEventListener('push', (event) => {
+  let data = { title: 'Maitri PMS', body: 'มีการแจ้งเตือนใหม่', url: '/dashboard', icon: '/icons/icon-192x192.png' };
+  try { if (event.data) Object.assign(data, event.data.json()); } catch {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: data.icon,
+      badge: '/icons/icon-192x192.png',
+      data: { url: data.url || '/dashboard' },
+      tag: data.tag || 'maitri-notification',
+      renotify: true,
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/dashboard';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      const existing = clients.find(c => c.url.includes(self.location.origin));
+      if (existing) return existing.focus().then(c => c.navigate(url));
+      return self.clients.openWindow(url);
+    })
+  );
+});
+
 const CACHE_NAME = 'maitri-offline-v1';
 const OFFLINE_URL = '/offline.html';
 const APP_SHELL = ['/', OFFLINE_URL, '/manifest.webmanifest'];

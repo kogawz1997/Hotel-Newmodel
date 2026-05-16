@@ -1,4 +1,5 @@
 import { requireDashboardRole } from '@/lib/auth/page-guards';
+import { redirect } from 'next/navigation';
 import { FrontDeskClient } from './front-desk-client';
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ export default async function FrontDeskPage() {
     .eq('organization_id', profile.organization_id)
     .limit(1);
 
-  if (!hotels?.[0]) return null;
+  if (!hotels?.[0]) redirect('/dashboard/onboarding');
   const hotelId = hotels[0].id;
   const today = new Date().toISOString().slice(0, 10);
 
