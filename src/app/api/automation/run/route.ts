@@ -27,12 +27,20 @@ async function runAutomation(request: Request) {
     if (rule.trigger === 'payment_overdue') q = q.gt('balance_due', 0).lte('check_in', tomorrow);
     if (rule.trigger === 'post_checkout_review') q = q.eq('check_out', today).eq('status', 'checked_out');
     const { data: reservations } = await q.limit(100);
-    for (const reservation of reservations || []) {
+    const reservationList = reservations || [];
+
+    // Batch-fetch all existing automation_runs for this rule in one query
+    const dedupeKeys = reservationList.map(r => `${rule.id}:${r.id}:${rule.trigger}:${today}`);
+    const { data: existingRuns } = dedupeKeys.length > 0
+      ? await admin.from('automation_runs').select('dedupe_key').in('dedupe_key', dedupeKeys)
+      : { data: [] };
+    const alreadyRun = new Set((existingRuns ?? []).map(r => r.dedupe_key));
+
+    for (const reservation of reservationList) {
       const templateKey = (rule.template_key || mapTemplate(rule.trigger)) as any;
       const message = getHotelCopy(reservation.preferred_language || 'en', templateKey);
       const dedupeKey = `${rule.id}:${reservation.id}:${rule.trigger}:${today}`;
-      const { data: existing } = await admin.from('automation_runs').select('id').eq('dedupe_key', dedupeKey).maybeSingle();
-      if (existing) { skipped += 1; continue; }
+      if (alreadyRun.has(dedupeKey)) { skipped += 1; continue; }
       const { error } = await admin.from('automation_runs').insert({ hotel_id: rule.hotel_id, rule_id: rule.id, reservation_id: reservation.id, channel: rule.channel, status: 'queued', dedupe_key: dedupeKey, payload: { message, trigger: rule.trigger, guest_name: reservation.guest_name, to: reservation.guest_email || reservation.guest_phone } });
       if (!error) queued += 1; else if (String(error.message || '').includes('duplicate')) skipped += 1;
     }

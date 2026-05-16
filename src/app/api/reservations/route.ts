@@ -7,7 +7,6 @@ import { apiError } from '@/lib/http/errors';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { sendBookingConfirmation, sendNewBookingAlert } from '@/lib/email-templates';
-import { assertRoomAvailable } from '@/lib/pms/availability';
 import { checkAndReserve } from '@/lib/booking/availability-lock';
 import { getPolicyForRatePlan } from '@/lib/booking/cancellation-policy';
 import { sendLineBookingConfirmation } from '@/lib/channels/line-notify';
@@ -129,21 +128,6 @@ export async function POST(request: Request) {
         { error: 'Room type not found' },
         { status: 404 }
       );
-    }
-
-    const availability = await assertRoomAvailable({
-      supabase,
-      hotelId,
-      roomId: body.roomId,
-      roomTypeId: body.roomTypeId,
-      checkIn: body.checkIn,
-      checkOut: body.checkOut,
-    });
-
-    if (!availability.ok) {
-      const err = 'error' in availability ? availability.error : 'Room not available';
-      const status = 'status' in availability ? availability.status : 409;
-      return NextResponse.json({ error: err }, { status: status || 409 });
     }
 
     // Duplicate check (before advisory lock)
