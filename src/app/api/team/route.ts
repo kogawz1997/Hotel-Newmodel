@@ -4,6 +4,7 @@ import { parseJson } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { HOTEL_ROLES } from '@/lib/hotel-roles';
+import { redactPii } from '@/lib/utils/redact';
 
 const patchSchema = z.object({
   userId: z.string().uuid(),
@@ -75,7 +76,7 @@ export async function PATCH(request: Request) {
     action: 'team.updated',
     entity_type: 'user_profile',
     entity_id: userId,
-    changes: updates,
+    changes: redactPii(updates),
   });
 
   return NextResponse.json({ success: true });

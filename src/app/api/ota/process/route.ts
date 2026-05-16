@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 import { readWebhookToken, verifyBearerOrHeaderToken } from '@/lib/security/webhook';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { parseBookingComXml } from '@/lib/ota/parsers/booking-com';
@@ -51,7 +52,7 @@ async function processQueue(request: Request) {
     .order('created_at', { ascending: true })
     .limit(50);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   let processed = 0;
   let failed = 0;

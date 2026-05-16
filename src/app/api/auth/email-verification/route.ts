@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { buildAuthRedirect } from '@/lib/auth/session-refresh';
+import { rateLimit } from '@/lib/security/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 const schema = z.object({ email: z.string().email(), redirectTo: z.string().optional().default('/dashboard') });
 
 export async function POST(request: Request) {
+  const limited = await rateLimit(request, 'auth.reset', 5, 60_000);
+  if (limited) return limited;
+
   let raw: unknown;
   try { raw = await request.json(); } catch { raw = {}; }
   const parsed = schema.safeParse(raw);

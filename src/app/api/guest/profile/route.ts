@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { parseJson } from '@/lib/http/validation';
 import { requireUser } from '@/lib/auth/guards';
 
 export const dynamic = 'force-dynamic';
@@ -21,10 +22,8 @@ export async function GET() {
 export async function PATCH(request: Request) {
   const ctx = await requireUser();
   if (ctx.error) return ctx.error;
-  let raw: unknown;
-  try { raw = await request.json(); } catch { raw = {}; }
-  const parsed = schema.safeParse(raw);
-  if (!parsed.success) return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 422 });
+  const parsed = await parseJson(request, schema);
+  if (parsed.error) return parsed.error;
   const { data, error } = await ctx.supabase.from('guests').upsert({ email: ctx.user?.email || '', first_name: parsed.data.firstName, last_name: parsed.data.lastName, phone: parsed.data.phone, preferences: parsed.data.preferences }).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ guest: data });

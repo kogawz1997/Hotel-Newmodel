@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { assertReservationAccess, requireHotelAccess } from '@/lib/auth/guards';
 import { parseJson } from '@/lib/http/validation';
 import { calculateCancellationQuote } from '@/lib/pms/cancellation-policy';
+import { redactPii } from '@/lib/utils/redact';
 
 const patchSchema = z.object({
   action: z.enum(['check_in', 'check_out', 'cancel']).optional(),
@@ -209,7 +210,7 @@ export async function PATCH(
       action: `reservation.${body.action || 'updated'}`,
       entity_type: 'reservation',
       entity_id: id,
-      changes: updates,
+      changes: redactPii(updates),
     });
 
     return NextResponse.json({ reservation: data });

@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
 import sgMail from '@sendgrid/mail';
 import { HOTEL_ROLES, HOTEL_ROLE_LABEL } from '@/lib/hotel-roles';
+import { redactPii } from '@/lib/utils/redact';
 
 const schema = z.object({
   email: z.string().email(),
@@ -111,7 +112,7 @@ export async function POST(request: Request) {
     user_id: ctx.user!.id,
     action: 'team.invited',
     entity_type: 'user_profile',
-    changes: { email, role },
+    changes: redactPii({ email, role }),
   });
 
   return NextResponse.json({ success: true, message: 'ส่งคำเชิญเรียบร้อย' });

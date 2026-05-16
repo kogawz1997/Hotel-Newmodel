@@ -5,6 +5,7 @@ import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { HOTEL_ROLES } from '@/lib/hotel-roles';
+import { redactPii } from '@/lib/utils/redact';
 
 const schema = z.object({
   email: z.string().email(),
@@ -74,14 +75,14 @@ export async function POST(request: Request) {
     action: 'team.member_created_by_owner',
     entity_type: 'user_profile',
     entity_id: created.user.id,
-    changes: {
+    changes: redactPii({
       actor_email: (ctx.user as any)?.email,
       actor_role: ctx.profile.role,
       target_email: email.toLowerCase(),
       target_role: role,
       created_at: new Date().toISOString(),
       needs_owner_approval: !initialActive,
-    },
+    }),
   });
 
   return NextResponse.json({ success: true, userId: created.user.id });

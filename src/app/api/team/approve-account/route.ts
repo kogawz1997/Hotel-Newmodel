@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { parseJson } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
+import { redactPii } from '@/lib/utils/redact';
 
 const schema = z.object({ userId: z.string().uuid() });
 
