@@ -17,10 +17,10 @@
 
 ### P1.1 Build & Baseline Verification
 
-- [ ] `npm ci` — รัน และผ่านสะอาด
-- [ ] `npm run type-check` — ผ่าน 0 errors
-- [ ] `npm run lint` — ผ่าน 0 errors
-- [ ] `npm run build` — ผ่าน production build
+- [x] `npm ci` — รัน และผ่านสะอาด
+- [x] `npm run type-check` — ผ่าน 0 errors
+- [x] `npm run lint` — ผ่าน 0 errors (79 warnings, 0 errors)
+- [x] `npm run build` — ผ่าน production build
 - [ ] `npm run check:strict` — ผ่านทุก strict check
 - [ ] สร้าง/อัปเดต `docs/PRODUCTION_GAP_REPORT.md` พร้อม: commands run, pass/fail, files changed, remaining risks
 
@@ -30,93 +30,93 @@
 
 #### สร้าง `src/lib/auth/roles.ts` (Single Source of Truth)
 
-- [~] `StaffRole` type — มี `hotel-roles.ts` แต่มีแค่ 9 roles ยังไม่ครบ
-- [ ] Role groups (Core / Executive / Front Office / etc.)
-- [ ] Page permissions map
-- [ ] API permissions map
-- [ ] Action permissions map
-- [ ] Approval permissions map
-- [ ] Sidebar visibility per role
-- [ ] Default landing page per role
-- [ ] Department mapping per role
-- [ ] Mobile role behavior
+- [x] `StaffRole` type — ครบทุก role จาก DB constraint (50+ roles)
+- [x] Role groups (Core / Executive / Front Office / etc.)
+- [x] Page permissions map (ROUTE_ROLES)
+- [x] API permissions map (ACTION_PERMISSIONS)
+- [x] Action permissions map
+- [x] Approval permissions map (APPROVAL_PERMISSIONS)
+- [x] Sidebar visibility per role (ใช้ role groups)
+- [x] Default landing page per role (DEFAULT_LANDING)
+- [x] Department mapping per role (ROLE_DEPARTMENT)
+- [x] Mobile role behavior (MOBILE_ROLE_CONFIG)
 
 **Required Roles — Core:**
-- [~] `owner` — มีแล้ว
-- [~] `admin` — มีแล้ว
-- [~] `manager` — มีแล้ว
-- [~] `staff` — มีแล้ว
-- [ ] `viewer`
+- [x] `owner`
+- [x] `admin`
+- [x] `manager`
+- [x] `staff`
+- [x] `viewer`
 
 **Required Roles — Executive:**
-- [ ] `hotel_owner`
-- [ ] `general_manager`
-- [ ] `operations_manager`
+- [x] `hotel_owner`
+- [x] `general_manager`
+- [x] `operations_manager`
 
 **Required Roles — Front Office:**
-- [ ] `front_office_manager`
-- [~] `front_desk` — มีแล้ว
-- [ ] `receptionist`
-- [ ] `reservation_agent`
-- [ ] `night_auditor`
+- [x] `front_office_manager`
+- [x] `front_desk`
+- [x] `receptionist`
+- [x] `reservation_agent`
+- [x] `night_auditor`
 
 **Required Roles — Housekeeping:**
-- [ ] `housekeeping_manager`
-- [~] `housekeeper` — มีแล้วเป็น `housekeeping`
-- [ ] `room_inspector`
+- [x] `housekeeping_manager`
+- [x] `housekeeper`
+- [x] `room_inspector`
 
 **Required Roles — Maintenance:**
-- [ ] `maintenance_manager`
-- [~] `technician` — มีแล้วเป็น `maintenance`
-- [ ] `engineering`
+- [x] `maintenance_manager`
+- [x] `technician`
+- [x] `engineering`
 
 **Required Roles — Revenue & Marketing:**
-- [ ] `revenue_manager`
-- [ ] `marketing_staff`
-- [ ] `sales`
+- [x] `revenue_manager`
+- [x] `marketing_staff`
+- [x] `sales`
 
 **Required Roles — Accounting:**
-- [ ] `accounting_manager`
-- [~] `accounting_staff` — มีแล้วเป็น `accounting`
+- [x] `accounting_manager`
+- [x] `accounting_staff`
 
 **Required Roles — F&B:**
-- [ ] `fnb_manager`
-- [ ] `kitchen_staff`
-- [ ] `restaurant_staff`
-- [ ] `room_service_staff`
+- [x] `fnb_manager`
+- [x] `kitchen_staff`
+- [x] `restaurant_staff`
+- [x] `room_service_staff`
 
 **Required Roles — Guest Services:**
-- [~] `concierge` — มีแล้ว
-- [ ] `guest_relations`
-- [ ] `bellboy`
-- [ ] `transport_driver`
+- [x] `concierge`
+- [x] `guest_relations`
+- [x] `bellboy`
+- [x] `transport_driver`
 
 **Required Roles — Security:**
-- [ ] `security_manager`
-- [~] `security_staff` — มีแล้วเป็น `security`
+- [x] `security_manager`
+- [x] `security_staff`
 
 **Required Roles — Spa:**
-- [ ] `spa_manager`
-- [ ] `spa_staff`
+- [x] `spa_manager`
+- [x] `spa_staff`
 
 **Required Roles — HR:**
-- [ ] `hr_manager`
-- [ ] `hr_staff`
+- [x] `hr_manager`
+- [x] `hr_staff`
 
 **Required Roles — IT:**
-- [ ] `it_admin`
-- [ ] `it_support`
+- [x] `it_admin`
+- [x] `it_support`
 
 **Required Roles — Purchasing:**
-- [ ] `purchasing_manager`
-- [ ] `purchasing_staff`
+- [x] `purchasing_manager`
+- [x] `purchasing_staff`
 
 **Refactor ที่ต้องทำหลังสร้าง roles.ts:**
-- [ ] `src/lib/auth/guards.ts` — ใช้ roles.ts แทน hardcoded arrays
-- [ ] `src/lib/auth/page-guards.ts` — ใช้ roles.ts
-- [ ] `src/components/layout/sidebar.tsx` — ใช้ roles.ts
-- [ ] `src/middleware.ts` — ใช้ roles.ts
-- [ ] ตรวจ DB constraints ว่า role values ตรงกัน (อาจต้อง migration)
+- [x] `src/lib/auth/guards.ts` — import StaffRole จาก roles.ts
+- [x] `src/lib/auth/page-guards.ts` — import จาก roles.ts
+- [x] `src/components/layout/sidebar.tsx` — import role groups จาก roles.ts
+- [x] `src/middleware.ts` — import ROUTE_ROLES จาก roles.ts
+- [x] DB constraints ครบ (0003_staff_hr.sql มี constraint ครบ 50+ roles)
 
 ---
 
@@ -126,12 +126,12 @@
 - [~] `src/app/api/**` — ทุก route ต้องมี auth + role check
 - [~] Hotel data queries scoped by `hotel_id` / `organization_id`
 - [~] Dashboard pages มี page-level role protection
-- [~] Platform routes require platform admin
-- [ ] Cron routes require `CRON_SECRET`
+- [x] Platform routes require platform admin (แก้ admin/ranking-weights + admin/platform-config แล้ว)
+- [x] Cron routes require `CRON_SECRET` (ครบทุก cron route)
 - [~] Webhook routes verify signature
 - [~] Payment routes idempotent
 - [ ] Service role client ไม่ถูกใช้ unsafely
-- [~] Audit log เขียนทุก sensitive action
+- [x] Audit log เขียนทุก sensitive action (`src/lib/audit.ts` + check-in/out/HK/WO)
 
 **Add Tests:**
 - [~] Tenant isolation tests — มี `tests/e2e/tenant-isolation.spec.ts`
@@ -143,28 +143,28 @@
 ### P1.4 Workflow Engine Foundation
 
 **Database Tables:**
-- [?] `work_orders` — มี `/dashboard/work-orders` และ API แต่ต้องตรวจ schema
-- [?] `task_assignments`
-- [?] `approvals`
-- [?] `approval_logs`
-- [~] `notifications` — มี API
-- [~] `activity_logs` / `audit_logs` — มีใน migrations
-- [?] `department_sla_rules`
-- [?] `guest_request_routes`
-- [?] `room_status_events`
-- [?] `workflow_templates`
-- [?] `task_comments`
-- [?] `task_attachments`
-- [?] `operational_incidents`
-- [?] `shift_handovers`
+- [x] `work_orders` — ครบ (0003_staff_hr.sql)
+- [x] `task_assignments` — ครบ (0003_staff_hr.sql)
+- [x] `approvals` — สร้างใน 0006_workflow_engine.sql
+- [x] `approval_logs` — สร้างใน 0006_workflow_engine.sql
+- [x] `notifications` / `staff_notifications` — สร้างใน 0006_workflow_engine.sql
+- [x] `activity_logs` / `audit_logs` — ครบ (0001_core_schema.sql)
+- [x] `department_sla_rules` — สร้างใน 0006_workflow_engine.sql
+- [x] `guest_request_routes` — สร้างใน 0006_workflow_engine.sql
+- [x] `room_status_events` — สร้างใน 0006_workflow_engine.sql
+- [x] `workflow_templates` — สร้างใน 0006_workflow_engine.sql
+- [x] `task_comments` — สร้างใน 0006_workflow_engine.sql
+- [x] `task_attachments` — สร้างใน 0006_workflow_engine.sql
+- [x] `operational_incidents` — สร้างใน 0006_workflow_engine.sql
+- [x] `shift_handovers` — สร้างใน 0006_workflow_engine.sql
 
 **Modules:**
-- [?] `src/lib/workflows/*`
-- [?] `src/lib/tasks/*`
-- [?] `src/lib/approvals/*`
-- [~] `src/lib/notifications/*` — มีบางส่วน
-- [~] `src/lib/audit/*` — มีบางส่วน
-- [?] `src/lib/sla/*`
+- [x] `src/lib/workflows/room-status.ts` — room status automation ครบ
+- [~] `src/lib/tasks/*` — ใช้ work_orders + housekeeping_tasks
+- [x] `src/lib/approvals/index.ts` — approval engine ครบ
+- [x] `src/lib/notifications.ts` — notification queuing ครบ
+- [x] `src/lib/audit.ts` — audit log writer ครบ
+- [x] `src/lib/sla/index.ts` — SLA breach checker ครบ
 
 **Every workflow must have:**
 - [ ] Owner role defined
@@ -210,18 +210,18 @@
 
 ### P1.6 Room Status Automation
 
-- [ ] Check-in → room `occupied`
-- [ ] Checkout → room `dirty`
-- [ ] Dirty room → create housekeeping task
-- [ ] Housekeeping done → create inspection task
-- [ ] Inspection approved → room `available`
-- [ ] Maintenance OOO → block room inventory
-- [ ] Maintenance fixed → create inspection task
+- [x] Check-in → room `occupied` (reservation PATCH + onCheckIn)
+- [x] Checkout → room `dirty` + HK tasks (reservation PATCH + onCheckout)
+- [x] Dirty room → create housekeeping task (onCheckout side-effect)
+- [x] Housekeeping done → create inspection task (housekeeping complete + onHousekeepingDone)
+- [x] Inspection approved → room `available` (inspect route + onInspectionPass)
+- [x] Maintenance OOO → block room inventory (work-order PATCH + onMaintenanceOOO)
+- [x] Maintenance fixed → create inspection task (work-order PATCH + onMaintenanceFixed)
 
 **Every room status change must create:**
-- [ ] `room_status_event` record
-- [ ] Notification (if needed)
-- [ ] Audit log entry
+- [x] `room_status_event` record (ใน transitionRoomStatus)
+- [x] Notification (if needed) (ใน handleSideEffects)
+- [x] Audit log entry (ใน transitionRoomStatus)
 
 ---
 

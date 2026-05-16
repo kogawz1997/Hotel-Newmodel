@@ -1,30 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { ACCESS_POLICIES } from '@/lib/security/access-policies';
+import { ROUTE_ROLES } from '@/lib/auth/roles';
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
-
-const ROUTE_ROLES: Array<{ prefix: string; roles: string[] }> = [
-  { prefix: '/dashboard/audit', roles: ['owner', 'admin'] },
-  { prefix: '/dashboard/system', roles: ['owner', 'admin'] },
-  { prefix: '/dashboard/launch', roles: ['owner', 'admin'] },
-  { prefix: '/dashboard/go-live', roles: ['owner', 'admin'] },
-  { prefix: '/dashboard/branding', roles: ['owner', 'admin'] },
-  { prefix: '/dashboard/accounting', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/reports', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/rates', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/channels', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/marketing', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/fb', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/spa', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/loyalty', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/settings', roles: ['owner', 'admin', 'manager'] },
-  { prefix: '/dashboard/maintenance', roles: ['owner', 'admin', 'manager', 'maintenance'] },
-  { prefix: '/dashboard/concierge', roles: ['owner', 'admin', 'manager', 'concierge'] },
-  { prefix: '/dashboard/security', roles: ['owner', 'admin', 'manager', 'security'] },
-  { prefix: '/dashboard/accounting-ops', roles: ['owner', 'admin', 'accounting'] },
-  { prefix: '/dashboard/rbac', roles: ['owner', 'admin'] },
-];
 
 const KNOWN_HOSTNAME_PATTERNS = ['localhost', '127.0.0.1', 'vercel.app', 'vercel.dev'];
 

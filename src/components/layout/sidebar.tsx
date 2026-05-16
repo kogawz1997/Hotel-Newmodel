@@ -14,6 +14,11 @@ import {
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { CommandSearch, type CommandSearchItem } from '@/components/layout/command-search';
+import {
+  MGMT_ROLES, FRONT_ROLES, HK_ROLES, MAINT_ROLES, SEC_ROLES, CON_ROLES,
+  ACC_ROLES, HR_ROLES, REV_ROLES, SPA_ROLES, FNB_ROLES, IT_ROLES,
+  OPS_STAFF, ALL_STAFF,
+} from '@/lib/auth/roles';
 
 interface SidebarProps {
   hotelName: string;
@@ -23,38 +28,7 @@ interface SidebarProps {
   userRole?: string;
 }
 
-// ── Role groups ──────────────────────────────────────────────────────────────
-// Legacy roles (existing data)
-const LEGACY_MGMT   = ['owner', 'admin', 'manager'];
-const LEGACY_FRONT  = ['owner', 'admin', 'manager', 'front_desk'];
-const LEGACY_HK     = ['owner', 'admin', 'manager', 'housekeeping'];
-const LEGACY_MAINT  = ['owner', 'admin', 'manager', 'maintenance'];
-const LEGACY_SEC    = ['owner', 'admin', 'manager', 'security'];
-const LEGACY_CON    = ['owner', 'admin', 'manager', 'concierge'];
-const LEGACY_ACC    = ['owner', 'admin', 'manager', 'accounting'];
-
-// New 35-role system
-const MGMT_ROLES  = [...LEGACY_MGMT, 'hotel_owner', 'general_manager', 'operations_manager'];
-const OWNER_ROLES = [...MGMT_ROLES];
-const FRONT_ROLES = [...MGMT_ROLES, 'front_office_manager', 'front_desk', 'reservation_agent', 'night_auditor', ...LEGACY_FRONT];
-const HK_ROLES    = [...MGMT_ROLES, 'housekeeping_manager', 'housekeeper', 'room_inspector', ...LEGACY_HK];
-const MAINT_ROLES = [...MGMT_ROLES, 'maintenance_manager', 'technician', ...LEGACY_MAINT];
-const SEC_ROLES   = [...MGMT_ROLES, 'security_manager', 'security_staff', ...LEGACY_SEC];
-const CON_ROLES   = [...MGMT_ROLES, 'concierge', 'guest_relations', 'bellboy', 'transport_driver', ...LEGACY_CON];
-const ACC_ROLES   = [...MGMT_ROLES, 'accounting_manager', 'accounting_staff', ...LEGACY_ACC];
-const HR_ROLES    = [...MGMT_ROLES, 'hr_manager', 'hr_staff'];
-const REV_ROLES   = [...MGMT_ROLES, 'revenue_manager', 'marketing_staff', ...LEGACY_ACC];
-const SPA_ROLES   = [...MGMT_ROLES, 'spa_manager', 'spa_staff'];
-const FNB_ROLES   = [...MGMT_ROLES, 'fnb_manager', 'kitchen_staff', 'room_service_staff', 'restaurant_staff'];
-const IT_ROLES    = [...MGMT_ROLES, 'it_admin', 'it_support'];
-
-// Operational staff that see My Tasks
-const OPS_STAFF = [
-  'housekeeper', 'room_inspector', 'technician', 'bellboy', 'transport_driver',
-  'room_service_staff', 'kitchen_staff', 'concierge', 'security_staff', 'spa_staff',
-  'restaurant_staff', 'guest_relations',
-];
-const ALL_STAFF = [...MGMT_ROLES, ...FRONT_ROLES, ...HK_ROLES, ...MAINT_ROLES, ...OPS_STAFF, 'staff', 'viewer'];
+const OWNER_ROLES = MGMT_ROLES;
 
 const NAV_GROUPS = [
   {
