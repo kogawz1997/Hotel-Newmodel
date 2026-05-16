@@ -3,6 +3,7 @@ import { requireHotelAccess } from '@/lib/auth/guards';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { parseJson } from '@/lib/http/validation';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   hotelId:   z.string().uuid(),
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
       .createSignedUploadUrl(objectPath);
 
     if (signErr) {
-      return NextResponse.json({ error: signErr.message }, { status: 500 });
+      return apiError(signErr);
     }
 
     const publicUrl = admin.storage.from(BUCKET).getPublicUrl(objectPath).data.publicUrl;
@@ -60,6 +61,6 @@ export async function POST(request: NextRequest) {
       publicUrl,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 }

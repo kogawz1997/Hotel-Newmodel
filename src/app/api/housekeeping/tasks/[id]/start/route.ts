@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,6 +16,6 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
     .eq('hotel_id', task.hotel_id)
     .select()
     .single();
-  if (error || !data) return NextResponse.json({ error: error?.message || 'Failed to start task' }, { status: 500 });
+  if (error || !data) return error ? apiError(error) : NextResponse.json({ error: 'Failed to start task' }, { status: 500 });
   return NextResponse.json({ task: data });
 }

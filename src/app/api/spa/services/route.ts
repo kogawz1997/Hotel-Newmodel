@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 const serviceSchema = z.object({
   name: z.string().min(1),
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     ctx.supabase.from('spa_services').select('*').eq('hotel_id', ctx.hotelId).eq('active', true).order('name'),
     ctx.supabase.from('spa_therapists').select('*').eq('hotel_id', ctx.hotelId).eq('active', true).order('name'),
   ]);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ services: services || [], therapists: therapists || [] });
 }
 
@@ -33,6 +34,6 @@ export async function POST(request: Request) {
     .insert({ hotel_id: ctx.hotelId, name: body.name, description: body.description, duration_min: body.durationMin, price: body.price, category: body.category, active: true })
     .select('*')
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ ok: true, service: data }, { status: 201 });
 }

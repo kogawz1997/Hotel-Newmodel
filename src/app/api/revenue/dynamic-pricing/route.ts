@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
     .eq('hotel_id', ctx.hotelId)
     .order('priority', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ data });
 }
 
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ data }, { status: 201 });
 }
 
@@ -69,6 +70,6 @@ export async function PATCH(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ data });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { rateLimit } from '@/lib/security/rate-limit';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(request: Request) {
   const limited = await rateLimit(request, 'ota.reconcile', 10, 60_000);
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     .eq('status', 'active');
 
   if (connectionError) {
-    return NextResponse.json({ error: connectionError.message }, { status: 500 });
+    return apiError(connectionError);
   }
 
   const queued: Array<{ connectionId: string; provider: string }> = [];

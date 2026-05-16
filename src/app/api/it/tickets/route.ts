@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 // GET /api/it/tickets — list support_tickets_internal for hotel
 export async function GET(_req: NextRequest) {
@@ -44,7 +45,7 @@ export async function GET(_req: NextRequest) {
   if (category) q = (q as any).eq('category', category);
 
   const { data, error } = await q;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data ?? []);
 }
 
@@ -95,6 +96,6 @@ export async function POST(req: NextRequest) {
     )
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data, { status: 201 });
 }

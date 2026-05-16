@@ -36,13 +36,13 @@ export async function GET(request: NextRequest) {
   for (const hotel of hotels || []) {
     const hotelResult: any = { hotelId: hotel.id, name: hotel.name };
 
-    // --- 2. Auto checkout: status=checked_in, check_out <= yesterday ---
+    // --- 2. Auto checkout: status=checked_in, check_out <= today ---
     const { data: autoCheckouts, error: coErr } = await admin
       .from('reservations')
       .update({ status: 'checked_out' })
       .eq('hotel_id', hotel.id)
       .eq('status', 'checked_in')
-      .lte('check_out', yesterday)
+      .lte('check_out', today)
       .select('id, reservation_code');
     hotelResult.autoCheckouts = autoCheckouts?.length || 0;
 

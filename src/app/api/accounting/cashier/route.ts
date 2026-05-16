@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET() {
   const supabase = await createClient();
@@ -30,7 +31,7 @@ export async function GET() {
     .order('opened_at', { ascending: false })
     .limit(20);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ sessions: data || [] });
 }
 
@@ -70,6 +71,6 @@ export async function POST(request: Request) {
     .select('*')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ ok: true, session: data }, { status: 201 });
 }

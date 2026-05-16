@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     alt_text: altText || '', display_order: displayOrder || 0,
   }).select().single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, image: data });
 }
 

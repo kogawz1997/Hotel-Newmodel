@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     .lt('updated_at', stuckBefore)
     .limit(200);
 
-  if (stuckError) return NextResponse.json({ error: stuckError.message }, { status: 500 });
+  if (stuckError) return apiError(stuckError);
 
   let requeued = 0;
   let movedToDlq = 0;
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     .gte('attempts', MAX_ATTEMPTS)
     .limit(200);
 
-  if (failedError) return NextResponse.json({ error: failedError.message }, { status: 500 });
+  if (failedError) return apiError(failedError);
 
   for (const job of failedJobs || []) {
     const { error: dlqError } = await admin

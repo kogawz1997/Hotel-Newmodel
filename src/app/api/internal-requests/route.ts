@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const MANAGER_ROLES = ['owner', 'admin', 'manager'];
 
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
   if (status) q = q.eq('status', status);
 
   const { data, error } = await q;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data ?? []);
 }
 
@@ -88,6 +89,6 @@ export async function POST(req: NextRequest) {
     .select('*, requester:user_profiles!requester_id(id, full_name, role)')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data, { status: 201 });
 }

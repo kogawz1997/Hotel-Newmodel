@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 const createOrderSchema = z.object({
   reservationId: z.string().uuid(),
@@ -88,7 +89,7 @@ export async function GET(request: Request) {
 
   if (status) query = query.eq('status', status);
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data || []);
 }
 
@@ -118,7 +119,7 @@ export async function POST(request: Request) {
     .select('id, outlet_id, name, price, available')
     .in('id', itemIds);
 
-  if (menuError) return NextResponse.json({ error: menuError.message }, { status: 400 });
+  if (menuError) return apiError(menuError);
   const menuById = new Map((menuItems || []).map((item: any) => [item.id, item]));
   const missing = itemIds.find(id => !menuById.has(id));
   if (missing) return NextResponse.json({ error: 'Menu item not found' }, { status: 404 });
@@ -152,7 +153,7 @@ export async function POST(request: Request) {
     .select('*')
     .single();
 
-  if (orderError) return NextResponse.json({ error: orderError.message }, { status: 400 });
+  if (orderError) return apiError(orderError);
 
   const lines = body.items.map(line => {
     const menu = menuById.get(line.menuItemId) as any;
@@ -168,7 +169,7 @@ export async function POST(request: Request) {
   });
 
   const { error: lineError } = await ctx.supabase.from('fb_order_items').insert(lines);
-  if (lineError) return NextResponse.json({ error: lineError.message }, { status: 400 });
+  if (lineError) return apiError(lineError);
 
   return NextResponse.json({ ok: true, order }, { status: 201 });
 }
@@ -198,7 +199,7 @@ export async function PATCH(request: Request) {
     .update({ status: body.status, payment_method: body.paymentMethod })
     .eq('id', order.id);
 
-  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 400 });
+  if (updateError) return apiError(updateError);
 
   if (body.status === 'paid' && body.paymentMethod === 'room_charge') {
     const folio = await ensureOpenFolio(ctx.supabase, ctx.hotelId!, order.reservation_id);
@@ -221,7 +222,7 @@ export async function PATCH(request: Request) {
         reference_id: order.id,
         reference_type: 'fb_order',
       });
-      if (postError) return NextResponse.json({ error: postError.message }, { status: 400 });
+      if (postError) return apiError(postError);
       await recalcFolio(ctx.supabase, folio.id);
     }
   }

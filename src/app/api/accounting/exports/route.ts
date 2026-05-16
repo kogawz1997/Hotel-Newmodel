@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { rateLimit } from '@/lib/security/rate-limit';
+import { apiError } from '@/lib/http/errors';
 
 const querySchema = z.object({
   hotelId: z.string().uuid(),
@@ -51,7 +52,7 @@ export async function GET(request: Request) {
       .lte('paid_at', `${to}T23:59:59.999Z`)
       .order('paid_at', { ascending: true }),
   ]);
-  if (invError || payError) return NextResponse.json({ error: invError?.message || payError?.message }, { status: 500 });
+  if (invError || payError) return apiError(invError ?? payError);
 
   const payload = { hotelId, from, to, generatedAt: new Date().toISOString(), invoices: invoices || [], payments: payments || [] };
   await admin.from('audit_logs').insert({

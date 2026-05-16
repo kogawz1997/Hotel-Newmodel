@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const ALLOWED_ROLES = ['owner', 'admin', 'manager', 'hr_manager', 'hr_staff', 'general_manager'];
 
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
   if (completed !== null) query = query.eq('completed', completed === 'true');
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ tasks: data ?? [] });
 }
 
@@ -82,7 +83,7 @@ export async function POST(req: NextRequest) {
       .select()
       .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return apiError(error);
     return NextResponse.json({ task: data });
   }
 
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ task: data }, { status: 201 });
 }
 
@@ -140,6 +141,6 @@ export async function PATCH(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ task: data });
 }

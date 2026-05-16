@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 const menuItemSchema = z.object({
   outletId: z.string().uuid().optional().nullable(),
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
         .order('name')
     : { data: [], error: null } as any;
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ outlets: outlets || [], items: items || [] });
 }
 
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
         .insert({ hotel_id: ctx.hotelId, name: 'Room Service', type: 'room_service', active: true })
         .select('id')
         .single();
-      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      if (error) return apiError(error);
       outletId = created.id;
     }
   }
@@ -78,6 +79,6 @@ export async function POST(request: Request) {
     .select('*')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ ok: true, item: data }, { status: 201 });
 }

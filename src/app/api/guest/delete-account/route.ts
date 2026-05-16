@@ -5,6 +5,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { redactPii } from '@/lib/utils/redact';
 
 export async function DELETE(request: NextRequest) {
   const supabase = await createClient();
@@ -41,11 +42,11 @@ export async function DELETE(request: NextRequest) {
     action:      'pdpa.account_deleted',
     entity_type: 'guest_account',
     entity_id:   user.id,
-    changes: {
+    changes: redactPii({
       reason:     reason || 'User request',
       deleted_at: new Date().toISOString(),
       data_retained: 'Financial records retained per Thai accounting law (5 years)',
-    },
+    }),
   });
 
   // 5. Delete auth user

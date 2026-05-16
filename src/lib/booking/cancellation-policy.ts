@@ -78,7 +78,7 @@ export function calculateCancellation(
 
   const checkIn  = new Date(checkInDate + 'T14:00:00');
   const diffMs   = checkIn.getTime() - cancelledAt.getTime();
-  const daysLeft = diffMs / (1000 * 60 * 60 * 24);
+  const daysLeft = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (daysLeft < 0) {
     // Already past check-in

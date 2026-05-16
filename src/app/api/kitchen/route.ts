@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { z } from 'zod';
+import { apiError } from '@/lib/http/errors';
 
 const createQueueSchema = z.object({
   hotelId: z.string().uuid(),
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ data });
 }
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ data }, { status: 201 });
 }

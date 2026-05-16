@@ -1,5 +1,6 @@
 import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
+import { apiError } from '@/lib/http/errors';
 import { z } from 'zod';
 import { translateText, detectLanguage, type Language } from '@/lib/ai';
 import { parseJson } from '@/lib/http/validation';
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error);
   }
 
   return NextResponse.json({

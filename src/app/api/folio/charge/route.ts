@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { apiError } from '@/lib/http/errors';
 
 const ChargeSchema = z.object({
   hotelId:       z.string().uuid(),
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     item_type:      body.itemType,
   }).select().single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   // Update folio balance
   await admin.from('folios')

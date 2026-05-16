@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { parseJson } from '@/lib/http/validation';
 import { requireHotelAccess, requireUser } from '@/lib/auth/guards';
 import { buildAuditEnvelope } from '@/lib/master-4p/production-suite';
 
@@ -25,10 +26,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let raw: unknown;
-  try { raw = await request.json(); } catch { raw = {}; }
-  const parsed = schema.safeParse(raw);
-  if (!parsed.success) return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 422 });
+  const parsed = await parseJson(request, schema);
+  if (parsed.error) return parsed.error;
   const ctx = parsed.data.hotelId ? await requireHotelAccess(parsed.data.hotelId) : await requireHotelAccess(null);
   if (ctx.error) return ctx.error;
 

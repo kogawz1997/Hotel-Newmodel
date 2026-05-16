@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { data, error } = await q;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data ?? []);
 }
 
@@ -103,6 +104,6 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data, { status: 201 });
 }

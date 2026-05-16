@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateCsrfOrigin } from '@/lib/security/csrf';
+import { redactPii } from '@/lib/utils/redact';
 
 export async function POST(request: NextRequest) {
   const csrf = validateCsrfOrigin(request);
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     action: ipAnomaly ? 'guest.login.anomaly' : 'guest.login',
     entity_type: 'guest_account',
     entity_id: data.user.id,
-    changes: { ip, userAgent, ipAnomaly },
+    changes: redactPii({ ip, userAgent, ipAnomaly }),
   });
 
   return NextResponse.json({ success: true, guest: guestAccount });

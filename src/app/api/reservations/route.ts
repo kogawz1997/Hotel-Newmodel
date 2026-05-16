@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { calculateNights } from '@/lib/utils';
 import { parseJson, dateStringSchema, dbError } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { sendBookingConfirmation, sendNewBookingAlert } from '@/lib/email-templates';
-import { assertRoomAvailable } from '@/lib/pms/availability';
 import { checkAndReserve } from '@/lib/booking/availability-lock';
 import { getPolicyForRatePlan } from '@/lib/booking/cancellation-policy';
 import { sendLineBookingConfirmation } from '@/lib/channels/line-notify';
@@ -109,9 +109,9 @@ export async function POST(request: Request) {
     const nights = calculateNights(body.checkIn, body.checkOut);
 
     const isDayUse = body.source === 'day_use';
-    if (isDayUse ? nights < 0 || nights > 1 : (nights < 1 || nights > 365)) {
+    if (isDayUse ? nights !== 0 : (nights < 1 || nights > 365)) {
       return NextResponse.json(
-        { error: 'Invalid stay dates' },
+        { error: isDayUse ? 'Day-use bookings must check in and out on the same date' : 'Invalid stay dates' },
         { status: 400 }
       );
     }
@@ -130,25 +130,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const availability = await assertRoomAvailable({
-      supabase,
-      hotelId,
-      roomId: body.roomId,
-      roomTypeId: body.roomTypeId,
-      checkIn: body.checkIn,
-      checkOut: body.checkOut,
-    });
-
-    if (!availability.ok) {
-      const err = 'error' in availability ? availability.error : 'Room not available';
-      const status = 'status' in availability ? availability.status : 409;
-      return NextResponse.json({ error: err }, { status: status || 409 });
-    }
-
     // Duplicate check (before advisory lock)
     const { data: possibleDuplicate } = await supabase
       .from('reservations')
-      .select('id,reservation_code,status,created_at')
+      .select('id,reservation_code,status,created_at,guest_id')
       .eq('hotel_id', hotelId)
       .eq('room_type_id', body.roomTypeId)
       .eq('check_in', body.checkIn)
@@ -158,13 +143,14 @@ export async function POST(request: Request) {
       .limit(1)
       .maybeSingle();
 
-    if (possibleDuplicate && body.email) {
-      // Only reject as duplicate if same guest email matches
+    if (possibleDuplicate && body.email && possibleDuplicate.guest_id) {
+      // Only reject as duplicate if same guest email matches the reservation's guest
       const { data: dupGuest } = await supabase
         .from('guests')
         .select('id')
         .eq('hotel_id', hotelId)
-        .eq('id', possibleDuplicate.id)
+        .eq('id', possibleDuplicate.guest_id)
+        .eq('email', body.email)
         .maybeSingle();
       if (dupGuest) {
         return NextResponse.json({
@@ -305,10 +291,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, reservation });
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : 'Internal Server Error';
-
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err);
   }
 }
 
@@ -346,9 +329,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ reservations: data || [] });
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : 'Internal Server Error';
-
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err);
   }
 }

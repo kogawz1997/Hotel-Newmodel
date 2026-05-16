@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { z } from 'zod';
+import { apiError } from '@/lib/http/errors';
 
 const createOrderSchema = z.object({
   hotelId: z.string().uuid(),
@@ -49,7 +50,7 @@ export async function GET(req: NextRequest) {
   if (outletId) query = query.eq('outlet_id', outletId);
 
   const { data, error } = await query.limit(100);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ data });
 }
@@ -110,7 +111,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (orderErr || !order) {
-    return NextResponse.json({ error: orderErr?.message ?? 'Failed to create order' }, { status: 500 });
+    return orderErr ? apiError(orderErr) : NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
   }
 
   // Update table to occupied

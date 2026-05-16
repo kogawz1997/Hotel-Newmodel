@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 /**
  * Treatment rooms are derived from spa_bookings.treatment_room.
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     .not('treatment_room', 'is', null)
     .order('start_time', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   // Build unique room map with current status
   const roomMap = new Map<
@@ -103,6 +104,6 @@ export async function PATCH(req: NextRequest) {
     .select('id')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ ok: true, work_order_id: data.id, room_name, action });
 }

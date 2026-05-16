@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(req: NextRequest) {
   const access = await requirePlatformAdmin();
@@ -15,6 +16,6 @@ export async function GET(req: NextRequest) {
     .limit(100);
   if (status) query = query.eq('status', status);
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json(data || []);
 }

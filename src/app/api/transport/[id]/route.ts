@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function PATCH(
   req: NextRequest,
@@ -49,6 +50,6 @@ export async function PATCH(
     .select('*, driver:driver_id(id, full_name)')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }

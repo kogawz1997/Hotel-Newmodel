@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const MANAGER_ROLES = ['owner', 'admin', 'manager', 'hr_manager', 'department_head', 'general_manager', 'operations_manager', 'front_office_manager', 'housekeeping_manager', 'fb_manager', 'maintenance_manager'];
 
@@ -95,7 +96,7 @@ export async function PATCH(
     .select('*, staff:staff_id(id, full_name, role), approver:approved_by(id, full_name)')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   return NextResponse.json(data);
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -44,9 +45,9 @@ export async function POST(request: NextRequest) {
 
   const { error } = await ctx.supabase
     .from('rate_calendar')
-    .upsert(rows, { onConflict: 'hotel_id,room_type_id,rate_plan_id,date', ignoreDuplicates: false });
+    .upsert(rows, { onConflict: 'hotel_id,room_type_id,date', ignoreDuplicates: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, updated: rows.length });
 }
 

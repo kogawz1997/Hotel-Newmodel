@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const ALLOWED_ROLES = [
   'owner', 'admin', 'manager', 'purchasing_manager', 'purchasing_staff',
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
     // Supabase doesn't support column comparison in filter directly,
     // fetch all and filter client-side
     const { data: all, error } = await query;
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return apiError(error);
     const filtered = (all ?? []).filter((i: any) => i.quantity <= i.min_stock);
     return NextResponse.json({ items: filtered });
   }
@@ -67,7 +68,7 @@ export async function GET(req: NextRequest) {
   if (category) query = query.eq('category', category);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ items: data ?? [] });
 }
 
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ item: data }, { status: 201 });
 }
 
@@ -155,6 +156,6 @@ export async function PATCH(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ item: updated });
 }

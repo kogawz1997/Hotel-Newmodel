@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(request: NextRequest) {
   const hotelId = new URL(request.url).searchParams.get('hotelId') || '';
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     min_amount: body.minAmount || 0, valid_from: body.validFrom || null,
     valid_until: body.validUntil || null, max_uses: body.maxUses || null, active: true,
   }).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, promo: data });
 }
 

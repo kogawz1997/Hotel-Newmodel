@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -12,6 +13,6 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabase.from('shift_assignments').upsert({
     hotel_id: hotel.id, staff_id: staffId, shift_id: shiftId, work_date: workDate, notes: notes ?? null,
   }, { onConflict: 'staff_id,work_date' }).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }

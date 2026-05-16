@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendCancellationEmail } from '@/lib/email-templates';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,7 +30,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       cancellation_reason: reason || 'cancelled_by_guest',
       cancelled_at: new Date().toISOString(),
     }).eq('id', id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError(error);
     return NextResponse.json({ success: true });
   }
 
@@ -38,7 +39,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       special_requests: specialRequests,
       estimated_arrival: estimatedArrival || null,
     }).eq('id', id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError(error);
     return NextResponse.json({ success: true });
   }
 
@@ -58,7 +59,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const note = requestNote ? ` — ${requestNote}${dateNote}` : dateNote;
     const updated = existing ? `${existing}\n${tag}${note}` : `${tag}${note}`;
     const { error } = await supabase.from('reservations').update({ special_requests: updated }).eq('id', id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError(error);
     return NextResponse.json({ success: true });
   }
 

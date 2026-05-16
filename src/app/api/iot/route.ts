@@ -19,6 +19,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 // GET — device list + current status
 export async function GET(request: NextRequest) {
@@ -122,7 +123,7 @@ export async function PATCH(request: NextRequest) {
     const data = await res.json();
     return NextResponse.json({ success: res.ok, vendorResponse: data });
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return apiError(err);
   }
 }
 

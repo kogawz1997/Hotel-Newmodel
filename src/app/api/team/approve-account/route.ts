@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { parseJson } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
+import { redactPii } from '@/lib/utils/redact';
 
 const schema = z.object({ userId: z.string().uuid() });
 
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
     action: 'team.member_approved',
     entity_type: 'user_profile',
     entity_id: parsed.data.userId,
-    changes: { approved_at: new Date().toISOString(), approver: (ctx.user as any)?.email },
+    changes: redactPii({ approved_at: new Date().toISOString(), approver: (ctx.user as any)?.email }),
   });
 
   return NextResponse.json({ success: true });

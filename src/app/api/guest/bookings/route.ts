@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -19,6 +20,6 @@ export async function GET(request: NextRequest) {
     .eq('guest_account_id', user.id)
     .order('created_at', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ reservations: reservations || [] });
 }

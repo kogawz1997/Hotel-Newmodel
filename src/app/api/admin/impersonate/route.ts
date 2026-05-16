@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { redactPii } from '@/lib/utils/redact';
 
 const ImpersonateSchema = z.object({
   organizationId: z.string().uuid(),
@@ -34,13 +35,13 @@ export async function POST(request: NextRequest) {
     action: 'admin.impersonate',
     entity_type: 'organization',
     entity_id: body.organizationId,
-    changes: {
+    changes: redactPii({
       admin_id:    ctx.user.id,
       admin_email: ctx.user.email,
       reason:      body.reason,
       org_name:    org.name,
       timestamp:   new Date().toISOString(),
-    },
+    }),
   });
 
   // Get owner of the org to impersonate

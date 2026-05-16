@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(request: NextRequest) {
   const admin = createAdminClient();
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
   if (hotelId) query = query.eq('hotel_id', hotelId);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ items: data || [] });
 }
 
@@ -37,6 +38,6 @@ export async function POST(request: NextRequest) {
     .select('id,hotel_id,provider,status,config,created_at')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, item: data });
 }
