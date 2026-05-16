@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const ALLOWED_ROLES = [
   'owner', 'admin', 'manager', 'purchasing_manager', 'purchasing_staff',
@@ -151,6 +152,6 @@ export async function PATCH(
     .select('*, supplier:supplier_id(id, name), requester:requested_by(id, full_name), approver:approved_by(id, full_name)')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ order: data });
 }

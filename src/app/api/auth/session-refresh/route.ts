@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { deriveSessionRefreshState } from '@/lib/auth/session-refresh';
 import { rateLimit } from '@/lib/security/rate-limit';
+import { apiError } from '@/lib/http/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,6 @@ export async function POST(request: Request) {
   const { data, error } = parsed.data.refreshToken
     ? await supabase.auth.refreshSession({ refresh_token: parsed.data.refreshToken })
     : await supabase.auth.refreshSession();
-  if (error) return NextResponse.json({ error: error.message }, { status: 401 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, session: deriveSessionRefreshState(data.session?.expires_at) });
 }

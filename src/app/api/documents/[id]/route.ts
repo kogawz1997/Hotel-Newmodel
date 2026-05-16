@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const MANAGER_ROLES = ['owner', 'admin', 'manager'];
 
@@ -51,7 +52,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .select('*, uploader:user_profiles!uploaded_by(id, full_name, role)')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   if (!data) return NextResponse.json({ error: 'Document not found' }, { status: 404 });
   return NextResponse.json(data);
 }
@@ -77,6 +78,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     .eq('id', id)
     .eq('hotel_id', ctx.hotel.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true });
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const ALLOWED_ROLES = [
   'owner', 'admin', 'manager', 'purchasing_manager', 'purchasing_staff',
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest) {
   if (category) query = query.eq('category', category);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ suppliers: data ?? [] });
 }
 
@@ -87,6 +88,6 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ supplier: data }, { status: 201 });
 }

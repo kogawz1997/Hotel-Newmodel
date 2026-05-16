@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const MANAGER_ROLES = ['owner', 'admin', 'manager'];
 
@@ -72,7 +73,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .select('*, requester:user_profiles!requester_id(id, full_name, role), approver:user_profiles!approved_by(id, full_name)')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   if (!data) return NextResponse.json({ error: 'Request not found' }, { status: 404 });
   return NextResponse.json(data);
 }

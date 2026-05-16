@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 /**
  * Front Desk Cashier convenience route.
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
     .order('opened_at', { ascending: false })
     .limit(50);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data ?? []);
 }
 
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
       .select()
       .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return apiError(error);
     return NextResponse.json({ ok: true, session: data }, { status: 201 });
   }
 
@@ -106,6 +107,6 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ ok: true, session: data });
 }

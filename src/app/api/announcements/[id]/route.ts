@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 const MANAGER_ROLES = ['owner', 'admin', 'manager'] as const;
 
@@ -51,7 +52,7 @@ export async function PATCH(
     .select('*, creator:created_by(full_name)')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }
 
@@ -83,6 +84,6 @@ export async function DELETE(
     .update({ is_active: false })
     .eq('id', id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true });
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     notes: JSON.stringify({ guestId, purpose, channel, consentedAt: new Date().toISOString() }),
     priority: 'low', status: 'done', source: 'manual', requested_by: user.id,
   }).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ ok: true, id: data.id });
 }
 

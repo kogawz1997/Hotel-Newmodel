@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(req: NextRequest) {
   const ctx = await requireHotelAccess(null, ['owner', 'admin', 'manager', 'front_desk']);
@@ -49,7 +50,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ ok: true, log: data }, { status: 201 });
 }
@@ -70,6 +71,6 @@ export async function GET(req: NextRequest) {
     .order('issued_at', { ascending: false })
     .limit(200);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data ?? []);
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 // GET /api/maintenance/requests/[id]/photos
 // Returns { before_photos: string[], after_photos: string[] }
@@ -71,7 +72,7 @@ export async function POST(
     .select('before_photos, after_photos')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   return NextResponse.json(
     {
