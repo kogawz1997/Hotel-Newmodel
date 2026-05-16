@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/security/rate-limit';
 
 export async function POST(request: NextRequest) {
+  const limited = await rateLimit(request, 'guest.auth.forgot-password', 5, 60_000);
+  if (limited) return limited;
+
   const { email } = await request.json();
   const supabase = await createClient();
   await supabase.auth.resetPasswordForEmail(email, {

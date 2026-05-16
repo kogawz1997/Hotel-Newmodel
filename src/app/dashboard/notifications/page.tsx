@@ -1,5 +1,6 @@
 import { Bell } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatDistanceToNow } from 'date-fns';
@@ -8,7 +9,7 @@ import { th } from 'date-fns/locale';
 export default async function NotificationsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) redirect('/auth/login');
 
   const { data: profile } = await supabase
     .from('user_profiles')
@@ -22,7 +23,7 @@ export default async function NotificationsPage() {
     .eq('organization_id', profile?.organization_id)
     .limit(1);
   const hotelId = hotels?.[0]?.id;
-  if (!hotelId) return null;
+  if (!hotelId) redirect('/dashboard/onboarding');
 
   const { data: notifications } = await supabase
     .from('audit_logs')

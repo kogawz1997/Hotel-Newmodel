@@ -1,18 +1,19 @@
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default async function BookingWidgetPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) redirect('/auth/login');
 
   const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
   const { data: hotel } = await supabase.from('hotels').select('id, slug, name').eq('organization_id', profile?.organization_id).limit(1).single();
-  if (!hotel) return null;
+  if (!hotel) redirect('/dashboard/onboarding');
 
   const url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/h/${hotel.slug || hotel.id}`;
-  const iframeSnippet = `<iframe src=\"${url}\" width=\"100%\" height=\"760\" style=\"border:0;border-radius:12px;overflow:hidden\" loading=\"lazy\"></iframe>`;
-  const jsSnippet = `<div id=\"maitri-booking\"></div>\n<script src=\"${process.env.NEXT_PUBLIC_APP_URL || ''}/embed/booking.js\" data-hotel=\"${hotel.slug || hotel.id}\"></script>`;
+  const iframeSnippet = `<iframe src="${url}" width="100%" height="760" style="border:0;border-radius:12px;overflow:hidden" loading="lazy"></iframe>`;
+  const jsSnippet = `<div id="maitri-booking"></div>\n<script src="${process.env.NEXT_PUBLIC_APP_URL || ''}/embed/booking.js" data-hotel="${hotel.slug || hotel.id}"></script>`;
 
   return (
     <main className="space-y-6 p-6 md:p-8">

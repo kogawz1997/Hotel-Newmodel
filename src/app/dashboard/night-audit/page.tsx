@@ -1,11 +1,12 @@
 export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireDashboardRole } from '@/lib/auth/page-guards';
+import { redirect } from 'next/navigation';
 import { NightAuditClient } from './night-audit-client';
 
 export default async function NightAuditPage() {
   const access = await requireDashboardRole(['hotel_owner','general_manager','operations_manager','accounting_manager','night_auditor']);
-  if ('redirect' in access) return null;
+  if ('redirect' in access) redirect('/dashboard');
   const { hotelId } = access;
   const admin = createAdminClient();
   const today = new Date().toISOString().split('T')[0];
