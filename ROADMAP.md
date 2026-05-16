@@ -679,7 +679,7 @@
   - [x] build ✅ — npm run build in ci.yml
   - [x] migration check ✅ — ci.yml finds supabase/migrations/*.sql count
   - [ ] smoke test 🔄 — script มีแล้ว แต่ต้องใส่ NEXT_PUBLIC_APP_URL
-  - [ ] Playwright E2E 🔄 — ต้องเพิ่ม @playwright/test dependency
+  - [x] Playwright E2E ✅ — @playwright/test devDependency + playwright.config.ts + e2e.yml workflow (manual trigger)
 
 #### Monitoring
 - [ ] Sentry 🔑 — ต้องใส่ `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` (SDK ติดตั้งแล้ว)
@@ -719,7 +719,7 @@
 - [x] offline fallback ✅ — service worker
 - [ ] push notifications 🔑 — ต้องใส่ VAPID keys
 - [x] mobile housekeeping ✅
-- [ ] mobile check-in 🔄 — ต้องตรวจ mobile UI
+- [x] mobile check-in ✅ — /mobile/front-desk มีปุ่ม Check-in/Check-out inline ต่อ reservation, MobileReservationActions client component
 - [x] mobile owner dashboard ✅ — basic
 
 #### White-label

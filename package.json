@@ -23,6 +23,7 @@
     "test:saas-integrations": "node tests/saas-integrations.test.mjs",
     "test:unit": "node tests/unit/core-policy.test.mjs && node tests/unit/availability-lock-guards.test.mjs && node tests/unit/reliability-sweep-policy.test.mjs && node tests/unit/reliability-metrics.test.mjs && node tests/unit/ai-assistant.test.mjs && node tests/unit/go-live-hardening-regressions.test.mjs && node tests/unit/master-4p-completion.test.mjs && node tests/unit/reservation-idempotency-guard.test.mjs",
     "test:e2e": "node tests/e2e/production-flow.test.mjs",
+    "test:playwright": "playwright test",
     "check:uptime": "node scripts/check-uptime-config.mjs",
     "test:ops": "npm run check:uptime && npm run test:unit && npm run test:e2e",
     "test:final": "node tests/final-hardening.test.mjs",
@@ -68,6 +69,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@playwright/test": "^1.50.0",
     "@types/node": "^20.19.41",
     "@types/nodemailer": "6.4.23",
     "@types/pdfkit": "^0.17.6",
