@@ -5,7 +5,9 @@ async function performLogout(request: Request) {
   const supabase = await createClient();
   await supabase.auth.signOut();
   const url = new URL(request.url);
-  const next = url.searchParams.get('next') || '/backoffice/login';
+  const rawNext = url.searchParams.get('next') || '';
+  // Only allow same-origin relative paths to prevent open redirect
+  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/backoffice/login';
   return NextResponse.redirect(new URL(next, request.url));
 }
 

@@ -148,7 +148,7 @@ export async function POST(request: Request) {
     // Duplicate check (before advisory lock)
     const { data: possibleDuplicate } = await supabase
       .from('reservations')
-      .select('id,reservation_code,status,created_at')
+      .select('id,reservation_code,status,created_at,guest_id')
       .eq('hotel_id', hotelId)
       .eq('room_type_id', body.roomTypeId)
       .eq('check_in', body.checkIn)
@@ -158,13 +158,14 @@ export async function POST(request: Request) {
       .limit(1)
       .maybeSingle();
 
-    if (possibleDuplicate && body.email) {
-      // Only reject as duplicate if same guest email matches
+    if (possibleDuplicate && body.email && possibleDuplicate.guest_id) {
+      // Only reject as duplicate if same guest email matches the reservation's guest
       const { data: dupGuest } = await supabase
         .from('guests')
         .select('id')
         .eq('hotel_id', hotelId)
-        .eq('id', possibleDuplicate.id)
+        .eq('id', possibleDuplicate.guest_id)
+        .eq('email', body.email)
         .maybeSingle();
       if (dupGuest) {
         return NextResponse.json({
