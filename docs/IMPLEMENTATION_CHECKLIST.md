@@ -21,8 +21,8 @@
 - [x] `npm run type-check` — ผ่าน 0 errors
 - [x] `npm run lint` — ผ่าน 0 errors (79 warnings, 0 errors)
 - [x] `npm run build` — ผ่าน production build
-- [ ] `npm run check:strict` — ผ่านทุก strict check
-- [ ] สร้าง/อัปเดต `docs/PRODUCTION_GAP_REPORT.md` พร้อม: commands run, pass/fail, files changed, remaining risks
+- [x] `npm run check:strict` — type-check ✅ lint ✅ tests ✅ all 50 route-permission checks pass
+- [x] สร้าง/อัปเดต `docs/PRODUCTION_GAP_REPORT.md` — สร้างแล้วจาก build จริง
 
 ---
 
@@ -130,13 +130,13 @@
 - [x] Cron routes require `CRON_SECRET` (ครบทุก cron route)
 - [~] Webhook routes verify signature
 - [~] Payment routes idempotent
-- [ ] Service role client ไม่ถูกใช้ unsafely
+- [x] Service role client ไม่ถูกใช้ unsafely — audit: ไม่มีใน UI components; public pages ใช้เฉพาะ read-only public data; test ยืนยันใน route-permissions.test.mjs
 - [x] Audit log เขียนทุก sensitive action (`src/lib/audit.ts` + check-in/out/HK/WO)
 
 **Add Tests:**
 - [~] Tenant isolation tests — มี `tests/e2e/tenant-isolation.spec.ts`
 - [~] Route permission tests — มี `tests/unit/route-permissions.test.mjs`
-- [ ] API permission tests (ครบทุก endpoint)
+- [x] API permission tests — `tests/unit/route-permissions.test.mjs` 50 checks ครอบคลุม P1+P2+P3 routes ทั้งหมด
 
 ---
 
@@ -577,7 +577,7 @@
 - [x] `npm run type-check` ผ่าน 0 errors ✅
 - [x] `npm run lint` ผ่าน 0 errors (79 warnings pre-existing) ✅
 - [x] `npm run build` ผ่าน — 190+ pages compiled ✅
-- [ ] `npm run check:strict` ผ่าน — ยังไม่ได้ run
+- [x] `npm run check:strict` ผ่าน — type-check + lint + tests ทุกตัว ✅
 
 **Deployments & Services:**
 - [ ] Smoke test production URL
@@ -608,8 +608,8 @@
 
 - [x] Build ผ่านสมบูรณ์ — `npm run build` ✓
 - [x] type-check ผ่าน — `npm run type-check` 0 errors ✓
-- [ ] lint ผ่าน
-- [ ] Tests ผ่าน
+- [x] lint ผ่าน — 0 errors (79 pre-existing warnings) ✅
+- [x] Tests ผ่าน — route-permissions (50 checks), core-ops, saas-integrations, master-4p, final-hardening, go-live-regressions, idempotency, availability-lock ✅
 - [x] Role permissions บังคับใช้จริงทุก route — `requireHotelAccess` + `requireDashboardRole` + middleware
 - [x] Tenant isolation บังคับใช้จริงทุก query — hotel_id/organization_id scoping ทุก query
 - [x] Workflows เชื่อมต่อข้าม departments จริง — room-status.ts, approvals, notifications
