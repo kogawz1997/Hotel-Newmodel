@@ -452,7 +452,7 @@
 - [x] create payment reminder ✅
 - [x] notify staff ✅
 - [x] create invoice ✅
-- [ ] ask for review 🔄
+- [x] ask for review ✅ — ReviewActions component + POST /api/reviews/request ใน reviews page
 - [x] create upsell offer ✅
 
 #### UI
@@ -485,8 +485,8 @@
 - [x] post-stay review request ✅ — POST /api/reviews/request sends email via SendGrid + audit log
 - [x] collect review ✅ — /api/guest/reviews + booking_reviews table + review_requests migration
 - [ ] AI response draft 🔑 — ต้องใส่ Anthropic key
-- [ ] sentiment dashboard 🔄
-- [ ] Google/Tripadvisor/OTA review tracking 🔄
+- [x] sentiment dashboard ✅ — rating breakdown, positive/neutral/negative counts, sub-scores ใน /dashboard/reviews
+- [ ] Google/Tripadvisor/OTA review tracking 🔄 — ต้องใช้ API keys ของแต่ละแพลตฟอร์ม
 
 ---
 
@@ -673,7 +673,7 @@
 ### 6. Reliability / Security / DevOps
 
 #### CI/CD
-- [ ] GitHub Actions workflow 🔄 — ต้องสร้าง `.github/workflows/`
+- [x] GitHub Actions workflow ✅ — .github/workflows/ci.yml + deploy-check.yml มีอยู่แล้ว
   - [ ] type-check 🔄
   - [ ] lint 🔄
   - [ ] build 🔄
