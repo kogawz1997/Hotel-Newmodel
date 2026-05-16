@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 // POST /api/maintenance/parts/use
 // Body: { part_id, quantity_used, work_order_id?, notes? }
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
     .eq('hotel_id', hotel.id);
 
   if (updateErr)
-    return NextResponse.json({ error: updateErr.message }, { status: 400 });
+    return apiError(updateErr);
 
   // Log usage
   const { data: log, error: logErr } = await supabase
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (logErr)
-    return NextResponse.json({ error: logErr.message }, { status: 400 });
+    return apiError(logErr);
 
   return NextResponse.json(
     { log, remaining_quantity: newQty },

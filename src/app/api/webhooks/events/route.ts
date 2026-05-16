@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/security/rate-limit';
 
 function verify(rawBody: string, signature: string | null) {
   const secret = process.env.WEBHOOK_SIGNING_SECRET;
@@ -13,6 +14,9 @@ function verify(rawBody: string, signature: string | null) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await rateLimit(request, 'webhook.inbound', 60, 60_000);
+  if (limited) return limited;
+
   const raw = await request.text();
   const signature = request.headers.get('x-maitri-signature');
 

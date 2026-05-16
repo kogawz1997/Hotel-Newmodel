@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const ALLOWED_ROLES = ['owner', 'admin', 'manager', 'hr_manager', 'hr_staff', 'general_manager'];
 
@@ -56,7 +57,7 @@ export async function GET(
     .eq('hotel_id', hotel.id)
     .order('created_at');
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ period, items: items ?? [] });
 }
@@ -104,7 +105,7 @@ export async function POST(
       .from('payroll_items')
       .upsert(rows, { onConflict: 'period_id,staff_id', ignoreDuplicates: true });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return apiError(error);
     return NextResponse.json({ ok: true });
   }
 
@@ -149,7 +150,7 @@ export async function POST(
     .from('payroll_items')
     .upsert(rows, { onConflict: 'period_id,staff_id' });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   // Update total_amount on the period
   const { data: allItems } = await admin
@@ -207,6 +208,6 @@ export async function PATCH(
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ period: data });
 }

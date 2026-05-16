@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(req: NextRequest) {
   const ctx = await requireHotelAccess(null, ['owner', 'admin', 'manager', 'front_desk']);
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
   const results = await Promise.all(updates);
   const failed = results.find((r) => r.error);
   if (failed) {
-    return NextResponse.json({ error: failed.error.message }, { status: 400 });
+    return apiError(failed.error, 400);
   }
 
   // Log to work_orders

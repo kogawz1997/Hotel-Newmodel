@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 import { readWebhookToken, verifyBearerOrHeaderToken } from '@/lib/security/webhook';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { parseBookingComXml } from '@/lib/ota/parsers/booking-com';
@@ -51,7 +52,7 @@ async function processQueue(request: Request) {
     .order('created_at', { ascending: true })
     .limit(50);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   let processed = 0;
   let failed = 0;
@@ -90,18 +91,20 @@ async function processQueue(request: Request) {
             last_seen_at: new Date().toISOString(),
             payload: job.payload || {},
           }).eq('id', existing.id);
-          await admin.from('ota_sync_queue').update({
-            status: 'done',
-            processed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }).eq('id', job.id);
-          await admin.from('ota_sync_logs').insert({
-            hotel_id: job.hotel_id, connection_id: job.connection_id,
-            provider: job.provider, direction: job.direction,
-            status: 'duplicate_ignored',
-            payload: { queue_id: job.id, externalReservationId },
-            duration_ms: Date.now() - started,
-          });
+          await Promise.all([
+            admin.from('ota_sync_queue').update({
+              status: 'done',
+              processed_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }).eq('id', job.id),
+            admin.from('ota_sync_logs').insert({
+              hotel_id: job.hotel_id, connection_id: job.connection_id,
+              provider: job.provider, direction: job.direction,
+              status: 'duplicate_ignored',
+              payload: { queue_id: job.id, externalReservationId },
+              duration_ms: Date.now() - started,
+            }),
+          ]);
           processed += 1;
           continue;
         }
@@ -139,36 +142,40 @@ async function processQueue(request: Request) {
         }
       }
 
-      await admin.from('ota_sync_logs').insert({
-        hotel_id: job.hotel_id, connection_id: job.connection_id,
-        provider: job.provider, direction: job.direction,
-        status: 'success',
-        payload: { queue_id: job.id, type: job.type, parsed: !!parsed, mapped: parsed ? mapped : 0 },
-        duration_ms: Date.now() - started,
-      });
-      await admin.from('ota_sync_queue').update({
-        status: 'done',
-        processed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }).eq('id', job.id);
+      await Promise.all([
+        admin.from('ota_sync_logs').insert({
+          hotel_id: job.hotel_id, connection_id: job.connection_id,
+          provider: job.provider, direction: job.direction,
+          status: 'success',
+          payload: { queue_id: job.id, type: job.type, parsed: !!parsed, mapped: parsed ? mapped : 0 },
+          duration_ms: Date.now() - started,
+        }),
+        admin.from('ota_sync_queue').update({
+          status: 'done',
+          processed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }).eq('id', job.id),
+      ]);
       processed += 1;
     } catch (e) {
       failed += 1;
       const attempts = Number(job.attempts || 0) + 1;
       const nextStatus = attempts >= 5 ? 'failed' : 'retry';
       const errMsg = e instanceof Error ? e.message : String(e);
-      await admin.from('ota_sync_queue').update({
-        status: nextStatus,
-        last_error: errMsg,
-        updated_at: new Date().toISOString(),
-      }).eq('id', job.id);
-      await admin.from('ota_sync_logs').insert({
-        hotel_id: job.hotel_id, connection_id: job.connection_id,
-        provider: job.provider, direction: job.direction,
-        status: nextStatus,
-        errors: { message: errMsg },
-        duration_ms: Date.now() - started,
-      });
+      await Promise.all([
+        admin.from('ota_sync_queue').update({
+          status: nextStatus,
+          last_error: errMsg,
+          updated_at: new Date().toISOString(),
+        }).eq('id', job.id),
+        admin.from('ota_sync_logs').insert({
+          hotel_id: job.hotel_id, connection_id: job.connection_id,
+          provider: job.provider, direction: job.direction,
+          status: nextStatus,
+          errors: { message: errMsg },
+          duration_ms: Date.now() - started,
+        }),
+      ]);
       if (attempts >= 5) {
         await alertOtaFailure({ channel: job.provider, operation: 'process_job', error: errMsg, hotelId: job.hotel_id });
       }

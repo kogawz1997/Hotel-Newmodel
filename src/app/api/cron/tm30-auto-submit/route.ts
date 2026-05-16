@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { tm30Service } from '@/lib/compliance';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('Authorization');
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     .in('status', ['checked_in', 'checked_out'])
     .is('tm30_reported', false);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   let submitted = 0;
   let failed = 0;

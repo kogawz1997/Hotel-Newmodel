@@ -2,11 +2,15 @@ import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { translateText, detectLanguage, type Language } from '@/lib/ai';
+import { rateLimit } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const limited = await rateLimit(request, 'webhook.inbound', 60, 60_000);
+  if (limited) return limited;
+
   try {
     const bodyText = await request.text();
     const signature = request.headers.get('x-line-signature') || '';

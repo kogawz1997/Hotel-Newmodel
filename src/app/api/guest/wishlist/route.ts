@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET() {
   const supabase = await createClient();
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     room_type_id: roomTypeId || null,
   }, { onConflict: 'guest_account_id,hotel_id,room_type_id' }).select().single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, wishlist: data });
 }
 
@@ -45,6 +46,6 @@ export async function DELETE(request: NextRequest) {
   const { error } = await supabase.from('guest_wishlists').delete()
     .eq('id', id).eq('guest_account_id', user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true });
 }

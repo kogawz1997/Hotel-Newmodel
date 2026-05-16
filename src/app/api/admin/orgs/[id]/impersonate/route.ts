@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const ctx = await requirePlatformAdmin();
@@ -23,7 +24,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .select('*')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   await ctx.supabase.from('audit_logs').insert({
     user_id: ctx.user.id,
     action: 'admin.impersonation.started',

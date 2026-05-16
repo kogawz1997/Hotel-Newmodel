@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -24,6 +25,6 @@ export async function POST(req: NextRequest) {
     hotel_id: hotel.id, name: body.name, dept: body.dept ?? null,
     start_time: body.start_time, end_time: body.end_time, color: body.color ?? '#6366f1',
   }).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data, { status: 201 });
 }

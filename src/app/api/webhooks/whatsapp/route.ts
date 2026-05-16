@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import { whatsappAdapter, verifyWebhookChallenge } from '@/lib/channels/whatsapp';
 import { createAdminClient } from '@/lib/supabase/server';
 import { translateText, detectLanguage, type Language } from '@/lib/ai';
+import { rateLimit } from '@/lib/security/rate-limit';
 
 // GET = verification challenge from Meta
 export async function GET(request: Request) {
+  const limited = await rateLimit(request, 'webhook.inbound', 60, 60_000);
+  if (limited) return limited;
+
   const { searchParams } = new URL(request.url);
   const mode = searchParams.get('hub.mode');
   const token = searchParams.get('hub.verify_token');
@@ -17,6 +21,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const limited = await rateLimit(request, 'webhook.inbound', 60, 60_000);
+  if (limited) return limited;
+
   const bodyText = await request.text();
   const signature = request.headers.get('x-hub-signature-256') || '';
 

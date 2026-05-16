@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 function isAuthorized(request: NextRequest) {
   const expected = process.env.PUBLIC_API_KEY;
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
   if (city) query = query.ilike('city', `%${city}%`);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ items: data || [], count: (data || []).length });
 }

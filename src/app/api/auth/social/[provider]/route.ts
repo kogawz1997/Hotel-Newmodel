@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { buildAuthRedirect } from '@/lib/auth/session-refresh';
+import { rateLimit } from '@/lib/security/rate-limit';
+import { apiError } from '@/lib/http/errors';
 
 export const dynamic = 'force-dynamic';
 
 const providers = new Set(['google', 'facebook', 'github', 'azure']);
 
 export async function GET(request: Request, { params }: { params: Promise<{ provider: string }> }) {
+  const limited = await rateLimit(request, 'auth.social', 10, 60_000);
+  if (limited) return limited;
+
   const { provider } = await params;
   const url = new URL(request.url);
   if (!providers.has(provider)) return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 });
@@ -15,6 +20,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ prov
     provider: provider as any,
     options: { redirectTo: buildAuthRedirect(url.searchParams.get('redirectTo') || '/dashboard') },
   });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.redirect(data.url);
 }

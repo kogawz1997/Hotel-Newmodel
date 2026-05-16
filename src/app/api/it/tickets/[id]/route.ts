@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 // PATCH /api/it/tickets/[id]
 // Supports: assign (assigned_to), resolve (resolution + status=resolved), or general status update
@@ -65,6 +66,6 @@ export async function PATCH(
     )
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }

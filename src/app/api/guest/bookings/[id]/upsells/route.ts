@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const offers = [
   { code: 'airport_transfer', name: 'Airport Transfer', price: 900, category: 'transport' },
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     reference_type: 'guest.upsell',
     reference_id: reservation.id,
   });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   await supabase.rpc('recalculate_folio_totals', { p_folio_id: folio.id });
   await supabase.from('audit_logs').insert({

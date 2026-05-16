@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(req: NextRequest) {
   const access = await requirePlatformAdmin();
@@ -12,6 +13,6 @@ export async function POST(req: NextRequest) {
   const { data, error } = await admin.from('webhook_events')
     .update({ status: 'replayed', attempts: 1, processed_at: new Date().toISOString() })
     .eq('id', eventId).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const MANAGER_ROLES = ['owner', 'admin', 'manager', 'hr_manager', 'department_head', 'general_manager', 'operations_manager', 'front_office_manager', 'housekeeping_manager', 'fb_manager', 'maintenance_manager'];
 
@@ -55,7 +56,7 @@ export async function GET(req: NextRequest) {
   if (toDate) query = query.lte('end_date', toDate);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ requests: data ?? [], isManager, userId: user.id });
 }
@@ -110,7 +111,7 @@ export async function POST(req: NextRequest) {
     .select('*, staff:staff_id(id, full_name, role)')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   return NextResponse.json(data, { status: 201 });
 }

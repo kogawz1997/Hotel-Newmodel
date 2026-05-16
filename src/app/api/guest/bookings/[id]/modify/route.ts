@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { redactPii } from '@/lib/utils/redact';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   checkIn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -41,7 +43,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (Object.keys(updatePayload).length === 0) return NextResponse.json({ error: 'ไม่มีข้อมูลที่ต้องการแก้ไข' }, { status: 400 });
 
   const { error } = await supabase.from('reservations').update(updatePayload).eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   await supabase.from('audit_logs').insert({
     hotel_id: reservation.hotel_id,
@@ -49,7 +51,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     action: 'guest.booking.modified',
     entity_type: 'reservation',
     entity_id: id,
-    changes: updatePayload,
+    changes: redactPii(updatePayload),
   });
   return NextResponse.json({ success: true, updates: updatePayload });
 }

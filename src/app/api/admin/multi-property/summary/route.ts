@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET() {
   const auth = await requirePlatformAdmin();
@@ -17,7 +18,7 @@ export async function GET() {
   ]);
 
   if (orgError || hotelError || topError || guestError) {
-    return NextResponse.json({ error: orgError?.message || hotelError?.message || topError?.message || guestError?.message }, { status: 500 });
+    return apiError(orgError ?? hotelError ?? topError ?? guestError);
   }
 
   return NextResponse.json({

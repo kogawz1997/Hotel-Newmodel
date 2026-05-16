@@ -36,9 +36,16 @@ export async function checkAndReserve(
     const { data: lockResult } = await admin.rpc('pg_try_advisory_lock', { key: lockKey });
 
     if (!lockResult) {
-      // Another request has the lock — wait briefly and check
-      await new Promise(r => setTimeout(r, 200));
-      return { available: false, roomsLeft: 0, reason: 'System busy, please retry' };
+      // Retry up to 3 times with 50ms backoff instead of single 200ms sleep
+      let lockAcquired = false;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data: retryLock } = await admin.rpc('pg_try_advisory_lock', { key: lockKey });
+        if (retryLock) { lockAcquired = true; break; }
+        if (attempt < 2) await new Promise(r => setTimeout(r, 50));
+      }
+      if (!lockAcquired) {
+        return { available: false, roomsLeft: 0, reason: 'System busy, please retry' };
+      }
     }
 
     // Count actual available rooms

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { DEFAULT_WEIGHTS, computeScore } from '@/lib/ranking';
+import { apiError } from '@/lib/http/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,6 +76,6 @@ export async function POST(req: NextRequest) {
     .update({ is_featured, featured_until: featured_until || null })
     .eq('organization_id', profile?.organization_id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ ok: true });
 }

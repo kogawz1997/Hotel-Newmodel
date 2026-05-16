@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { format, subDays } from 'date-fns';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireCronSecret } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(request: Request) {
   const unauthorized = requireCronSecret(request);
@@ -16,7 +17,7 @@ export async function GET(request: Request) {
     .lte('check_in', cutoff)
     .select('id, hotel_id, reservation_code');
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   if (data?.length) {
     await admin.from('audit_logs').insert(data.map((reservation: any) => ({

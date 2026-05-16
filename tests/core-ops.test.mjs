@@ -18,6 +18,6 @@ assert.match(sql, /auto_create_checkout_housekeeping/);
 
 const reservationsApi = readFileSync('src/app/api/reservations/route.ts', 'utf8');
 assert.match(reservationsApi, /await rateLimit/);
-assert.match(reservationsApi, /assertRoomAvailable/);
+assert.match(reservationsApi, /checkAndReserve/);
 
 console.log('✅ Core PMS ops checks passed');

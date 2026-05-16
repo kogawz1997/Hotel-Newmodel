@@ -4,6 +4,7 @@ import { parseJson } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   allocations: z.array(z.object({
@@ -38,7 +39,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }));
 
   const { data: items, error } = await admin.from('folio_items').insert(rows).select('id,amount,description,type');
-  if (error) return NextResponse.json({ error: error.message || 'Failed to allocate payments' }, { status: 500 });
+  if (error) return apiError(error);
 
   await admin.rpc('recalculate_folio_totals', { p_folio_id: id });
   await admin.from('audit_logs').insert({

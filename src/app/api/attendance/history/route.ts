@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -20,6 +21,6 @@ export async function GET(req: NextRequest) {
     .gte('work_date', from.toISOString().slice(0, 10))
     .order('work_date', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireCronSecret } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 async function run(request: Request) {
   const denied = requireCronSecret(request);
@@ -29,7 +30,7 @@ async function run(request: Request) {
     .lte('trial_ends_at', now)
     .select('id, name, trial_ends_at');
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   for (const org of expired || []) {
     await supabase.from('subscription_events').insert({

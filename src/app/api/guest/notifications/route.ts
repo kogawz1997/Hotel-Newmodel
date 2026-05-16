@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { redactPii } from '@/lib/utils/redact';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   marketingConsent: z.boolean().optional(),
@@ -48,19 +50,19 @@ export async function PATCH(request: NextRequest) {
   if (Object.keys(updates).length === 0) return NextResponse.json({ error: 'No updates provided' }, { status: 400 });
 
   const { error } = await supabase.from('guest_accounts').update(updates).eq('id', user.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   await supabase.from('audit_logs').insert({
     user_id: user.id,
     action: 'guest.notifications.preferences.updated',
     entity_type: 'guest_account',
     entity_id: user.id,
-    changes: {
+    changes: redactPii({
       marketing_consent: updates.marketing_consent ?? undefined,
       preferred_language: updates.preferred_language ?? undefined,
       quiet_hours_start: body.quietHoursStart ?? null,
       quiet_hours_end: body.quietHoursEnd ?? null,
-    },
+    }),
   });
   return NextResponse.json({ success: true });
 }

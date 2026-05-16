@@ -5,6 +5,7 @@ import { parseJson } from '@/lib/http/validation';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { createAdminClient } from '@/lib/supabase/server';
 import { HOTEL_ROLES } from '@/lib/hotel-roles';
+import { redactPii } from '@/lib/utils/redact';
 
 // GET — list all team members
 export async function GET(request: Request) {
@@ -85,13 +86,13 @@ export async function PATCH(request: Request) {
     action: 'team.member_updated',
     entity_type: 'user',
     entity_id: memberId,
-    changes: {
+    changes: redactPii({
       actor_email: (ctx.user as any)?.email,
       actor_role: ctx.profile.role,
       before,
       after: updates,
       changed_at: new Date().toISOString(),
-    },
+    }),
   });
 
   return NextResponse.json({ success: true });

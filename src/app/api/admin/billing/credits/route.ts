@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(req: NextRequest) {
   const access = await requirePlatformAdmin();
@@ -15,6 +16,6 @@ export async function POST(req: NextRequest) {
   const { data, error } = await admin.from('billing_credits').insert({
     org_id: orgId, amount, reason, issued_by: user?.id, expires_at: expiresAt || null
   }).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }

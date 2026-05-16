@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { parseJson } from '@/lib/http/validation';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   reservationCode: z.string().trim().min(1).max(40),
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     })
     .eq('id', reservation.id);
 
-  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 });
+  if (updateError) return apiError(updateError);
 
   return NextResponse.json({ ok: true, reservationCode: reservation.reservation_code });
 }

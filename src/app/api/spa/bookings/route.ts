@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 const bookingSchema = z.object({
   reservationId: z.string().uuid().optional().nullable(),
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
     .lte('start_time', toDate.toISOString())
     .order('start_time');
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json(data || []);
 }
 
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
       .gt('end_time', start.toISOString())
       .limit(1);
 
-    if (clashError) return NextResponse.json({ error: clashError.message }, { status: 400 });
+    if (clashError) return apiError(clashError);
     if ((clash || []).length > 0) return NextResponse.json({ error: 'Therapist already has a booking in this time slot' }, { status: 409 });
   }
 
@@ -129,7 +130,7 @@ export async function POST(request: Request) {
     .select('*')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
 
   if (body.reservationId) {
     const folio = await ensureOpenFolio(ctx.supabase, ctx.hotelId!, body.reservationId);
@@ -143,7 +144,7 @@ export async function POST(request: Request) {
       reference_id: booking.id,
       reference_type: 'spa_booking',
     });
-    if (postError) return NextResponse.json({ error: postError.message }, { status: 400 });
+    if (postError) return apiError(postError);
     await recalcFolio(ctx.supabase, folio.id);
   }
 
@@ -160,6 +161,6 @@ export async function PATCH(request: Request) {
     .update({ status: body.status })
     .eq('id', body.id)
     .eq('hotel_id', ctx.hotelId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiError(error);
   return NextResponse.json({ ok: true });
 }

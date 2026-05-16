@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 function code() {
   return `MTR-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
@@ -13,7 +14,7 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(50);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ referrals: data || [] });
 }
 
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       active: true,
     };
     const { data, error } = await admin.from('referral_codes').insert(payload).select('id, code').single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError(error);
     return NextResponse.json({ success: true, referral: data });
   }
 
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
       .eq('active', true)
       .maybeSingle();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError(error);
     if (!referral) return NextResponse.json({ valid: false, error: 'Referral code invalid' }, { status: 404 });
 
     return NextResponse.json({ valid: true, referral });

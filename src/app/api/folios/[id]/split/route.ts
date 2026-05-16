@@ -4,6 +4,7 @@ import { parseJson } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   mode: z.enum(['by_item', 'by_percent', 'equal']).default('by_item'),
@@ -33,7 +34,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     split_from_folio_id: id,
     notes: parsed.data.guestName ? `Split folio for ${parsed.data.guestName}${parsed.data.guestEmail ? ` (${parsed.data.guestEmail})` : ''}` : null,
   }).select().single();
-  if (createError || !newFolio) return NextResponse.json({ error: createError?.message || 'Failed to create split folio' }, { status: 500 });
+  if (createError || !newFolio) return createError ? apiError(createError) : NextResponse.json({ error: 'Failed to create split folio' }, { status: 500 });
 
   const { data: items } = await admin.from('folio_items').select('id,amount').eq('folio_id', id).order('created_at', { ascending: true });
   const allItems = items || [];
@@ -59,7 +60,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { error: moveError } = await admin.from('folio_items').update({ folio_id: newFolio.id }).in('id', itemIdsToMove).eq('folio_id', id);
-  if (moveError) return NextResponse.json({ error: moveError.message }, { status: 500 });
+  if (moveError) return apiError(moveError);
 
   await Promise.all([
     admin.rpc('recalculate_folio_totals', { p_folio_id: id }),

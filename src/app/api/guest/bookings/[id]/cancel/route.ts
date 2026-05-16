@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { assertReservationAccess } from '@/lib/auth/guards';
 import { calculateCancellationQuote } from '@/lib/pms/cancellation-policy';
+import { apiError } from '@/lib/http/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const quote = calculateCancellationQuote({ checkIn: ctx.reservation.check_in, totalAmount: Number(ctx.reservation.total_amount || 0), paidAmount: Number(ctx.reservation.paid_amount || 0), policy: ctx.reservation.cancellation_policy || null });
   if (!parsed.data.confirm) return NextResponse.json({ success: true, quote, requiresConfirm: true });
   const { data, error } = await ctx.supabase.from('reservations').update({ status: 'cancelled', cancelled_at: new Date().toISOString(), cancellation_reason: parsed.data.reason || null, cancellation_quote: quote }).eq('id', id).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, reservation: data, quote });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createAdminClient } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/security/rate-limit';
 
 const SUPPORTED_EVENTS = ['charge.complete', 'charge.expired', 'refund.create'];
 
@@ -19,6 +20,9 @@ function verifyOmiseWebhook(rawBody: string, signature: string | null) {
 }
 
 export async function POST(request: Request) {
+  const limited = await rateLimit(request, 'webhook.inbound', 60, 60_000);
+  if (limited) return limited;
+
   const rawBody = await request.text();
   const signature = request.headers.get('x-omise-signature') || request.headers.get('omise-signature');
 

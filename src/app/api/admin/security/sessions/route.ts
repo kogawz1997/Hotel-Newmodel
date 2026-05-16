@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET() {
   const access = await requirePlatformAdmin();
@@ -20,6 +21,6 @@ export async function DELETE(req: NextRequest) {
   if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.signOut(userId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true });
 }

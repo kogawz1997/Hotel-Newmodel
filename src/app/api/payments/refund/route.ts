@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { getRequestId, handleApiError } from '@/lib/http/api-error';
 import { validateCsrfOrigin } from '@/lib/security/csrf';
+import { apiError } from '@/lib/http/errors';
 
 const RefundSchema = z.object({
   reservationId: z.string().uuid(),
@@ -78,11 +79,10 @@ export async function POST(request: NextRequest) {
     );
     refundResult = await omiseRes.json();
     if (!omiseRes.ok) {
-      return NextResponse.json({ error: refundResult.message || 'Omise refund failed' }, { status: 400 });
+      return NextResponse.json({ error: 'Refund processing failed. Please try again.' }, { status: 400 });
     }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Refund request failed';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err);
   }
 
   // Update reservation

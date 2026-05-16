@@ -3,6 +3,7 @@ import { RegisterSchema, validateBody, RATE_LIMITS } from '@/lib/validation';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { dbError } from '@/lib/http/validation';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(request: NextRequest) {
   const { email, password, firstName, lastName, phone, marketingConsent } = await request.json();
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
       data: { full_name: `${firstName} ${lastName||''}`.trim(), user_type: 'guest' },
     },
   });
-  if (authError) return NextResponse.json({ error: authError.message }, { status: 400 });
+  if (authError) return apiError(authError);
   if (!authData.user) return NextResponse.json({ error: 'สมัครไม่สำเร็จ' }, { status: 500 });
 
   const admin = createAdminClient();
