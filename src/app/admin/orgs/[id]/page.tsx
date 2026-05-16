@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { getOrganizationUsage } from '@/lib/saas/usage';
 import Link from 'next/link';
+import { ImpersonateButton } from '@/components/admin/impersonate-button';
 
 export default async function AdminOrgDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,9 +18,12 @@ export default async function AdminOrgDetailPage({ params }: { params: Promise<{
   return (
     <main className="container max-w-6xl py-8 space-y-6">
       <Link href="/admin" className="text-sm text-muted-foreground hover:text-foreground">← Back to admin</Link>
-      <section>
-        <h1 className="text-2xl font-bold">{usage.organization?.name || 'Organization'}</h1>
-        <p className="text-muted-foreground text-sm">Plan: {usage.plan} · Status: {usage.organization?.subscription_status || '-'}</p>
+      <section className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">{usage.organization?.name || 'Organization'}</h1>
+          <p className="text-muted-foreground text-sm">Plan: {usage.plan} · Status: {usage.organization?.subscription_status || '-'}</p>
+        </div>
+        <ImpersonateButton orgId={id} orgName={usage.organization?.name || 'Organization'} />
       </section>
       <div className="grid md:grid-cols-3 gap-4">
         {Object.entries(usage.values).map(([key, value]) => (
