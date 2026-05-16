@@ -1,74 +1,89 @@
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { AutomationClient } from '@/components/automation/automation-client';
 
-const triggerLabels: Record<string, string> = {
-  checkin_minus_1_day: 'ก่อนเช็กอิน 1 วัน',
-  checkout_day: 'วันเช็กเอาต์',
-  payment_overdue: 'ค้างชำระ',
-  booking_created: 'สร้างการจองใหม่',
-  post_checkout_review: 'หลังเช็กเอาต์ / ขอรีวิว',
-};
+export const dynamic = 'force-dynamic';
 
 export default async function AutomationPage() {
   const ctx = await requireHotelAccess(null, ['owner', 'admin', 'manager']);
   if (ctx.error) return <div className="p-6">Unauthorized</div>;
 
-  const { data: rules } = await ctx.supabase
-    .from('automation_rules')
-    .select('*')
-    .eq('hotel_id', ctx.hotelId)
-    .order('created_at', { ascending: false });
+  const [{ data: rules }, { data: runs }] = await Promise.all([
+    ctx.supabase
+      .from('automation_rules')
+      .select('*')
+      .eq('hotel_id', ctx.hotelId)
+      .order('created_at', { ascending: false }),
+    ctx.supabase
+      .from('automation_runs')
+      .select('id, channel, status, created_at, payload')
+      .eq('hotel_id', ctx.hotelId)
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ]);
 
-  const { data: runs } = await ctx.supabase
-    .from('automation_runs')
-    .select('*')
-    .eq('hotel_id', ctx.hotelId)
-    .order('created_at', { ascending: false })
-    .limit(8);
+  const counts = {
+    total: rules?.length || 0,
+    enabled: rules?.filter((r: any) => r.enabled).length || 0,
+    queued: runs?.filter((r: any) => r.status === 'queued').length || 0,
+    sent: runs?.filter((r: any) => r.status === 'sent').length || 0,
+  };
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      <div>
-        <p className="text-sm text-muted-foreground">Phase 5</p>
+    <main className="space-y-6 p-4 md:p-6 max-w-4xl mx-auto animate-fade-in">
+      <section>
         <h1 className="text-2xl font-semibold tracking-tight">Automation Center</h1>
         <p className="text-sm text-muted-foreground">ตั้ง rule อัตโนมัติสำหรับเช็กอิน ชำระเงิน เช็กเอาต์ และรีวิว</p>
-      </div>
+      </section>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        {['checkin_minus_1_day', 'payment_overdue', 'checkout_day', 'post_checkout_review'].map((trigger) => (
-          <div key={trigger} className="rounded-xl border bg-card p-4">
-            <div className="text-xs uppercase text-muted-foreground">Trigger</div>
-            <div className="mt-1 font-medium">{triggerLabels[trigger]}</div>
+      {/* Stats row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: 'Rules ทั้งหมด', value: counts.total },
+          { label: 'เปิดใช้งาน', value: counts.enabled, color: 'text-emerald-600' },
+          { label: 'รอส่ง', value: counts.queued, color: 'text-amber-600' },
+          { label: 'ส่งแล้ว (10 ล่าสุด)', value: counts.sent, color: 'text-blue-600' },
+        ].map(({ label, value, color }) => (
+          <div key={label} className="rounded-xl border bg-card p-4">
+            <p className="text-xs text-muted-foreground mb-1">{label}</p>
+            <p className={`text-2xl font-display font-medium ${color || ''}`}>{value}</p>
           </div>
         ))}
       </div>
 
-      <div className="rounded-xl border bg-card p-4">
-        <h2 className="mb-3 font-semibold">Active Rules</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-muted-foreground"><tr><th className="py-2">Name</th><th>Trigger</th><th>Channel</th><th>Status</th></tr></thead>
-            <tbody>
-              {(rules || []).map((rule: any) => (
-                <tr key={rule.id} className="border-t"><td className="py-2">{rule.name}</td><td>{triggerLabels[rule.trigger] || rule.trigger}</td><td>{rule.channel}</td><td>{rule.enabled ? 'Enabled' : 'Disabled'}</td></tr>
-              ))}
-              {!rules?.length && <tr><td colSpan={4} className="py-6 text-center text-muted-foreground">ยังไม่มี automation rule</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Rules with test button */}
+      <section className="space-y-3">
+        <h2 className="font-semibold text-sm">Automation Rules</h2>
+        <AutomationClient rules={rules || []} />
+      </section>
 
-      <div className="rounded-xl border bg-card p-4">
-        <h2 className="mb-3 font-semibold">Recent Queue</h2>
-        <div className="space-y-2">
-          {(runs || []).map((run: any) => (
-            <div key={run.id} className="flex items-center justify-between rounded-lg border p-3 text-sm">
-              <span>{run.channel} · {run.status}</span>
-              <span className="text-muted-foreground">{new Date(run.created_at).toLocaleString()}</span>
-            </div>
-          ))}
-          {!runs?.length && <p className="text-sm text-muted-foreground">ยังไม่มีงาน automation ถูก queue</p>}
-        </div>
-      </div>
-    </div>
+      {/* Recent runs */}
+      <section className="rounded-xl border bg-card p-4 space-y-3">
+        <h2 className="font-semibold text-sm">Recent Queue</h2>
+        {(runs || []).length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">ยังไม่มีงาน automation ถูก queue</p>
+        ) : (
+          <div className="space-y-2">
+            {(runs || []).map((run: any) => (
+              <div key={run.id} className="flex items-center justify-between rounded-lg border p-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <span className={`px-2 py-0.5 rounded-full font-medium ${
+                    run.status === 'sent' ? 'bg-emerald-100 text-emerald-700' :
+                    run.status === 'failed' ? 'bg-red-100 text-red-700' :
+                    'bg-amber-100 text-amber-700'
+                  }`}>{run.status}</span>
+                  <span className="text-muted-foreground">{run.channel}</span>
+                  {run.payload?.guest_name && (
+                    <span className="text-foreground">{run.payload.guest_name}</span>
+                  )}
+                </div>
+                <span className="text-muted-foreground">
+                  {new Date(run.created_at).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
   );
 }

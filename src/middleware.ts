@@ -26,23 +26,68 @@ const ROUTE_ROLES: Array<{ prefix: string; roles: string[] }> = [
   { prefix: '/dashboard/rbac', roles: ['owner', 'admin'] },
 ];
 
+const KNOWN_HOSTNAME_PATTERNS = ['localhost', '127.0.0.1', 'vercel.app', 'vercel.dev'];
+
+function isKnownHost(host: string): boolean {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const appHost = appUrl ? new URL(appUrl).hostname : '';
+  const configured = [
+    appHost,
+    process.env.NEXT_PUBLIC_PORTAL_HOST,
+    process.env.NEXT_PUBLIC_BACKOFFICE_HOST,
+  ].filter(Boolean);
+  return (
+    KNOWN_HOSTNAME_PATTERNS.some(p => host === p || host.endsWith(`.${p}`)) ||
+    configured.some(h => host === h || host.endsWith(`.${h!}`))
+  );
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const portalHost = process.env.NEXT_PUBLIC_PORTAL_HOST;
   const backofficeHost = process.env.NEXT_PUBLIC_BACKOFFICE_HOST;
-  const host = request.nextUrl.host;
+  const host = request.nextUrl.hostname; // no port — for domain matching
+  const hostWithPort = request.nextUrl.host; // with port — for redirect comparisons
+
+  // ─── Custom domain routing ──────────────────────────────────────────
+  if (!isKnownHost(host)) {
+    const domainClient = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { getAll() { return request.cookies.getAll(); }, setAll() {} } }
+    );
+    const { data: domainRow } = await domainClient
+      .from('custom_domains')
+      .select('hotels(slug)')
+      .eq('domain', host)
+      .eq('verified', true)
+      .maybeSingle();
+
+    const slug = (domainRow?.hotels as any)?.slug;
+    if (slug) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/h/${slug}${pathname === '/' ? '' : pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
+
+  // Early return for public paths on known hosts — no auth checks needed
+  const protectedPrefixes = ['/dashboard', '/portal/bookings', '/portal/profile', '/portal/wishlist', '/admin', '/auth', '/backoffice', '/portal/login', '/mobile'];
+  if (!protectedPrefixes.some(p => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
 
   // Optional host split: serve portal and backoffice on separate domains
   if (portalHost && backofficeHost) {
     const isPortalPath = pathname.startsWith('/portal');
     const subdomainEnabled = process.env.NEXT_PUBLIC_BACKOFFICE_SUBDOMAIN_ENABLED === 'true';
     const backofficeHostAllowed = subdomainEnabled
-      ? (host === backofficeHost || host.endsWith(`.${backofficeHost}`))
-      : host === backofficeHost;
+      ? (hostWithPort === backofficeHost || hostWithPort.endsWith(`.${backofficeHost}`))
+      : hostWithPort === backofficeHost;
 
     if (isPortalPath) {
-      if (host !== portalHost) {
+      if (hostWithPort !== portalHost) {
         const url = request.nextUrl.clone();
         url.host = portalHost;
         return NextResponse.redirect(url);
@@ -194,13 +239,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/portal/bookings/:path*',
-    '/portal/profile/:path*',
-    '/portal/wishlist/:path*',
-    '/admin/:path*',
-    '/auth/:path*',
-    '/backoffice/:path*',
-    '/portal/login',
+    // Skip Next.js internals and static files
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)).*)',
   ],
 };

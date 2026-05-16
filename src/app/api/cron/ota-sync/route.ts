@@ -18,6 +18,7 @@ import { logger } from '@/lib/logger';
 import { requireCronSecret } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { handleChannelConflict } from '@/lib/channel-manager/conflict';
+import { sendOpsAlert } from '@/lib/ops-alert';
 
 export async function GET(request: NextRequest) {
   const err = requireCronSecret(request);
@@ -64,6 +65,20 @@ export async function GET(request: NextRequest) {
     }
 
     results.push(result);
+  }
+
+  const failedCount = results.filter((r) => r.errors.length > 0).length;
+  if (failedCount > 0) {
+    await sendOpsAlert({
+      level: failedCount === results.length ? 'error' : 'warning',
+      title: 'OTA Sync Failures Detected',
+      message: `${failedCount}/${results.length} channel sync(s) reported errors.`,
+      context: {
+        failed: failedCount,
+        total: results.length,
+        channels: results.filter((r) => r.errors.length > 0).map((r) => `${r.hotel}/${r.channel}`).join(', '),
+      },
+    });
   }
 
   return NextResponse.json({ success: true, synced: results.length, results });

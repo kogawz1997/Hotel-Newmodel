@@ -115,14 +115,17 @@ export default async function DashboardPage() {
   ]);
 
   // ── Management ─────────────────────────────────────────────────────────────
-  if (['owner', 'admin', 'manager'].includes(role)) {
-    const [roomsTotal, roomsOccupied, roomsAvailable, hkPending, guestsTotal, maintOpen] = await Promise.all([
+  if (['owner', 'admin', 'manager', 'hotel_owner'].includes(role)) {
+    const yesterday = new Date(Date.now() - 86400000).toISOString();
+    const [roomsTotal, roomsOccupied, roomsAvailable, hkPending, guestsTotal, maintOpen, paymentPending, otaSyncFailed] = await Promise.all([
       count(supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id)),
       count(supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).eq('status', 'occupied')),
       count(supabase.from('rooms').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).eq('status', 'available')),
       count(supabase.from('housekeeping_tasks').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).in('status', ['pending', 'in_progress'])),
       count(supabase.from('guests').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id)),
       count(supabase.from('maintenance_requests').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).in('status', ['open', 'in_progress'])),
+      count(supabase.from('payments').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).eq('status', 'pending')),
+      count(supabase.from('ota_sync_logs').select('id', { count: 'exact', head: true }).eq('hotel_id', hotel.id).eq('status', 'failed').gte('created_at', yesterday)),
     ]);
     const { data: revenueRows } = await supabase.from('payments').select('amount').eq('hotel_id', hotel.id).eq('status', 'completed').gte('created_at', `${today}T00:00:00Z`).lt('created_at', `${tomorrow}T00:00:00Z`);
     const revenueToday = (revenueRows || []).reduce((s: number, r: any) => s + Number(r.amount || 0), 0);
@@ -148,10 +151,10 @@ export default async function DashboardPage() {
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: 'Check-in วันนี้', value: checkIns, sub: 'รอเช็คอิน', href: '/dashboard/front-desk' },
-            { label: 'Check-out วันนี้', value: checkOuts, sub: 'รอเช็คเอาต์', href: '/dashboard/front-desk' },
-            { label: 'ห้องว่าง', value: `${roomsAvailable}/${roomsTotal}`, sub: `Occupancy ${occupancyRate}%`, href: '/dashboard/rooms' },
-            { label: 'รายได้วันนี้', value: formatCurrency(revenueToday, hotel.currency || 'THB'), sub: 'Payment สำเร็จ', href: '/dashboard/accounting' },
+            { label: 'Check-in วันนี้', value: checkIns, sub: 'รอเช็คอิน', href: '/dashboard/front-desk', warn: false },
+            { label: 'Check-out วันนี้', value: checkOuts, sub: 'รอเช็คเอาต์', href: '/dashboard/front-desk', warn: false },
+            { label: 'ห้องว่าง', value: `${roomsAvailable}/${roomsTotal}`, sub: `Occupancy ${occupancyRate}%`, href: '/dashboard/rooms', warn: false },
+            { label: 'รายได้วันนี้', value: formatCurrency(revenueToday, hotel.currency || 'THB'), sub: 'Payment สำเร็จ', href: '/dashboard/accounting', warn: false },
           ].map((item) => (
             <Link key={item.label} href={item.href} className="group">
               <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
@@ -161,6 +164,28 @@ export default async function DashboardPage() {
                     <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
                   </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { label: 'Payment รอชำระ', value: paymentPending, sub: 'ยอดค้างชำระ', href: '/dashboard/accounting', warn: paymentPending > 0 },
+            { label: 'OTA Sync ล้มเหลว', value: otaSyncFailed, sub: '24 ชั่วโมงที่ผ่านมา', href: '/dashboard/ota', warn: otaSyncFailed > 0 },
+            { label: 'แม่บ้านรออยู่', value: hkPending, sub: 'pending + in progress', href: '/dashboard/housekeeping', warn: hkPending > 5 },
+            { label: 'ซ่อมบำรุงเปิด', value: maintOpen, sub: 'รายการที่ยังไม่เสร็จ', href: '/dashboard/maintenance', warn: maintOpen > 0 },
+          ].map((item) => (
+            <Link key={item.label} href={item.href} className="group">
+              <Card className={`h-full transition hover:-translate-y-0.5 hover:shadow-md ${item.warn ? 'border-amber-300 dark:border-amber-700' : ''}`}>
+                <CardContent className="flex items-start justify-between p-5">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{item.label}</p>
+                    <p className={`mt-2 text-2xl font-semibold tracking-tight ${item.warn ? 'text-amber-600 dark:text-amber-400' : ''}`}>{item.value}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
+                  </div>
+                  {item.warn && <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />}
                 </CardContent>
               </Card>
             </Link>

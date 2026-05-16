@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Plus, X, Clock, User, Flower2, DoorOpen } from 'lucide-react';
+import { Plus, X, Clock, User, Flower2, DoorOpen, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -38,7 +38,7 @@ type SpaStaff = {
   hotel_id: string;
 };
 
-type Tab = 'bookings' | 'services' | 'rooms' | 'therapists';
+type Tab = 'bookings' | 'services' | 'rooms' | 'therapists' | 'calendar';
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
@@ -149,6 +149,16 @@ export function SpaFullClient({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Calendar
+  const [calWeekStart, setCalWeekStart] = useState<Date>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - d.getDay() + 1); // Monday
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const [calBookings, setCalBookings] = useState<SpaBooking[]>([]);
+  const [calLoading, setCalLoading] = useState(false);
+
   // ── Fetch ─────────────────────────────────────────────────────────────────
 
   const loadBookings = useCallback(async () => {
@@ -195,6 +205,19 @@ export function SpaFullClient({
     }
   }, [hotel.id, supabase]);
 
+  const loadCalendar = useCallback(async (weekStart: Date) => {
+    setCalLoading(true);
+    const weekEnd = new Date(weekStart.getTime() + 7 * 86400_000);
+    const res = await fetch(
+      `/api/spa/bookings?from=${weekStart.toISOString().slice(0, 10)}&to=${weekEnd.toISOString().slice(0, 10)}`
+    );
+    if (res.ok) {
+      const json = await res.json();
+      setCalBookings(json.bookings || []);
+    }
+    setCalLoading(false);
+  }, []);
+
   useEffect(() => {
     loadBookings();
     loadServices();
@@ -203,6 +226,10 @@ export function SpaFullClient({
   useEffect(() => {
     if (tab === 'therapists') loadStaff();
   }, [tab, loadStaff]);
+
+  useEffect(() => {
+    if (tab === 'calendar') loadCalendar(calWeekStart);
+  }, [tab, calWeekStart, loadCalendar]);
 
   // ── Derived: treatment rooms ───────────────────────────────────────────────
 
@@ -288,6 +315,7 @@ export function SpaFullClient({
 
   const TABS = [
     { id: 'bookings' as Tab, label: 'การจอง', icon: Clock },
+    { id: 'calendar' as Tab, label: 'ปฏิทิน', icon: CalendarDays },
     { id: 'services' as Tab, label: 'บริการ', icon: Flower2 },
     { id: 'rooms' as Tab, label: 'ห้องบำบัด', icon: DoorOpen },
     { id: 'therapists' as Tab, label: 'นักบำบัด', icon: User },
@@ -463,6 +491,144 @@ export function SpaFullClient({
           )}
         </div>
       )}
+
+      {/* ── Calendar Tab ──────────────────────────────────────────────────────── */}
+      {tab === 'calendar' && (() => {
+        const days = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(calWeekStart.getTime() + i * 86400_000);
+          return d;
+        });
+        const dayKey = (d: Date) => d.toISOString().slice(0, 10);
+
+        // Collect unique therapist names from calendar bookings
+        const therapistNames = Array.from(
+          new Set(calBookings.map((b) => b.therapist_name || 'ไม่ระบุนักบำบัด').filter(Boolean))
+        );
+        if (therapistNames.length === 0) therapistNames.push('ไม่ระบุนักบำบัด');
+
+        const bookingsFor = (therapist: string, day: Date) =>
+          calBookings.filter((b) => {
+            const name = b.therapist_name || 'ไม่ระบุนักบำบัด';
+            return name === therapist && b.start_time.slice(0, 10) === dayKey(day);
+          });
+
+        const today = new Date().toISOString().slice(0, 10);
+        const prevWeek = () => {
+          const d = new Date(calWeekStart.getTime() - 7 * 86400_000);
+          setCalWeekStart(d);
+        };
+        const nextWeek = () => {
+          const d = new Date(calWeekStart.getTime() + 7 * 86400_000);
+          setCalWeekStart(d);
+        };
+
+        const DAY_LABELS = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'];
+
+        return (
+          <div className="space-y-4">
+            {/* Week navigation */}
+            <div className="flex items-center justify-between gap-3">
+              <button onClick={prevWeek} className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <p className="text-sm font-medium">
+                {calWeekStart.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                {' – '}
+                {days[6].toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </p>
+              <button onClick={nextWeek} className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            {calLoading ? (
+              <div className="text-center py-12 text-muted-foreground text-sm">กำลังโหลด...</div>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-border">
+                <table className="w-full text-xs border-collapse min-w-[640px]">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/40">
+                      <th className="py-2 px-3 text-left font-medium text-muted-foreground w-28">นักบำบัด</th>
+                      {days.map((d, i) => (
+                        <th
+                          key={i}
+                          className={`py-2 px-2 text-center font-medium ${dayKey(d) === today ? 'text-primary' : 'text-muted-foreground'}`}
+                        >
+                          <div>{DAY_LABELS[i]}</div>
+                          <div className={`text-base font-semibold ${dayKey(d) === today ? 'bg-primary text-primary-foreground rounded-full w-7 h-7 flex items-center justify-center mx-auto' : ''}`}>
+                            {d.getDate()}
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {therapistNames.map((therapist) => (
+                      <tr key={therapist} className="hover:bg-muted/20">
+                        <td className="py-3 px-3 font-medium border-r border-border">
+                          <div className="flex items-center gap-2">
+                            <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-[10px] shrink-0">
+                              {therapist.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="truncate max-w-[80px]">{therapist}</span>
+                          </div>
+                        </td>
+                        {days.map((day, di) => {
+                          const dayBookings = bookingsFor(therapist, day);
+                          return (
+                            <td key={di} className={`py-1.5 px-1 align-top ${dayKey(day) === today ? 'bg-primary/5' : ''}`}>
+                              {dayBookings.length === 0 ? (
+                                <div className="h-10" />
+                              ) : (
+                                <div className="space-y-0.5">
+                                  {dayBookings.map((b) => (
+                                    <div
+                                      key={b.id}
+                                      className={`rounded px-1.5 py-1 text-[10px] leading-tight ${
+                                        b.status === 'in_progress'
+                                          ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300'
+                                          : b.status === 'completed'
+                                          ? 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300'
+                                          : b.status === 'cancelled'
+                                          ? 'bg-gray-100 text-gray-500 line-through'
+                                          : 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
+                                      }`}
+                                    >
+                                      <div className="font-medium truncate">{b.guest_name || 'แขก'}</div>
+                                      <div className="opacity-70">
+                                        {new Date(b.start_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                                        {b.spa_services?.name ? ` · ${b.spa_services.name}` : ''}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 text-[10px] text-muted-foreground flex-wrap">
+              {[
+                { color: 'bg-blue-100', label: 'ยืนยันแล้ว/รอยืนยัน' },
+                { color: 'bg-purple-100', label: 'กำลังให้บริการ' },
+                { color: 'bg-green-100', label: 'เสร็จสิ้น' },
+                { color: 'bg-gray-100', label: 'ยกเลิก' },
+              ].map(({ color, label }) => (
+                <span key={label} className="flex items-center gap-1">
+                  <span className={`inline-block w-2.5 h-2.5 rounded-sm ${color}`} />
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Therapists Tab ────────────────────────────────────────────────────── */}
       {tab === 'therapists' && (

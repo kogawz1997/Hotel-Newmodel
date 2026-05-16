@@ -55,6 +55,18 @@
     {
       "path": "/api/cron/expire-pending",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/email-report",
+      "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/ai-cost-check",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/backup-check",
+      "schedule": "0 6 * * *"
     }
   ],
   "installCommand": "npm ci --no-audit --no-fund --progress=false",

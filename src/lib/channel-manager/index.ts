@@ -65,28 +65,86 @@ export class HotelRunnerAdapter implements ChannelManagerAdapter {
     this.hotelId = hotelId;
   }
 
+  private headers() {
+    return {
+      'X-Api-Token': this.apiKey,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    };
+  }
+
   async pullReservations(since?: Date): Promise<OTAReservation[]> {
-    // TODO: Implement after HotelRunner account setup
-    // const response = await axios.get(`${this.baseUrl}/reservations`, {
-    //   headers: { 'X-API-KEY': this.apiKey },
-    //   params: { hotel_id: this.hotelId, since: since?.toISOString() },
-    // });
-    // return response.data.reservations.map(this.parseReservation);
-    console.warn('[HotelRunner] Setup required');
-    return [];
+    if (!this.apiKey || !this.hotelId) return [];
+
+    const params = new URLSearchParams({ hotel_id: this.hotelId, per_page: '100' });
+    if (since) params.set('updated_at_after', since.toISOString());
+
+    const res = await fetch(`${this.baseUrl}/reservations?${params}`, { headers: this.headers() });
+    if (!res.ok) throw new Error(`HotelRunner pullReservations: ${res.status} ${await res.text()}`);
+
+    const data = await res.json();
+    return (data.reservations || []).map((r: any): OTAReservation => ({
+      externalId: String(r.id),
+      channel: r.source || 'hotelrunner',
+      guestName: `${r.customer?.name || ''} ${r.customer?.surname || ''}`.trim(),
+      guestEmail: r.customer?.email,
+      guestPhone: r.customer?.phone,
+      guestNationality: r.customer?.nationality_code,
+      checkIn: r.check_in,
+      checkOut: r.check_out,
+      numAdults: r.adults || 1,
+      numChildren: r.children || 0,
+      roomTypeCode: String(r.room_type_id || ''),
+      ratePlanCode: String(r.rate_plan_id || ''),
+      totalAmount: Number(r.total || 0),
+      currency: r.currency || 'THB',
+      commission: Number(r.commission || 0),
+      paidByOTA: r.payment_type === 'ota',
+      specialRequests: r.special_requests,
+      raw: r,
+    }));
   }
 
   async pushInventory(updates: InventoryUpdate[]): Promise<{ success: boolean }> {
-    console.warn('[HotelRunner] Setup required');
-    return { success: false };
+    if (!this.apiKey || !this.hotelId) return { success: false };
+
+    const payload = {
+      hotel_id: this.hotelId,
+      availabilities: updates.map((u) => ({
+        room_type_id: u.roomTypeCode,
+        date: u.date,
+        available: u.available,
+        ...(u.rate ? { price: u.rate } : {}),
+        ...(u.minStay ? { min_stay: u.minStay } : {}),
+        ...(u.closedToArrival !== undefined ? { stop_sell: u.closedToArrival } : {}),
+      })),
+    };
+
+    const res = await fetch(`${this.baseUrl}/availabilities`, {
+      method: 'PUT',
+      headers: this.headers(),
+      body: JSON.stringify(payload),
+    });
+
+    return { success: res.ok };
   }
 
   async acknowledgeReservation(externalId: string): Promise<void> {
-    console.warn('[HotelRunner] Setup required');
+    if (!this.apiKey) return;
+    await fetch(`${this.baseUrl}/reservations/${externalId}/confirm`, {
+      method: 'POST',
+      headers: this.headers(),
+      body: JSON.stringify({ hotel_id: this.hotelId }),
+    });
   }
 
   async cancelReservation(externalId: string, reason: string): Promise<void> {
-    console.warn('[HotelRunner] Setup required');
+    if (!this.apiKey) return;
+    await fetch(`${this.baseUrl}/reservations/${externalId}/cancel`, {
+      method: 'POST',
+      headers: this.headers(),
+      body: JSON.stringify({ hotel_id: this.hotelId, reason }),
+    });
   }
 }
 

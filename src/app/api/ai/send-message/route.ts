@@ -75,6 +75,7 @@ export async function POST(request: Request) {
     const result = await adapter.sendMessage({
       channelUserId: conversation.channel_user_id,
       text: translatedText,
+      hotelId: conversation.hotel_id,
     });
 
     channelMessageId = result.messageId;

@@ -17,12 +17,32 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - run: npm install --legacy-peer-deps --no-audit --no-fund
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps --no-audit --no-fund
 
-      - run: npm run type-check
+      - name: Type check
+        run: npm run type-check
 
-      - run: npm run check
+      - name: Lint
+        run: npm run lint
 
-      - run: npm run reality:check
+      - name: Unit tests + reality check
+        run: npm run check
 
-      - run: npm run build
+      - name: Reality check
+        run: npm run reality:check
+
+      - name: Migration file check
+        run: |
+          count=$(find supabase/migrations -name '*.sql' | wc -l)
+          echo "Migration files: $count"
+          if [ "$count" -eq "0" ]; then
+            echo "ERROR: No migration files found"
+            exit 1
+          fi
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}

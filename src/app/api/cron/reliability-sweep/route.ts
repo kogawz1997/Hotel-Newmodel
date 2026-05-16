@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireCronSecret } from '@/lib/auth/guards';
 import { decideStuckJobAction, normalizeAttempts, shouldMoveToDeadLetter } from '@/lib/reliability/sweep.js';
-import { apiError } from '@/lib/http/errors';
+import { sendOpsAlert } from '@/lib/ops-alert';
 
 const STUCK_MINUTES = Number(process.env.RELIABILITY_STUCK_MINUTES || 15);
 const MAX_ATTEMPTS = Number(process.env.RELIABILITY_MAX_ATTEMPTS || 5);
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     .lt('updated_at', stuckBefore)
     .limit(200);
 
-  if (stuckError) return apiError(stuckError);
+  if (stuckError) return NextResponse.json({ error: stuckError.message }, { status: 500 });
 
   let requeued = 0;
   let movedToDlq = 0;
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     .gte('attempts', MAX_ATTEMPTS)
     .limit(200);
 
-  if (failedError) return apiError(failedError);
+  if (failedError) return NextResponse.json({ error: failedError.message }, { status: 500 });
 
   for (const job of failedJobs || []) {
     const { error: dlqError } = await admin
@@ -61,6 +61,16 @@ export async function GET(request: Request) {
       await admin.from('ota_sync_queue').update({ status: 'skipped', updated_at: new Date().toISOString(), last_error: 'moved to dead_letter_queue' }).eq('id', job.id);
       movedToDlq += 1;
     }
+  }
+
+  // Send alert if significant DLQ activity
+  if (movedToDlq > 0) {
+    await sendOpsAlert({
+      level: movedToDlq >= 5 ? 'critical' : 'warning',
+      title: 'OTA Sync Jobs Moved to Dead Letter Queue',
+      message: `${movedToDlq} jobs exhausted max retry attempts and were moved to dead_letter_queue.`,
+      context: { movedToDlq, requeued, maxAttempts: MAX_ATTEMPTS },
+    });
   }
 
   return NextResponse.json({

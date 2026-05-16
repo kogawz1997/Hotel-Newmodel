@@ -1,18 +1,30 @@
 import axios from 'axios';
 import crypto from 'crypto';
 import type { ChannelAdapter, ChannelMessage, SendMessageOptions } from './types';
+import { getIntegrationConfig } from '@/lib/integration-credentials';
 
 const WHATSAPP_API_VERSION = 'v21.0';
-const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN || '';
-const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || '';
-const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || '';
-const APP_SECRET = process.env.WHATSAPP_APP_SECRET || '';
+
+async function getWhatsAppCredentials(hotelId?: string) {
+  let token = process.env.WHATSAPP_ACCESS_TOKEN || '';
+  let phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+
+  if (hotelId && (!token || !phoneNumberId)) {
+    const cfg = await getIntegrationConfig(hotelId, 'whatsapp');
+    if (cfg?.config) {
+      token = token || cfg.config.access_token || '';
+      phoneNumberId = phoneNumberId || cfg.config.phone_number_id || '';
+    }
+  }
+  return { token, phoneNumberId };
+}
 
 export const whatsappAdapter: ChannelAdapter = {
   channel: 'whatsapp',
 
   async sendMessage(opts: SendMessageOptions) {
-    const url = `https://graph.facebook.com/${WHATSAPP_API_VERSION}/${PHONE_NUMBER_ID}/messages`;
+    const { token, phoneNumberId } = await getWhatsAppCredentials(opts.hotelId);
+    const url = `https://graph.facebook.com/${WHATSAPP_API_VERSION}/${phoneNumberId}/messages`;
 
     let payload: any = {
       messaging_product: 'whatsapp',
@@ -40,7 +52,7 @@ export const whatsappAdapter: ChannelAdapter = {
 
     const response = await axios.post(url, payload, {
       headers: {
-        Authorization: `Bearer ${ACCESS_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
@@ -97,9 +109,10 @@ export const whatsappAdapter: ChannelAdapter = {
   },
 
   verifyWebhook(body: string, signature: string): boolean {
-    if (!APP_SECRET) return true; // skip in dev
+    const appSecret = process.env.WHATSAPP_APP_SECRET || '';
+    if (!appSecret) return true; // skip in dev
     const expected = 'sha256=' + crypto
-      .createHmac('sha256', APP_SECRET)
+      .createHmac('sha256', appSecret)
       .update(body)
       .digest('hex');
     return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
@@ -107,5 +120,5 @@ export const whatsappAdapter: ChannelAdapter = {
 };
 
 export function verifyWebhookChallenge(mode: string, token: string): boolean {
-  return mode === 'subscribe' && token === VERIFY_TOKEN;
+  return mode === 'subscribe' && token === (process.env.WHATSAPP_VERIFY_TOKEN || '');
 }

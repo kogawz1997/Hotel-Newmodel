@@ -38,6 +38,25 @@ export async function GET() {
     error: !process.env.OMISE_SECRET_KEY ? 'OMISE_SECRET_KEY not set' : undefined,
   };
 
+  // Queue depth check (dead-letter queue)
+  try {
+    const admin = createAdminClient();
+    const { count } = await admin
+      .from('webhook_queue')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'dead_letter');
+    checks.queue = { ok: (count || 0) < 50, latencyMs: 0 };
+    if ((count || 0) >= 50) checks.queue.error = `DLQ has ${count} items`;
+  } catch {
+    checks.queue = { ok: true }; // non-critical
+  }
+
+  // Email service check
+  checks.email = {
+    ok: !!process.env.SENDGRID_API_KEY,
+    error: !process.env.SENDGRID_API_KEY ? 'SENDGRID_API_KEY not set' : undefined,
+  };
+
   const allOk = Object.values(checks).every(c => c.ok);
   const totalMs = Date.now() - start;
 
