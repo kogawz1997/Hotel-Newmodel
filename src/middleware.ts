@@ -74,18 +74,27 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  // Single profile fetch — reused throughout middleware for all protected routes
+  const needsProfile = user && (
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/backoffice') ||
+    pathname.startsWith('/auth') ||
+    pathname.startsWith('/portal/login')
+  );
 
+  const { data: profile } = needsProfile
+    ? await supabase
+        .from('user_profiles')
+        .select('id, role, organization_id, active, onboarding_completed')
+        .eq('id', user!.id)
+        .maybeSingle()
+    : { data: null };
 
 
   // ─── Access policy enforcement (session timeout + 2FA baseline) ───
   if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/backoffice'))) {
-    const { data: policyProfile } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    const role = (policyProfile?.role || 'staff') as keyof typeof ACCESS_POLICIES.sessionTimeoutMinutes;
+    const role = (profile?.role || 'staff') as keyof typeof ACCESS_POLICIES.sessionTimeoutMinutes;
     const timeoutMin = ACCESS_POLICIES.sessionTimeoutMinutes[role] || ACCESS_POLICIES.sessionTimeoutMinutes.staff;
     const signedAt = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : Date.now();
     const expired = (Date.now() - signedAt) > timeoutMin * 60_000;
@@ -104,10 +113,11 @@ export async function middleware(request: NextRequest) {
   // ─── Separate customer portal vs internal backoffice ─────────────
   if (pathname.startsWith('/backoffice') || pathname.startsWith('/auth') || pathname.startsWith('/portal/login')) {
     if (user) {
-      const [{ data: profile }, { data: guestAccount }] = await Promise.all([
-        supabase.from('user_profiles').select('id').eq('id', user.id).maybeSingle(),
-        supabase.from('guest_accounts').select('id').eq('id', user.id).maybeSingle(),
-      ]);
+      const { data: guestAccount } = await supabase
+        .from('guest_accounts')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
 
       if ((pathname.startsWith('/backoffice') || pathname.startsWith('/auth')) && guestAccount) {
         return NextResponse.redirect(new URL('/portal/bookings', request.url));
@@ -123,13 +133,7 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     if (!user) return NextResponse.redirect(new URL('/admin/login', request.url));
 
-    const { data: adminProfile } = await supabase
-      .from('user_profiles')
-      .select('role, active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!adminProfile || !adminProfile.active || !['owner', 'admin'].includes(adminProfile.role || '')) {
+    if (!profile || !profile.active || !['owner', 'admin'].includes(profile.role || '')) {
       return NextResponse.redirect(new URL('/backoffice/login?error=forbidden', request.url));
     }
   }
@@ -137,12 +141,7 @@ export async function middleware(request: NextRequest) {
   // ─── Hotel staff dashboard ───────────────────────────────────────
   if (pathname.startsWith('/dashboard')) {
     if (!user) return NextResponse.redirect(new URL('/backoffice/login', request.url));
-    // Make sure they're hotel staff (not a guest account)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id, organization_id, role, active, onboarding_completed')
-      .eq('id', user.id)
-      .single();
+
     if (!profile) return NextResponse.redirect(new URL('/onboarding', request.url));
     if (!profile.active) return NextResponse.redirect(new URL('/backoffice/login?error=inactive', request.url));
     if (!profile.organization_id) return NextResponse.redirect(new URL('/onboarding', request.url));
