@@ -10,6 +10,7 @@ import {
   Rocket, Zap, MonitorDot, Bell, Wrench, Headphones, ShieldCheck, ClipboardList,
   ListTodo, Clock, HeartHandshake, FileText, MapPin, Monitor, Tv2, Car,
   BriefcaseBusiness, ChefHat, Flower2, ShoppingCart, TrendingUp, Users2, Moon, ContactRound,
+  CheckSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -39,6 +40,7 @@ const NAV_GROUPS = [
       { href: '/dashboard/inbox', icon: MessageSquare, label: 'Inbox', showUnread: true },
       { href: '/dashboard/ai-concierge', icon: Sparkles, label: 'AI Concierge' },
       { href: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
+      { href: '/dashboard/approvals', icon: CheckSquare, label: 'ศูนย์อนุมัติ', roles: [...MGMT_ROLES, 'front_office_manager', 'accounting_manager', 'hr_manager', 'maintenance_manager', 'purchasing_manager'] },
     ],
   },
   {

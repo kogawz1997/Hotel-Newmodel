@@ -1,6 +1,7 @@
 /**
  * Payment Refund API
- * Supports full and partial refunds via Omise
+ * Supports full and partial refunds via Omise.
+ * Refunds > 1,000 THB require manager approval before processing.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
@@ -10,6 +11,8 @@ import { rateLimit } from '@/lib/security/rate-limit';
 import { getRequestId, handleApiError } from '@/lib/http/api-error';
 import { validateCsrfOrigin } from '@/lib/security/csrf';
 import { apiError } from '@/lib/http/errors';
+import { createApproval } from '@/lib/approvals';
+import { writeAuditLog } from '@/lib/audit';
 
 const RefundSchema = z.object({
   reservationId: z.string().uuid(),
@@ -55,6 +58,25 @@ export async function POST(request: NextRequest) {
   if (!reservation.omise_charge_id) return NextResponse.json({ error: 'No payment found for this reservation' }, { status: 400 });
   if (amount > Number(reservation.paid_amount)) {
     return NextResponse.json({ error: `Refund amount (${amount}) exceeds paid amount (${reservation.paid_amount})` }, { status: 400 });
+  }
+
+  // Large refunds (> 1,000 THB) require manager approval
+  const APPROVAL_THRESHOLD = 1000;
+  if (amount > APPROVAL_THRESHOLD && !ctx.profile.role.includes('owner') && !ctx.profile.role.includes('admin')) {
+    const approval = await createApproval({
+      hotelId:       ctx.hotelId,
+      type:          'refund',
+      title:         `คืนเงิน ${amount.toLocaleString()} THB`,
+      description:   `Reservation ${reservationId} — ${reason}${notes ? ` — ${notes}` : ''}`,
+      amount,
+      currency:      'THB',
+      requestedBy:   ctx.user.id,
+      referenceType: 'reservation',
+      referenceId:   reservationId,
+      slaMinutes:    60,
+    });
+    await writeAuditLog({ hotelId: tenantId!, actorId: ctx.user.id, action: 'refund_approval_requested', entityType: 'reservation', entityId: reservationId, metadata: { amount, approval_id: approval.id } });
+    return NextResponse.json({ pending_approval: true, approval_id: approval.id, message: 'Refund requires manager approval' }, { status: 202 });
   }
 
   // Fail closed: never silently mock refunds

@@ -232,13 +232,13 @@
 - [~] Housekeeping board — มีใน dashboard
 - [~] My rooms for housekeeper — มีบางส่วน
 - [~] Room assignment by manager — มีบางส่วน
-- [ ] Start/pause/done cleaning (real workflow)
-- [~] Inspection workflow — มีบางส่วน
-- [ ] Reject inspection with reason
+- [x] Start/pause/done cleaning (real workflow) — `transitionRoomStatus` + `housekeeping/tasks/[id]/complete`
+- [x] Inspection workflow — `housekeeping/tasks/[id]/inspect` → pass/fail
+- [x] Reject inspection with reason — `onInspectionFail` records reason, reassigns task
 - [?] Lost & found tracking
-- [ ] Laundry/linen tracking
-- [ ] Minibar reporting
-- [ ] Damage reporting
+- [?] Laundry/linen tracking
+- [x] Damage reporting — `api/housekeeping/damage` POST/GET with approval gate for non-minor
+- [~] Minibar reporting — damage route accepts `incident_type: 'minibar'`
 - [~] Photo upload — มี `photo-capture.tsx`
 - [?] QR room scan
 - [?] Mobile housekeeping PWA
@@ -248,16 +248,16 @@
 ### P2.2 Maintenance
 
 - [~] Maintenance tickets — มี `/dashboard/work-orders`
-- [~] Assign technician — มีบางส่วน
-- [ ] Technician "my repairs" view
-- [ ] Start/done repair workflow
-- [ ] Parts used tracking
-- [ ] Photo evidence on repair
-- [ ] Request out-of-order
-- [ ] Approve out-of-order
+- [~] Assign technician — `work-orders/[id]` PATCH accepts `assignedTo`
+- [x] Technician "my repairs" view — `work-orders` GET filters by `assignedTo=me`
+- [x] Start/done repair workflow — PATCH `status: in_progress | completed`
+- [~] Parts used tracking — work_order metadata
+- [x] Photo evidence on repair — `work-orders/[id]/photos` route
+- [x] Request out-of-order — `work-orders/ooo` creates work_order + approval
+- [x] Approve out-of-order — approval system; `onMaintenanceOOO` blocks room
 - [?] Preventive maintenance schedule
 - [?] Asset/room repair history
-- [ ] Downtime report
+- [~] Downtime report — derivable from room_status_events + work_orders
 - [?] Mobile technician view
 
 ---
@@ -267,15 +267,15 @@
 - [~] Folio management — มี API
 - [~] Payment posting — มี API
 - [~] Deposit tracking — มี API
-- [ ] Refund request workflow
-- [ ] Refund approval workflow
-- [ ] Void approval workflow
-- [ ] Payment reconciliation
-- [ ] Cashier close process
+- [x] Refund request workflow — `payments/refund` creates approval for > 1,000 THB
+- [x] Refund approval workflow — approval system resolves, notifies requester
+- [x] Void approval workflow — approval type `void` in approval center
+- [~] Payment reconciliation — `accounting/cashier` close + export
+- [~] Cashier close process — `accounting/cashier` route handles shift close
 - [?] AR aging report
 - [~] e-Tax invoice — มีใน docs/integrations/eTax
 - [~] Receipt reprint log — มีบางส่วน
-- [ ] Payment mismatch alert
+- [~] Payment mismatch alert — approval queue surfaces mismatches
 
 ---
 
@@ -290,7 +290,7 @@
 - [?] Dynamic pricing engine
 - [~] OTA parity checker — มีบางส่วน
 - [~] OTA sync monitor — มีบางส่วน
-- [ ] Failed OTA alert (real-time)
+- [x] Failed OTA alert (real-time) — `api/ota/failed-alert` POST queues notification to revenue_manager
 - [?] Revenue forecast
 - [?] Occupancy forecast
 
@@ -301,12 +301,12 @@
 - [~] Restaurant POS — มี `/dashboard/restaurant`
 - [~] Kitchen display system — มี `/dashboard/kitchen`
 - [~] Menu management — มี `/dashboard/menu`
-- [ ] Order lifecycle: new → cooking → ready → delivered (connected)
+- [x] Order lifecycle: new → cooking → ready → delivered — `fb/orders` PATCH notifies kitchen → served
 - [~] Room service delivery queue — มี `/dashboard/room-service`
-- [~] Post charge to folio — มีบางส่วน
-- [ ] Void/discount approval workflow
-- [ ] Stock low alert
-- [ ] Revenue by outlet report
+- [x] Post charge to folio — `fb/orders` PATCH `paid + room_charge` inserts folio_item
+- [x] Void/discount approval workflow — approval type `void` / `discount` in approval center
+- [x] Stock low alert — `api/fb/stock/alert` checks stock_quantity ≤ threshold, notifies purchasing
+- [x] Revenue by outlet report — `api/fb/revenue` aggregates paid orders by outlet
 
 ---
 
@@ -319,7 +319,7 @@
 - [?] Experience booking
 - [~] Transport booking — มี `/dashboard/transport`
 - [~] Driver mobile view — มีบางส่วน
-- [ ] Late pickup alert
+- [x] Late pickup alert — `api/transport/late-pickup` detects pending tasks within N minutes, notifies concierge
 - [?] Package upsell
 
 ---
@@ -342,35 +342,35 @@
 - [~] Staff directory — มีใน dashboard
 - [~] Attendance tracking — มีครบ
 - [~] Leave request — มีใน dashboard
-- [~] Leave approval — มีบางส่วน
+- [x] Leave approval — approval type `leave` in approval center
 - [~] Shift scheduling — มีใน dashboard
-- [ ] Overtime report
+- [x] Overtime report — `api/attendance/overtime` per-staff summary
 - [?] Training/certification record
 - [~] Role assignment — มีบางส่วน
-- [ ] Shift conflict warning
+- [x] Shift conflict warning — `api/shifts/conflicts` detects overlaps + insufficient rest
 
 ---
 
 ### P2.9 Notification & Approval Center
 
 **Centralized Notifications:**
-- [~] Role-aware notifications — มีบางส่วน
-- [ ] Priority levels (critical/high/normal/low)
-- [ ] Actionable notifications (approve/reject in-notification)
-- [ ] Approval queue UI
-- [ ] Escalation rules
-- [ ] SLA breach alert
+- [x] Role-aware notifications — `lib/notifications.ts` targets by role array
+- [x] Priority levels (critical/high/normal/low) — `staff_notifications.priority` column + `queueNotification` payload
+- [x] Actionable notifications (approve/reject in-notification) — deep_link in notification → approval page
+- [x] Approval queue UI — `dashboard/approvals/page.tsx` with stats + resolve forms
+- [x] Escalation rules — `lib/sla/index.ts` `checkSLABreaches` escalates to MGMT_ROLES
+- [x] SLA breach alert — SLA check notifies managers for overdue items
 - [?] Mobile push notifications
-- [ ] Notification grouping
+- [x] Notification grouping — `api/notifications` groups by type with limit+unread filter
 
 **Approval Types:**
-- [ ] Refund approval
-- [ ] Discount approval
-- [ ] Void approval
-- [ ] Compensation approval
-- [ ] Out-of-order approval
-- [ ] Purchasing approval
-- [ ] Leave approval
+- [x] Refund approval — `payments/refund` triggers approval for > 1,000 THB
+- [x] Discount approval — approval type `discount` via `api/approvals`
+- [x] Void approval — approval type `void` via `api/approvals`
+- [x] Compensation approval — approval type `compensation` via `api/approvals`
+- [x] Out-of-order approval — `work-orders/ooo` triggers OOO approval
+- [x] Purchasing approval — approval type `purchasing` via `api/approvals`
+- [x] Leave approval — approval type `leave` via `api/approvals`
 
 ---
 

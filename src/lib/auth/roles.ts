@@ -332,15 +332,16 @@ export const ACTION_PERMISSIONS = {
 // ─── Approval Permissions ─────────────────────────────────────────────────────
 
 export const APPROVAL_PERMISSIONS = {
-  refund:        ['owner', 'admin', 'manager', 'accounting_manager'] as StaffRole[],
-  discount:      ['owner', 'admin', 'manager', 'front_office_manager'] as StaffRole[],
-  void:          ['owner', 'admin', 'accounting_manager'] as StaffRole[],
-  compensation:  ['owner', 'admin', 'manager', 'general_manager'] as StaffRole[],
-  outOfOrder:    ['owner', 'admin', 'manager', 'maintenance_manager'] as StaffRole[],
-  purchasing:    ['owner', 'admin', 'manager', 'purchasing_manager'] as StaffRole[],
-  leave:         ['owner', 'admin', 'manager', 'hr_manager', 'dept_head'] as StaffRole[],
-  lateCheckout:  ['owner', 'admin', 'manager', 'front_office_manager', 'front_desk'] as StaffRole[],
-  earlyCheckin:  ['owner', 'admin', 'manager', 'front_office_manager', 'front_desk'] as StaffRole[],
+  refund:         ['owner', 'admin', 'manager', 'accounting_manager'] as StaffRole[],
+  discount:       ['owner', 'admin', 'manager', 'front_office_manager'] as StaffRole[],
+  void:           ['owner', 'admin', 'accounting_manager'] as StaffRole[],
+  compensation:   ['owner', 'admin', 'manager', 'general_manager'] as StaffRole[],
+  out_of_order:   ['owner', 'admin', 'manager', 'maintenance_manager'] as StaffRole[],
+  purchasing:     ['owner', 'admin', 'manager', 'purchasing_manager'] as StaffRole[],
+  leave:          ['owner', 'admin', 'manager', 'hr_manager', 'dept_head'] as StaffRole[],
+  late_checkout:  ['owner', 'admin', 'manager', 'front_office_manager', 'front_desk'] as StaffRole[],
+  early_checkin:  ['owner', 'admin', 'manager', 'front_office_manager', 'front_desk'] as StaffRole[],
+  other:          ['owner', 'admin', 'manager'] as StaffRole[],
 } as const;
 
 // ─── Mobile Role Behavior ─────────────────────────────────────────────────────
