@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { MobileReservationActions } from '@/components/mobile/mobile-reservation-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -99,16 +100,14 @@ export default async function MobileFrontDeskPage() {
             ) : arrivals.map((r: any) => (
               <div key={r.id} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold">{r.guests?.first_name} {r.guests?.last_name || ''}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{r.guests?.first_name} {r.guests?.last_name || ''}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{r.reservation_code} · {r.room_types?.name}</p>
                     {r.rooms?.room_number && <p className="text-xs text-emerald-300 mt-0.5">ห้อง {r.rooms.room_number}</p>}
+                    <p className="text-xs text-slate-500 mt-1">{r.num_adults} ผู้ใหญ่ · CO {r.check_out}</p>
                   </div>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${r.status === 'confirmed' ? 'bg-emerald-400/15 text-emerald-200' : 'bg-amber-400/15 text-amber-200'}`}>
-                    {r.status}
-                  </span>
+                  <MobileReservationActions reservationId={r.id} action="check_in" />
                 </div>
-                <p className="text-xs text-slate-500 mt-2">{r.num_adults} ผู้ใหญ่ · {r.check_in} → {r.check_out}</p>
               </div>
             ))}
           </div>
@@ -122,13 +121,13 @@ export default async function MobileFrontDeskPage() {
             ) : departures.map((r: any) => (
               <div key={r.id} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold">{r.guests?.first_name} {r.guests?.last_name || ''}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{r.guests?.first_name} {r.guests?.last_name || ''}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{r.reservation_code} · ห้อง {r.rooms?.room_number || '—'}</p>
+                    <p className="text-xs text-slate-500 mt-1">เช็คเอาต์: {r.check_out}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-rose-400/15 px-2 py-0.5 text-xs font-medium text-rose-200">checked_in</span>
+                  <MobileReservationActions reservationId={r.id} action="check_out" />
                 </div>
-                <p className="text-xs text-slate-500 mt-2">เช็คเอาต์: {r.check_out}</p>
               </div>
             ))}
           </div>
