@@ -9,7 +9,7 @@ import { GuestChatWidget } from '@/components/booking/guest-chat-widget';
 import { CurrencySwitcher } from '@/components/ui/currency-switcher';
 import { TrustBadges } from '@/components/public/TrustBadges';
 import { PromptPayQR } from '@/components/payments/PromptPayQR';
-import { format, differenceInDays, addDays } from 'date-fns';
+import { format, differenceInDays, addDays, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay as getDayOfWeek } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { toast } from 'sonner';
 import {
@@ -59,6 +59,16 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const [galleryIdx, setGalleryIdx] = useState(0);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
+  const [lang, setLang] = useState<'th' | 'en'>('th');
+  const [calendarVisible, setCalendarVisible] = useState(false);
+  const [blockedDates, setBlockedDates] = useState<Set<string>>(new Set());
+  const [calendarLoading, setCalendarLoading] = useState(false);
+  const [altSuggestions, setAltSuggestions] = useState<{ date: string; count: number }[]>([]);
+  const [altLoading, setAltLoading] = useState(false);
+  const [waitlistRoomTypeId, setWaitlistRoomTypeId] = useState<string | null>(null);
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistDone, setWaitlistDone] = useState<Set<string>>(new Set());
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
 
   const nights = search.checkIn && search.checkOut
     ? Math.max(0, differenceInDays(new Date(search.checkOut), new Date(search.checkIn)))
@@ -160,6 +170,65 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     }
   }
 
+  async function loadBlockedDates() {
+    setCalendarVisible(p => !p);
+    if (blockedDates.size > 0 || calendarLoading) return;
+    setCalendarLoading(true);
+    try {
+      const from = format(new Date(), 'yyyy-MM-dd');
+      const to = format(addDays(new Date(), 90), 'yyyy-MM-dd');
+      const res = await fetch(`/api/public/blocked-dates?hotelId=${hotel.id}&from=${from}&to=${to}`);
+      const d = await res.json();
+      setBlockedDates(new Set(d.blocked || []));
+    } finally { setCalendarLoading(false); }
+  }
+
+  async function fetchAltDates() {
+    if (altLoading || !search.checkIn) return;
+    setAltLoading(true);
+    const ci = new Date(search.checkIn + 'T00:00:00');
+    try {
+      const results = await Promise.all(
+        [-3, -2, -1, 1, 2, 3].map(async (offset) => {
+          const d  = format(addDays(ci, offset), 'yyyy-MM-dd');
+          const co = format(addDays(ci, offset + (nights || 1)), 'yyyy-MM-dd');
+          const res = await fetch(`/api/public/availability?hotelId=${hotel.id}&checkIn=${d}&checkOut=${co}&adults=${search.adults}`);
+          const data = await res.json();
+          const count = (data.roomTypes || []).filter((r: any) => r.is_available !== false).length;
+          return { date: d, count };
+        })
+      );
+      setAltSuggestions(results.filter(r => r.count > 0));
+    } finally { setAltLoading(false); }
+  }
+
+  async function selectAltDate(altCheckIn: string) {
+    const altCheckOut = format(addDays(new Date(altCheckIn + 'T00:00:00'), nights || 1), 'yyyy-MM-dd');
+    setSearch(p => ({ ...p, checkIn: altCheckIn, checkOut: altCheckOut }));
+    setAltSuggestions([]);
+    setLoadingRooms(true);
+    const res = await fetch(`/api/public/availability?hotelId=${hotel.id}&checkIn=${altCheckIn}&checkOut=${altCheckOut}&adults=${search.adults}`);
+    const data = await res.json();
+    setAvailableRooms(data.roomTypes || []);
+    setLoadingRooms(false);
+  }
+
+  async function joinWaitlist(roomTypeId: string) {
+    const email = waitlistEmail || guestInfo.email;
+    if (!email) { toast.error('กรุณาใส่อีเมล'); return; }
+    setWaitlistLoading(true);
+    try {
+      await fetch('/api/public/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hotelId: hotel.id, roomTypeId, checkIn: search.checkIn, checkOut: search.checkOut, email }),
+      });
+      setWaitlistDone(p => new Set([...p, roomTypeId]));
+      setWaitlistRoomTypeId(null);
+      toast.success('เพิ่มใน Waitlist แล้ว! เราจะแจ้งทางอีเมลเมื่อมีห้องว่าง');
+    } finally { setWaitlistLoading(false); }
+  }
+
   async function handleBook() {
     if (!guestInfo.firstName || !guestInfo.email) { toast.error('กรุณากรอกข้อมูลให้ครบ'); return; }
     // Persist guest info so payment retry can restore it
@@ -177,7 +246,13 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         firstName: guestInfo.firstName, lastName: guestInfo.lastName,
         email: guestInfo.email, phone: guestInfo.phone,
         nationality: guestInfo.nationality,
-        specialRequests: [guestInfo.specialRequests, selectedAddOns.length ? `Add-ons: ${selectedAddOns.join(', ')}` : ''].filter(Boolean).join(' | '),
+        specialRequests: [
+          guestInfo.specialRequests,
+          selectedAddOns.length ? `Add-ons: ${selectedAddOns.join(', ')}` : '',
+          (guestInfo as any).bedPref ? `Bed: ${(guestInfo as any).bedPref}` : '',
+          (guestInfo as any).floorPref ? `Floor: ${(guestInfo as any).floorPref}` : '',
+          (guestInfo as any).dietaryPref ? `Dietary: ${(guestInfo as any).dietaryPref}` : '',
+        ].filter(Boolean).join(' | '),
         estimatedArrival: guestInfo.estimatedArrival,
         source: 'website',
         totalAmount: total,
@@ -198,7 +273,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
   // ─── STEP: DATES ─────────────────────────────────────────────────────
   if (step === 'dates') return (
-    <PublicLayout hotel={hotel} user={user} step={step}>
+    <PublicLayout hotel={hotel} user={user} step={step} lang={lang} setLang={setLang}>
       {/* Hero */}
       <div className="relative h-[50vh] min-h-72 overflow-hidden">
         {gallery.length > 0 ? (
@@ -243,19 +318,19 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         <div className="bg-white rounded-2xl shadow-xl border border-black/5 p-5">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
-              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">เช็คอิน</label>
+              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Check-in' : 'เช็คอิน'}</label>
               <input type="date" value={search.checkIn} min={format(new Date(), 'yyyy-MM-dd')}
                 onChange={e => setSearch(p => ({ ...p, checkIn: e.target.value }))}
                 className="w-full px-3 py-2.5 bg-[#FAF7F2] rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">เช็คเอาท์</label>
+              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Check-out' : 'เช็คเอาท์'}</label>
               <input type="date" value={search.checkOut} min={search.checkIn || format(addDays(new Date(), 1), 'yyyy-MM-dd')}
                 onChange={e => setSearch(p => ({ ...p, checkOut: e.target.value }))}
                 className="w-full px-3 py-2.5 bg-[#FAF7F2] rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">ผู้ใหญ่</label>
+              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Adults' : 'ผู้ใหญ่'}</label>
               <select value={search.adults} onChange={e => setSearch(p => ({ ...p, adults: Number(e.target.value) }))}
                 className="w-full px-3 py-2.5 bg-[#FAF7F2] rounded-xl text-sm font-medium focus:outline-none">
                 {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} คน</option>)}
@@ -264,11 +339,37 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             <button onClick={searchAvailability} disabled={loadingRooms}
               className="flex items-center justify-center gap-2 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium py-2.5 transition-colors disabled:opacity-60 mt-5">
               {loadingRooms ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Calendar className="h-4 w-4" />}
-              {loadingRooms ? 'กำลังค้นหา...' : 'ค้นหาห้องว่าง'}
+              {loadingRooms ? (lang === 'en' ? 'Searching...' : 'กำลังค้นหา...') : (lang === 'en' ? 'Search rooms' : 'ค้นหาห้องว่าง')}
             </button>
           </div>
           {nights > 0 && (
             <p className="text-xs text-[#2A2522]/40 mt-3 text-center">{nights} คืน · {format(new Date(search.checkIn+'T00:00:00'), 'd MMM', { locale: th })} → {format(new Date(search.checkOut+'T00:00:00'), 'd MMM yyyy', { locale: th })}</p>
+          )}
+          <div className="mt-3 text-center">
+            <button onClick={loadBlockedDates}
+              className="text-xs text-[#C66A30] hover:underline inline-flex items-center gap-1 mx-auto">
+              <Calendar className="h-3 w-3" />
+              {calendarVisible ? 'ซ่อนปฏิทิน' : 'ดูปฏิทินวันว่าง'}
+            </button>
+          </div>
+          {calendarLoading && (
+            <div className="flex justify-center mt-3">
+              <span className="h-4 w-4 border-2 border-[#C66A30]/30 border-t-[#C66A30] rounded-full animate-spin" />
+            </div>
+          )}
+          {calendarVisible && !calendarLoading && (
+            <MiniCalendar
+              blockedDates={blockedDates}
+              checkIn={search.checkIn}
+              checkOut={search.checkOut}
+              onSelect={(d: string) => {
+                setSearch(p => ({
+                  ...p,
+                  checkIn: d,
+                  checkOut: format(addDays(new Date(d + 'T00:00:00'), Math.max(nights || 1, 1)), 'yyyy-MM-dd'),
+                }));
+              }}
+            />
           )}
         </div>
       </div>
@@ -296,7 +397,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
   // ─── STEP: ROOMS ─────────────────────────────────────────────────────
   if (step === 'rooms') return (
-    <PublicLayout hotel={hotel} user={user} step={step}>
+    <PublicLayout hotel={hotel} user={user} step={step} lang={lang} setLang={setLang}>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -312,10 +413,30 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         </div>
 
         {availableRooms.length === 0 && (
-          <div className="text-center py-16 text-[#2A2522]/40">
+          <div className="text-center py-12 text-[#2A2522]/60">
             <AlertCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p className="font-medium">ไม่มีห้องว่างในวันที่เลือก</p>
-            <p className="text-sm mt-1">กรุณาลองเลือกวันอื่น</p>
+            <p className="font-medium text-[#2A2522]">ไม่มีห้องว่างในวันที่เลือก</p>
+            <p className="text-sm mt-2 text-[#2A2522]/50 mb-6">ลองวันที่ใกล้เคียง — เราจะค้นหาให้</p>
+            {altLoading && <div className="h-5 w-5 border-2 border-[#C66A30]/30 border-t-[#C66A30] rounded-full animate-spin mx-auto mb-4" />}
+            {!altLoading && altSuggestions.length === 0 && (
+              <button onClick={fetchAltDates}
+                className="px-5 py-2.5 text-sm bg-[#C66A30] text-white rounded-xl hover:bg-[#A4522A] transition-colors">
+                ค้นหาวันที่ใกล้เคียง
+              </button>
+            )}
+            {altSuggestions.length > 0 && (
+              <div className="mt-2">
+                <p className="text-xs text-[#2A2522]/50 mb-3">วันที่มีห้องว่าง (±3 วัน)</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {altSuggestions.map(s => (
+                    <button key={s.date} onClick={() => selectAltDate(s.date)}
+                      className="px-4 py-2 text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors">
+                      {format(new Date(s.date + 'T00:00:00'), 'd MMM', { locale: th })} · {s.count} ประเภท
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -416,6 +537,34 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                       className="mt-auto w-full sm:w-auto sm:self-end flex items-center justify-center gap-2 px-6 py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                       เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
                     </button>
+
+                    {!isAvail && (
+                      <div className="mt-2 w-full sm:w-auto sm:self-end">
+                        {waitlistDone.has(rt.id) ? (
+                          <div className="text-xs text-emerald-600 flex items-center gap-1 py-2 justify-center">
+                            <Check className="h-3 w-3" /> อยู่ใน Waitlist — เราจะแจ้งทางอีเมล
+                          </div>
+                        ) : waitlistRoomTypeId === rt.id ? (
+                          <div className="flex gap-2">
+                            <input type="email" value={waitlistEmail}
+                              onChange={e => setWaitlistEmail(e.target.value)}
+                              placeholder="อีเมลของคุณ"
+                              className="flex-1 text-xs px-3 py-2 border border-black/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C66A30]/30" />
+                            <button onClick={() => joinWaitlist(rt.id)} disabled={waitlistLoading}
+                              className="text-xs px-4 py-2 bg-[#2A2522] text-white rounded-xl disabled:opacity-50 whitespace-nowrap">
+                              {waitlistLoading ? '...' : 'แจ้งเมื่อว่าง'}
+                            </button>
+                            <button onClick={() => setWaitlistRoomTypeId(null)}
+                              className="text-[#2A2522]/40 hover:text-[#2A2522] text-lg px-1">×</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => { setWaitlistRoomTypeId(rt.id); setWaitlistEmail(guestInfo.email || ''); }}
+                            className="w-full text-xs py-2 border border-[#2A2522]/20 text-[#2A2522]/60 rounded-xl hover:bg-black/5 transition-colors">
+                            แจ้งเตือนเมื่อมีห้องว่าง (Waitlist)
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -428,7 +577,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
   // ─── STEP: DETAILS ───────────────────────────────────────────────────
   if (step === 'details') return (
-    <PublicLayout hotel={hotel} user={user} step={step}>
+    <PublicLayout hotel={hotel} user={user} step={step} lang={lang} setLang={setLang}>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <button onClick={() => setStep('rooms')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
           <ChevronLeft className="h-4 w-4" /> กลับเลือกห้อง
@@ -487,6 +636,40 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 rows={3} placeholder="เช่น ขอเตียงเสริม, แพ้ถั่วลิสง, ต้องการห้องชั้นสูง..."
                 className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
               <p className="text-xs text-[#2A2522]/40 mt-2">* คำขอพิเศษไม่สามารถรับประกันได้ 100% แต่ทางโรงแรมจะพยายามอย่างเต็มที่</p>
+
+              {/* Guest Preferences #20 */}
+              <div className="mt-4 pt-4 border-t border-black/5 space-y-3">
+                <p className="text-xs font-medium text-[#2A2522]/70">Guest Preferences (บันทึกไว้สำหรับทุกการเข้าพัก)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-[#2A2522]/50 mb-1.5 block">ประเภทเตียง</label>
+                    <select value={(guestInfo as any).bedPref || ''} onChange={e => setGuestInfo(p => ({ ...p, bedPref: e.target.value } as any))}
+                      className="w-full px-3 py-2 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none">
+                      <option value="">ไม่ระบุ</option>
+                      <option value="king">King bed</option>
+                      <option value="twin">Twin beds</option>
+                      <option value="queen">Queen bed</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#2A2522]/50 mb-1.5 block">ชั้นที่ต้องการ</label>
+                    <select value={(guestInfo as any).floorPref || ''} onChange={e => setGuestInfo(p => ({ ...p, floorPref: e.target.value } as any))}
+                      className="w-full px-3 py-2 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none">
+                      <option value="">ไม่ระบุ</option>
+                      <option value="low">ชั้นต่ำ (1–3)</option>
+                      <option value="mid">ชั้นกลาง (4–7)</option>
+                      <option value="high">ชั้นสูง (8+)</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-[#2A2522]/50 mb-1.5 block">ข้อห้ามด้านอาหาร / อาการแพ้</label>
+                  <input type="text" value={(guestInfo as any).dietaryPref || ''}
+                    onChange={e => setGuestInfo(p => ({ ...p, dietaryPref: e.target.value } as any))}
+                    placeholder="เช่น มังสวิรัติ, แพ้อาหารทะเล, Halal..."
+                    className="w-full px-3 py-2 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+                </div>
+              </div>
             </div>
 
             {/* Rate plan */}
@@ -620,6 +803,19 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   </div>
                 </div>
               </div>
+              <div className={`rounded-xl p-3 text-xs mb-3 ${
+                ratePlan === 'non_refundable' ? 'bg-red-50 border border-red-200 text-red-700' :
+                ratePlan === 'package' ? 'bg-amber-50 border border-amber-200 text-amber-700' :
+                'bg-emerald-50 border border-emerald-200 text-emerald-700'
+              }`}>
+                <p className="font-semibold mb-0.5">นโยบายการยกเลิก</p>
+                <p>{
+                  ratePlan === 'non_refundable' ? 'ไม่คืนเงินทุกกรณี' :
+                  ratePlan === 'early_bird'     ? 'ยกเลิกฟรีก่อนเช็คอิน 14 วัน — คืนเงิน 100%' :
+                  ratePlan === 'package'        ? 'ยกเลิกฟรีก่อนเช็คอิน 72 ชั่วโมง — คืนเงิน 100%' :
+                                                  'ยกเลิกฟรีก่อนเช็คอิน 24 ชั่วโมง — คืนเงิน 100%'
+                }</p>
+              </div>
               <button onClick={handleBook} disabled={submitting || !guestInfo.firstName || !guestInfo.email}
                 className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                 {submitting ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
@@ -638,7 +834,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   // ─── STEP: CONFIRMED — PromptPay flow ────────────────────────────────
   if (step === 'confirmed' && paymentMethod === 'promptpay' && reservation) {
     return (
-      <PublicLayout hotel={hotel} user={user} step={step}>
+      <PublicLayout hotel={hotel} user={user} step={step} lang={lang} setLang={setLang}>
         <div className="max-w-2xl mx-auto px-4 py-12">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-[#2A2522]">ชำระเงินด้วย PromptPay</h2>
@@ -680,7 +876,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
   // ─── STEP: CONFIRMED — standard flow ─────────────────────────────────
   return (
-    <PublicLayout hotel={hotel} user={user} step={step}>
+    <PublicLayout hotel={hotel} user={user} step={step} lang={lang} setLang={setLang}>
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
         <div className="h-20 w-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <Check className="h-10 w-10 text-emerald-600" />
@@ -746,7 +942,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function PublicLayout({ hotel, user, step, children }: any) {
+function PublicLayout({ hotel, user, step, lang, setLang, children }: any) {
   const STEP_LABELS: Record<string, string> = {
     dates: 'เลือกวันที่', rooms: 'เลือกห้อง', details: 'กรอกข้อมูล',
     confirmed: 'เสร็จสิ้น',
@@ -783,8 +979,13 @@ function PublicLayout({ hotel, user, step, children }: any) {
               </Link>
             ) : (
               <>
+                <button
+                  onClick={() => setLang && setLang((l: string) => l === 'th' ? 'en' : 'th')}
+                  className="text-xs border border-black/10 rounded-lg px-2.5 py-1 text-[#2A2522]/60 hover:bg-black/5 flex items-center gap-1 transition-colors">
+                  <Globe2 className="h-3 w-3" />{lang === 'th' ? 'EN' : 'ไทย'}
+                </button>
                 <CurrencySwitcher />
-                <Link href="/portal/login" className="text-xs text-[#C66A30] hover:underline font-medium">เข้าสู่ระบบ</Link>
+                <Link href="/portal/login" className="text-xs text-[#C66A30] hover:underline font-medium">{lang === 'th' ? 'เข้าสู่ระบบ' : 'Login'}</Link>
               </>
             )}
           </div>
@@ -833,6 +1034,70 @@ function Section({ title, children }: any) {
     <div className="bg-white rounded-2xl border border-black/5 p-5">
       <h3 className="font-semibold text-[#2A2522] text-sm mb-3">{title}</h3>
       {children}
+    </div>
+  );
+}
+
+function MiniCalendar({ blockedDates, checkIn, checkOut, onSelect }: {
+  blockedDates: Set<string>;
+  checkIn: string;
+  checkOut: string;
+  onSelect: (d: string) => void;
+}) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const months = [today, addMonths(today, 1)];
+  const DAY_LABELS = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+
+  return (
+    <div className="mt-4 p-4 bg-white rounded-2xl border border-black/5 shadow-sm">
+      <div className="grid sm:grid-cols-2 gap-5">
+        {months.map((monthDate, mi) => {
+          const monthStart = startOfMonth(monthDate);
+          const monthEnd   = endOfMonth(monthDate);
+          const days       = eachDayOfInterval({ start: monthStart, end: monthEnd });
+          const startOffset = getDayOfWeek(monthStart);
+
+          return (
+            <div key={mi}>
+              <p className="text-xs font-semibold text-[#2A2522] mb-2.5 text-center">
+                {format(monthDate, 'MMMM yyyy', { locale: th })}
+              </p>
+              <div className="grid grid-cols-7 gap-px">
+                {DAY_LABELS.map(d => (
+                  <div key={d} className="text-center text-[10px] text-[#2A2522]/30 py-1">{d}</div>
+                ))}
+                {Array.from({ length: startOffset }).map((_, i) => <div key={`pad${i}`} />)}
+                {days.map(day => {
+                  const ds       = format(day, 'yyyy-MM-dd');
+                  const isPast   = day < today;
+                  const isBlocked = blockedDates.has(ds);
+                  const isCI     = ds === checkIn;
+                  const isCO     = ds === checkOut;
+                  const inRange  = checkIn && checkOut && ds > checkIn && ds < checkOut;
+                  return (
+                    <button key={ds} disabled={isPast || isBlocked}
+                      onClick={() => onSelect(ds)}
+                      className={`aspect-square w-full flex items-center justify-center text-xs rounded-lg transition-colors leading-none ${
+                        isCI || isCO   ? 'bg-[#C66A30] text-white font-bold' :
+                        inRange        ? 'bg-[#C66A30]/15 text-[#C66A30]' :
+                        isBlocked      ? 'bg-red-50 text-red-300 line-through cursor-not-allowed' :
+                        isPast         ? 'text-[#2A2522]/20 cursor-not-allowed' :
+                                         'hover:bg-[#FAF7F2] text-[#2A2522] cursor-pointer'
+                      }`}>
+                      {format(day, 'd')}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex justify-center gap-4 text-[10px] text-[#2A2522]/40">
+        <span className="flex items-center gap-1"><span className="h-2 w-2 bg-red-200 rounded inline-block" />เต็ม</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 bg-[#C66A30] rounded inline-block" />เลือกไว้</span>
+      </div>
     </div>
   );
 }
