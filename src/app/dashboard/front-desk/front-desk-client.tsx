@@ -254,9 +254,49 @@ export function FrontDeskClient({ hotelId, hotel, arrivals, departures, inHouse,
           {filterRes(inHouse).length === 0 && (
             <EmptyState icon={Users} message="ไม่มีผู้เข้าพักในขณะนี้" />
           )}
-          {filterRes(inHouse).map(r => (
-            <ReservationRow key={r.id} reservation={r} />
-          ))}
+          {filterRes(inHouse).map(r => {
+            const hasLateCheckoutRequest = typeof r.special_requests === 'string' && r.special_requests.includes('[Late Checkout Request]');
+            return (
+              <ReservationRow
+                key={r.id}
+                reservation={r}
+                action={
+                  hasLateCheckoutRequest ? (
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/reservations/late-checkout-approve', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ hotelId, reservationId: r.id, waiveFee: false }),
+                          });
+                          const data = await res.json();
+                          res.ok ? toast.success(data.message) : toast.error(data.error);
+                        }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <Clock className="h-3.5 w-3.5" /> อนุมัติ Late CO
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/reservations/late-checkout-approve', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ hotelId, reservationId: r.id, waiveFee: true }),
+                          });
+                          const data = await res.json();
+                          res.ok ? toast.success(data.message) : toast.error(data.error);
+                        }}
+                        className="px-2.5 py-1.5 border border-amber-300 text-amber-700 rounded-lg text-xs font-medium hover:bg-amber-50 transition-colors"
+                      >
+                        ยกเว้นค่า
+                      </button>
+                    </div>
+                  ) : undefined
+                }
+              />
+            );
+          })}
         </div>
       )}
 
