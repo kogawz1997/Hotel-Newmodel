@@ -21,6 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .update({ status: 'no_show', no_show_marked_at: new Date().toISOString(), cancellation_reason: parsed.data.reason || null })
     .eq('id', id)
     .eq('hotel_id', ctx.reservation.hotel_id)
+    .in('status', ['confirmed', 'pending_payment'])
     .select()
     .single();
   if (error || !data) return error ? apiError(error) : NextResponse.json({ error: 'No-show update failed' }, { status: 500 });

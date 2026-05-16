@@ -109,9 +109,9 @@ export async function POST(request: Request) {
     const nights = calculateNights(body.checkIn, body.checkOut);
 
     const isDayUse = body.source === 'day_use';
-    if (isDayUse ? nights < 0 || nights > 1 : (nights < 1 || nights > 365)) {
+    if (isDayUse ? nights !== 0 : (nights < 1 || nights > 365)) {
       return NextResponse.json(
-        { error: 'Invalid stay dates' },
+        { error: isDayUse ? 'Day-use bookings must check in and out on the same date' : 'Invalid stay dates' },
         { status: 400 }
       );
     }

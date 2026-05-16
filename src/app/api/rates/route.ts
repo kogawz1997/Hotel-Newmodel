@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
   const { error } = await ctx.supabase
     .from('rate_calendar')
-    .upsert(rows, { onConflict: 'hotel_id,room_type_id,rate_plan_id,date', ignoreDuplicates: false });
+    .upsert(rows, { onConflict: 'hotel_id,room_type_id,date', ignoreDuplicates: false });
 
   if (error) return apiError(error);
   return NextResponse.json({ success: true, updated: rows.length });
