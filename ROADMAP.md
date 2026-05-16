@@ -80,16 +80,16 @@
   - [x] สร้าง booking ✅
   - [x] เพิ่มห้อง ✅
   - [x] เปิด inbox ✅
-  - [ ] รับเงิน 🔄
-  - [ ] ออก invoice 🔄
-- [ ] Mobile dashboard 🔄 — ยังไม่ fully responsive
+  - [x] รับเงิน ✅ — Quick action button → /dashboard/accounting
+  - [x] ออก invoice ✅ — Quick action button → /dashboard/accounting?tab=invoices
+- [x] Mobile dashboard ✅ — responsive grid sm/xl breakpoints ครบทุก card
 - [x] Notification center ✅ — `/api/notifications/`
 - [x] Global search ✅ — `CommandSearch` component
   - [x] booking code ✅
   - [x] guest ✅
   - [x] room ✅
-  - [ ] phone 🔄
-  - [ ] email 🔄
+  - [x] phone ✅ — dynamic guest search via GET /api/search/guests (debounced)
+  - [x] email ✅ — same dynamic search endpoint
 
 ---
 
@@ -297,8 +297,8 @@
 - [x] multi-language ✅
   - [x] th ✅
   - [x] en ✅
-  - [ ] zh 🔄
-  - [ ] ja 🔄
+  - [x] zh ✅ — translations.ts มีครบ (nav + common + system keys)
+  - [x] ja ✅ — translations.ts มีครบ (nav + common + system keys)
 
 #### Search flow
 - [x] check-in/check-out date picker ✅
@@ -395,7 +395,7 @@
 
 #### Connection
 - [x] channel connection page ✅
-- [ ] HotelRunner integration 🔄 — stub เท่านั้น ต้องทำ adapter
+- [x] HotelRunner integration ✅ — HotelRunnerAdapter implemented: pullReservations, pushInventory (PUT /availabilities), acknowledge, cancel — 🔑 ต้องใส่ api_key + property_id ใน channel_connections
 - [ ] Booking.com direct integration 🔑 — parser ✅ แต่ต้องใส่ `BOOKING_COM_API_TOKEN`
 - [ ] Agoda integration 🔑 — parser ✅ แต่ต้องใส่ `AGODA_API_TOKEN`
 - [ ] Airbnb integration 🔑 — stub ✅ แต่ต้องใส่ `AIRBNB_API_TOKEN`
@@ -420,7 +420,7 @@
 - [x] prevent duplicate bookings ✅ — idempotency key
 - [x] conflict resolver ✅
 - [x] manual sync ✅
-- [ ] scheduled sync cron 🔄 — ต้องตั้ง cron job (`CRON_SECRET`)
+- [x] scheduled sync cron ✅ — /api/cron/ota-sync ทุก 15 นาที ใน vercel.json 🔑 ต้องใส่ `CRON_SECRET`
 - [x] sync log page ✅
 - [x] retry failed sync ✅ — DLQ
 
@@ -459,7 +459,7 @@
 - [x] simple rule builder ✅
 - [x] enable/disable automation ✅
 - [x] automation logs ✅
-- [ ] test automation button 🔄
+- [x] test automation button ✅ — "ทดสอบ" button per rule → POST /api/automation/rules/test dry-run + preview modal
 
 ---
 
@@ -605,7 +605,7 @@
 #### Export
 - [x] CSV export ✅
 - [x] PDF export ✅
-- [ ] scheduled email report 🔄
+- [x] scheduled email report ✅ — GET /api/cron/email-report weekly occupancy+revenue HTML email via SendGrid, cron every Monday 00:00 UTC in vercel.json
 
 ---
 
@@ -653,7 +653,7 @@
 #### Spa
 - [x] services ✅
 - [x] therapists ✅
-- [ ] therapist calendar 🔄 — ต้องทำ UI calendar
+- [x] therapist calendar ✅ — weekly grid calendar tab in /dashboard/spa, therapist rows × day columns, color-coded by status, week navigation
 - [x] spa booking ✅
 - [x] room charge ✅
 - [x] guest preference ✅
@@ -674,21 +674,21 @@
 
 #### CI/CD
 - [x] GitHub Actions workflow ✅ — .github/workflows/ci.yml + deploy-check.yml มีอยู่แล้ว
-  - [ ] type-check 🔄
-  - [ ] lint 🔄
-  - [ ] build 🔄
-  - [ ] migration check 🔄
-  - [ ] smoke test 🔄
-  - [ ] Playwright E2E 🔄
+  - [x] type-check ✅ — npm run type-check in ci.yml
+  - [x] lint ✅ — npm run lint in ci.yml
+  - [x] build ✅ — npm run build in ci.yml
+  - [x] migration check ✅ — ci.yml finds supabase/migrations/*.sql count
+  - [ ] smoke test 🔄 — script มีแล้ว แต่ต้องใส่ NEXT_PUBLIC_APP_URL
+  - [ ] Playwright E2E 🔄 — ต้องเพิ่ม @playwright/test dependency
 
 #### Monitoring
 - [ ] Sentry 🔑 — ต้องใส่ `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` (SDK ติดตั้งแล้ว)
 - [ ] uptime monitor 🔄 — ต้องตั้ง external monitor (Checkly / Better Uptime)
 - [x] API latency tracking ✅ — `/api/health/`
 - [x] webhook failure dashboard ✅
-- [ ] cron failure alert 🔄 — ต้องใส่ `OPS_ALERT_WEBHOOK_URL`
-- [ ] OTA sync alert 🔄
-- [ ] AI cost alert 🔄
+- [x] cron failure alert ✅ — sendOpsAlert() ใน reliability-sweep → OPS_ALERT_WEBHOOK_URL 🔑
+- [x] OTA sync alert ✅ — sendOpsAlert() ใน ota-sync cron เมื่อ channels fail
+- [ ] AI cost alert 🔄 — ต้องเชื่อม Anthropic usage API
 
 #### Queue / Worker
 - [x] webhook queue ✅

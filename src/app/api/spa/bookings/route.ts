@@ -49,20 +49,24 @@ export async function GET(request: Request) {
   const ctx = await requireHotelAccess(searchParams.get('hotelId'));
   if (ctx.error) return ctx.error;
 
-  const from = searchParams.get('from') || new Date().toISOString();
-  const toDate = new Date(from);
-  toDate.setDate(toDate.getDate() + 14);
+  const from = searchParams.get('from') || new Date().toISOString().slice(0, 10);
+  const toParam = searchParams.get('to');
+  const toDate = toParam ? new Date(toParam) : (() => {
+    const d = new Date(from);
+    d.setDate(d.getDate() + 14);
+    return d;
+  })();
 
   const { data, error } = await ctx.supabase
     .from('spa_bookings')
-    .select('id,start_time,end_time,status,amount,payment_method,notes,reservation_id,spa_services(name,duration_min,price),spa_therapists(name),guests(first_name,last_name)')
+    .select('id,start_time,end_time,status,amount,payment_method,notes,treatment_room,guest_name,therapist_name,reservation_id,service_id,spa_services(name,duration_min,price)')
     .eq('hotel_id', ctx.hotelId)
-    .gte('start_time', from)
-    .lte('start_time', toDate.toISOString())
+    .gte('start_time', `${from}T00:00:00`)
+    .lte('start_time', `${toDate.toISOString().slice(0, 10)}T23:59:59`)
     .order('start_time');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json(data || []);
+  return NextResponse.json({ bookings: data || [] });
 }
 
 export async function POST(request: Request) {
