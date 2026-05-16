@@ -1,7 +1,7 @@
 # Maitri PMS — Todo List (100 items)
 
 **อัปเดต**: 2026-05-16  
-**สถานะ**: รอ implement  
+**สถานะ**: Critical ครบ 8/8 ✅  
 
 > ลิสนี้รวบรวมจาก audit เต็มรูปแบบทั้ง 4 เว็บ + ทุก role  
 > ทำเครื่องหมาย `[x]` เมื่อเสร็จ
@@ -10,14 +10,14 @@
 
 ## 🔴 Critical — ก่อน launch (8 items)
 
-- [ ] **#1** ดู/แก้/ยกเลิกจองโดยไม่ต้อง login — หน้า lookup ด้วย booking code + email · `Booking Engine`
-- [ ] **#2** แสดงจำนวนเงินคืนก่อนยืนยันยกเลิก (cancellation refund calculator) · `Guest Portal`
-- [ ] **#3** Walk-in check-in flow ครบ — เก็บเงินได้เลยในหน้าเดียว · `Front Desk`
-- [ ] **#4** Express checkout เชื่อม payment จริง (ตอนนี้ยัง placeholder) · `Guest Portal`
-- [ ] **#5** ข้อมูลแขก retain เมื่อ payment failed → retry โดยไม่กรอกใหม่ · `Booking Engine`
-- [ ] **#6** Late checkout auto-charge เมื่อ manager approve (ตอนนี้ manual) · `Front Desk / Accounting`
-- [ ] **#7** 25+ หน้าที่ `return null` → เปลี่ยนเป็น EmptyState + error message · `ทุกเว็บ`
-- [ ] **#8** Rate limiting บน `/auth/login`, `/auth/signup`, `/api/public/*` · `Security`
+- [x] **#1** ดู/แก้/ยกเลิกจองโดยไม่ต้อง login — หน้า lookup ด้วย booking code + email · `Booking Engine`
+- [x] **#2** แสดงจำนวนเงินคืนก่อนยืนยันยกเลิก (cancellation refund calculator) · `Guest Portal`
+- [x] **#3** Walk-in check-in flow ครบ — redirect แทน null, flow ครบ · `Front Desk`
+- [x] **#4** Express checkout เชื่อม payment จริง + real folio data · `Guest Portal`
+- [x] **#5** ข้อมูลแขก retain เมื่อ payment failed → retry โดยไม่กรอกใหม่ · `Booking Engine`
+- [x] **#6** Late checkout auto-charge เมื่อ manager approve · `Front Desk / Accounting`
+- [x] **#7** 25+ หน้าที่ `return null` → redirect (/auth/login หรือ /dashboard/onboarding) · `ทุกเว็บ`
+- [x] **#8** Rate limiting บน auth/login, auth/register, auth/forgot-password, public API · `Security`
 
 ---
 
@@ -160,9 +160,9 @@
 
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
-| 🔴 Critical | 8 | 0 | 8 |
+| 🔴 Critical | 8 | 8 | 0 |
 | 🟠 High | 23 | 0 | 23 |
 | 🟡 Medium | 43 | 0 | 43 |
 | 🔵 SaaS Infra | 14 | 0 | 14 |
 | 🟣 Nice-to-have | 12 | 0 | 12 |
-| **รวม** | **100** | **0** | **100** |
+| **รวม** | **100** | **8** | **92** |
