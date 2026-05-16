@@ -75,7 +75,7 @@
   - [x] Housekeeping pending ✅
   - [x] Payment pending ✅ — amber card พร้อม live count → /dashboard/accounting
   - [x] OTA sync warning ✅ — นับ failed syncs 24h → /dashboard/ota
-- [ ] Empty state แบบแนะนำขั้นตอนต่อไป 🔄
+- [x] Empty state แบบแนะนำขั้นตอนต่อไป ✅ — 4-step onboarding guide ใน dashboard สำหรับ hotel ใหม่
 - [x] Quick actions ✅ — มีแล้วใน dashboard
   - [x] สร้าง booking ✅
   - [x] เพิ่มห้อง ✅
@@ -126,12 +126,12 @@
 - [x] rate plan ✅
 - [x] refundable / non-refundable ✅
 - [x] breakfast included ✅
-- [ ] rate calendar 🔄 — schema มี แต่ UI calendar อาจยังไม่ครบ
+- [x] rate calendar ✅ — /dashboard/rates RateCalendarClient มีครบ
 - [x] weekday/weekend pricing ✅
 - [x] seasonal pricing ✅
 - [x] min stay / max stay ✅
-- [ ] closed to arrival 🔄
-- [ ] closed to departure 🔄
+- [x] closed to arrival ✅ — CTA toggle ใน rate calendar edit panel
+- [x] closed to departure ✅ — CTD toggle ใน rate calendar edit panel
 
 ---
 
@@ -265,11 +265,11 @@
 
 ### ✅ P1 Done Checklist (End-to-end flow)
 
-- [ ] สมัครสมาชิก → สร้างโรงแรม
-- [ ] เพิ่มประเภทห้อง → เพิ่มห้อง
-- [ ] สร้าง booking → รับเงิน
-- [ ] check-in → housekeeping
-- [ ] check-out → ออก invoice
+- [x] สมัครสมาชิก → สร้างโรงแรม ✅ — auth + onboarding 5-step flow
+- [x] เพิ่มประเภทห้อง → เพิ่มห้อง ✅ — room types + bulk add rooms
+- [x] สร้าง booking → รับเงิน ✅ — calendar create modal + Omise (PromptPay/TrueMoney/ShopeePay)
+- [x] check-in → housekeeping ✅ — check-in action auto-creates housekeeping task
+- [x] check-out → ออก invoice ✅ — check-out action + PDF invoice download
 
 > ✅ P1 ถือว่าเสร็จเมื่อทำ flow ข้างบนได้ครบโดยไม่ error
 
