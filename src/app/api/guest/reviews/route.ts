@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 export async function POST(request: NextRequest) {
   const { hotelId, reservationId, rating, ratingClean, ratingService, ratingLocation, ratingValue, title, comment, reviewerName } = await request.json();
@@ -27,6 +28,6 @@ export async function POST(request: NextRequest) {
     platform: 'direct',
   }).select().single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, review: data });
 }
