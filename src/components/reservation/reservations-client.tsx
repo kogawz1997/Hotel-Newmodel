@@ -562,8 +562,21 @@ function ReservationDetailModal({
   const [moveRoomId, setMoveRoomId] = useState('');
   const [newCheckOut, setNewCheckOut] = useState('');
   const [extraAmount, setExtraAmount] = useState('0');
+  const [showTimeline, setShowTimeline] = useState(false);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
 
   if (!reservation) return null;
+
+  async function loadTimeline() {
+    if (timeline.length > 0) { setShowTimeline(true); return; }
+    setTimelineLoading(true);
+    setShowTimeline(true);
+    try {
+      const res = await fetch(`/api/reservations/${reservation!.id}/timeline`);
+      if (res.ok) { const d = await res.json(); setTimeline(d.timeline || []); }
+    } finally { setTimelineLoading(false); }
+  }
 
   async function doAction(action: 'check_in' | 'check_out' | 'cancel') {
     setLoading(true);
@@ -767,6 +780,33 @@ function ReservationDetailModal({
           )}
         </div>
 
+          {/* Timeline */}
+          {showTimeline && (
+            <div className="border border-border rounded-xl overflow-hidden">
+              <div className="px-3 py-2 bg-secondary/50 text-xs font-medium flex items-center justify-between">
+                <span>ประวัติการจอง</span>
+                <button onClick={() => setShowTimeline(false)} className="text-muted-foreground hover:text-foreground">✕</button>
+              </div>
+              {timelineLoading ? (
+                <div className="p-4 text-center text-xs text-muted-foreground">กำลังโหลด...</div>
+              ) : timeline.length === 0 ? (
+                <div className="p-4 text-center text-xs text-muted-foreground">ยังไม่มีประวัติ</div>
+              ) : (
+                <div className="p-3 space-y-2 max-h-48 overflow-y-auto">
+                  {timeline.map((ev: any) => (
+                    <div key={ev.id} className="flex gap-2 text-xs">
+                      <div className="w-1 rounded-full bg-accent/40 shrink-0 mt-1" />
+                      <div className="flex-1">
+                        <div className="font-medium">{ev.label}</div>
+                        <div className="text-muted-foreground">{ev.actor} · {new Date(ev.createdAt).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
         <DialogFooter className="flex-wrap gap-2">
           {canCancel && !confirmAction && !showMoveRoom && !showExtend && (
             <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => setConfirmAction('cancel')}>
@@ -783,11 +823,15 @@ function ReservationDetailModal({
               ต่อวันพัก
             </Button>
           )}
-          <Button
-            variant="outline" size="sm"
-            onClick={() => window.open(`/api/invoices/pdf?reservationId=${r.id}`, '_blank')}
+          <a
+            href={`/api/invoices/pdf?reservationId=${r.id}`}
+            download
+            className="inline-flex items-center justify-center gap-1 px-3 h-9 rounded-md border border-input bg-background text-sm font-medium shadow-xs hover:bg-accent hover:text-accent-foreground transition-colors"
           >
             🖨️ ใบเสร็จ
+          </a>
+          <Button variant="outline" size="sm" onClick={loadTimeline}>
+            ประวัติ
           </Button>
           <div className="flex-1" />
           <Button variant="outline" onClick={onClose}>ปิด</Button>

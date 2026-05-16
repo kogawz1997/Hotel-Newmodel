@@ -167,10 +167,10 @@
 - [x] no-show ✅ — night audit cron
 - [x] extend stay ✅ — inline panel + POST /api/reservations/[id]/extend
 - [x] move room ✅
-- [ ] split booking 🔄
-- [ ] merge booking 🔄
+- [x] split booking ✅ — POST /api/reservations/[id]/split shortens original + creates 2nd leg
+- [x] merge booking ✅ — POST /api/reservations/[id]/merge extends source, cancels target, moves folio items
 - [x] group booking ✅ — `GroupBookingClient`
-- [ ] booking timeline 🔄
+- [x] booking timeline ✅ — GET /api/reservations/[id]/timeline + ประวัติ tab in detail modal
 
 ---
 
@@ -203,8 +203,8 @@
 - [x] service charge ✅
 - [x] discount ✅
 - [x] tax calculation ✅
-- [ ] split folio 🔄
-- [ ] transfer charge 🔄
+- [x] split folio ✅ — POST /api/folios/[id]/split (already implemented)
+- [x] transfer charge ✅ — POST /api/folios/[id]/transfer-charge moves itemIds between folios
 - [x] close folio ✅
 - [x] lock after checkout ✅
 
@@ -348,7 +348,7 @@
 - [x] internal note ✅
 - [x] tags ✅
 - [x] priority ✅
-- [ ] SLA timer (countdown UI) 🔄 — logic มีแต่ UI countdown ยังไม่ครบ
+- [x] SLA timer (countdown UI) ✅ — SlaCountdown component live setInterval 10s, color: green/amber/red
 
 #### AI features — 🔑 ต้องใส่ `ANTHROPIC_API_KEY`
 - [x] AI suggested reply ✅ — Claude API 🔑

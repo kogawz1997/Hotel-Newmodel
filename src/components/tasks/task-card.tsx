@@ -5,6 +5,7 @@ import { Wrench, Sparkles, ShoppingCart, Shield, Car, BriefcaseBusiness, ChefHat
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { SlaCountdown } from '@/components/tasks/sla-countdown';
 
 const TYPE_ICON: Record<string, any> = {
   housekeeping: Sparkles,
@@ -124,10 +125,7 @@ export function TaskCard({ task, onStatusChange, showAssignee, compact }: TaskCa
           <span className="flex items-center gap-0.5"><Clock className="h-3 w-3" />{timeAgo(task.created_at)}</span>
         </div>
         {task.sla_deadline && !['done','cancelled'].includes(task.status) && (
-          <span className={cn('font-medium flex items-center gap-0.5', getSLAColor(task.sla_deadline))}>
-            <AlertTriangle className="h-3 w-3" />
-            {getSLALabel(task.sla_deadline)}
-          </span>
+          <SlaCountdown deadline={task.sla_deadline} className="font-medium" />
         )}
       </div>
 
