@@ -41,6 +41,8 @@ export function MyBookingsClient({ guest }: { guest: any }) {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showModifyDates, setShowModifyDates] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
+  const [refundEstimate, setRefundEstimate] = useState<any>(null);
+  const [refundLoading, setRefundLoading] = useState(false);
   const [requests, setRequests] = useState({ text: '', arrival: '' });
   const [serviceNote, setServiceNote] = useState('');
   const [modifyDates, setModifyDates] = useState({ checkIn: '', checkOut: '' });
@@ -307,7 +309,14 @@ export function MyBookingsClient({ guest }: { guest: any }) {
                             className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-black/10 rounded-lg hover:bg-black/5 transition-colors">
                             <CalendarDays className="h-3.5 w-3.5" /> เปลี่ยนวันที่
                           </button>
-                          <button onClick={() => { setSelected(b); setShowCancel(true); }}
+                          <button onClick={async () => {
+                              setSelected(b); setShowCancel(true);
+                              setRefundEstimate(null); setRefundLoading(true);
+                              try {
+                                const r = await fetch(`/api/guest/bookings/${b.id}/refund-estimate`);
+                                if (r.ok) setRefundEstimate(await r.json());
+                              } finally { setRefundLoading(false); }
+                            }}
                             className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
                             <X className="h-3.5 w-3.5" /> ยกเลิก
                           </button>
@@ -345,9 +354,42 @@ export function MyBookingsClient({ guest }: { guest: any }) {
       {showCancel && (
         <Modal title="ยกเลิกการจอง" onClose={() => setShowCancel(false)}>
           <p className="text-sm text-[#2A2522]/60 mb-4">
-            คุณต้องการยกเลิกการจอง <strong>{selected?.reservation_code}</strong>?<br />
-            สามารถยกเลิกได้ฟรีหากเช็คอินเกิน 24 ชั่วโมง
+            คุณต้องการยกเลิกการจอง <strong>{selected?.reservation_code}</strong>?
           </p>
+
+          {/* Refund calculator */}
+          {refundLoading ? (
+            <div className="rounded-xl bg-[#FAF7F2] border border-black/8 p-4 mb-4 text-sm text-center text-[#2A2522]/50">
+              กำลังคำนวณเงินคืน...
+            </div>
+          ) : refundEstimate ? (
+            <div className={`rounded-xl border p-4 mb-4 text-sm ${refundEstimate.refundPercent === 100 ? 'bg-emerald-50 border-emerald-200' : refundEstimate.refundPercent > 0 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
+              <p className="font-medium mb-2">สรุปเงินคืน</p>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-[#2A2522]/60">นโยบาย</span>
+                  <span>{refundEstimate.rule}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#2A2522]/60">ยอดที่ชำระ</span>
+                  <span>{formatCurrency(refundEstimate.paidAmount)}</span>
+                </div>
+                <div className="flex justify-between font-medium">
+                  <span>เงินคืน ({refundEstimate.refundPercent}%)</span>
+                  <span className={refundEstimate.refundAmount > 0 ? 'text-emerald-600' : 'text-red-600'}>
+                    {formatCurrency(refundEstimate.refundAmount)}
+                  </span>
+                </div>
+                {refundEstimate.penaltyAmount > 0 && (
+                  <div className="flex justify-between text-red-600">
+                    <span>ค่าธรรมเนียมยกเลิก</span>
+                    <span>{formatCurrency(refundEstimate.penaltyAmount)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : null}
+
           <select value={cancelReason} onChange={e => setCancelReason(e.target.value)}
             className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30">
             <option value="">เลือกเหตุผล...</option>
@@ -357,7 +399,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
             <option value="other">อื่นๆ</option>
           </select>
           <div className="flex gap-3">
-            <button onClick={() => setShowCancel(false)} className="flex-1 py-2.5 border border-black/10 rounded-xl text-sm font-medium">ยกเลิก</button>
+            <button onClick={() => setShowCancel(false)} className="flex-1 py-2.5 border border-black/10 rounded-xl text-sm font-medium">ไม่ยกเลิก</button>
             <button onClick={doCancel} disabled={actionLoading || !cancelReason}
               className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium disabled:opacity-50">
               {actionLoading ? 'กำลังยกเลิก...' : 'ยืนยันยกเลิก'}

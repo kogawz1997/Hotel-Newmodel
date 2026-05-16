@@ -86,7 +86,18 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   const addOnTotal = selectedAddOns.reduce((sum, key) => sum + (addOnCatalog[key]?.price || 0), 0);
   const total = subtotal + vat + addOnTotal;
 
+  const GUEST_DRAFT_KEY = `maitri_guest_draft_${hotel.id}`;
+
   useEffect(() => {
+    // Restore draft guest info from sessionStorage (payment retry)
+    try {
+      const draft = sessionStorage.getItem(GUEST_DRAFT_KEY);
+      if (draft) {
+        const parsed = JSON.parse(draft);
+        setGuestInfo(p => ({ ...p, ...parsed }));
+      }
+    } catch { /* ignore */ }
+
     async function loadUser() {
       const { data: { user: u } } = await supabase.auth.getUser();
       if (u) {
@@ -151,6 +162,8 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
   async function handleBook() {
     if (!guestInfo.firstName || !guestInfo.email) { toast.error('กรุณากรอกข้อมูลให้ครบ'); return; }
+    // Persist guest info so payment retry can restore it
+    try { sessionStorage.setItem(GUEST_DRAFT_KEY, JSON.stringify(guestInfo)); } catch { /* ignore */ }
     setSubmitting(true);
     const idempotencyKey = `${hotel.id}-${selected.id}-${search.checkIn}-${search.checkOut}-${guestInfo.email}-${Date.now()}`;
     const res = await fetch('/api/reservations', {
@@ -177,6 +190,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
     setSubmitting(false);
     if (!res.ok || !data.reservation) { toast.error(data.error || 'เกิดข้อผิดพลาด'); return; }
     setReservation(data.reservation);
+    try { sessionStorage.removeItem(GUEST_DRAFT_KEY); } catch { /* ignore */ }
     setStep('confirmed');
   }
 
