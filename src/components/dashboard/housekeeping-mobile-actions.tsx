@@ -2,9 +2,18 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { PhotoCapture } from '@/components/housekeeping/photo-capture';
 
-export function HousekeepingMobileActions({ taskId }: { taskId: string }) {
+interface HousekeepingMobileActionsProps {
+  taskId: string;
+  hotelId: string;
+  photoUrls?: string[];
+}
+
+export function HousekeepingMobileActions({ taskId, hotelId, photoUrls = [] }: HousekeepingMobileActionsProps) {
   const [loading, setLoading] = useState<'start' | 'complete' | null>(null);
+  const [showPhotos, setShowPhotos] = useState(false);
+  const [uploadedCount, setUploadedCount] = useState(photoUrls.length);
 
   async function doAction(action: 'start' | 'complete') {
     setLoading(action);
@@ -28,21 +37,57 @@ export function HousekeepingMobileActions({ taskId }: { taskId: string }) {
   }
 
   return (
-    <div className="mt-4 grid grid-cols-2 gap-2">
+    <div className="mt-4 space-y-3">
+      {/* Photo section */}
       <button
-        onClick={() => doAction('start')}
-        disabled={!!loading}
-        className="rounded-xl bg-amber-400 px-4 py-3 text-center text-sm font-semibold text-stone-950 disabled:opacity-60"
+        type="button"
+        onClick={() => setShowPhotos(v => !v)}
+        className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 py-2.5 text-left text-sm text-stone-300 flex items-center justify-between"
       >
-        {loading === 'start' ? '...' : 'เริ่มงาน'}
+        <span>📷 รูปภาพ</span>
+        <span className="text-xs text-stone-400">{uploadedCount} รูป {showPhotos ? '▲' : '▼'}</span>
       </button>
-      <button
-        onClick={() => doAction('complete')}
-        disabled={!!loading}
-        className="rounded-xl bg-emerald-400 px-4 py-3 text-center text-sm font-semibold text-emerald-950 disabled:opacity-60"
-      >
-        {loading === 'complete' ? '...' : 'เสร็จแล้ว'}
-      </button>
+
+      {showPhotos && (
+        <div className="rounded-xl border border-white/10 bg-black/20 p-3 space-y-3">
+          <PhotoCapture
+            taskId={taskId}
+            hotelId={hotelId}
+            photoType="before"
+            existingUrls={[]}
+            onUploaded={() => setUploadedCount(c => c + 1)}
+            label="ก่อนทำความสะอาด"
+            className="text-stone-300"
+          />
+          <PhotoCapture
+            taskId={taskId}
+            hotelId={hotelId}
+            photoType="after"
+            existingUrls={[]}
+            onUploaded={() => setUploadedCount(c => c + 1)}
+            label="หลังทำความสะอาด"
+            className="text-stone-300"
+          />
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => doAction('start')}
+          disabled={!!loading}
+          className="rounded-xl bg-amber-400 px-4 py-3 text-center text-sm font-semibold text-stone-950 disabled:opacity-60"
+        >
+          {loading === 'start' ? '...' : 'เริ่มงาน'}
+        </button>
+        <button
+          onClick={() => doAction('complete')}
+          disabled={!!loading}
+          className="rounded-xl bg-emerald-400 px-4 py-3 text-center text-sm font-semibold text-emerald-950 disabled:opacity-60"
+        >
+          {loading === 'complete' ? '...' : 'เสร็จแล้ว'}
+        </button>
+      </div>
     </div>
   );
 }

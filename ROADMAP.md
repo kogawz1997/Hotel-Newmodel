@@ -248,7 +248,7 @@
 - [x] complete cleaning ✅
 - [x] inspection pass/fail ✅
 - [x] room status sync ✅
-- [ ] photo before/after 🔄 — schema มี แต่ UI upload ต้องตรวจ
+- [x] photo before/after ✅ — PhotoCapture component + POST /api/housekeeping/photos + mobile HK page
 - [x] notes ✅
 
 #### Maintenance

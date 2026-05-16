@@ -23,7 +23,7 @@ export default async function HousekeepingMobilePage() {
 
   const { data: tasks } = hotel ? await supabase
     .from('housekeeping_tasks')
-    .select('id, task_type, priority, status, notes, due_date, rooms(room_number)')
+    .select('id, task_type, priority, status, notes, due_date, photo_urls, rooms(room_number)')
     .eq('hotel_id', hotel.id)
     .in('status', ['pending', 'in_progress', 'failed_inspection'])
     .order('priority', { ascending: false })
@@ -76,7 +76,7 @@ export default async function HousekeepingMobilePage() {
               </div>
             </div>
             {task.notes ? <p className="mt-3 rounded-xl bg-black/20 p-3 text-sm text-stone-300">{task.notes}</p> : null}
-            <HousekeepingMobileActions taskId={task.id} />
+            <HousekeepingMobileActions taskId={task.id} hotelId={hotel!.id} photoUrls={task.photo_urls || []} />
           </article>
         ))}
         {(!tasks || tasks.length === 0) ? (
