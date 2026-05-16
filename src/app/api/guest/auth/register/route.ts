@@ -6,6 +6,9 @@ import { dbError } from '@/lib/http/validation';
 import { apiError } from '@/lib/http/errors';
 
 export async function POST(request: NextRequest) {
+  const limited = await rateLimit(request, 'guest.auth.register', 10, 60_000);
+  if (limited) return limited;
+
   const { email, password, firstName, lastName, phone, marketingConsent } = await request.json();
   if (!email || !password || !firstName)
     return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบ' }, { status: 400 });

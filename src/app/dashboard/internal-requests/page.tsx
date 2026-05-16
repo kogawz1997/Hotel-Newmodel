@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { requireDashboardRole } from '@/lib/auth/page-guards';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { InternalRequestsClient } from './internal-requests-client';
 
 const ALL_ROLES = ['owner', 'admin', 'manager', 'front_desk', 'housekeeping', 'staff', 'viewer'] as const;
@@ -18,7 +19,7 @@ export default async function InternalRequestsPage() {
     .limit(1)
     .single();
 
-  if (!hotel) return null;
+  if (!hotel) redirect('/dashboard/onboarding');
 
   const isManager = ['owner', 'admin', 'manager'].includes(profile.role);
 

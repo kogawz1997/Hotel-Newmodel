@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,9 +19,10 @@ const DEFAULT_TIERS = [
 export default async function LoyaltyPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user!.id).single();
+  if (!user) redirect('/auth/login');
+  const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
   const { data: hotels } = await supabase.from('hotels').select('id').eq('organization_id', profile?.organization_id).limit(1);
-  if (!hotels?.[0]) return null;
+  if (!hotels?.[0]) redirect('/dashboard/onboarding');
   const hotelId = hotels[0].id;
 
   const [{ data: topGuests }, { data: recentTx }, { data: allGuests }] = await Promise.all([

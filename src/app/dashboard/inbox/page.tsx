@@ -1,14 +1,16 @@
 export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { InboxClient } from '@/components/inbox/inbox-client';
 
 export default async function InboxPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/auth/login');
   const { data: profile } = await supabase
     .from('user_profiles')
     .select('organization_id')
-    .eq('id', user!.id)
+    .eq('id', user.id)
     .single();
   const { data: hotels } = await supabase
     .from('hotels')
@@ -16,6 +18,6 @@ export default async function InboxPage() {
     .eq('organization_id', profile?.organization_id)
     .limit(1);
 
-  if (!hotels?.[0]) return null;
+  if (!hotels?.[0]) redirect('/dashboard/onboarding');
   return <InboxClient hotelId={hotels[0].id} hotelName={hotels[0].name} />;
 }

@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import {
   LogIn, LogOut, Bed, Users, Clock, Phone, Mail,
-  CheckCircle2, Search, RefreshCw, Radio,
+  CheckCircle2, Search, RefreshCw, Radio, AlertTriangle, MailCheck,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -202,6 +202,14 @@ export function FrontDeskClient({ hotelId, hotel, arrivals, departures, inHouse,
         </div>
       )}
 
+      {/* Overbooking warning #21 */}
+      {tab === 'arrivals' && arrivals.length > rooms.filter((r: any) => r.status === 'available').length && (
+        <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-700">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <p>ระวัง: เช็คอินวันนี้ <strong>{arrivals.length} ห้อง</strong> แต่ห้องว่างเพียง <strong>{rooms.filter((r: any) => r.status === 'available').length} ห้อง</strong> — ตรวจสอบ room assignment</p>
+        </div>
+      )}
+
       {/* Arrivals */}
       {tab === 'arrivals' && (
         <div className="space-y-2">
@@ -212,6 +220,7 @@ export function FrontDeskClient({ hotelId, hotel, arrivals, departures, inHouse,
             <ReservationRow
               key={r.id}
               reservation={r}
+              showEmailBadge
               action={
                 <button
                   onClick={() => doCheckIn(r.id)}
@@ -254,9 +263,49 @@ export function FrontDeskClient({ hotelId, hotel, arrivals, departures, inHouse,
           {filterRes(inHouse).length === 0 && (
             <EmptyState icon={Users} message="ไม่มีผู้เข้าพักในขณะนี้" />
           )}
-          {filterRes(inHouse).map(r => (
-            <ReservationRow key={r.id} reservation={r} />
-          ))}
+          {filterRes(inHouse).map(r => {
+            const hasLateCheckoutRequest = typeof r.special_requests === 'string' && r.special_requests.includes('[Late Checkout Request]');
+            return (
+              <ReservationRow
+                key={r.id}
+                reservation={r}
+                action={
+                  hasLateCheckoutRequest ? (
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/reservations/late-checkout-approve', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ hotelId, reservationId: r.id, waiveFee: false }),
+                          });
+                          const data = await res.json();
+                          res.ok ? toast.success(data.message) : toast.error(data.error);
+                        }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <Clock className="h-3.5 w-3.5" /> อนุมัติ Late CO
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/reservations/late-checkout-approve', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ hotelId, reservationId: r.id, waiveFee: true }),
+                          });
+                          const data = await res.json();
+                          res.ok ? toast.success(data.message) : toast.error(data.error);
+                        }}
+                        className="px-2.5 py-1.5 border border-amber-300 text-amber-700 rounded-lg text-xs font-medium hover:bg-amber-50 transition-colors"
+                      >
+                        ยกเว้นค่า
+                      </button>
+                    </div>
+                  ) : undefined
+                }
+              />
+            );
+          })}
         </div>
       )}
 
@@ -303,7 +352,7 @@ export function FrontDeskClient({ hotelId, hotel, arrivals, departures, inHouse,
   );
 }
 
-function ReservationRow({ reservation: r, action }: { reservation: any; action?: React.ReactNode }) {
+function ReservationRow({ reservation: r, action, showEmailBadge }: { reservation: any; action?: React.ReactNode; showEmailBadge?: boolean }) {
   const guest = Array.isArray(r.guests) ? r.guests[0] : r.guests;
   const room = Array.isArray(r.rooms) ? r.rooms[0] : r.rooms;
   const roomType = Array.isArray(r.room_types) ? r.room_types[0] : r.room_types;
@@ -345,6 +394,11 @@ function ReservationRow({ reservation: r, action }: { reservation: any; action?:
           {guest?.email && (
             <span className="flex items-center gap-1 hidden sm:flex">
               <Mail className="h-3 w-3" />{guest.email}
+            </span>
+          )}
+          {showEmailBadge && (
+            <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full text-[10px] font-medium" title="Pre-arrival email series sent">
+              <MailCheck className="h-3 w-3" /> Pre-arrival
             </span>
           )}
         </div>

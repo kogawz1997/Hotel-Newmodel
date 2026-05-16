@@ -1,6 +1,7 @@
 import { TopBar } from '@/components/layout/top-bar';
 import { Card, CardContent } from '@/components/ui/card';
 import { requireDashboardRole } from '@/lib/auth/page-guards';
+import { redirect } from 'next/navigation';
 import { formatCurrency } from '@/lib/utils';
 import { BedDouble, CalendarCheck, CircleDollarSign, UtensilsCrossed, Heart, TrendingUp } from 'lucide-react';
 import { AnalyticsChartsClient } from './analytics-charts-client';
@@ -13,7 +14,7 @@ export default async function AnalyticsPage() {
   const { supabase, profile } = await requireDashboardRole(['owner', 'admin', 'manager']);
   const { data: hotel } = await supabase.from('hotels').select('id,currency').eq('organization_id', profile?.organization_id).limit(1).single();
 
-  if (!hotel) return null;
+  if (!hotel) redirect('/dashboard/onboarding');
 
   const now = new Date();
   const today = now.toISOString().slice(0, 10);

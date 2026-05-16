@@ -20,5 +20,14 @@ export default async function GuestDetailPage({ params }: { params: Promise<{ id
   ]);
 
   if (!guest) notFound();
-  return <GuestDetailClient guest={guest} reservations={reservations || []} loyaltyTx={loyaltyTx || []} hotelId={hotels[0].id} />;
+
+  const { data: conversations } = await supabase
+    .from('conversations')
+    .select('id, channel, guest_name, last_message_preview, last_message_at, unread_count, status, needs_human')
+    .eq('hotel_id', hotels[0].id)
+    .ilike('guest_name', `%${guest.first_name}%`)
+    .order('last_message_at', { ascending: false })
+    .limit(20);
+
+  return <GuestDetailClient guest={guest} reservations={reservations || []} loyaltyTx={loyaltyTx || []} conversations={conversations || []} hotelId={hotels[0].id} />;
 }
