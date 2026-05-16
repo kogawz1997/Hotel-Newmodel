@@ -140,15 +140,30 @@ export class ETaxService {
       };
     }
 
-    // TODO: Implement after provider approved
-    // INET example:
-    // const xml = this.buildXML(invoice);
-    // const signed = await this.signXML(xml);
-    // const response = await axios.post('https://api.etax.inet.co.th/v1/invoices', signed);
+    // Requires an approved e-Tax provider account (INET, Frank, leceipt) and digital certificate.
+    // See https://etax.rd.go.th for government documentation and provider list.
+    const xml = this.buildXML(invoice);
 
+    const response = await fetch(`https://api.etax.inet.co.th/v1/invoices`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${process.env.ETAX_USERNAME}:${process.env.ETAX_PASSWORD || ''}`).toString('base64')}`,
+        'Content-Type': 'application/xml',
+        'Accept': 'application/json',
+      },
+      body: xml,
+    });
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      return { status: 'rejected', errors: [body?.message || `HTTP ${response.status}`] };
+    }
+
+    const result = await response.json();
     return {
       status: 'submitted',
-      documentId: `ETAX-${invoice.invoiceNumber}`,
+      documentId: result.document_id || `ETAX-${invoice.invoiceNumber}`,
+      pdfUrl: result.pdf_url,
     };
   }
 
