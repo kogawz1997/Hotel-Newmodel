@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import { createClient } from '@/lib/supabase/server';
 import { SettingsClient } from '@/components/dashboard/settings-client';
 import Link from 'next/link';
-import { Globe } from 'lucide-react';
+import { Globe, Plug } from 'lucide-react';
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -18,13 +18,20 @@ export default async function SettingsPage() {
   return (
     <div>
       {isOwnerAdmin && (
-        <div className="max-w-5xl mx-auto px-4 pt-4">
+        <div className="max-w-5xl mx-auto px-4 pt-4 flex flex-wrap gap-2">
+          <Link
+            href="/dashboard/settings/integrations"
+            className="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm text-violet-700 hover:bg-violet-100"
+          >
+            <Plug className="h-4 w-4" />
+            Integration Settings (LINE / WhatsApp / OTA / Email…)
+          </Link>
           <Link
             href="/dashboard/settings/domains"
             className="inline-flex items-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-4 py-2 text-sm text-sky-700 hover:bg-sky-100"
           >
             <Globe className="h-4 w-4" />
-            Custom Domain Settings
+            Custom Domains
           </Link>
         </div>
       )}

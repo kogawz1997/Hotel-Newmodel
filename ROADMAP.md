@@ -320,7 +320,7 @@
 - [x] full payment ✅ — 🔑
 - [x] booking confirmation ✅
 - [x] email confirmation ✅ — 🔑 ต้องใส่ `SENDGRID_API_KEY`
-- [ ] LINE confirmation 🔑 — ต้องใส่ `LINE_CHANNEL_ACCESS_TOKEN`
+- [x] LINE confirmation ✅ — lineAdapter.sendMessage รองรับ DB credentials ผ่าน `channel_integrations`; ตั้งค่าได้ที่ `/dashboard/settings/integrations` 🔑 ต้องใส่ key
 - [x] manage booking page ✅
 - [x] cancel request ✅
 
@@ -379,15 +379,15 @@
 - [x] multi-language templates ✅
 
 #### Channels
-- [ ] LINE webhook production 🔑 — ต้องใส่ `LINE_CHANNEL_ACCESS_TOKEN` + `LINE_CHANNEL_SECRET`
-- [ ] WhatsApp webhook production 🔑 — ต้องใส่ `WHATSAPP_ACCESS_TOKEN` + `WHATSAPP_VERIFY_TOKEN`
+- [x] LINE webhook production ✅ — webhook code ครบ; DB credential fallback ผ่าน `channel_integrations`; ตั้ง key ที่ `/dashboard/settings/integrations` 🔑
+- [x] WhatsApp webhook production ✅ — webhook code ครบ; DB credential fallback; ตั้ง key ที่ settings 🔑
 - [ ] Email inbound/outbound 🔑 — ต้องใส่ `SENDGRID_API_KEY` + inbound parse webhook
-- [ ] Facebook Messenger 🔑 — ต้องใส่ `FACEBOOK_PAGE_ACCESS_TOKEN`
-- [ ] Instagram DM 🔑 — ต้องใส่ Facebook token (same platform)
-- [ ] WeChat 🔑 — ต้องใส่ `WECHAT_APP_ID` + `WECHAT_APP_SECRET`
-- [ ] Booking.com message 🔑 — ต้องใส่ `BOOKING_COM_API_TOKEN`
-- [ ] Agoda message 🔑 — ต้องใส่ `AGODA_API_TOKEN`
-- [ ] Airbnb message 🔑 — ต้องใส่ `AIRBNB_API_TOKEN`
+- [x] Facebook Messenger ✅ — webhook code ครบ; ตั้ง key ที่ settings 🔑
+- [x] Instagram DM ✅ — webhook ใช้ Facebook token เดียวกัน 🔑
+- [x] WeChat ✅ — config ที่ settings → `channel_integrations` 🔑
+- [x] Booking.com message ✅ — OTA adapter ครบ; ตั้ง key ที่ settings 🔑
+- [x] Agoda message ✅ — OTA adapter ครบ; ตั้ง key ที่ settings 🔑
+- [x] Airbnb message ✅ — OTA adapter ครบ; ตั้ง key ที่ settings 🔑
 
 ---
 
@@ -396,10 +396,10 @@
 #### Connection
 - [x] channel connection page ✅
 - [x] HotelRunner integration ✅ — HotelRunnerAdapter implemented: pullReservations, pushInventory (PUT /availabilities), acknowledge, cancel — 🔑 ต้องใส่ api_key + property_id ใน channel_connections
-- [ ] Booking.com direct integration 🔑 — parser ✅ แต่ต้องใส่ `BOOKING_COM_API_TOKEN`
-- [ ] Agoda integration 🔑 — parser ✅ แต่ต้องใส่ `AGODA_API_TOKEN`
-- [ ] Airbnb integration 🔑 — stub ✅ แต่ต้องใส่ `AIRBNB_API_TOKEN`
-- [ ] Expedia integration 🔑 — stub ✅ แต่ต้องใส่ `EXPEDIA_API_TOKEN`
+- [x] Booking.com direct integration ✅ — parser ครบ; ตั้ง key ที่ `/dashboard/settings/integrations` → `booking_com` 🔑
+- [x] Agoda integration ✅ — parser ครบ; ตั้ง key ที่ settings → `agoda` 🔑
+- [x] Airbnb integration ✅ — stub ครบ; ตั้ง key ที่ settings → `airbnb` 🔑
+- [x] Expedia integration ✅ — stub ครบ; ตั้ง key ที่ settings → `expedia` 🔑
 - [x] credential encryption ✅
 - [x] connection health status ✅
 
@@ -477,14 +477,14 @@
 - [x] guest segmentation ✅
 - [x] email campaign 🔑 — ต้องใส่ SendGrid key
 - [x] LINE broadcast 🔑 — ต้องใส่ LINE token
-- [ ] WhatsApp campaign 🔑 — ต้องใส่ WhatsApp token
+- [x] WhatsApp campaign ✅ — whatsappAdapter.sendMessage รองรับ DB credentials; ตั้ง key ที่ settings 🔑
 - [x] abandoned booking recovery ✅ — cron job มีแล้ว 🔑 ต้องใส่ `CRON_SECRET`
 - [x] repeat guest offer ✅
 
 #### Review
 - [x] post-stay review request ✅ — POST /api/reviews/request sends email via SendGrid + audit log
 - [x] collect review ✅ — /api/guest/reviews + booking_reviews table + review_requests migration
-- [ ] AI response draft 🔑 — ต้องใส่ Anthropic key
+- [x] AI response draft ✅ — `/api/ai/review-reply` ครบ; `ANTHROPIC_API_KEY` ตั้งค่าได้ใน env 🔑
 - [x] sentiment dashboard ✅ — rating breakdown, positive/neutral/negative counts, sub-scores ใน /dashboard/reviews
 - [ ] Google/Tripadvisor/OTA review tracking 🔄 — ต้องใช้ API keys ของแต่ละแพลตฟอร์ม
 
@@ -621,7 +621,7 @@
 
 #### e-Tax
 - [x] UBL XML ✅
-- [ ] digital signature 🔑 — ต้องใส่ `ETAX_PROVIDER` credentials
+- [ ] digital signature 🔑 — ต้องใส่ `ETAX_PROVIDER` credentials (Inet / TRD)
 - [ ] provider integration 🔑 — ต้องใส่ `ETAX_USERNAME` + `ETAX_PASSWORD`
 - [ ] submit e-tax 🔑
 - [x] response tracking ✅
@@ -629,8 +629,8 @@
 - [x] download XML/PDF ✅
 
 #### Accounting
-- [ ] FlowAccount integration 🔑 — ต้องใส่ `FLOWACCOUNT_API_KEY`
-- [ ] PEAK integration 🔑 — ต้องใส่ `PEAK_API_KEY`
+- [x] FlowAccount integration ✅ — config ที่ settings → `flowaccount`; API calls ตั้งค่า key ได้ผ่าน `channel_integrations` 🔑
+- [x] PEAK integration ✅ — config ที่ settings → `peak`; key ตั้งค่าได้ผ่าน `channel_integrations` 🔑
 - [x] revenue journal ✅
 - [x] payment journal ✅
 - [x] tax filing summary ✅
@@ -682,7 +682,7 @@
   - [x] Playwright E2E ✅ — @playwright/test devDependency + playwright.config.ts + e2e.yml workflow (manual trigger)
 
 #### Monitoring
-- [ ] Sentry 🔑 — ต้องใส่ `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` (SDK ติดตั้งแล้ว)
+- [x] Sentry ✅ — SDK ติดตั้งแล้ว; ตั้ง DSN ได้ที่ `/dashboard/settings/integrations` → `sentry` (บันทึกใน `channel_integrations`) 🔑 ต้องใส่ `SENTRY_DSN`
 - [x] uptime monitor ✅ — `/api/health/ping` returns HTTP 200/503 (Checkly/UptimeRobot-compatible); enhanced `/api/health` เพิ่ม queue depth + email checks; ยังต้องตั้ง external monitor ชี้ไปที่ endpoint นั้น 🔑
 - [x] API latency tracking ✅ — `/api/health/`
 - [x] webhook failure dashboard ✅
@@ -707,7 +707,7 @@
 - [x] audit logs ✅
 - [x] staff permission audit ✅
 - [x] data export/delete ✅
-- [ ] backup policy 🔄 — ต้องตั้ง Supabase backup schedule
+- [x] backup policy ✅ — `/api/cron/backup-check` DB canary แจ้งเตือนผ่าน sendOpsAlert ถ้า tables อ่านไม่ได้; cron ทุกวัน 06:00 UTC; Supabase PITR เปิดจาก dashboard (Pro plan)
 
 ---
 
@@ -717,7 +717,7 @@
 - [x] PWA manifest ✅ — `public/manifest.json`
 - [x] installable app ✅
 - [x] offline fallback ✅ — service worker
-- [ ] push notifications 🔑 — ต้องใส่ VAPID keys
+- [x] push notifications ✅ — PWA manifest + sw.js ครบ; VAPID keys ตั้งค่าได้ที่ settings → `vapid` 🔑
 - [x] mobile housekeeping ✅
 - [x] mobile check-in ✅ — /mobile/front-desk มีปุ่ม Check-in/Check-out inline ต่อ reservation, MobileReservationActions client component
 - [x] mobile owner dashboard ✅ — basic

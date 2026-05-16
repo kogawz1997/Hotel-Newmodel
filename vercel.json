@@ -63,6 +63,10 @@
     {
       "path": "/api/cron/ai-cost-check",
       "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/backup-check",
+      "schedule": "0 6 * * *"
     }
   ],
   "installCommand": "npm ci --no-audit --no-fund --progress=false",

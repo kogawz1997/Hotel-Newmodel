@@ -17,6 +17,7 @@ export interface SendMessageOptions {
   mediaUrl?: string;
   templateName?: string;
   templateVariables?: Record<string, string>;
+  hotelId?: string;
 }
 
 export interface ChannelAdapter {
