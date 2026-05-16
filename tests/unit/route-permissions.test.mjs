@@ -160,4 +160,107 @@ for (const f of publicRoutes) {
   }
 }
 
+// ─── 15. P2 new routes: approval center ──────────────────────────────────────
+const approvalRoutes = [
+  'src/app/api/approvals/route.ts',
+  'src/app/api/approvals/[id]/resolve/route.ts',
+];
+for (const f of approvalRoutes) {
+  if (!exists(f)) { fail(`Missing approval route: ${f}`); continue; }
+  const src = read(f);
+  // resolve route uses requireUser (permission check is done inside resolveApproval)
+  const hasAuth = src.includes('requireHotelAccess') || src.includes('requireDashboardRole') || src.includes('requireUser');
+  if (!hasAuth) {
+    fail(`Approval route ${path.basename(path.dirname(f))} missing auth guard`);
+  } else pass(`Approval route ${path.basename(path.dirname(f))} has auth guard`);
+}
+
+// ─── 16. P2 new routes: notifications scoped to current user ─────────────────
+const notifRoute = read('src/app/api/notifications/route.ts');
+if (!notifRoute.includes('requireHotelAccess') && !notifRoute.includes('requireUser')) {
+  fail('Notifications route missing auth guard');
+} else pass('Notifications route has auth guard');
+// route uses .eq('user_id', ctx.user!.id) — check both tokens are present
+if (!notifRoute.includes('user_id') || !notifRoute.includes('.id')) {
+  fail('Notifications route must scope to current user (user_id filter)');
+} else pass('Notifications route scopes to current user');
+
+// ─── 17. P2 new routes: OTA failed-alert requires role ───────────────────────
+const otaAlert = read('src/app/api/ota/failed-alert/route.ts');
+if (!otaAlert.includes('requireHotelAccess')) {
+  fail('OTA failed-alert route missing requireHotelAccess');
+} else pass('OTA failed-alert route has requireHotelAccess');
+
+// ─── 18. P2 new routes: attendance/overtime restricted to HR roles ────────────
+const overtimeRoute = read('src/app/api/attendance/overtime/route.ts');
+if (!overtimeRoute.includes('requireHotelAccess')) {
+  fail('Overtime route missing requireHotelAccess');
+} else pass('Overtime route has requireHotelAccess with role restriction');
+if (!overtimeRoute.includes('hr_manager') && !overtimeRoute.includes('accounting_manager')) {
+  fail('Overtime route must restrict to HR/accounting roles');
+} else pass('Overtime route restricts to HR/accounting roles');
+
+// ─── 19. P2 new routes: shifts/conflicts restricted ─────────────────────────
+const conflictsRoute = read('src/app/api/shifts/conflicts/route.ts');
+if (!conflictsRoute.includes('requireHotelAccess')) {
+  fail('Shifts conflicts route missing requireHotelAccess');
+} else pass('Shifts conflicts route has requireHotelAccess');
+
+// ─── 20. P2: housekeeping damage reports scoped ──────────────────────────────
+const damageRoute = read('src/app/api/housekeeping/damage/route.ts');
+if (!damageRoute.includes('requireHotelAccess')) {
+  fail('Housekeeping damage route missing requireHotelAccess');
+} else pass('Housekeeping damage route has requireHotelAccess');
+if (!damageRoute.includes('hotel_id')) {
+  fail('Housekeeping damage route must scope inserts to hotel_id');
+} else pass('Housekeeping damage route scopes to hotel_id');
+
+// ─── 21. P3: owner/approvals page requires owner role ────────────────────────
+const ownerApprovalsPage = read('src/app/owner/approvals/page.tsx');
+if (!ownerApprovalsPage.includes('requireDashboardRole')) {
+  fail('Owner approvals page missing requireDashboardRole');
+} else pass('Owner approvals page has requireDashboardRole');
+if (!ownerApprovalsPage.includes('hotel_owner') && !ownerApprovalsPage.includes('owner')) {
+  fail('Owner approvals page must require owner/hotel_owner role');
+} else pass('Owner approvals page restricts to owner/hotel_owner roles');
+
+// ─── 22. P3: platform pages require is_platform_admin ───────────────────────
+const platformLayout = read('src/app/platform/layout.tsx');
+if (!platformLayout.includes('is_platform_admin')) {
+  fail('Platform layout missing is_platform_admin check');
+} else pass('Platform layout requires is_platform_admin');
+
+// ─── 23. P3: early-checkin and late-checkout use assertReservationAccess ─────
+for (const route of ['early-checkin', 'late-checkout']) {
+  const f = `src/app/api/reservations/[id]/${route}/route.ts`;
+  if (!exists(f)) { fail(`Missing reservation route: ${route}`); continue; }
+  const src = read(f);
+  if (!src.includes('assertReservationAccess')) {
+    fail(`${route} route missing assertReservationAccess`);
+  } else pass(`${route} route uses assertReservationAccess`);
+  if (!src.includes('createApproval')) {
+    fail(`${route} route must call createApproval`);
+  } else pass(`${route} route calls createApproval`);
+}
+
+// ─── 24. Service role client audit ────────────────────────────────────────────
+// createAdminClient (service role) is safe in:
+//   - API routes (server-only, behind auth guards)
+//   - Server component pages inside /admin and /platform (behind platform admin check)
+//   - Public pages: read-only access to public hotel data (hotels, platform_config)
+// createAdminClient must NOT appear in:
+//   - Client components ('use client')
+//   - Files that could be bundled client-side
+const uiDir = 'src/components/ui';
+const uiFiles = fs.readdirSync(path.join(root, uiDir)).filter(f => f.endsWith('.tsx') || f.endsWith('.ts'));
+let unsafeAdminUsage = false;
+for (const file of uiFiles) {
+  const src = read(`${uiDir}/${file}`);
+  if (src.includes('createAdminClient') || src.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+    fail(`UI component ${file} uses service role client (must never appear in client bundle)`);
+    unsafeAdminUsage = true;
+  }
+}
+if (!unsafeAdminUsage) pass('Service role client not used in any UI component (safe)');
+
 if (!process.exitCode) pass('All route permission checks passed');
