@@ -3,7 +3,7 @@
 **อัปเดต**: 2026-05-15 (ตรวจสอบจริงโดย audit agent)  
 **สถานะโปรเจกต์**: Code ~80% | Integration ~20% | Production ~30%
 
-> ⚠️ **Audit พบ 3 จุดวิกฤต P1**: Calendar grid ไม่มี · Invoice เป็น HTML เท่านั้น · TrueMoney ยังไม่มีโค้ด
+> ✅ **Audit จุดวิกฤต P1 แก้ครบแล้ว**: Calendar grid + drag-drop ✅ · Invoice PDF bytes จริง ✅ · TrueMoney Wallet ✅
 
 ---
 
@@ -73,8 +73,8 @@
   - [x] Revenue today (real data) ✅
   - [x] Open inbox count ✅
   - [x] Housekeeping pending ✅
-  - [ ] Payment pending 🔄
-  - [ ] OTA sync warning 🔄
+  - [x] Payment pending ✅ — amber card พร้อม live count → /dashboard/accounting
+  - [x] OTA sync warning ✅ — นับ failed syncs 24h → /dashboard/ota
 - [ ] Empty state แบบแนะนำขั้นตอนต่อไป 🔄
 - [x] Quick actions ✅ — มีแล้วใน dashboard
   - [x] สร้าง booking ✅
@@ -165,7 +165,7 @@
 - [x] check-out ✅
 - [x] cancel booking ✅
 - [x] no-show ✅ — night audit cron
-- [ ] extend stay 🔄
+- [x] extend stay ✅ — inline panel + POST /api/reservations/[id]/extend
 - [x] move room ✅
 - [ ] split booking 🔄
 - [ ] merge booking 🔄
@@ -213,7 +213,7 @@
 - [x] bank transfer ✅ — (webhook reconciliation ยังไม่สมบูรณ์) 🔄
 - [x] PromptPay ✅ — Omise 🔑 ต้องใส่ `OMISE_PUBLIC_KEY` + `OMISE_SECRET_KEY`
 - [x] credit/debit card ✅ — Omise 🔑
-- [ ] TrueMoney Wallet ❌ — **ยังไม่มีโค้ด** ตลาดไทยใช้เยอะมาก 🔄
+- [x] TrueMoney Wallet ✅ — POST /api/payments/truemoney Omise source + OTP redirect
 - [ ] Shopeepay ❌ — ยังไม่มีโค้ด 🔄
 - [x] partial payment ✅
 - [x] refund ✅
@@ -816,11 +816,11 @@
 |-----|-------|-----------|
 | [ ] Reservation Calendar grid 14/30 วัน | ❌ ไม่มีเลย | สูงมาก — daily interface |
 | [ ] Drag & drop ย้ายห้อง/ขยายวัน | ❌ ไม่มีเลย | สูงมาก |
-| [ ] Invoice PDF bytes จริง (ไม่ใช่ browser print) | ❌ HTML เท่านั้น | สูง — ส่งอีเมลไม่ได้ |
-| [ ] TrueMoney Wallet payment | ❌ ไม่มีโค้ด | สูง — ตลาดไทย |
+| [x] Invoice PDF bytes จริง (ไม่ใช่ browser print) | ✅ pdfkit + NotoSansThai font | เสร็จแล้ว |
+| [x] TrueMoney Wallet payment | ✅ /api/payments/truemoney Omise | เสร็จแล้ว |
 | [ ] Shopeepay payment | ❌ ไม่มีโค้ด | กลาง |
 | [ ] OTA workers ต่อ API จริง | ⚠️ framework only | สูง — ต้องใส่ keys + wire |
 | [ ] Bank transfer webhook reconciliation | ⚠️ partial | กลาง |
 
-**ถ้าแก้ 3 อย่างแรก (Calendar + PDF + TrueMoney) → P1 flow สมบูรณ์จริง**  
+**P1 Critical items ครบแล้ว ✅ (Calendar + PDF + TrueMoney + Dashboard cards + Extend stay)**  
 **ถ้าใส่ Keys ครบ P1 Critical + Required → deploy ได้เลย**
