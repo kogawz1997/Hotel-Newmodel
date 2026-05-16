@@ -71,8 +71,8 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const allPeriods = Array.from(
-    new Set(reservations.map(r => truncDate(r.check_in))),
+  const allPeriods: string[] = Array.from(
+    new Set<string>(reservations.map(r => truncDate(String(r.check_in)))),
   ).sort();
 
   const cohorts = Object.keys(cohortSizes).sort();

@@ -1,23 +1,73 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
+import {
+  isBiometricAvailable,
+  getBiometricCredentials,
+  authenticateWithBiometric,
+  saveBiometricCredentials,
+} from '@/../../src/lib/biometric';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [biometricReady, setBiometricReady] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const available = await isBiometricAvailable();
+        if (!available) return;
+        const creds = await getBiometricCredentials();
+        if (creds) setBiometricReady(true);
+      } catch {
+        // biometric not available — ignore
+      }
+    })();
+  }, []);
+
+  async function signInWithBiometric() {
+    try {
+      const success = await authenticateWithBiometric('เข้าสู่ระบบ Maitri PMS');
+      if (!success) return;
+      const creds = await getBiometricCredentials();
+      if (!creds) return;
+      setLoading(true);
+      const { error } = await supabase.auth.setSession({
+        access_token: creds.token,
+        refresh_token: creds.token,
+      });
+      setLoading(false);
+      if (error) {
+        // Session expired — fall back silently to password login
+        setBiometricReady(false);
+        return;
+      }
+      router.replace('/(tabs)');
+    } catch {
+      setLoading(false);
+      // biometric error — fall back silently to password login
+    }
+  }
 
   async function signIn() {
     if (!email || !password) { Alert.alert('กรุณากรอกอีเมลและรหัสผ่าน'); return; }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) Alert.alert('เข้าสู่ระบบไม่สำเร็จ', error.message);
-    else router.replace('/(tabs)');
+    if (error) { Alert.alert('เข้าสู่ระบบไม่สำเร็จ', error.message); return; }
+    try {
+      const token = data.session?.access_token;
+      if (token) await saveBiometricCredentials(email, token);
+    } catch {
+      // biometric save failed — non-critical
+    }
+    router.replace('/(tabs)');
   }
 
   return (
@@ -52,6 +102,12 @@ export default function LoginScreen() {
         <TouchableOpacity style={styles.button} onPress={signIn} disabled={loading}>
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>เข้าสู่ระบบ</Text>}
         </TouchableOpacity>
+
+        {biometricReady && (
+          <TouchableOpacity style={styles.biometricButton} onPress={signInWithBiometric} disabled={loading}>
+            <Text style={styles.biometricButtonText}>Login with Face/Fingerprint</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
@@ -75,4 +131,9 @@ const styles = StyleSheet.create({
     alignItems: 'center', marginTop: 4,
   },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  biometricButton: {
+    borderWidth: 1, borderColor: '#004B87', borderRadius: 12, paddingVertical: 13,
+    alignItems: 'center', marginTop: 12,
+  },
+  biometricButtonText: { color: '#004B87', fontSize: 15, fontWeight: '600' },
 });

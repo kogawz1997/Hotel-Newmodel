@@ -43,7 +43,7 @@ export interface AccountingAdapter {
   name: string;
   syncInvoice(invoice: AccountingInvoice): Promise<{ id: string; success: boolean }>;
   syncPayment(payment: AccountingPayment): Promise<{ id: string; success: boolean }>;
-  syncContact(contact: AccountingContact): Promise<{ id: string }>;
+  syncContact(contact: AccountingContact): Promise<{ id: string; success: boolean }>;
   syncInvoices(invoices: AccountingInvoice[]): Promise<BatchSyncResult>;
 }
 
@@ -142,8 +142,7 @@ export class PeakAdapter implements AccountingAdapter {
 
   async syncInvoice(invoice: AccountingInvoice): Promise<{ id: string; success: boolean }> {
     if (!process.env.PEAK_API_KEY) {
-      console.warn('[PEAK] Not configured');
-      return { id: '', success: false };
+      throw new Error('[PEAK] PEAK_API_KEY not configured — accounting sync disabled')
     }
     validateThaiInvoice(invoice);
 
@@ -180,8 +179,7 @@ export class PeakAdapter implements AccountingAdapter {
 
   async syncPayment(payment: AccountingPayment): Promise<{ id: string; success: boolean }> {
     if (!process.env.PEAK_API_KEY) {
-      console.warn('[PEAK] Not configured');
-      return { id: '', success: false };
+      throw new Error('[PEAK] PEAK_API_KEY not configured — accounting sync disabled')
     }
 
     const payload = {
@@ -202,10 +200,9 @@ export class PeakAdapter implements AccountingAdapter {
     return { id: String(data.id ?? ''), success: true };
   }
 
-  async syncContact(contact: AccountingContact): Promise<{ id: string }> {
+  async syncContact(contact: AccountingContact): Promise<{ id: string; success: boolean }> {
     if (!process.env.PEAK_API_KEY) {
-      console.warn('[PEAK] Not configured');
-      return { id: '' };
+      throw new Error('[PEAK] PEAK_API_KEY not configured — accounting sync disabled')
     }
 
     const payload = {
@@ -224,7 +221,7 @@ export class PeakAdapter implements AccountingAdapter {
       }),
     );
     const data = await response.json();
-    return { id: String(data.id ?? '') };
+    return { id: String(data.id ?? ''), success: true };
   }
 
   async syncInvoices(invoices: AccountingInvoice[]): Promise<BatchSyncResult> {
@@ -262,7 +259,7 @@ export class FlowAccountAdapter implements AccountingAdapter {
   }
 
   async syncInvoice(invoice: AccountingInvoice): Promise<{ id: string; success: boolean }> {
-    if (!this.apiKey) return { id: '', success: false };
+    if (!this.apiKey) throw new Error('[FlowAccount] API key not configured — accounting sync disabled')
     validateThaiInvoice(invoice);
 
     const response = await retryWithBackoff(() =>
@@ -293,7 +290,7 @@ export class FlowAccountAdapter implements AccountingAdapter {
   }
 
   async syncPayment(payment: AccountingPayment): Promise<{ id: string; success: boolean }> {
-    if (!this.apiKey) return { id: '', success: false };
+    if (!this.apiKey) throw new Error('[FlowAccount] API key not configured — accounting sync disabled')
 
     const response = await retryWithBackoff(() =>
       fetchWithErrorHandling(`${this.baseUrl}/received-vouchers`, {
@@ -311,8 +308,8 @@ export class FlowAccountAdapter implements AccountingAdapter {
     return { id: String(data.id ?? ''), success: true };
   }
 
-  async syncContact(contact: AccountingContact): Promise<{ id: string }> {
-    if (!this.apiKey) return { id: '' };
+  async syncContact(contact: AccountingContact): Promise<{ id: string; success: boolean }> {
+    if (!this.apiKey) throw new Error('[FlowAccount] API key not configured — accounting sync disabled')
 
     const searchResponse = await retryWithBackoff(() =>
       fetchWithErrorHandling(
@@ -338,7 +335,7 @@ export class FlowAccountAdapter implements AccountingAdapter {
         }),
       );
       const updateData = await updateResponse.json();
-      return { id: String(updateData.id ?? existing.id) };
+      return { id: String(updateData.id ?? existing.id), success: true };
     }
 
     const createResponse = await retryWithBackoff(() =>
@@ -355,7 +352,7 @@ export class FlowAccountAdapter implements AccountingAdapter {
       }),
     );
     const createData = await createResponse.json();
-    return { id: String(createData.id ?? '') };
+    return { id: String(createData.id ?? ''), success: true };
   }
 
   async syncInvoices(invoices: AccountingInvoice[]): Promise<BatchSyncResult> {
