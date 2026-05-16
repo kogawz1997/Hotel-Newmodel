@@ -10,7 +10,7 @@ import {
   getBiometricCredentials,
   authenticateWithBiometric,
   saveBiometricCredentials,
-} from '@/../../src/lib/biometric';
+} from '@/lib/biometric';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
