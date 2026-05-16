@@ -1,3 +1,6 @@
+// NOTE: ctx objects passed to logger may contain PII (email, phone, etc.).
+// Callers are responsible for redacting sensitive fields before logging.
+// Use redactPii() from @/lib/utils/redact for untrusted/user-supplied data.
 type LogLevel = 'info' | 'warn' | 'error';
 
 function write(level: LogLevel, msg: string, ctx?: Record<string, unknown>) {

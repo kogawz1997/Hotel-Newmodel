@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { redactPii } from '@/lib/utils/redact';
 
 const schema = z.object({
   checkIn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -49,7 +50,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     action: 'guest.booking.modified',
     entity_type: 'reservation',
     entity_id: id,
-    changes: updatePayload,
+    changes: redactPii(updatePayload),
   });
   return NextResponse.json({ success: true, updates: updatePayload });
 }

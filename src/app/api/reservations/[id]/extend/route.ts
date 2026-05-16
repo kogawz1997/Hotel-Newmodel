@@ -4,6 +4,8 @@ import { parseJson } from '@/lib/http/validation';
 import { assertReservationAccess, requireHotelAccess } from '@/lib/auth/guards';
 import { assertRoomAvailable } from '@/lib/pms/availability';
 import { rateLimit } from '@/lib/security/rate-limit';
+import { redactPii } from '@/lib/utils/redact';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   newCheckOut: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -53,13 +55,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq('hotel_id', reservation.hotel_id)
     .select()
     .single();
-  if (error || !data) return NextResponse.json({ error: error?.message || 'Extend stay failed' }, { status: 500 });
+  if (error || !data) return error ? apiError(error) : NextResponse.json({ error: 'Extend stay failed' }, { status: 500 });
 
   const { data: folio } = await ctx.supabase.from('folios').select('id').eq('reservation_id', id).eq('hotel_id', reservation.hotel_id).limit(1).maybeSingle();
   if (folio?.id && parsed.data.additionalAmount > 0) {
     await ctx.supabase.from('folio_items').insert({ folio_id: folio.id, type: 'room', description: 'Extend stay charge', amount: parsed.data.additionalAmount, quantity: 1, posted_by: ctx.user?.id || null, reference_id: id, reference_type: 'reservation.extend' });
     await ctx.supabase.rpc('recalculate_folio_totals', { p_folio_id: folio.id });
   }
-  await ctx.supabase.from('audit_logs').insert({ hotel_id: reservation.hotel_id, user_id: ctx.user?.id || null, action: 'reservation.extended', entity_type: 'reservation', entity_id: id, changes: parsed.data });
+  await ctx.supabase.from('audit_logs').insert({ hotel_id: reservation.hotel_id, user_id: ctx.user?.id || null, action: 'reservation.extended', entity_type: 'reservation', entity_id: id, changes: redactPii(parsed.data) });
   return NextResponse.json({ reservation: data });
 }

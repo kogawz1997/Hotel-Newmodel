@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(request: Request) {
   const ctx = await requirePlatformAdmin();
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
 
   if (severity) query = query.eq('severity', severity);
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ events: data || [] });
 }

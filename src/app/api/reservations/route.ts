@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { calculateNights } from '@/lib/utils';
 import { parseJson, dateStringSchema, dbError } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { sendBookingConfirmation, sendNewBookingAlert } from '@/lib/email-templates';
@@ -306,10 +307,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, reservation });
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : 'Internal Server Error';
-
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err);
   }
 }
 
@@ -347,9 +345,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ reservations: data || [] });
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : 'Internal Server Error';
-
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err);
   }
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET() {
   const auth = await requirePlatformAdmin();
@@ -19,7 +20,7 @@ export async function GET() {
   ]);
 
   if (invError || chainError) {
-    return NextResponse.json({ error: invError?.message || chainError?.message }, { status: 500 });
+    return apiError(invError ?? chainError);
   }
 
   return NextResponse.json({

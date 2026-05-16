@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { redactPii } from '@/lib/utils/redact';
 
 const checkInSchema = z.object({
   estimatedArrival: z.string().datetime().optional().nullable(),
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     action: 'guest.checkin.submitted',
     entity_type: 'reservation',
     entity_id: reservation.id,
-    changes: { estimated_arrival: d.estimatedArrival || null, id_document_type: d.idDocumentType || null },
+    changes: redactPii({ estimated_arrival: d.estimatedArrival || null, id_document_type: d.idDocumentType || null }),
   });
   return NextResponse.json({ success: true, message: 'ส่งข้อมูล check-in ล่วงหน้าแล้ว' });
 }

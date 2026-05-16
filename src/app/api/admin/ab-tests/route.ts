@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requirePlatformAdmin } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET() {
   const access = await requirePlatformAdmin();
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const admin = createAdminClient();
   const { data, error } = await admin.from('ab_tests').insert(body).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json(data, { status: 201 });
 }
 
@@ -27,6 +28,6 @@ export async function PATCH(req: NextRequest) {
   const { id, ...updates } = await req.json();
   const admin = createAdminClient();
   const { data, error } = await admin.from('ab_tests').update(updates).eq('id', id).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }

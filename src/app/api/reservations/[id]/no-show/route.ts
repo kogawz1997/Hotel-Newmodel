@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { parseJson } from '@/lib/http/validation';
 import { assertReservationAccess, requireHotelAccess } from '@/lib/auth/guards';
+import { redactPii } from '@/lib/utils/redact';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({ reason: z.string().max(500).optional().nullable() });
 
@@ -21,8 +23,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq('hotel_id', ctx.reservation.hotel_id)
     .select()
     .single();
-  if (error || !data) return NextResponse.json({ error: error?.message || 'No-show update failed' }, { status: 500 });
+  if (error || !data) return error ? apiError(error) : NextResponse.json({ error: 'No-show update failed' }, { status: 500 });
 
-  await ctx.supabase.from('audit_logs').insert({ hotel_id: ctx.reservation.hotel_id, user_id: ctx.user?.id || null, action: 'reservation.no_show', entity_type: 'reservation', entity_id: id, changes: parsed.data });
+  await ctx.supabase.from('audit_logs').insert({ hotel_id: ctx.reservation.hotel_id, user_id: ctx.user?.id || null, action: 'reservation.no_show', entity_type: 'reservation', entity_id: id, changes: redactPii(parsed.data) });
   return NextResponse.json({ reservation: data });
 }

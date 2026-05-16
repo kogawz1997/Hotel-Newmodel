@@ -16,6 +16,7 @@ import { checkFeatureGate } from '@/lib/billing/feature-gate';
 import { createAdminClient } from '@/lib/supabase/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { format, addDays, subDays, eachDayOfInterval } from 'date-fns';
+import { apiError } from '@/lib/http/errors';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -121,7 +122,7 @@ Maximum 30 suggestions for the most impactful dates.`;
       stats: { dowStats, recentBookingPace: recentBookings.length },
     });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return apiError(err);
   }
 }
 
@@ -147,6 +148,6 @@ export async function PUT(request: NextRequest) {
   const { error } = await admin.from('rate_calendar')
     .upsert(rows, { onConflict: 'hotel_id,room_type_id,date', ignoreDuplicates: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json({ success: true, applied: rows.length });
 }

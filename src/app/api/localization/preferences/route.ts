@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 const BodySchema = z.object({
   default_locale: z.enum(['th', 'en', 'zh', 'ja', 'ko']),
@@ -18,7 +19,7 @@ export async function GET() {
     .eq('hotel_id', ctx.hotelId)
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json(data || { default_locale: 'th', enabled_locales: ['th', 'en'], auto_detect_guest_language: true });
 }
 
@@ -35,6 +36,6 @@ export async function PATCH(request: Request) {
     .select('*')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   return NextResponse.json(data);
 }

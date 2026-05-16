@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { redactPii } from '@/lib/utils/redact';
 
 const schema = z.object({
   marketingConsent: z.boolean().optional(),
@@ -55,12 +56,12 @@ export async function PATCH(request: NextRequest) {
     action: 'guest.notifications.preferences.updated',
     entity_type: 'guest_account',
     entity_id: user.id,
-    changes: {
+    changes: redactPii({
       marketing_consent: updates.marketing_consent ?? undefined,
       preferred_language: updates.preferred_language ?? undefined,
       quiet_hours_start: body.quietHoursStart ?? null,
       quiet_hours_end: body.quietHoursEnd ?? null,
-    },
+    }),
   });
   return NextResponse.json({ success: true });
 }
