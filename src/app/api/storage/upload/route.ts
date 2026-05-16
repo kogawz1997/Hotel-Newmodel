@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       .createSignedUploadUrl(objectPath);
 
     if (signErr) {
-      return NextResponse.json({ error: signErr.message }, { status: 500 });
+      return apiError(signErr);
     }
 
     const publicUrl = admin.storage.from(BUCKET).getPublicUrl(objectPath).data.publicUrl;

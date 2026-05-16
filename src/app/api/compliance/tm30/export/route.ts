@@ -1,5 +1,6 @@
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { tm30Service } from '@/lib/compliance';
+import { apiError } from '@/lib/http/errors';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     .lte('check_in', to)
     .order('check_in');
 
-  if (error) return Response.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   const reports = (reservations || []).map((r: any) => ({
     passportNumber: r.guests?.passport_number || '',

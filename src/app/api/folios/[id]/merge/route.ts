@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { parseJson } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({ targetFolioId: z.string().uuid(), note: z.string().max(500).optional().nullable() });
 
@@ -18,7 +19,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (ctx.error) return ctx.error;
 
   const { error: moveError } = await admin.from('folio_items').update({ folio_id: target.id }).eq('folio_id', source.id);
-  if (moveError) return NextResponse.json({ error: moveError.message }, { status: 500 });
+  if (moveError) return apiError(moveError);
   await admin.from('folios').update({ status: 'transferred', merged_into_folio_id: target.id, closed_at: new Date().toISOString() }).eq('id', source.id);
   await admin.rpc('recalculate_folio_totals', { p_folio_id: target.id });
   await admin.from('audit_logs').insert({ hotel_id: source.hotel_id, user_id: ctx.user.id, action: 'folio.merged', entity_type: 'folio', entity_id: source.id, changes: { targetFolioId: target.id, note: parsed.data.note } });

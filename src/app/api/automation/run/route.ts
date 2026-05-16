@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { getHotelCopy } from '@/lib/i18n/hotel-copy';
 import { readWebhookToken, verifyBearerOrHeaderToken } from '@/lib/security/webhook';
+import { apiError } from '@/lib/http/errors';
 function mapTemplate(trigger: string) {
   if (trigger === 'checkin_minus_1_day') return 'checkInReminder';
   if (trigger === 'checkout_day') return 'checkoutReminder';
@@ -17,7 +18,7 @@ async function runAutomation(request: Request) {
   const today = now.toISOString().slice(0, 10);
   const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const { data: rules, error: ruleError } = await admin.from('automation_rules').select('*, hotels(id, name)').eq('enabled', true).in('trigger', ['checkin_minus_1_day', 'checkout_day', 'payment_overdue', 'post_checkout_review']);
-  if (ruleError) return NextResponse.json({ error: ruleError.message }, { status: 500 });
+  if (ruleError) return apiError(ruleError);
   let queued = 0; let skipped = 0;
   for (const rule of rules || []) {
     let q = admin.from('reservations').select('id, hotel_id, guest_name, guest_email, guest_phone, check_in, check_out, status, balance_due, preferred_language').eq('hotel_id', rule.hotel_id).neq('status', 'cancelled');

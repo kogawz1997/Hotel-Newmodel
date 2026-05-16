@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { redactPii } from '@/lib/utils/redact';
+import { apiError } from '@/lib/http/errors';
 
 const checkInSchema = z.object({
   estimatedArrival: z.string().datetime().optional().nullable(),
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     special_requests: d.specialRequests || null,
     notes: d.idDocumentType ? `Digital check-in: ${d.idDocumentType}${d.idDocumentLast4 ? ` ****${d.idDocumentLast4}` : ''}` : null,
   }).eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   await supabase.from('audit_logs').insert({
     hotel_id: reservation.hotel_id,

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { parseJson } from '@/lib/http/validation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({ notes: z.string().max(1000).optional().nullable(), photoUrls: z.array(z.string().url()).max(10).optional().default([]) });
 
@@ -21,7 +22,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq('hotel_id', task.hotel_id)
     .select()
     .single();
-  if (error || !data) return NextResponse.json({ error: error?.message || 'Failed to complete task' }, { status: 500 });
+  if (error || !data) return error ? apiError(error) : NextResponse.json({ error: 'Failed to complete task' }, { status: 500 });
   if (task.room_id) await admin.from('rooms').update({ status: 'available' }).eq('id', task.room_id).eq('hotel_id', task.hotel_id);
   return NextResponse.json({ task: data });
 }

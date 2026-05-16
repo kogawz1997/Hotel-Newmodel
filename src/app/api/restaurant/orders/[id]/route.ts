@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { z } from 'zod';
+import { apiError } from '@/lib/http/errors';
 
 const patchSchema = z.object({
   action: z.enum(['add_items', 'bill', 'pay', 'cancel', 'update_notes']),
@@ -157,7 +158,7 @@ export async function PATCH(
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   return NextResponse.json({ data });
 }

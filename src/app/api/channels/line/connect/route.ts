@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireHotelAccess } from '@/lib/auth/guards';
+import { apiError } from '@/lib/http/errors';
 
 const Schema = z.object({
   channelId: z.string().min(3),
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     .select('*')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
   await ctx.supabase.from('audit_logs').insert({
     hotel_id: ctx.hotelId,
     user_id: ctx.user.id,

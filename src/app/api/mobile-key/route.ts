@@ -18,6 +18,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
+import { apiError } from '@/lib/http/errors';
 
 // Issue a new mobile key for a reservation
 export async function POST(request: NextRequest) {
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
     valid_until: validUntil,
   }).select().single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error);
 
   // Send to vendor if configured
   const vendorResult = await sendToVendor(keyToken, res, validFrom, validUntil);

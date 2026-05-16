@@ -5,6 +5,7 @@ import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { redactPii } from '@/lib/utils/redact';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   type: z.enum(['room', 'tax', 'fb', 'spa', 'minibar', 'service', 'damage', 'discount', 'payment', 'refund']),
@@ -44,7 +45,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     reference_id: body.referenceId || null,
     reference_type: body.referenceType || null,
   }).select().single();
-  if (error || !item) return NextResponse.json({ error: error?.message || 'Failed to add folio item' }, { status: 500 });
+  if (error || !item) return error ? apiError(error) : NextResponse.json({ error: 'Failed to add folio item' }, { status: 500 });
 
   await admin.rpc('recalculate_folio_totals', { p_folio_id: id });
   await admin.from('audit_logs').insert({ hotel_id: folio.hotel_id, user_id: ctx.user.id, action: 'folio.item.added', entity_type: 'folio', entity_id: id, changes: redactPii(body) });

@@ -4,6 +4,7 @@ import { parseJson } from '@/lib/http/validation';
 import { requireHotelAccess } from '@/lib/auth/guards';
 import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   description: z.string().min(1).max(255).default('Tax adjustment'),
@@ -37,7 +38,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     reference_type: 'tax.adjustment',
     reference_id: null,
   }).select().single();
-  if (error || !item) return NextResponse.json({ error: error?.message || 'Failed to post tax adjustment' }, { status: 500 });
+  if (error || !item) return error ? apiError(error) : NextResponse.json({ error: 'Failed to post tax adjustment' }, { status: 500 });
 
   await admin.rpc('recalculate_folio_totals', { p_folio_id: id });
   await admin.from('audit_logs').insert({

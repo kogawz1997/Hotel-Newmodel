@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { HOTEL_ROLES } from '@/lib/hotel-roles';
 import { redactPii } from '@/lib/utils/redact';
+import { apiError } from '@/lib/http/errors';
 
 const schema = z.object({
   email: z.string().email(),
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
   });
 
   if (createError || !created.user) {
-    return NextResponse.json({ error: createError?.message || 'ไม่สามารถสร้างบัญชีได้' }, { status: 500 });
+    return createError ? apiError(createError) : NextResponse.json({ error: 'ไม่สามารถสร้างบัญชีได้' }, { status: 500 });
   }
 
   const initialActive = ctx.profile.role === 'owner';
