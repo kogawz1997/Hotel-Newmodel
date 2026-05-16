@@ -59,6 +59,10 @@
     {
       "path": "/api/cron/email-report",
       "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/ai-cost-check",
+      "schedule": "0 9 * * 1"
     }
   ],
   "installCommand": "npm ci --no-audit --no-fund --progress=false",

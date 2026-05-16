@@ -293,7 +293,7 @@
 - [x] room detail ✅
 - [x] amenities ✅
 - [x] policy ✅
-- [ ] map/contact 🔄 — ต้องฝัง Google Maps API
+- [x] map/contact ✅ — Google Maps iframe embed (no API key needed) ใน `/h/[slug]/` line 410-424
 - [x] multi-language ✅
   - [x] th ✅
   - [x] en ✅
@@ -683,12 +683,12 @@
 
 #### Monitoring
 - [ ] Sentry 🔑 — ต้องใส่ `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` (SDK ติดตั้งแล้ว)
-- [ ] uptime monitor 🔄 — ต้องตั้ง external monitor (Checkly / Better Uptime)
+- [x] uptime monitor ✅ — `/api/health/ping` returns HTTP 200/503 (Checkly/UptimeRobot-compatible); enhanced `/api/health` เพิ่ม queue depth + email checks; ยังต้องตั้ง external monitor ชี้ไปที่ endpoint นั้น 🔑
 - [x] API latency tracking ✅ — `/api/health/`
 - [x] webhook failure dashboard ✅
 - [x] cron failure alert ✅ — sendOpsAlert() ใน reliability-sweep → OPS_ALERT_WEBHOOK_URL 🔑
 - [x] OTA sync alert ✅ — sendOpsAlert() ใน ota-sync cron เมื่อ channels fail
-- [ ] AI cost alert 🔄 — ต้องเชื่อม Anthropic usage API
+- [x] AI cost alert ✅ — `/api/cron/ai-cost-check` query audit_logs[action=ai_usage] → sendOpsAlert() เมื่อ cost > threshold; `src/lib/ai-usage.ts` helper; cron ทุก Monday 09:00 UTC
 
 #### Queue / Worker
 - [x] webhook queue ✅
@@ -723,7 +723,7 @@
 - [x] mobile owner dashboard ✅ — basic
 
 #### White-label
-- [ ] custom domain per hotel 🔄 — ต้องตั้ง Vercel/Cloudflare wildcard DNS
+- [x] custom domain per hotel ✅ — middleware hostname→custom_domains lookup + rewrite `/h/[slug]`; UI ที่ `/dashboard/settings/domains`; API CRUD + verify endpoint; ยังต้องตั้ง DNS CNAME ที่ Vercel/Cloudflare 🔑
 - [x] hotel logo/theme ✅ — `/dashboard/branding/`
 - [x] brand color ✅
 - [x] email template branding ✅
@@ -734,12 +734,12 @@
 
 ### ✅ P3 Done Checklist
 
-- [ ] หลายโรงแรมใช้งานพร้อมกัน
-- [ ] ระบบ subscription คิดเงินได้
-- [ ] admin ดู tenant ได้
-- [ ] monitoring แจ้งเตือนอัตโนมัติ
-- [ ] OTA/AI/payment มี queue
-- [ ] report ออกได้ครบ
+- [x] หลายโรงแรมใช้งานพร้อมกัน ✅ — RLS by organization_id ทุก table + middleware hotel check
+- [x] ระบบ subscription คิดเงินได้ ✅ — Stripe integration `/api/billing/` + `/dashboard/billing`
+- [x] admin ดู tenant ได้ ✅ — `/admin/orgs`, `/admin/operations`, `/admin/sales`, `/admin/engineering`
+- [x] monitoring แจ้งเตือนอัตโนมัติ ✅ — sendOpsAlert() (Discord/Slack), AI cost alert, OTA sync alert, cron failure alert
+- [x] OTA/AI/payment มี queue ✅ — webhook_queue, reliability-sweep DLQ, ota-sync cron
+- [x] report ออกได้ครบ ✅ — `/dashboard/reports` Revenue/Occupancy/Housekeeping/TM30/Guest Ledger + CSV export
 
 ---
 
