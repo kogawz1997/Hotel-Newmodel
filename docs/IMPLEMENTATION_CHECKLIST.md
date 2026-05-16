@@ -167,13 +167,13 @@
 - [x] `src/lib/sla/index.ts` — SLA breach checker ครบ
 
 **Every workflow must have:**
-- [ ] Owner role defined
-- [ ] Assigned user/department
-- [ ] Status lifecycle
-- [ ] SLA config
-- [ ] Notification triggers
-- [ ] Audit log on every state change
-- [ ] Tenant/hotel scope enforced
+- [x] Owner role defined — `APPROVAL_PERMISSIONS` maps each type to allowed approver roles
+- [x] Assigned user/department — `work_orders.assigned_to`, `approvals.requested_by/approved_by`
+- [x] Status lifecycle — `approvals.status`: pending→approved/rejected/escalated; `work_orders.status`: open→in_progress→completed
+- [x] SLA config — `department_sla_rules` table + `checkSLABreaches()` in `lib/sla/index.ts`
+- [x] Notification triggers — `queueNotification()` called on every state transition
+- [x] Audit log on every state change — `writeAuditLog()` called in every workflow function
+- [x] Tenant/hotel scope enforced — all queries use `.eq('hotel_id', ...)` or RLS
 
 ---
 
@@ -182,12 +182,12 @@
 - [~] Quick check-in — มีใน dashboard
 - [~] Quick checkout — มีใน dashboard
 - [~] Walk-in booking — มี `walk-in-quick-client.tsx`
-- [ ] Room move
-- [ ] Extend stay
-- [ ] Early check-in
-- [ ] Late checkout
+- [x] Room move — `reservations/[id]/move-room` POST (checks availability, rate-limited)
+- [x] Extend stay — `reservations/[id]/extend` POST (new check-out date + additional amount)
+- [x] Early check-in — `reservations/[id]/early-checkin` POST → approval type `early_checkin`
+- [x] Late checkout — `reservations/[id]/late-checkout` POST → approval type `late_checkout`
 - [~] Deposit handling — มี API
-- [ ] Split folio
+- [x] Split folio — `reservations/[id]/split` POST (creates 2nd reservation)
 - [~] Print receipt/folio — มี PDF module
 - [~] Fast guest lookup — มี search API
 - [~] Room readiness real-time — มี live components
@@ -196,13 +196,13 @@
 - [~] Cancel reservation with reason — มี API
 - [~] No-show — มี night audit
 - [~] Availability check — มี API
-- [ ] Duplicate guest warning (UI)
+- [x] Duplicate guest warning — `api/guests/check-duplicate` returns scored matches by email/phone/name
 - [~] OTA/manual/source tagging — มีบางส่วน
 
 **Add Tests:**
 - [~] Booking lifecycle tests
 - [~] Check-in lifecycle tests
-- [ ] Checkout lifecycle tests
+- [~] Checkout lifecycle tests — workflow connected via `onCheckout` in `reservations/[id]/route.ts`
 - [~] Reservation overlap tests
 - [~] Idempotency tests
 
@@ -519,11 +519,11 @@
 - [~] Modal/dialog system — มีใน `ui/dialog.tsx`
 - [~] Status badge system — มีใน `ui/badge.tsx`
 - [~] Toast/notification system — มี sonner
-- [ ] Loading states (skeleton-first, ไม่ใช่ spinner เดียว)
+- [x] Loading states — `ui/skeleton.tsx` มี `Skeleton`, `SkeletonStats`, `SkeletonTable`, `SkeletonCard`, `SkeletonList`
 - [~] Empty states — มีใน `ui/empty-state.tsx`
-- [ ] Error states (per-component, ไม่ใช่แค่ global)
+- [x] Error states (per-component) — `ui/error-boundary.tsx` มี `ErrorBoundary` class + `ErrorState` functional
 - [~] Mobile responsive layouts — มีบางส่วน
-- [~] Role-aware sidebar — มีบางส่วน
+- [x] Role-aware sidebar — sidebar.tsx filters nav items by user role
 - [?] Command palette (Cmd+K)
 - [?] Quick actions panel
 - [?] Keyboard shortcuts
@@ -532,10 +532,10 @@
 - [~] Thai/English UI — มี i18n
 
 **UX Principles (audit):**
-- [ ] ลด clicks — audit workflow ที่ยาวเกิน
-- [ ] ลด clutter — audit dashboard หน้าหลัก
-- [ ] แสดงเฉพาะ actions ที่ role นั้นทำได้
-- [ ] Mobile operations เร็ว (housekeeping, maintenance)
+- [x] แสดงเฉพาะ actions ที่ role นั้นทำได้ — sidebar, page guards, API all enforce role
+- [~] ลด clicks — approval center ใน 1 หน้า, notification deep links
+- [~] Mobile operations เร็ว — mobile routes มี `/mobile/housekeeping`, `/mobile/front-desk`
+- [~] ลด clutter — dashboard pages focus on role-relevant data
 
 ---
 
@@ -573,11 +573,11 @@
 ### P3.7 Production Readiness
 
 **Build & CI:**
-- [ ] `npm ci` ผ่าน
-- [ ] `npm run type-check` ผ่าน 0 errors
-- [ ] `npm run lint` ผ่าน 0 errors
-- [ ] `npm run build` ผ่าน
-- [ ] `npm run check:strict` ผ่าน
+- [~] `npm ci` ผ่าน — ต้อง run ใน fresh container (package-lock.json exists)
+- [x] `npm run type-check` ผ่าน 0 errors ✅
+- [x] `npm run lint` ผ่าน 0 errors (79 warnings pre-existing) ✅
+- [x] `npm run build` ผ่าน — 190+ pages compiled ✅
+- [ ] `npm run check:strict` ผ่าน — ยังไม่ได้ run
 
 **Deployments & Services:**
 - [ ] Smoke test production URL
@@ -596,10 +596,10 @@
 ## FINAL DOCUMENTATION
 
 - [~] `docs/STATUS.md` — มีแล้ว แต่ต้อง update ให้ตรงจริง
-- [ ] `docs/PRODUCTION_GAP_REPORT.md` — ต้องสร้างจาก build จริง
+- [x] `docs/PRODUCTION_GAP_REPORT.md` — สร้างแล้ว จาก build จริง + security audit + gap list
 - [x] `docs/ROLE_MATRIX.md` — สร้างแล้ว พร้อม role groups, route protection, action/approval permissions
 - [x] `docs/WORKFLOW_ENGINE.md` — สร้างแล้ว พร้อม room state machine, approval flow, SLA, notifications
-- [ ] `docs/UX_SYSTEM.md` — ต้องสร้าง
+- [x] `docs/UX_SYSTEM.md` — สร้างแล้ว พร้อม skeleton patterns, error boundary, status badges, Thai labels
 - [x] `docs/DEPLOYMENT_CHECKLIST.md` — สร้างแล้ว พร้อม ENV vars, migration steps, smoke tests, security
 
 ---
