@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CalendarDays, Heart, UserRound, ClipboardCheck, ConciergeBell } from 'lucide-react';
 import { CookieConsent } from '@/components/ui/cookie-consent';
+import { PortalChatButton } from '@/components/portal/portal-chat-button';
 
 const tabs = [
   { href: '/portal/bookings',  label: 'Bookings', icon: CalendarDays },
@@ -48,6 +49,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       </nav>
 
       <CookieConsent />
+      <PortalChatButton />
     </div>
   );
 }

@@ -13,7 +13,7 @@ import { th } from 'date-fns/locale';
 import {
   User, Mail, Phone, Globe2, Star, Calendar, DollarSign,
   Award, TrendingUp, Bed, Plus, Pencil, ArrowLeft, Clock,
-  Shield, Heart, MessageSquare, ChevronRight,
+  Shield, Heart, MessageSquare, ChevronRight, ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -33,8 +33,15 @@ const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200',
 };
 
-export function GuestDetailClient({ guest, reservations, loyaltyTx, hotelId }: {
-  guest: any; reservations: any[]; loyaltyTx: any[]; hotelId: string;
+const CHANNEL_META: Record<string, { label: string; color: string }> = {
+  webchat: { label: 'Web Chat', color: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300' },
+  line:    { label: 'LINE',     color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' },
+  whatsapp:{ label: 'WhatsApp', color: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300' },
+  email:   { label: 'Email',    color: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300' },
+};
+
+export function GuestDetailClient({ guest, reservations, loyaltyTx, conversations, hotelId }: {
+  guest: any; reservations: any[]; loyaltyTx: any[]; conversations: any[]; hotelId: string;
 }) {
   const supabase = createClient();
   const [g, setG] = useState(guest);
@@ -273,6 +280,55 @@ export function GuestDetailClient({ guest, reservations, loyaltyTx, hotelId }: {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Communication history */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center justify-between gap-2">
+                <span className="flex items-center gap-2"><MessageSquare className="h-4 w-4" />ประวัติการสื่อสาร ({conversations.length})</span>
+                <Link href="/dashboard/inbox" className="flex items-center gap-1 text-xs font-normal text-muted-foreground hover:text-foreground transition-colors">
+                  Inbox <ExternalLink className="h-3 w-3" />
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {conversations.length === 0 ? (
+                <p className="text-sm text-muted-foreground p-4">ยังไม่มีประวัติการสื่อสาร</p>
+              ) : (
+                <div className="divide-y divide-border">
+                  {conversations.map(cv => {
+                    const ch = CHANNEL_META[cv.channel] ?? { label: cv.channel, color: 'bg-secondary text-secondary-foreground' };
+                    return (
+                      <div key={cv.id} className="flex items-start gap-3 px-4 py-3">
+                        <span className={cn('mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-2xs font-medium', ch.color)}>
+                          {ch.label}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium truncate">{cv.guest_name}</span>
+                            {cv.unread_count > 0 && (
+                              <span className="text-2xs bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5 font-bold">{cv.unread_count}</span>
+                            )}
+                            {cv.needs_human && (
+                              <span className="text-2xs bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 rounded-full px-1.5 py-0.5">ต้องการเจ้าหน้าที่</span>
+                            )}
+                          </div>
+                          {cv.last_message_preview && (
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">{cv.last_message_preview}</p>
+                          )}
+                        </div>
+                        {cv.last_message_at && (
+                          <span className="shrink-0 text-2xs text-muted-foreground whitespace-nowrap">
+                            {format(parseISO(cv.last_message_at), 'd MMM HH:mm', { locale: th })}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>

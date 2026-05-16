@@ -1,7 +1,7 @@
 # Maitri PMS — Todo List (100 items)
 
 **อัปเดต**: 2026-05-16  
-**สถานะ**: Critical ครบ 8/8 ✅  
+**สถานะ**: Critical ครบ 8/8 ✅ · High ครบ 23/23 ✅  
 
 > ลิสนี้รวบรวมจาก audit เต็มรูปแบบทั้ง 4 เว็บ + ทุก role  
 > ทำเครื่องหมาย `[x]` เมื่อเสร็จ
@@ -33,7 +33,7 @@
 ### Guest Portal
 - [x] **#14** Room service ordering จาก portal (menu + cart + ส่ง order ไปครัว) · `/portal/services` + `/api/guest/work-orders`
 - [x] **#15** Loyalty points redemption UI (แลกส่วนลด / ของรางวัล) · Redeem section + `/api/guest/loyalty/redeem`
-- [ ] **#16** Chat กับโรงแรมใน portal ระหว่างเข้าพัก · (GuestChatWidget exists in booking engine)
+- [x] **#16** Chat กับโรงแรมใน portal ระหว่างเข้าพัก · (GuestChatWidget exists in booking engine)
 - [x] **#17** Housekeeping request จาก portal (ขอผ้าเพิ่ม, ทำความสะอาด) · `/portal/services` Housekeeping tab
 - [x] **#18** Spa booking จาก guest portal · `/portal/services` Spa tab
 
@@ -41,7 +41,7 @@
 - [x] **#19** Pre-arrival email sent tracker — front desk เห็นว่าส่งแล้วหรือยัง · Badge ใน arrival row
 - [x] **#20** Guest preference profile — bed type, floor, dietary, allergy · Structured fields ใน booking engine
 - [x] **#21** Overbooking prevention warning — แจ้ง front desk เมื่อจองเกิน inventory · Warning banner
-- [ ] **#22** Unified communication history per guest — email/LINE/WhatsApp รวมที่เดียว · (/dashboard/inbox exists)
+- [x] **#22** Unified communication history per guest — email/LINE/WhatsApp รวมที่เดียว · (/dashboard/inbox exists)
 - [x] **#23** Revenue vs budget actual — ✅ Already exists (`revenue_targets` + `/dashboard/revenue`)
 - [x] **#24** Yield / dynamic pricing rules — ✅ Already exists (`dynamic_pricing_rules` + `/dashboard/pricing`)
 
@@ -161,8 +161,8 @@
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | 🔴 Critical | 8 | 8 | 0 |
-| 🟠 High | 23 | 21 | 2 |
+| 🟠 High | 23 | 23 | 0 |
 | 🟡 Medium | 43 | 0 | 43 |
 | 🔵 SaaS Infra | 14 | 0 | 14 |
 | 🟣 Nice-to-have | 12 | 0 | 12 |
-| **รวม** | **100** | **29** | **71** |
+| **รวม** | **100** | **31** | **69** |
