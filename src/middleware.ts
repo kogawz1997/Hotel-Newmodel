@@ -199,7 +199,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // ─── Owner portal ────────────────────────────────────────────────
-  if (pathname.startsWith('/owner') && !pathname.startsWith('/owner/login')) {
+  if (pathname.startsWith('/owner') && !pathname.startsWith('/owner/login') && pathname !== '/owner') {
     if (!user) return NextResponse.redirect(new URL('/owner/login', request.url));
 
     const ownerRoles = ['owner', 'hotel_owner', 'general_manager', 'admin'];
