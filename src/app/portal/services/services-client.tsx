@@ -12,7 +12,6 @@ import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 const MENU = [
   { category: 'อาหาร', emoji: '🍽️', items: [
@@ -497,7 +496,6 @@ export function ServicesClient() {
         )}
       </AnimatePresence>
 
-      <PortalBottomNav />
     </div>
   );
 }

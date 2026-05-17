@@ -15,7 +15,6 @@ import {
   X, ChevronRight, LogOut, QrCode, Sunrise, Sunset,
   ArrowUpCircle, CalendarDays, Sparkles,
 } from 'lucide-react';
-import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const STATUS: Record<string, { label: string; dot: string; badge: string }> = {
@@ -555,7 +554,6 @@ export function MyBookingsClient({ guest }: { guest: any }) {
         </Sheet>
       )}
 
-      <PortalBottomNav />
     </div>
   );
 }

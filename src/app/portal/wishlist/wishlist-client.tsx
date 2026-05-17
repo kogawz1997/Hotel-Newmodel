@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Heart, MapPin, ArrowLeft, Bed, Users, Maximize2, ChevronRight, Calendar } from 'lucide-react';
-import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 export function WishlistClient({ guest, wishlists: initial }: { guest: any; wishlists: any[] }) {
   const [items, setItems] = useState(initial);
@@ -19,14 +18,14 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
-      <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
+    <div className="min-h-screen bg-muted/50">
+      <nav className="bg-card border-b border-border sticky top-0 z-30">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-black/5 transition-colors">
+          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <span className="font-medium text-[#2A2522]">
-            Wishlist <span className="text-[#2A2522]/40 font-normal">({items.length})</span>
+          <span className="font-medium text-foreground">
+            Wishlist <span className="text-muted-foreground font-normal">({items.length})</span>
           </span>
         </div>
       </nav>
@@ -34,11 +33,11 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {items.length === 0 ? (
           <div className="text-center py-24">
-            <div className="h-16 w-16 bg-[#FAF7F2] border-2 border-dashed border-black/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="h-7 w-7 text-[#2A2522]/20" />
+            <div className="h-16 w-16 bg-muted/50 border-2 border-dashed border-border rounded-full flex items-center justify-center mx-auto mb-4">
+              <Heart className="h-7 w-7 text-muted-foreground/30" />
             </div>
-            <h2 className="font-semibold text-[#2A2522] mb-2">ยังไม่มีรายการโปรด</h2>
-            <p className="text-sm text-[#2A2522]/40 mb-6">กดไอคอน ❤️ ที่หน้าโรงแรมเพื่อบันทึก</p>
+            <h2 className="font-semibold text-foreground mb-2">ยังไม่มีรายการโปรด</h2>
+            <p className="text-sm text-muted-foreground mb-6">กดไอคอน ❤️ ที่หน้าโรงแรมเพื่อบันทึก</p>
             <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-[#C66A30] text-white rounded-xl text-sm font-medium hover:bg-[#A4522A] transition-colors">
               ค้นหาที่พัก <ChevronRight className="h-4 w-4" />
             </Link>
@@ -49,14 +48,14 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
               const hotel = item.hotels as any;
               const rt = item.room_types as any;
               return (
-                <div key={item.id} className="bg-white rounded-2xl border border-black/5 overflow-hidden group">
-                  <div className="relative h-44 bg-[#FAF7F2] overflow-hidden">
+                <div key={item.id} className="bg-card rounded-2xl border border-border overflow-hidden group">
+                  <div className="relative h-44 bg-muted/50 overflow-hidden">
                     {hotel?.hero_image_url ? (
                       <Image src={hotel.hero_image_url} alt={hotel.name}
                         fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-5xl text-[#2A2522]/10 font-serif">{hotel?.name?.charAt(0)}</span>
+                        <span className="text-5xl text-muted-foreground/20 font-serif">{hotel?.name?.charAt(0)}</span>
                       </div>
                     )}
                     <button onClick={() => remove(item.id)}
@@ -67,23 +66,23 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
 
                   <div className="p-4">
                     <div className="mb-1">
-                      <h3 className="font-semibold text-[#2A2522]">{hotel?.name}</h3>
+                      <h3 className="font-semibold text-foreground">{hotel?.name}</h3>
                       {hotel?.city && (
-                        <p className="text-xs text-[#2A2522]/40 flex items-center gap-1 mt-0.5">
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                           <MapPin className="h-3 w-3" />{hotel.city}
                         </p>
                       )}
                     </div>
 
                     {rt && (
-                      <div className="mt-2 p-2.5 bg-[#FAF7F2] rounded-lg">
+                      <div className="mt-2 p-2.5 bg-muted/50 rounded-lg">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-[#2A2522]">{rt.name}</span>
+                          <span className="text-xs font-medium text-foreground">{rt.name}</span>
                           <span className="text-sm font-bold text-[#C66A30]">
-                            {formatCurrency(rt.base_rate)}<span className="text-xs font-normal text-[#2A2522]/40">/คืน</span>
+                            {formatCurrency(rt.base_rate)}<span className="text-xs font-normal text-muted-foreground">/คืน</span>
                           </span>
                         </div>
-                        <div className="flex gap-3 mt-1 text-2xs text-[#2A2522]/40">
+                        <div className="flex gap-3 mt-1 text-2xs text-muted-foreground">
                           {rt.max_occupancy && <span className="flex items-center gap-1"><Users className="h-3 w-3" />{rt.max_occupancy} คน</span>}
                           {rt.size_sqm && <span className="flex items-center gap-1"><Maximize2 className="h-3 w-3" />{rt.size_sqm} ตร.ม.</span>}
                         </div>
@@ -92,7 +91,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
 
                     <div className="flex gap-2 mt-3">
                       <Link href={`/h/${hotel?.slug || hotel?.id}`}
-                        className="flex-1 text-center py-2 border border-black/10 rounded-lg text-xs font-medium text-[#2A2522] hover:bg-black/5 transition-colors">
+                        className="flex-1 text-center py-2 border border-border rounded-lg text-xs font-medium text-foreground hover:bg-muted transition-colors">
                         ดูรายละเอียด
                       </Link>
                       <Link href={`/booking/${hotel?.slug || hotel?.id}`}
@@ -107,7 +106,6 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
           </div>
         )}
       </div>
-      <PortalBottomNav />
     </div>
   );
 }
