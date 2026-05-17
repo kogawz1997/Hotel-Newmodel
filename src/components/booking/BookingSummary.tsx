@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import { ChevronDown, ChevronUp, Calendar, Bed, Users, Tag } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
@@ -32,8 +33,8 @@ export function BookingSummary({ hotel, room, checkIn, checkOut, nights, numAdul
     <div className="bg-white rounded-2xl border border-black/8 overflow-hidden sticky top-24">
       {/* Hotel image */}
       {hotel.hero_image_url && (
-        <div className="h-36 overflow-hidden">
-          <img src={hotel.hero_image_url} alt={hotel.name} className="w-full h-full object-cover" />
+        <div className="h-36 overflow-hidden relative">
+          <Image src={hotel.hero_image_url} alt={hotel.name} fill className="object-cover" />
         </div>
       )}
 

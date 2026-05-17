@@ -49,6 +49,12 @@ const nextConfig = {
   poweredByHeader: false,
   transpilePackages: ['recharts', 'victory-vendor'],
   serverExternalPackages: ['@line/bot-sdk'],
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.supabase.co' },
+      { protocol: 'https', hostname: '**.supabase.in' },
+    ],
+  },
   eslint: {
     // Keep CI/dev linting via explicit `npm run lint`, but avoid warning noise in `next build`.
     ignoreDuringBuilds: true,

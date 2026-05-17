@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import NextImage from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Upload, Trash2, Star, Image as ImageIcon, X } from 'lucide-react';
@@ -91,8 +92,8 @@ export function RoomTypeImageUpload({ hotelId, roomTypeId, onClose }: {
           ) : (
             <div className="grid grid-cols-3 gap-3">
               {images.map((img, i) => (
-                <div key={img.id} className="relative group rounded-xl overflow-hidden">
-                  <img src={img.image_url} alt={img.alt_text} className="w-full h-32 object-cover" />
+                <div key={img.id} className="relative group rounded-xl overflow-hidden h-32">
+                  <NextImage src={img.image_url} alt={img.alt_text || ''} fill className="object-cover" />
                   {i === 0 && (
                     <div className="absolute top-1.5 left-1.5 bg-accent text-white text-2xs px-1.5 py-0.5 rounded flex items-center gap-1">
                       <Star className="h-2.5 w-2.5 fill-current" /> หลัก

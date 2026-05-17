@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { format, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { CheckCircle2, Bed, Calendar, MapPin, Clock, Download } from 'lucide-react';
@@ -12,7 +13,8 @@ import { createClient } from '@/lib/supabase/client';
 function QRContent() {
   const searchParams = useSearchParams();
   const code = searchParams.get('code') || '';
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [reservation, setReservation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -36,7 +38,7 @@ function QRContent() {
       setLoading(false);
     }
     load();
-  }, [code]);
+  }, [code, supabase]);
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
@@ -65,7 +67,11 @@ function QRContent() {
         {/* Hotel logo / name */}
         <div className="text-center mb-6">
           {hotel?.logo_url
-            ? <img src={hotel.logo_url} alt={hotel.name} className="h-10 mx-auto mb-2 object-contain" />
+            ? (
+              <div className="relative h-10 w-32 mx-auto mb-2">
+                <NextImage src={hotel.logo_url} alt={hotel.name} fill className="object-contain" />
+              </div>
+            )
             : <div className="text-xl font-bold text-[#2A2522]">{hotel?.name}</div>
           }
           {hotel?.city && <p className="text-xs text-[#2A2522]/40 flex items-center justify-center gap-1"><MapPin className="h-3 w-3" />{hotel.city}</p>}

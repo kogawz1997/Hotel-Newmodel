@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Grid, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import NextImage from 'next/image';
 
 interface Props {
   images: { url: string; alt?: string }[];
@@ -28,19 +29,19 @@ export function HotelGallery({ images, hotelName }: Props) {
       {/* Grid */}
       <div className="relative">
         {images.length === 1 ? (
-          <div className="h-72 md:h-[420px] overflow-hidden cursor-pointer" onClick={() => setLightbox(0)}>
-            <img src={show1.url} alt={show1.alt || hotelName} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+          <div className="h-72 md:h-[420px] overflow-hidden cursor-pointer relative" onClick={() => setLightbox(0)}>
+            <NextImage src={show1.url} alt={show1.alt || hotelName} fill className="object-cover hover:scale-105 transition-transform duration-500" />
           </div>
         ) : (
           <div className="grid grid-cols-4 grid-rows-2 gap-1.5 h-72 md:h-[420px]">
             {/* Main large */}
-            <div className="col-span-2 row-span-2 overflow-hidden cursor-pointer" onClick={() => setLightbox(0)}>
-              <img src={show1.url} alt={show1.alt || hotelName} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+            <div className="col-span-2 row-span-2 overflow-hidden cursor-pointer relative" onClick={() => setLightbox(0)}>
+              <NextImage src={show1.url} alt={show1.alt || hotelName} fill className="object-cover hover:scale-105 transition-transform duration-700" />
             </div>
             {/* 4 small */}
             {show2.map((img, i) => (
               <div key={i} className="relative overflow-hidden cursor-pointer" onClick={() => setLightbox(i + 1)}>
-                <img src={img.url} alt={img.alt || ''} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+                <NextImage src={img.url} alt={img.alt || ''} fill className="object-cover hover:scale-110 transition-transform duration-500" />
                 {/* Show all button on last small image */}
                 {i === 3 && total > 5 && (
                   <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white hover:bg-black/60 transition-colors">
@@ -75,9 +76,9 @@ export function HotelGallery({ images, hotelName }: Props) {
           </div>
 
           {/* Main image */}
-          <div className="flex-1 flex items-center justify-center px-4" onClick={e => e.stopPropagation()}>
-            <img src={images[lightbox]?.url} alt={images[lightbox]?.alt || ''}
-              className="max-w-full max-h-full object-contain" />
+          <div className="flex-1 flex items-center justify-center px-4 relative min-h-0" onClick={e => e.stopPropagation()}>
+            <NextImage src={images[lightbox]?.url} alt={images[lightbox]?.alt || ''}
+              fill className="object-contain select-none" />
           </div>
 
           {/* Arrows */}
@@ -100,7 +101,7 @@ export function HotelGallery({ images, hotelName }: Props) {
               {images.map((img, i) => (
                 <button key={i} onClick={() => setLightbox(i)}
                   className={`shrink-0 h-14 w-20 rounded-lg overflow-hidden border-2 transition-all ${i === lightbox ? 'border-white' : 'border-transparent opacity-50 hover:opacity-80'}`}>
-                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <NextImage src={img.url} alt="" fill className="object-cover" />
                 </button>
               ))}
             </div>

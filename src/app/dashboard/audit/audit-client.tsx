@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +30,8 @@ const ACTION_META: Record<string, { label: string; color: string }> = {
 const PAGE_SIZE = 25;
 
 export function AuditClient({ hotelId }: { hotelId: string }) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -56,7 +57,7 @@ export function AuditClient({ hotelId }: { hotelId: string }) {
       setTotal(count || 0);
     }
     setLoading(false);
-  }, [hotelId, page, filterAction]);
+  }, [supabase, hotelId, page, filterAction]);
 
   useEffect(() => { load(); }, [load]);
 

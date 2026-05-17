@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Save, Settings, AlertTriangle, Megaphone, CreditCard, Zap, Globe } from 'lucide-react';
+import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { useAdminLang } from '@/contexts/admin-lang-context';
 
@@ -368,12 +369,15 @@ export default function AdminSettingsPage() {
 
             {cfg.site_content.favicon_url && (
               <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
-                <img
-                  src={cfg.site_content.favicon_url}
-                  alt="Favicon preview"
-                  className="h-8 w-8 rounded object-contain bg-white/10"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                />
+                <div className="relative h-8 w-8 rounded overflow-hidden bg-white/10 shrink-0">
+                  <NextImage
+                    src={cfg.site_content.favicon_url}
+                    alt="Favicon preview"
+                    fill
+                    className="object-contain"
+                    unoptimized
+                  />
+                </div>
                 <p className="text-xs text-white/40">
                   {lang === 'th' ? 'ตัวอย่างไอคอนเว็บ' : 'Favicon preview'}
                 </p>

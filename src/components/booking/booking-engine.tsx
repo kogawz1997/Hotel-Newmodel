@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { PriceGraph } from '@/components/booking/price-graph';
@@ -37,7 +38,8 @@ const ADDONS_CATALOG = [
 ] as const;
 
 export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: any; roomTypes: any[] }) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [step, setStep] = useState<Step>('dates');
   const [search, setSearch] = useState({ checkIn: '', checkOut: '', adults: 2, children: 0 });
   const [availableRooms, setAvailableRooms] = useState<any[]>(initialRoomTypes);
@@ -135,7 +137,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
       checkIn: format(tonight, 'yyyy-MM-dd'),
       checkOut: format(checkout, 'yyyy-MM-dd'),
     }));
-  }, []);
+  }, [GUEST_DRAFT_KEY, supabase]);
 
   async function searchAvailability() {
     if (!search.checkIn || !search.checkOut || nights < 1) {
@@ -288,8 +290,8 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
       <div className="relative h-[50vh] min-h-72 overflow-hidden cursor-pointer" onClick={() => { if (gallery.length > 0) { setLightboxIdx(galleryIdx); setLightboxOpen(true); } }}>
         {gallery.length > 0 ? (
           <>
-            <img src={gallery[galleryIdx]?.image_url || hotel.hero_image_url} alt={hotel.name}
-              className="w-full h-full object-cover transition-opacity duration-500" />
+            <NextImage src={gallery[galleryIdx]?.image_url || hotel.hero_image_url} alt={hotel.name}
+              fill className="object-cover transition-opacity duration-500" />
             {gallery.length > 1 && (
               <>
                 <button onClick={e => { e.stopPropagation(); setGalleryIdx(p => (p - 1 + gallery.length) % gallery.length); }}
@@ -318,7 +320,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             )}
           </>
         ) : hotel.hero_image_url ? (
-          <img src={hotel.hero_image_url} alt={hotel.name} className="w-full h-full object-cover" />
+          <NextImage src={hotel.hero_image_url} alt={hotel.name} fill className="object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[#2A2522] to-[#4a3c35] flex items-center justify-center">
             <span className="text-white/20 text-8xl font-serif">{hotel.name.charAt(0)}</span>
@@ -489,7 +491,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   <div className="md:w-60 h-52 md:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden group cursor-pointer"
                     onClick={() => { if (imgs.length > 0) setRoomLightbox({ images: imgs.map((i: any) => ({ url: i.image_url, alt: rt.name })), idx: 0 }); }}>
                     {imgs[0]?.image_url ? (
-                      <img src={imgs[0].image_url} alt={rt.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <NextImage src={imgs[0].image_url} alt={rt.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#2A2522]/20">
                         <Bed className="h-12 w-12" />
@@ -1059,7 +1061,11 @@ function PublicLayout({ hotel, user, step, lang, setLang, children }: any) {
       <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href={`/h/${hotel.slug || hotel.id}`} className="flex items-center gap-2">
-            {hotel.logo_url && <img src={hotel.logo_url} alt="logo" className="h-7" />}
+            {hotel.logo_url && (
+            <div className="relative h-7 w-16">
+              <NextImage src={hotel.logo_url} alt="logo" fill className="object-contain" />
+            </div>
+          )}
             <span className="font-bold text-[#2A2522]">{hotel.name}</span>
           </Link>
           <div className="flex items-center gap-3">

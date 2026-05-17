@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn, formatCurrency } from '@/lib/utils';
 import { format, addDays } from 'date-fns';
 import {
@@ -617,7 +618,9 @@ function SearchContent() {
                         <Link key={h.id} href={`/h/${h.slug}`}
                           className="bg-white rounded-xl border border-black/5 overflow-hidden hover:shadow-md transition-shadow">
                           {h.hero_image_url && (
-                            <img src={h.hero_image_url} alt={h.name} className="w-full h-20 object-cover" />
+                            <div className="relative w-full h-20">
+                              <Image src={h.hero_image_url} alt={h.name} fill className="object-cover" />
+                            </div>
                           )}
                           <div className="p-3">
                             <p className="text-xs font-semibold text-[#2A2522] line-clamp-1">{h.name}</p>

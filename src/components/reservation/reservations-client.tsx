@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, Fragment, useCallback } from 'react';
+import { useEffect, useState, useMemo, Fragment, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -53,7 +53,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function ReservationsClient({ hotelId }: { hotelId: string }) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
   const [isMobile, setIsMobile] = useState(false);
   const [startDate, setStartDate] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -91,7 +92,7 @@ export function ReservationsClient({ hotelId }: { hotelId: string }) {
     setRoomTypes(rts || []);
     setReservations(resvs as any || []);
     setLoading(false);
-  }, [hotelId, startDate]);
+  }, [supabase, hotelId, startDate]);
 
   useEffect(() => { load(); }, [load]);
 

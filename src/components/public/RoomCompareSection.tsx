@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import {
   Bed, Users, Maximize2, Flame, CheckCircle, ChevronRight,
   Image as ImageIcon, X, Check, Coffee,
@@ -178,10 +179,11 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                 {/* Image */}
                 <div className="sm:w-52 h-52 sm:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden">
                   {imgs[0]?.image_url ? (
-                    <img
+                    <NextImage
                       src={imgs[0].image_url}
                       alt={rt.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[#2A2522]/10">
@@ -397,11 +399,14 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                           className="px-5 py-4 text-left bg-white border-b border-black/8 min-w-[200px]"
                         >
                           {imgs[0]?.image_url && (
-                            <img
-                              src={imgs[0].image_url}
-                              alt={rt.name}
-                              className="w-full h-28 object-cover rounded-xl mb-3"
-                            />
+                            <div className="relative w-full h-28 rounded-xl overflow-hidden mb-3">
+                              <NextImage
+                                src={imgs[0].image_url}
+                                alt={rt.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
                           )}
                           <div className="font-bold text-[#2A2522] text-base leading-tight mb-1">
                             {rt.name}

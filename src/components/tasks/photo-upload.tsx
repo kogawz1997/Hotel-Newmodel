@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Camera, Upload, CheckCircle, X } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
@@ -57,7 +58,9 @@ export function PhotoUpload({ workOrderId, photoType, onUploaded, label }: Photo
       <p className="text-xs font-medium text-muted-foreground">{label ?? typeLabel[photoType] ?? photoType}</p>
       {preview ? (
         <div className="relative inline-block">
-          <img src={preview} alt="preview" className="h-24 w-24 object-cover rounded-lg border border-border" />
+          <div className="relative h-24 w-24">
+            <Image src={preview} alt="preview" fill className="object-cover rounded-lg border border-border" unoptimized />
+          </div>
           {done && <CheckCircle className="absolute -top-1.5 -right-1.5 h-5 w-5 text-emerald-500 bg-white rounded-full" />}
           {!done && !uploading && (
             <button onClick={() => { setPreview(null); setDone(false); }} className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">

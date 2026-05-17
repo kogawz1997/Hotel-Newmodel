@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { SearchHeader } from '@/components/public/SearchHeader';
 import { FAQSection } from '@/components/public/FAQSection';
@@ -164,9 +165,9 @@ export default function HomePage() {
         {/* Floating gallery thumbnails */}
         <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-3">
           {[IMAGES.infinityPool, IMAGES.suite, IMAGES.dining].map((img, i) => (
-            <div key={i} className={`zoom-img w-32 h-20 rounded-xl overflow-hidden border border-white/20 shadow-xl`}
+            <div key={i} className={`zoom-img w-32 h-20 rounded-xl overflow-hidden border border-white/20 shadow-xl relative`}
               style={{ animationDelay: `${i * 200}ms` }}>
-              <img src={img} alt="" className="w-full h-full object-cover" />
+              <Image src={img} alt="" fill className="object-cover" />
             </div>
           ))}
         </div>
@@ -284,7 +285,7 @@ export default function HomePage() {
             {DESTINATIONS.slice(0, 2).map(d => (
               <Link key={d.name} href={`/search?city=${d.name}`}
                 className="relative rounded-2xl overflow-hidden h-48 md:h-64 group cursor-pointer">
-                <img src={d.img} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src={d.img} alt={d.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                 <div className="absolute bottom-4 left-4">
                   <p className="text-white font-bold text-lg">{d.nameTh}</p>
@@ -296,7 +297,7 @@ export default function HomePage() {
               {DESTINATIONS.slice(2, 4).map(d => (
                 <Link key={d.name} href={`/search?city=${d.name}`}
                   className="relative rounded-2xl overflow-hidden h-[calc(50%-6px)] min-h-[100px] group cursor-pointer">
-                  <img src={d.img} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <Image src={d.img} alt={d.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-3 left-3">
                     <p className="text-white font-semibold text-sm">{d.nameTh}</p>
@@ -308,7 +309,7 @@ export default function HomePage() {
             {DESTINATIONS.slice(4).map(d => (
               <Link key={d.name} href={`/search?city=${d.name}`}
                 className="relative rounded-2xl overflow-hidden h-28 md:h-36 group cursor-pointer hidden md:block">
-                <img src={d.img} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src={d.img} alt={d.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-3 left-3">
                   <p className="text-white font-semibold text-sm">{d.nameTh}</p>
@@ -359,8 +360,8 @@ export default function HomePage() {
                 <div key={feat.title}
                   className="card-lift group bg-white rounded-3xl overflow-hidden border border-black/5 cursor-pointer"
                   style={{ animationDelay: `${i * 80}ms` }}>
-                  <div className="zoom-img h-48 overflow-hidden">
-                    <img src={feat.img} alt={feat.title} className="w-full h-full object-cover" />
+                  <div className="zoom-img h-48 overflow-hidden relative">
+                    <Image src={feat.img} alt={feat.title} fill className="object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                   </div>
                   <div className="p-6">
@@ -493,15 +494,15 @@ export default function HomePage() {
             </div>
             <div className="relative">
               <div className="grid grid-cols-2 gap-3">
-                <div className="zoom-img rounded-2xl overflow-hidden h-64">
-                  <img src={IMAGES.heroPool} alt="Hotel pool" className="w-full h-full object-cover" />
+                <div className="zoom-img rounded-2xl overflow-hidden h-64 relative">
+                  <Image src={IMAGES.heroPool} alt="Hotel pool" fill className="object-cover" />
                 </div>
                 <div className="space-y-3 mt-8">
-                  <div className="zoom-img rounded-2xl overflow-hidden h-36">
-                    <img src={IMAGES.suite} alt="Suite" className="w-full h-full object-cover" />
+                  <div className="zoom-img rounded-2xl overflow-hidden h-36 relative">
+                    <Image src={IMAGES.suite} alt="Suite" fill className="object-cover" />
                   </div>
-                  <div className="zoom-img rounded-2xl overflow-hidden h-24">
-                    <img src={IMAGES.dining} alt="Dining" className="w-full h-full object-cover" />
+                  <div className="zoom-img rounded-2xl overflow-hidden h-24 relative">
+                    <Image src={IMAGES.dining} alt="Dining" fill className="object-cover" />
                   </div>
                 </div>
               </div>
@@ -607,7 +608,7 @@ export default function HomePage() {
       {/* ─── CTA ─────────────────────────────────────────────────────────── */}
       <section className="relative py-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <img src={IMAGES.heroBeach} alt="" className="w-full h-full object-cover" />
+          <Image src={IMAGES.heroBeach} alt="" fill className="object-cover" />
           <div className="absolute inset-0 bg-[#1A1614]/75" />
         </div>
         <div className="container max-w-3xl px-4 text-center">

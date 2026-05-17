@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -25,7 +25,7 @@ export function SpaBookingClient({ reservations }: { reservations: Reservation[]
   const [newService, setNewService] = useState({ name: '', durationMin: '60', price: '' });
   const [loading, setLoading] = useState(false);
 
-  async function load() {
+  const load = useCallback(async () => {
     const [servicesRes, bookingsRes] = await Promise.all([fetch('/api/spa/services'), fetch('/api/spa/bookings')]);
     const servicesJson = await servicesRes.json();
     const bookingsJson = await bookingsRes.json();
@@ -33,9 +33,9 @@ export function SpaBookingClient({ reservations }: { reservations: Reservation[]
     setTherapists(servicesJson.therapists || []);
     setBookings(Array.isArray(bookingsJson) ? bookingsJson : []);
     if (!serviceId && servicesJson.services?.[0]) setServiceId(servicesJson.services[0].id);
-  }
+  }, [serviceId]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   async function createService() {
     setLoading(true);

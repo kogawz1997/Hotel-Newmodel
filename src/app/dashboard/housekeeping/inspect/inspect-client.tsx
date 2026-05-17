@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import NextImage from 'next/image';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,9 +14,9 @@ function PhotoCompare({ before, after }: { before: string; after: string }) {
   const [split, setSplit] = useState(50);
   return (
     <div className="relative w-full h-48 rounded-xl overflow-hidden select-none border border-border">
-      <img src={after} alt="หลัง" className="absolute inset-0 w-full h-full object-cover" />
+      <NextImage src={after} alt="หลัง" fill className="object-cover" />
       <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - split}% 0 0)` }}>
-        <img src={before} alt="ก่อน" className="absolute inset-0 w-full h-full object-cover" />
+        <NextImage src={before} alt="ก่อน" fill className="object-cover" />
       </div>
       <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg" style={{ left: `${split}%` }}>
         <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-white shadow-md flex items-center justify-center">
@@ -203,7 +204,9 @@ function TaskCard({
       {task.photo_urls && task.photo_urls.length === 1 && (
         <div className="mt-3 flex gap-2 overflow-x-auto">
           <a href={task.photo_urls[0]} target="_blank" rel="noopener noreferrer">
-            <img src={task.photo_urls[0]} alt="รูปที่ 1" className="h-16 w-16 flex-shrink-0 rounded-lg object-cover ring-1 ring-stone-200 dark:ring-stone-700" />
+            <div className="relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-stone-200 dark:ring-stone-700">
+              <NextImage src={task.photo_urls[0]} alt="รูปที่ 1" fill className="object-cover" />
+            </div>
           </a>
         </div>
       )}
@@ -412,11 +415,14 @@ export function InspectClient({
                 <div className="flex gap-2 overflow-x-auto pb-1">
                   {inspecting.photo_urls.map((url, i) => (
                     <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                      <img
-                        src={url}
-                        alt={`รูปที่ ${i + 1}`}
-                        className="h-20 w-20 flex-shrink-0 rounded-lg object-cover ring-1 ring-stone-200 dark:ring-stone-700 hover:ring-2 hover:ring-sky-400"
-                      />
+                      <div className="relative h-20 w-20 flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-stone-200 dark:ring-stone-700 hover:ring-2 hover:ring-sky-400">
+                        <NextImage
+                          src={url}
+                          alt={`รูปที่ ${i + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                     </a>
                   ))}
                 </div>

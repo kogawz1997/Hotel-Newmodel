@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,15 +21,14 @@ const COLUMNS = [
 ];
 
 export function HousekeepingClient({ hotelId }: { hotelId: string }) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [tasks, setTasks] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [rooms, setRooms] = useState<any[]>([]);
   const [roomMap, setRoomMap] = useState<any[]>([]);
 
-  useEffect(() => { load(); }, []);
-
-  async function load() {
+  const load = useCallback(async () => {
     const today = new Date().toISOString().split('T')[0];
     const { data } = await supabase
       .from('housekeeping_tasks')
@@ -44,7 +43,9 @@ export function HousekeepingClient({ hotelId }: { hotelId: string }) {
       .eq('hotel_id', hotelId).order('floor').order('room_number');
     setRooms(rs || []);
     setRoomMap(rs || []);
-  }
+  }, [supabase, hotelId]);
+
+  useEffect(() => { load(); }, [load]);
 
 
 

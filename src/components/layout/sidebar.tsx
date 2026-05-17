@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   Tag, Star, LayoutDashboard, Calendar, CalendarRange, MessageSquare, Users, Bed,
   Sparkles, BarChart3, Receipt, Globe2, UtensilsCrossed, Heart, Award, Megaphone,
@@ -167,7 +167,8 @@ const NAV_GROUPS = [
 export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: SidebarProps) {
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   useEffect(() => {
     if (!hotelId) return;
@@ -193,7 +194,7 @@ export function Sidebar({ hotelName, hotelId, userName, userEmail, userRole }: S
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [hotelId]);
+  }, [hotelId, supabase]);
 
   const role = userRole || 'staff';
 

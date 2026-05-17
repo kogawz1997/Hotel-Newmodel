@@ -13,7 +13,8 @@ interface UseRealtimeOptions {
 }
 
 export function useRealtime({ table, filter, event = '*', onEvent, channelName }: UseRealtimeOptions) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const channelRef = useRef<RealtimeChannel | null>(null);
   const retryTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryCount = useRef(0);
@@ -45,7 +46,7 @@ export function useRealtime({ table, filter, event = '*', onEvent, channelName }
     });
 
     channelRef.current = ch;
-  }, [channelName, table, filter, event]);
+  }, [supabase, channelName, table, filter, event]);
 
   useEffect(() => {
     subscribe();
@@ -53,5 +54,5 @@ export function useRealtime({ table, filter, event = '*', onEvent, channelName }
       if (retryTimeout.current) clearTimeout(retryTimeout.current);
       if (channelRef.current) supabase.removeChannel(channelRef.current);
     };
-  }, [subscribe]);
+  }, [supabase, subscribe]);
 }

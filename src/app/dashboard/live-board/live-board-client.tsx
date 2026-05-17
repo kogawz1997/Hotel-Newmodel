@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { TopBar } from '@/components/layout/top-bar';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,8 @@ import { Megaphone } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function LiveBoardClient({ hotelId, rooms: initRooms, staff, pendingTasks: initTasks, todayArrivals, alerts: initAlerts, profile }: any) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [tasks, setTasks] = useState<any[]>(initTasks);
   const [alerts, setAlerts] = useState<any[]>(initAlerts);
   const [emergency, setEmergency] = useState(false);
@@ -38,7 +39,7 @@ export function LiveBoardClient({ hotelId, rooms: initRooms, staff, pendingTasks
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [hotelId]);
+  }, [supabase, hotelId]);
 
   async function broadcast() {
     if (!announcement.trim()) return;

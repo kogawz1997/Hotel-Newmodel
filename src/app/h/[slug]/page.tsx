@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { createAdminClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { formatCurrency } from '@/lib/utils';
 import {
   MapPin, Phone, Mail, Star, Clock, ChevronRight, Bed, Users, Maximize2,
@@ -230,7 +231,11 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
       <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-black/5 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {hotel.logo_url && <img src={hotel.logo_url} alt="logo" className="h-8 object-contain" />}
+            {hotel.logo_url && (
+              <div className="relative h-8 w-24">
+                <Image src={hotel.logo_url} alt="logo" fill className="object-contain" />
+              </div>
+            )}
             <div>
               <div className="font-bold text-[#2A2522] text-sm leading-tight">{hotel.name}</div>
               {hotel.city && (
