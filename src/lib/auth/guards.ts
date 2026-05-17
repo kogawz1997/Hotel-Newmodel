@@ -11,6 +11,8 @@ export type { StaffRole } from '@/lib/auth/roles';
 export interface HotelContext {
   user: { id: string; email: string };
   profile: { id: string; role: StaffRole; organization_id: string };
+  /** Union of primary role + all additional roles for this hotel */
+  allRoles: StaffRole[];
   hotelId: string;
   hotel?: any;
   supabase: ReturnType<typeof createAdminClient>;
@@ -68,14 +70,25 @@ export async function requireHotelAccess(
     return { error: NextResponse.json({ error: 'Hotel not found or access denied' }, { status: 403 }) };
   }
 
-  // Check role if specified
-  if (allowedRoles && !allowedRoles.includes(profile.role as StaffRole)) {
-    return { error: NextResponse.json({ error: `Required role: ${allowedRoles.join(' or ')}`, yourRole: profile.role }, { status: 403 }) };
+  // Load additional roles for this hotel (multi-role support)
+  const { data: additionalRows } = await admin
+    .from('user_additional_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .eq('hotel_id', hotel.id);
+
+  const additionalRoles = (additionalRows ?? []).map(r => r.role as StaffRole);
+  const allRoles: StaffRole[] = [profile.role as StaffRole, ...additionalRoles];
+
+  // Check role against all roles (primary + additional)
+  if (allowedRoles && !allRoles.some(r => allowedRoles.includes(r))) {
+    return { error: NextResponse.json({ error: `Required role: ${allowedRoles.join(' or ')}`, yourRoles: allRoles }, { status: 403 }) };
   }
 
   return {
     user: { id: user.id, email: user.email || '' },
     profile: profile as any,
+    allRoles,
     hotelId: hotel.id,
     hotel,
     supabase: admin,
