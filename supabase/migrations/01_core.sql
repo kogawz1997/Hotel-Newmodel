@@ -1802,7 +1802,7 @@ CREATE INDEX IF NOT EXISTS idx_mobile_keys_token ON mobile_keys(key_token);
 CREATE INDEX IF NOT EXISTS idx_mobile_keys_res ON mobile_keys(reservation_id);
 CREATE INDEX IF NOT EXISTS idx_iot_readings_device_time ON iot_readings(device_id, recorded_at DESC);
 CREATE INDEX IF NOT EXISTS idx_loyalty_members_org_guest ON loyalty_members(organization_id, guest_account_id);
-CREATE INDEX IF NOT EXISTS idx_loyalty_tx_member ON loyalty_transactions(member_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_loyalty_tx_member ON loyalty_transactions(guest_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_revenue_targets_hotel ON revenue_targets(hotel_id, year, month);
 
 
