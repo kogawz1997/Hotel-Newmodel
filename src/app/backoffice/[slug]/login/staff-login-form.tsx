@@ -7,7 +7,12 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { loginInternal } from '@/lib/auth/role-login';
 
-export default function InternalLoginPage() {
+interface Props {
+  hotelName: string;
+  hotelSlug: string;
+}
+
+export default function StaffLoginForm({ hotelName, hotelSlug }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,6 +26,7 @@ export default function InternalLoginPage() {
     const error = params.get('error');
     if (error === 'session_expired') setErrorMessage('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
     if (error === '2fa_required') setErrorMessage('บัญชีนี้ต้องยืนยัน 2FA ก่อนใช้งาน');
+
     if (!token) {
       setTokenValid(false);
       setTokenChecked(true);
@@ -28,7 +34,8 @@ export default function InternalLoginPage() {
     }
 
     fetch('/api/team/staff-login-validate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
     })
       .then(async (res) => {
@@ -52,7 +59,11 @@ export default function InternalLoginPage() {
       toast.success('เข้าสู่ระบบสำเร็จ');
       window.location.href = result.redirectTo;
     } catch (error) {
-      toast.error(error instanceof Error && error.message === 'AUTH_TIMEOUT' ? 'การเชื่อมต่อใช้เวลานานเกินไป กรุณาลองใหม่' : 'ไม่สามารถเข้าสู่ระบบได้');
+      toast.error(
+        error instanceof Error && error.message === 'AUTH_TIMEOUT'
+          ? 'การเชื่อมต่อใช้เวลานานเกินไป กรุณาลองใหม่'
+          : 'ไม่สามารถเข้าสู่ระบบได้'
+      );
     } finally {
       setLoading(false);
     }
@@ -65,7 +76,7 @@ export default function InternalLoginPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Users className="h-4 w-4" />
           </div>
-          <span className="text-sm font-medium text-muted-foreground">Staff Portal</span>
+          <span className="text-sm font-medium text-muted-foreground">{hotelName} · Staff Portal</span>
         </div>
         <p className="text-sm text-muted-foreground">กำลังตรวจสอบลิงก์พนักงาน...</p>
       </div>
@@ -79,15 +90,16 @@ export default function InternalLoginPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
             <ShieldAlert className="h-4 w-4" />
           </div>
-          <span className="text-sm font-medium text-muted-foreground">Staff Portal</span>
+          <span className="text-sm font-medium text-muted-foreground">{hotelName} · Staff Portal</span>
         </div>
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 space-y-2">
-          <p className="text-sm font-medium text-amber-900">ไม่มีสิทธิ์เข้าถึงหน้านี้</p>
+          <p className="text-sm font-medium text-amber-900">ลิงก์ไม่ถูกต้องหรือหมดอายุ</p>
           <p className="text-xs text-amber-800">
-            หน้านี้ใช้สำหรับพนักงานที่ได้รับลิงก์จากเจ้าของโรงแรมเท่านั้น
-            กรุณาติดต่อเจ้าของโรงแรมเพื่อขอลิงก์เข้าสู่ระบบ
+            กรุณาติดต่อเจ้าของโรงแรมเพื่อขอลิงก์ใหม่
           </p>
-          {errorMessage && <p className="text-xs text-amber-800 border-t border-amber-200 pt-2">{errorMessage}</p>}
+          {errorMessage && (
+            <p className="text-xs text-amber-800 border-t border-amber-200 pt-2">{errorMessage}</p>
+          )}
         </div>
         <div className="space-y-2 text-center text-xs text-muted-foreground">
           <p>
@@ -114,7 +126,7 @@ export default function InternalLoginPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Users className="h-4 w-4" />
           </div>
-          <span className="text-sm font-medium text-muted-foreground">Staff Portal</span>
+          <span className="text-sm font-medium text-muted-foreground">{hotelName} · Staff Portal</span>
         </div>
         {errorMessage && (
           <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
@@ -122,11 +134,25 @@ export default function InternalLoginPage() {
           </div>
         )}
         <h1 className="font-display text-3xl font-medium tracking-tight">เข้าสู่ระบบพนักงาน</h1>
-        <p className="text-sm text-muted-foreground mt-2">ลิงก์ผ่านการตรวจสอบแล้ว กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบ</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          ลิงก์ผ่านการตรวจสอบแล้ว กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบ
+        </p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input type="email" label="อีเมล" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <Input type="password" label="รหัสผ่าน" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Input
+          type="email"
+          label="อีเมล"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <Input
+          type="password"
+          label="รหัสผ่าน"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? 'กำลังเข้าสู่ระบบ...' : <>เข้าสู่ระบบ <ArrowRight className="ml-2 h-4 w-4" /></>}
         </Button>

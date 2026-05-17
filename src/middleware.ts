@@ -52,7 +52,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Early return for public paths on known hosts — no auth checks needed
-  const protectedPrefixes = ['/dashboard', '/portal/bookings', '/portal/profile', '/portal/wishlist', '/admin', '/auth', '/backoffice', '/portal/login', '/mobile'];
+  const protectedPrefixes = ['/dashboard', '/portal/bookings', '/portal/profile', '/portal/wishlist', '/admin', '/auth', '/backoffice', '/portal/login', '/mobile', '/owner'];
   if (!protectedPrefixes.some(p => pathname.startsWith(p))) {
     return NextResponse.next();
   }
@@ -104,7 +104,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/admin') ||
     pathname.startsWith('/backoffice') ||
     pathname.startsWith('/auth') ||
-    pathname.startsWith('/portal/login')
+    pathname.startsWith('/portal/login') ||
+    pathname.startsWith('/owner')
   );
 
   const { data: profile } = needsProfile
@@ -117,25 +118,28 @@ export async function middleware(request: NextRequest) {
 
 
   // ─── Access policy enforcement (session timeout + 2FA baseline) ───
-  if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/backoffice'))) {
+  if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/backoffice') || (pathname.startsWith('/owner') && !pathname.startsWith('/owner/login')))) {
     const role = (profile?.role || 'staff') as keyof typeof ACCESS_POLICIES.sessionTimeoutMinutes;
     const timeoutMin = ACCESS_POLICIES.sessionTimeoutMinutes[role] || ACCESS_POLICIES.sessionTimeoutMinutes.staff;
     const signedAt = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : Date.now();
     const expired = (Date.now() - signedAt) > timeoutMin * 60_000;
     if (expired) {
-      return NextResponse.redirect(new URL('/api/auth/logout?next=/backoffice/login?error=session_expired', request.url));
+      const isOwnerPath = pathname.startsWith('/owner');
+      const logoutNext = isOwnerPath ? '/owner/login?error=session_expired' : '/backoffice/login?error=session_expired';
+      return NextResponse.redirect(new URL(`/api/auth/logout?next=${encodeURIComponent(logoutNext)}`, request.url));
     }
 
     if (ACCESS_POLICIES.require2FA.includes(role as any)) {
       const mfaVerified = Boolean((user.user_metadata as any)?.mfa_verified);
       if (!mfaVerified) {
-        return NextResponse.redirect(new URL('/backoffice/login?error=2fa_required', request.url));
+        const isOwnerPath = pathname.startsWith('/owner');
+        return NextResponse.redirect(new URL(isOwnerPath ? '/owner/login?error=2fa_required' : '/backoffice/login?error=2fa_required', request.url));
       }
     }
   }
 
   // ─── Separate customer portal vs internal backoffice ─────────────
-  if (pathname.startsWith('/backoffice') || pathname.startsWith('/auth') || pathname.startsWith('/portal/login')) {
+  if (pathname.startsWith('/backoffice') || pathname.startsWith('/auth') || pathname.startsWith('/portal/login') || pathname.startsWith('/owner/login')) {
     if (user) {
       const { data: guestAccount } = await supabase
         .from('guest_accounts')
@@ -143,7 +147,7 @@ export async function middleware(request: NextRequest) {
         .eq('id', user.id)
         .maybeSingle();
 
-      if ((pathname.startsWith('/backoffice') || pathname.startsWith('/auth')) && guestAccount) {
+      if ((pathname.startsWith('/backoffice') || pathname.startsWith('/auth') || pathname.startsWith('/owner/login')) && guestAccount) {
         return NextResponse.redirect(new URL('/portal/bookings', request.url));
       }
 
@@ -191,6 +195,24 @@ export async function middleware(request: NextRequest) {
     const routeRule = ROUTE_ROLES.find(rule => pathname.startsWith(rule.prefix));
     if (routeRule && !routeRule.roles.includes(profile.role || 'staff')) {
       return NextResponse.redirect(new URL('/dashboard?error=forbidden', request.url));
+    }
+  }
+
+  // ─── Owner portal ────────────────────────────────────────────────
+  if (pathname.startsWith('/owner') && !pathname.startsWith('/owner/login') && pathname !== '/owner') {
+    if (!user) return NextResponse.redirect(new URL('/owner/login', request.url));
+
+    const ownerRoles = ['owner', 'hotel_owner', 'general_manager', 'admin'];
+    if (!profile || !profile.active || !ownerRoles.includes(profile.role || '')) {
+      return NextResponse.redirect(new URL('/owner/login?error=forbidden', request.url));
+    }
+  }
+
+  // Redirect logged-in owners away from owner/login
+  if (pathname.startsWith('/owner/login') && user && profile) {
+    const ownerRoles = ['owner', 'hotel_owner', 'general_manager', 'admin'];
+    if (ownerRoles.includes(profile.role || '')) {
+      return NextResponse.redirect(new URL('/owner/hotels', request.url));
     }
   }
 

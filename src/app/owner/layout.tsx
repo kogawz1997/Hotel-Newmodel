@@ -7,7 +7,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 export default async function OwnerLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/auth/login');
+  if (!user) redirect('/owner/login');
 
   const admin = createAdminClient();
   const { data: profile } = await admin
@@ -16,15 +16,20 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
     .eq('id', user.id)
     .single();
 
-  const ownerRoles = ['owner', 'hotel_owner', 'general_manager'];
-  if (!profile || !ownerRoles.includes(profile.role)) redirect('/dashboard');
+  const ownerRoles = ['owner', 'hotel_owner', 'general_manager', 'admin'];
+  if (!profile || !ownerRoles.includes(profile.role)) redirect('/owner/login?error=forbidden');
 
-  const { data: hotel } = await admin
-    .from('hotels')
-    .select('id, name')
-    .eq('organization_id', profile.organization_id)
-    .limit(1)
-    .single();
+  // Skip hotel query if user has no org yet (new signup)
+  let hotel: { id: string; name: string } | null = null;
+  if (profile.organization_id) {
+    const { data: hotelData } = await admin
+      .from('hotels')
+      .select('id, name')
+      .eq('organization_id', profile.organization_id)
+      .limit(1)
+      .maybeSingle();
+    hotel = hotelData ?? null;
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
