@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { TopBar } from '@/components/layout/top-bar';
 import { toast } from 'sonner';
-import { Image as ImageIcon, Upload, Trash2, Eye, Star, Palette, Type, FileText } from 'lucide-react';
+import { ImageIcon, Upload, Trash2, Eye, Star, Palette, Type, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export function BrandingClient({ hotel, gallery }: { hotel: any; gallery: any[] }) {
