@@ -997,9 +997,9 @@ CREATE POLICY "hotel_data_isolation" ON fb_outlets FOR ALL
 CREATE POLICY "fb_categories_via_outlet" ON fb_menu_categories FOR ALL
   USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 
-CREATE POLICY "hotel_data_isolation" ON fb_menu_items FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
+CREATE POLICY "fb_items_via_outlet" ON fb_menu_items FOR ALL
+  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 CREATE POLICY "hotel_data_isolation" ON fb_orders FOR ALL
   USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
   WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
