@@ -30,7 +30,7 @@
     },
     {
       "path": "/api/cron/billing-reconcile",
-      "schedule": "10 1 * * *"
+      "schedule": "0 18 * * *"
     },
     {
       "path": "/api/cron/billing-retry",
@@ -38,19 +38,19 @@
     },
     {
       "path": "/api/cron/reliability-sweep",
-      "schedule": "0 0 * * *"
+      "schedule": "0 23 * * *"
     },
     {
       "path": "/api/cron/abandoned-booking-recovery",
-      "schedule": "15 2 * * *"
+      "schedule": "0 20 * * *"
     },
     {
       "path": "/api/cron/ota-sync",
-      "schedule": "15 3 * * *"
+      "schedule": "0 21 * * *"
     },
     {
       "path": "/api/cron/expire-pending",
-      "schedule": "30 3 * * *"
+      "schedule": "0 16 * * *"
     },
     {
       "path": "/api/cron/email-report",
@@ -65,6 +65,6 @@
       "schedule": "0 23 * * *"
     }
   ],
-  "installCommand": "npm ci --no-audit --no-fund --progress=false",
+  "installCommand": "npm install --legacy-peer-deps --no-audit --no-fund --progress=false",
   "buildCommand": "npm run build"
 }
