@@ -9,7 +9,7 @@
 -- ─── Table ────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS user_additional_roles (
-  id         UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id    UUID        NOT NULL REFERENCES user_profiles(id)  ON DELETE CASCADE,
   hotel_id   UUID        NOT NULL REFERENCES hotels(id)         ON DELETE CASCADE,
   role       TEXT        NOT NULL,
