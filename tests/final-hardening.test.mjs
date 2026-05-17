@@ -33,7 +33,7 @@ else pass('Stripe payment failure sends ops alert and logs event');
 
 const vercel = JSON.parse(read('vercel.json'));
 const cronPaths = new Set((vercel.crons || []).map((c) => c.path));
-for (const required of ['/api/cron/trial-expire', '/api/ota/process', '/api/cron/no-show']) {
+for (const required of ['/api/cron/trial-expiry', '/api/ota/process', '/api/cron/no-show']) {
   if (!cronPaths.has(required)) fail(`missing Vercel cron: ${required}`);
 }
 if (!process.exitCode) pass('final hardening checks passed');

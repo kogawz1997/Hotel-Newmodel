@@ -17,7 +17,7 @@ for (const file of routeMustExist) assert.equal(fs.existsSync(file), true, `${fi
 
 const vercel = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
 const cronPaths = new Set((vercel.crons || []).map((cron) => cron.path));
-for (const path of ['/api/cron/no-show', '/api/cron/trial-expire', '/api/ota/process']) {
+for (const path of ['/api/cron/no-show', '/api/cron/trial-expiry', '/api/ota/process']) {
   assert.equal(cronPaths.has(path), true, `${path} cron missing`);
 }
 
