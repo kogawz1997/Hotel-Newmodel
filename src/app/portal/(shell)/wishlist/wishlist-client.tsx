@@ -20,7 +20,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
   return (
     <>
       <nav className="bg-card border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="py-3 flex items-center gap-3">
           <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </Link>

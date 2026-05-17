@@ -216,7 +216,7 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <TrackHotelView
         id={hotel.id} slug={slug} name={hotel.name}
         city={hotel.city ?? undefined}
@@ -228,7 +228,7 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       {/* ── Sticky nav ── */}
-      <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-black/5 shadow-sm">
+      <nav className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/60 shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {hotel.logo_url && (
@@ -237,23 +237,22 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
               </div>
             )}
             <div>
-              <div className="font-bold text-[#2A2522] text-sm leading-tight">{hotel.name}</div>
+              <div className="font-semibold text-foreground text-[15px] leading-tight">{hotel.name}</div>
               {hotel.city && (
-                <div className="text-2xs text-[#2A2522]/50 flex items-center gap-0.5 mt-0.5">
+                <div className="text-[11px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
                   <MapPin className="h-3 w-3" />{hotel.city}
                 </div>
               )}
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* Viewer count */}
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-[#2A2522]/50 mr-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              {viewersNow} คนกำลังดูอยู่
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground mr-2 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-800">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span className="text-emerald-700 dark:text-emerald-400 font-medium">{viewersNow} คนกำลังดูอยู่</span>
             </div>
             <WishlistButton hotelId={hotel.id} />
             <Link href={`/booking/${slug}`}
-              className="px-5 py-2 bg-[#C66A30] text-white rounded-full text-sm font-semibold hover:bg-[#A4522A] transition-colors shadow-sm">
+              className="px-5 py-2.5 bg-[#C66A30] text-white rounded-full text-sm font-bold hover:bg-[#A4522A] active:scale-95 transition-all shadow-md shadow-[#C66A30]/25">
               จองเลย
             </Link>
           </div>
@@ -277,33 +276,33 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
           <div className="lg:col-span-2 space-y-10">
 
             {/* Header */}
-            <div className="border-b border-black/8 pb-8">
-              <h1 className="text-2xl font-bold text-[#2A2522] mb-3">{hotel.name}</h1>
+            <div className="border-b border-border/60 pb-8">
+              <h1 className="font-display text-3xl font-semibold text-foreground mb-3 tracking-tight">{hotel.name}</h1>
 
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 {hotel.city && (
-                  <span className="flex items-center gap-1 text-sm text-[#2A2522]/60">
-                    <MapPin className="h-4 w-4" />{hotel.city}
+                  <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 text-[#C66A30]" />{hotel.city}
                   </span>
                 )}
                 {avgRating && score && (
                   <div className="flex items-center gap-2">
-                    {/* Score badge — Agoda-style */}
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-white text-sm font-bold" style={{ backgroundColor: score.bg }}>
-                      {score.th}
+                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-white text-sm font-bold shadow-sm" style={{ backgroundColor: score.bg }}>
+                      <Star className="h-3.5 w-3.5 fill-white/80 text-white/80" />
+                      {avgRating.toFixed(1)} <span className="font-normal opacity-85 text-[12px]">{score.th}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-                      <strong className="text-[#2A2522] text-sm">{avgRating.toFixed(1)}</strong>
-                      <span className="text-xs text-[#2A2522]/40">({reviews.length} รีวิว)</span>
-                    </div>
+                    <span className="text-sm text-muted-foreground">({reviews.length} รีวิว)</span>
                   </div>
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-4 text-sm text-[#2A2522]/60 mb-5">
-                <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />เช็คอิน {hotel.check_in_time || '14:00'} น.</span>
-                <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />เช็คเอาท์ {hotel.check_out_time || '12:00'} น.</span>
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-5">
+                <span className="flex items-center gap-1.5 bg-muted/30 px-3 py-1.5 rounded-lg">
+                  <Clock className="h-3.5 w-3.5" />เช็คอิน {hotel.check_in_time || '14:00'} น.
+                </span>
+                <span className="flex items-center gap-1.5 bg-muted/30 px-3 py-1.5 rounded-lg">
+                  <Clock className="h-3.5 w-3.5" />เช็คเอาท์ {hotel.check_out_time || '12:00'} น.
+                </span>
               </div>
 
               {/* Highlights chips */}
@@ -312,7 +311,7 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
                   {highlights.map(a => {
                     const Icon = amenityIcon(a);
                     return (
-                      <span key={a} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF7F2] border border-[#C66A30]/20 text-[#2A2522]/70 text-xs rounded-full font-medium">
+                      <span key={a} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C66A30]/8 dark:bg-[#C66A30]/12 border border-[#C66A30]/25 text-foreground/80 text-xs rounded-full font-medium">
                         <Icon className="h-3.5 w-3.5 text-[#C66A30]" />
                         {amenityTh(a)}
                       </span>
@@ -324,25 +323,25 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
 
             {/* About */}
             {hotel.description && (
-              <div className="border-b border-black/8 pb-8">
-                <h2 className="text-lg font-bold text-[#2A2522] mb-3">เกี่ยวกับที่พัก</h2>
-                <p className="text-[#2A2522]/70 leading-relaxed">{hotel.description}</p>
+              <div className="border-b border-border/60 pb-8">
+                <h2 className="font-display text-xl font-semibold text-foreground mb-4">เกี่ยวกับที่พัก</h2>
+                <p className="text-muted-foreground leading-[1.8] text-[15px]">{hotel.description}</p>
               </div>
             )}
 
-            {/* ── Amenities grid (NEW) ── */}
+            {/* ── Amenities grid ── */}
             {allAmenities.length > 0 && (
-              <div className="border-b border-black/8 pb-8">
-                <h2 className="text-lg font-bold text-[#2A2522] mb-5">สิ่งอำนวยความสะดวก</h2>
+              <div className="border-b border-border/60 pb-8">
+                <h2 className="font-display text-xl font-semibold text-foreground mb-5">สิ่งอำนวยความสะดวก</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {allAmenities.slice(0, 16).map(a => {
                     const Icon = amenityIcon(a);
                     return (
-                      <div key={a} className="flex items-center gap-3 p-3 rounded-xl bg-[#FAF7F2] border border-black/5">
-                        <div className="h-8 w-8 rounded-lg bg-[#C66A30]/10 flex items-center justify-center shrink-0">
-                          <Icon className="h-4 w-4 text-[#C66A30]" />
+                      <div key={a} className="flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border/50 hover:border-[#C66A30]/30 hover:shadow-sm transition-all group/amenity">
+                        <div className="h-9 w-9 rounded-xl bg-[#C66A30]/10 dark:bg-[#C66A30]/15 flex items-center justify-center shrink-0 group-hover/amenity:bg-[#C66A30]/20 transition-colors">
+                          <Icon className="h-4.5 w-4.5 text-[#C66A30]" />
                         </div>
-                        <span className="text-xs text-[#2A2522]/80 font-medium leading-tight">{amenityTh(a)}</span>
+                        <span className="text-[13px] text-foreground/80 font-medium leading-snug">{amenityTh(a)}</span>
                       </div>
                     );
                   })}
@@ -350,58 +349,60 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
               </div>
             )}
 
-            {/* ── Why book direct (NEW) ── */}
-            <div className="border-b border-black/8 pb-8">
-              <h2 className="text-lg font-bold text-[#2A2522] mb-4">ทำไมต้องจองตรงกับเรา?</h2>
+            {/* ── Why book direct ── */}
+            <div className="border-b border-border/60 pb-8">
+              <h2 className="font-display text-xl font-semibold text-foreground mb-5">ทำไมต้องจองตรงกับเรา?</h2>
               <div className="grid sm:grid-cols-3 gap-4">
                 {[
                   { icon: ShieldCheck, title: 'ราคาดีที่สุด',    desc: 'ราคาเท่ากันหรือดีกว่าทุก OTA รับประกัน Best Rate' },
                   { icon: CheckCircle, title: 'ยกเลิกได้ฟรี',   desc: 'ยกเลิกได้ฟรีก่อน 24 ชั่วโมงสำหรับห้องส่วนใหญ่' },
                   { icon: Phone,       title: 'ติดต่อตรงได้เลย', desc: 'ทีมงานพร้อมตอบ ไม่ผ่านตัวกลาง เร็วกว่าแน่นอน' },
                 ].map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="p-4 rounded-xl border border-[#C66A30]/20 bg-[#FDF8F3]">
-                    <Icon className="h-5 w-5 text-[#C66A30] mb-2" />
-                    <p className="font-semibold text-[#2A2522] text-sm mb-1">{title}</p>
-                    <p className="text-xs text-[#2A2522]/60 leading-relaxed">{desc}</p>
+                  <div key={title} className="p-5 rounded-2xl border border-[#C66A30]/25 bg-gradient-to-br from-[#C66A30]/5 to-transparent hover:border-[#C66A30]/40 hover:shadow-md transition-all">
+                    <div className="h-10 w-10 rounded-xl bg-[#C66A30]/12 flex items-center justify-center mb-3">
+                      <Icon className="h-5 w-5 text-[#C66A30]" />
+                    </div>
+                    <p className="font-semibold text-foreground text-sm mb-1.5">{title}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Policies */}
-            <div className="border-b border-black/8 pb-8" id="policies">
-              <h2 className="text-lg font-bold text-[#2A2522] mb-4">นโยบายที่พัก</h2>
-              <div className="grid sm:grid-cols-2 gap-4 text-sm text-[#2A2522]/70">
-                <div className="p-4 rounded-xl bg-[#FAF7F2]">
-                  <p className="font-semibold text-[#2A2522] mb-1">เวลาเช็คอิน / เช็คเอาท์</p>
+            <div className="border-b border-border/60 pb-8" id="policies">
+              <h2 className="text-lg font-bold text-foreground mb-4">นโยบายที่พัก</h2>
+              <div className="grid sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                <div className="p-4 rounded-xl bg-muted/30">
+                  <p className="font-semibold text-foreground mb-1">เวลาเช็คอิน / เช็คเอาท์</p>
                   <p>เช็คอิน: {hotel.check_in_time || '14:00'} น.</p>
                   <p>เช็คเอาท์: {hotel.check_out_time || '12:00'} น.</p>
                 </div>
-                <div className="p-4 rounded-xl bg-[#FAF7F2]">
-                  <p className="font-semibold text-[#2A2522] mb-1">นโยบายการยกเลิก</p>
+                <div className="p-4 rounded-xl bg-muted/30">
+                  <p className="font-semibold text-foreground mb-1">นโยบายการยกเลิก</p>
                   <p>ยกเลิกฟรีก่อนวันเช็คอินอย่างน้อย 24 ชั่วโมง</p>
                 </div>
-                <div className="p-4 rounded-xl bg-[#FAF7F2]">
-                  <p className="font-semibold text-[#2A2522] mb-1">เด็กและเตียงเสริม</p>
+                <div className="p-4 rounded-xl bg-muted/30">
+                  <p className="font-semibold text-foreground mb-1">เด็กและเตียงเสริม</p>
                   <p>รองรับผู้เข้าพักได้สูงสุดตามประเภทห้องพัก</p>
                 </div>
-                <div className="p-4 rounded-xl bg-[#FAF7F2]">
-                  <p className="font-semibold text-[#2A2522] mb-1">สัตว์เลี้ยง</p>
+                <div className="p-4 rounded-xl bg-muted/30">
+                  <p className="font-semibold text-foreground mb-1">สัตว์เลี้ยง</p>
                   <p>กรุณาติดต่อโรงแรมล่วงหน้าเพื่อยืนยันเงื่อนไข</p>
                 </div>
               </div>
             </div>
 
             {/* Nearby */}
-            <div className="border-b border-black/8 pb-8" id="nearby">
-              <h2 className="text-lg font-bold text-[#2A2522] mb-4">สถานที่ใกล้เคียง</h2>
+            <div className="border-b border-border/60 pb-8" id="nearby">
+              <h2 className="text-lg font-bold text-foreground mb-4">สถานที่ใกล้เคียง</h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 {[
                   `แหล่งท่องเที่ยวหลักใน${hotel.city || 'พื้นที่ใกล้เคียง'}`,
                   'ร้านอาหารยอดนิยม', 'ศูนย์การค้า', 'สถานีขนส่ง / รถไฟฟ้า',
                 ].map(place => (
-                  <div key={place} className="p-4 rounded-xl border border-black/10 bg-white text-sm text-[#2A2522]/70">
-                    <p className="font-medium text-[#2A2522]">{place}</p>
+                  <div key={place} className="p-4 rounded-xl border border-border bg-card text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">{place}</p>
                     <p className="text-xs mt-1">ระยะทางโดยประมาณ 1–3 กม.</p>
                   </div>
                 ))}
@@ -409,9 +410,9 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
             </div>
 
             {/* Map */}
-            <div className="border-b border-black/8 pb-8" id="map">
-              <h2 className="text-lg font-bold text-[#2A2522] mb-4">ที่ตั้ง</h2>
-              <div className="rounded-2xl overflow-hidden border border-black/10">
+            <div className="border-b border-border/60 pb-8" id="map">
+              <h2 className="text-lg font-bold text-foreground mb-4">ที่ตั้ง</h2>
+              <div className="rounded-2xl overflow-hidden border border-border">
                 <iframe
                   title={`Map of ${hotel.name}`}
                   src={`https://www.google.com/maps?q=${encodeURIComponent(`${hotel.name} ${hotel.address || hotel.city || ''}`)}&output=embed`}
@@ -421,7 +422,7 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
                 />
               </div>
               {hotel.address && (
-                <p className="mt-3 text-sm text-[#2A2522]/60 flex items-start gap-2">
+                <p className="mt-3 text-sm text-muted-foreground flex items-start gap-2">
                   <MapPin className="h-4 w-4 text-[#C66A30] mt-0.5 shrink-0" />
                   {hotel.address}
                 </p>
@@ -431,7 +432,7 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
             {/* ── Price calendar ── */}
             {roomTypes.length > 0 && (
               <div>
-                <h2 className="text-lg font-bold text-[#2A2522] mb-3">ปฏิทินราคา</h2>
+                <h2 className="text-lg font-bold text-foreground mb-3">ปฏิทินราคา</h2>
                 <PriceGraph hotelId={hotel.id} roomTypeId={(roomTypes[0] as any).id} />
               </div>
             )}
@@ -445,20 +446,20 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
             {reviews.length > 0 && (
               <div id="reviews">
                 <div className="flex items-center gap-4 mb-6">
-                  <h2 className="text-lg font-bold text-[#2A2522]">รีวิวจากแขก</h2>
+                  <h2 className="text-lg font-bold text-foreground">รีวิวจากแขก</h2>
                   {avgRating && score && (
                     <div className="flex items-center gap-2">
                       <div className="px-3 py-1 rounded-lg text-white text-sm font-bold" style={{ backgroundColor: score.bg }}>
                         {avgRating.toFixed(1)}
                       </div>
-                      <span className="text-sm font-semibold text-[#2A2522]">{score.th}</span>
-                      <span className="text-xs text-[#2A2522]/40">{reviews.length} รีวิว</span>
+                      <span className="text-sm font-semibold text-foreground">{score.th}</span>
+                      <span className="text-xs text-muted-foreground">{reviews.length} รีวิว</span>
                     </div>
                   )}
                 </div>
 
                 {ratingBreakdown && (
-                  <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-[#FAF7F2] rounded-2xl">
+                  <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-muted/30 rounded-2xl">
                     {[
                       { k: 'clean',    l: 'ความสะอาด' },
                       { k: 'service',  l: 'บริการ' },
@@ -469,11 +470,11 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
                       if (!v) return null;
                       return (
                         <div key={k} className="flex items-center gap-2">
-                          <span className="text-xs text-[#2A2522]/50 w-24">{l}</span>
+                          <span className="text-xs text-muted-foreground w-24">{l}</span>
                           <div className="flex-1 h-2 bg-black/8 rounded-full overflow-hidden">
                             <div className="h-full rounded-full transition-all" style={{ width: `${(v / 5) * 100}%`, backgroundColor: '#C66A30' }} />
                           </div>
-                          <span className="text-xs font-semibold text-[#2A2522] w-7 text-right">{v.toFixed(1)}</span>
+                          <span className="text-xs font-semibold text-foreground w-7 text-right">{v.toFixed(1)}</span>
                         </div>
                       );
                     })}
@@ -482,28 +483,36 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
 
                 <div className="grid md:grid-cols-2 gap-4">
                   {typedReviews.map(r => (
-                    <div key={r.id} className="p-4 border border-black/8 rounded-2xl hover:border-black/15 transition-colors">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="h-9 w-9 rounded-full bg-[#2A2522] text-white flex items-center justify-center text-sm font-bold shrink-0">
+                    <div key={r.id} className="p-5 border border-border/50 rounded-2xl bg-card hover:border-border hover:shadow-md transition-all">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#C66A30]/30 to-[#C66A30]/10 border border-[#C66A30]/20 text-[#C66A30] flex items-center justify-center text-sm font-bold shrink-0">
                             {(r.reviewer_name || 'A').charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-[#2A2522]">{r.reviewer_name || 'แขกผู้เข้าพัก'}</p>
-                            {r.verified_stay && <p className="text-2xs text-emerald-600 flex items-center gap-0.5"><CheckCircle className="h-3 w-3" />เข้าพักจริง</p>}
+                            <p className="text-sm font-semibold text-foreground">{r.reviewer_name || 'แขกผู้เข้าพัก'}</p>
+                            {r.verified_stay && (
+                              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 mt-0.5 font-medium">
+                                <CheckCircle className="h-3 w-3" />เข้าพักจริง
+                              </p>
+                            )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                          <span className="text-sm font-bold text-[#2A2522]">{r.rating}</span>
+                        <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-1 rounded-lg shrink-0">
+                          <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                          <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{r.rating}</span>
                         </div>
                       </div>
-                      {r.title && <p className="text-sm font-semibold text-[#2A2522] mb-1">{r.title}</p>}
-                      {r.comment && <p className="text-sm text-[#2A2522]/60 line-clamp-3 leading-relaxed">{r.comment}</p>}
+                      {r.title && <p className="text-sm font-semibold text-foreground mb-1.5">{r.title}</p>}
+                      {r.comment && (
+                        <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
+                          &ldquo;{r.comment}&rdquo;
+                        </p>
+                      )}
                       {r.reply_text && (
-                        <div className="mt-3 pl-3 border-l-2 border-[#C66A30]/40 bg-[#FDF8F3] rounded-r-lg py-2 pr-3">
-                          <p className="text-2xs text-[#C66A30] font-semibold mb-0.5">ตอบกลับจากโรงแรม</p>
-                          <p className="text-xs text-[#2A2522]/60">{r.reply_text}</p>
+                        <div className="mt-3 pl-3 border-l-2 border-[#C66A30]/50 bg-[#C66A30]/5 dark:bg-[#C66A30]/8 rounded-r-xl py-2.5 pr-3">
+                          <p className="text-[11px] text-[#C66A30] font-bold uppercase tracking-wide mb-1">ตอบกลับจากโรงแรม</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{r.reply_text}</p>
                         </div>
                       )}
                     </div>
@@ -513,32 +522,32 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
             )}
 
             {/* Contact */}
-            <div id="contact" className="border-t border-black/8 pt-8">
-              <h2 className="text-lg font-bold text-[#2A2522] mb-4">ติดต่อและที่ตั้ง</h2>
+            <div id="contact" className="border-t border-border/60 pt-8">
+              <h2 className="text-lg font-bold text-foreground mb-4">ติดต่อและที่ตั้ง</h2>
               <div className="space-y-3 text-sm">
-                {hotel.address && <div className="flex items-start gap-3"><MapPin className="h-4 w-4 text-[#C66A30] mt-0.5 shrink-0" /><span className="text-[#2A2522]/70">{hotel.address}</span></div>}
-                {hotel.phone && <a href={`tel:${hotel.phone}`} className="flex items-center gap-3 hover:text-[#C66A30] transition-colors group"><Phone className="h-4 w-4 text-[#C66A30] shrink-0" /><span className="text-[#2A2522]/70 group-hover:text-[#C66A30]">{hotel.phone}</span></a>}
-                {hotel.email && <a href={`mailto:${hotel.email}`} className="flex items-center gap-3 hover:text-[#C66A30] transition-colors group"><Mail className="h-4 w-4 text-[#C66A30] shrink-0" /><span className="text-[#2A2522]/70 group-hover:text-[#C66A30]">{hotel.email}</span></a>}
+                {hotel.address && <div className="flex items-start gap-3"><MapPin className="h-4 w-4 text-[#C66A30] mt-0.5 shrink-0" /><span className="text-muted-foreground">{hotel.address}</span></div>}
+                {hotel.phone && <a href={`tel:${hotel.phone}`} className="flex items-center gap-3 hover:text-[#C66A30] transition-colors group"><Phone className="h-4 w-4 text-[#C66A30] shrink-0" /><span className="text-muted-foreground group-hover:text-[#C66A30]">{hotel.phone}</span></a>}
+                {hotel.email && <a href={`mailto:${hotel.email}`} className="flex items-center gap-3 hover:text-[#C66A30] transition-colors group"><Mail className="h-4 w-4 text-[#C66A30] shrink-0" /><span className="text-muted-foreground group-hover:text-[#C66A30]">{hotel.email}</span></a>}
               </div>
             </div>
           </div>
 
-          {/* ── Sticky sidebar (UPGRADED) ── */}
+          {/* ── Sticky sidebar ── */}
           <div className="hidden lg:block">
-            <div className="sticky top-24 rounded-2xl border border-black/10 shadow-lg overflow-hidden">
+            <div className="sticky top-24 rounded-2xl border border-border shadow-xl shadow-black/8 overflow-hidden bg-card">
 
               {/* Price header */}
-              <div className="bg-[#2A2522] p-5 text-white">
-                <div className="text-xs text-white/50 mb-0.5">ราคาเริ่มต้น</div>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-3xl font-bold">{formatCurrency(minRate)}</span>
-                  <span className="text-sm text-white/50">/ คืน</span>
+              <div className="bg-gradient-to-br from-[#2A2522] to-[#1a1210] p-6 text-white">
+                <div className="text-[11px] text-white/50 uppercase tracking-widest mb-1">ราคาเริ่มต้น / คืน</div>
+                <div className="flex items-baseline gap-1 mb-3">
+                  <span className="text-4xl font-bold tracking-tight">{formatCurrency(minRate)}</span>
                 </div>
                 {avgRating && score && (
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-white/60 px-2 py-0.5 rounded-md font-semibold" style={{ backgroundColor: score.bg }}>
-                      {score.th} {avgRating.toFixed(1)}
-                    </span>
+                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-white text-xs font-bold" style={{ backgroundColor: score.bg }}>
+                      <Star className="h-3 w-3 fill-white/70 text-white/70" />
+                      {avgRating.toFixed(1)} · {score.th}
+                    </div>
                     <span className="text-xs text-white/40">{reviews.length} รีวิว</span>
                   </div>
                 )}
@@ -546,57 +555,68 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
 
               <div className="p-5">
                 {/* Viewer count */}
-                <div className="flex items-center gap-2 text-xs text-[#2A2522]/50 mb-4 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                  <span><strong className="text-[#2A2522]">{viewersNow} คน</strong> กำลังดูที่พักนี้อยู่ขณะนี้</span>
+                <div className="flex items-center gap-2 text-xs mb-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl px-3 py-2.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span className="text-emerald-700 dark:text-emerald-400">
+                    <strong className="font-semibold">{viewersNow} คน</strong> กำลังดูที่พักนี้อยู่
+                  </span>
                 </div>
 
                 {/* Date picker */}
-                <div className="border border-black/10 rounded-xl overflow-hidden mb-3">
-                  <div className="grid grid-cols-2 divide-x divide-black/10">
-                    <div className="p-3">
-                      <div className="text-2xs font-semibold text-[#2A2522]/40 uppercase tracking-wider mb-1">เช็คอิน</div>
-                      <input type="date" className="w-full text-sm text-[#2A2522] bg-transparent focus:outline-none"
+                <div className="border border-border rounded-2xl overflow-hidden mb-4 shadow-sm">
+                  <div className="grid grid-cols-2 divide-x divide-border">
+                    <div className="p-3.5 hover:bg-muted/30 transition-colors cursor-pointer">
+                      <div className="text-[10px] font-bold text-[#C66A30] uppercase tracking-[0.12em] mb-1">เช็คอิน</div>
+                      <input type="date" className="w-full text-sm font-semibold text-foreground bg-transparent focus:outline-none cursor-pointer"
                         defaultValue={new Date(Date.now() + 86400000).toISOString().slice(0, 10)} />
                     </div>
-                    <div className="p-3">
-                      <div className="text-2xs font-semibold text-[#2A2522]/40 uppercase tracking-wider mb-1">เช็คเอาท์</div>
-                      <input type="date" className="w-full text-sm text-[#2A2522] bg-transparent focus:outline-none"
+                    <div className="p-3.5 hover:bg-muted/30 transition-colors cursor-pointer">
+                      <div className="text-[10px] font-bold text-[#C66A30] uppercase tracking-[0.12em] mb-1">เช็คเอาท์</div>
+                      <input type="date" className="w-full text-sm font-semibold text-foreground bg-transparent focus:outline-none cursor-pointer"
                         defaultValue={new Date(Date.now() + 172800000).toISOString().slice(0, 10)} />
                     </div>
                   </div>
-                  <div className="border-t border-black/10 p-3">
-                    <div className="text-2xs font-semibold text-[#2A2522]/40 uppercase tracking-wider mb-1">ผู้เข้าพัก</div>
-                    <select className="w-full text-sm text-[#2A2522] bg-transparent focus:outline-none">
-                      {[1,2,3,4].map(n => <option key={n} value={n}>{n} ผู้ใหญ่</option>)}
+                  <div className="border-t border-border p-3.5 hover:bg-muted/30 transition-colors cursor-pointer">
+                    <div className="text-[10px] font-bold text-[#C66A30] uppercase tracking-[0.12em] mb-1">ผู้เข้าพัก</div>
+                    <select className="w-full text-sm font-semibold text-foreground bg-transparent focus:outline-none cursor-pointer">
+                      {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} ผู้ใหญ่</option>)}
                     </select>
                   </div>
                 </div>
 
                 <Link href={`/booking/${slug}`}
-                  className="block w-full text-center bg-[#C66A30] hover:bg-[#A4522A] text-white py-3.5 rounded-xl font-bold text-sm transition-colors mb-4 shadow-sm">
-                  ดูห้องว่างและจอง
+                  className="block w-full text-center bg-[#C66A30] hover:bg-[#A4522A] active:scale-[0.98] text-white py-4 rounded-2xl font-bold text-[15px] transition-all mb-4 shadow-lg shadow-[#C66A30]/25">
+                  ดูห้องว่างและจอง →
                 </Link>
 
                 {/* Trust strip */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="flex items-center justify-around mb-4 py-3 border border-border/50 rounded-xl">
                   {[
                     { icon: ShieldCheck, label: 'ราคาดีสุด' },
                     { icon: CheckCircle, label: 'ยกเลิกฟรี' },
                     { icon: Tag,         label: 'ไม่มีค่าธรรมเนียม' },
                   ].map(({ icon: Icon, label }) => (
-                    <div key={label} className="flex flex-col items-center gap-1 text-center p-2 bg-[#FAF7F2] rounded-lg">
+                    <div key={label} className="flex flex-col items-center gap-1.5 text-center px-2">
                       <Icon className="h-4 w-4 text-[#C66A30]" />
-                      <span className="text-2xs text-[#2A2522]/60 leading-tight font-medium">{label}</span>
+                      <span className="text-[10px] text-muted-foreground leading-tight font-medium">{label}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Quick info */}
-                <div className="space-y-2 text-xs text-[#2A2522]/60 border-t border-black/8 pt-3">
-                  <div className="flex justify-between"><span>เช็คอิน</span><span className="font-semibold text-[#2A2522]">{hotel.check_in_time || '14:00'} น.</span></div>
-                  <div className="flex justify-between"><span>เช็คเอาท์</span><span className="font-semibold text-[#2A2522]">{hotel.check_out_time || '12:00'} น.</span></div>
-                  <div className="flex justify-between"><span>ยกเลิกฟรี</span><span className="font-semibold text-emerald-600">24 ชม.ก่อนเช็คอิน</span></div>
+                <div className="space-y-2.5 text-xs text-muted-foreground">
+                  <div className="flex justify-between items-center">
+                    <span>เช็คอิน</span>
+                    <span className="font-semibold text-foreground">{hotel.check_in_time || '14:00'} น.</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>เช็คเอาท์</span>
+                    <span className="font-semibold text-foreground">{hotel.check_out_time || '12:00'} น.</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>ยกเลิกฟรี</span>
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">24 ชม.ก่อนเช็คอิน</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -605,30 +625,25 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
       </div>
 
       {/* ── Mobile sticky CTA ── */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-black/8 p-4 z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-        <div className="flex items-center justify-between gap-3">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-card/97 backdrop-blur-xl border-t border-border p-4 z-30 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="font-bold text-[#2A2522] text-lg leading-tight">
-              {formatCurrency(minRate)}<span className="text-xs font-normal text-[#2A2522]/50"> / คืน</span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-bold text-foreground text-xl leading-none">{formatCurrency(minRate)}</span>
+              <span className="text-xs text-muted-foreground">/ คืน</span>
             </div>
             {avgRating && score ? (
-              <div className="text-xs font-semibold mt-0.5" style={{ color: score.bg }}>{score.th} {avgRating.toFixed(1)}</div>
+              <div className="flex items-center gap-1 mt-1 text-xs font-semibold" style={{ color: score.bg }}>
+                <Star className="h-3 w-3 fill-current" />{avgRating.toFixed(1)} · {score.th}
+              </div>
             ) : (
-              <div className="text-xs text-emerald-600 font-medium mt-0.5">✓ ยกเลิกได้ฟรี</div>
+              <div className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">✓ ยกเลิกได้ฟรี</div>
             )}
           </div>
           <Link href={`/booking/${slug}`}
-            className="flex-1 max-w-[180px] text-center bg-[#C66A30] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#A4522A] transition-colors shadow-sm">
+            className="flex-1 max-w-[200px] text-center bg-[#C66A30] text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-[#A4522A] active:scale-95 transition-all shadow-lg shadow-[#C66A30]/25">
             จองเลย
           </Link>
-        </div>
-        {/* Trust micro-strip */}
-        <div className="flex items-center justify-center gap-4 mt-2 text-2xs text-[#2A2522]/40">
-          <span>🔒 ปลอดภัย</span>
-          <span>·</span>
-          <span>✓ ราคาดีที่สุด</span>
-          <span>·</span>
-          <span>↩ ยกเลิกฟรี</span>
         </div>
       </div>
 
@@ -636,26 +651,28 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
 
       {/* ── Nearby hotels ── */}
       {nearbyHotels.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 py-12">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-xl font-bold text-[#2A2522]">ที่พักใกล้เคียงใน{hotel.city}</h2>
-              <p className="text-sm text-[#2A2522]/40 mt-0.5">ที่พักอื่นๆ ในย่านเดียวกัน</p>
+        <section className="bg-muted/20 border-t border-border/50 mt-12">
+          <div className="max-w-6xl mx-auto px-4 py-14">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-[#C66A30] mb-1.5">สำรวจเพิ่มเติม</p>
+                <h2 className="font-display text-2xl font-semibold text-foreground">ที่พักใกล้เคียงใน{hotel.city}</h2>
+              </div>
+              <Link href={`/search?city=${encodeURIComponent(hotel.city || '')}`}
+                className="text-sm text-[#C66A30] hover:underline flex items-center gap-1 font-medium">
+                ดูทั้งหมด <ChevronRight className="h-4 w-4" />
+              </Link>
             </div>
-            <Link href={`/search?city=${encodeURIComponent(hotel.city || '')}`}
-              className="text-sm text-[#C66A30] hover:underline flex items-center gap-1">
-              ดูทั้งหมด <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {nearbyHotels.map((h: any) => (
-              <HotelCard key={h.id} hotel={h} />
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {nearbyHotels.map((h: any) => (
+                <HotelCard key={h.id} hotel={h} />
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      <footer className="bg-[#2A2522] text-white/40 py-8 mt-4">
+      <footer className="bg-[#1C1410] text-white/40 py-8 mt-4">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
             <span>© {new Date().getFullYear()} {hotel.name}</span>
