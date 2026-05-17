@@ -436,63 +436,6 @@ export default function GuestHomePage() {
         </div>
       </footer>
 
-      <style jsx global>{`
-        .btn-shimmer {
-          position: relative;
-          overflow: hidden;
-        }
-        .btn-shimmer::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
-          transform: translateX(-100%);
-        }
-        .btn-shimmer:hover::after {
-          transform: translateX(100%);
-          transition: transform 0.5s ease;
-        }
-        .badge-luxury {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 14px;
-          border-radius: 9999px;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.05em;
-          background: rgba(198,106,48,0.2);
-          border: 1px solid rgba(198,106,48,0.3);
-          color: rgba(255,255,255,0.8);
-        }
-        .glass {
-          background: rgba(255,255,255,0.08);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255,255,255,0.12);
-        }
-        .gradient-text {
-          background: linear-gradient(135deg, #C66A30, #E8A87C);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .overline {
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateX(-50%) translateY(0); }
-          50% { transform: translateX(-50%) translateY(-6px); }
-        }
-        .animate-float { animation: float 2.5s ease-in-out infinite; }
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fade-in 0.6s ease forwards; }
-      `}</style>
     </div>
   );
 }
