@@ -393,8 +393,8 @@ maitri/
 │   ├── workflows/ci.yml                  # Lint → Build → Deploy
 │   └── SETUP_VERCEL.md
 │
-├── ROADMAP.md                            # Detailed roadmap + code hints
-├── TODO.md                               # Sprint checklist
+├── docs/ROADMAP.md                       # Detailed roadmap + code hints
+├── docs/TODO.md                          # Sprint checklist
 └── .env.demo                             # Demo keys (dev ready)
 ```
 
@@ -528,7 +528,7 @@ maitri/
 | 33 | **Mobile app** — React Native (Expo SDK 51, `mobile/` scaffold) | ✅ |
 | 34 | **SEA expansion** — Vietnam, Indonesia, Malaysia | 🔄 |
 
-> 📋 รายละเอียดแต่ละ item พร้อม code snippets, ไฟล์ที่ต้องแก้, และ ENV vars อยู่ใน [**ROADMAP.md**](ROADMAP.md)
+> 📋 รายละเอียดแต่ละ item พร้อม code snippets, ไฟล์ที่ต้องแก้, และ ENV vars อยู่ใน [**ROADMAP.md**](docs/ROADMAP.md)
 
 ---
 

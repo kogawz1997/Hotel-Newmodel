@@ -78,7 +78,7 @@ if (failed) {
   process.exit(1);
 } else if (warnings > 0) {
   console.log(`\n⚠️  ${warnings} recommended vars missing — some features will be disabled.`);
-  console.log('   See PRODUCTION_SETUP.md for setup instructions.\n');
+  console.log('   See docs/PRODUCTION_SETUP.md for setup instructions.\n');
 } else {
   console.log('\n✅ All environment variables configured. Ready for production! 🚀\n');
 }
