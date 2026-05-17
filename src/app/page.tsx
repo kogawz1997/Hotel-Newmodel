@@ -17,15 +17,15 @@ const DESTINATIONS = [
 ];
 
 const TRUST_SIGNALS = [
-  { icon: Tag,          title: 'ราคาดีที่สุด',      desc: 'จองตรงกับโรงแรม ได้ราคาพิเศษกว่า OTA' },
-  { icon: ShieldCheck,  title: 'ยกเลิกฟรี',         desc: 'เลือกเรทที่ยกเลิกได้ฟรี ไม่มีค่าปรับ' },
-  { icon: CreditCard,   title: 'ชำระเงินปลอดภัย',   desc: 'รองรับทุกธนาคาร PromptPay และบัตรเครดิต' },
+  { icon: Tag,          title: 'ราคาดีที่สุด',     desc: 'จองตรงกับโรงแรม ได้ราคาพิเศษกว่า OTA' },
+  { icon: ShieldCheck,  title: 'ยกเลิกฟรี',        desc: 'เลือกเรทที่ยกเลิกได้ฟรี ไม่มีค่าปรับ' },
+  { icon: CreditCard,   title: 'ชำระเงินปลอดภัย',  desc: 'รองรับทุกธนาคาร PromptPay และบัตรเครดิต' },
 ];
 
 const HOW_IT_WORKS = [
-  { icon: Search,        step: '01', title: 'ค้นหาที่พัก',     desc: 'เลือกปลายทาง วันที่ และจำนวนผู้เข้าพักที่ต้องการ' },
-  { icon: CalendarCheck, step: '02', title: 'จองและชำระเงิน',  desc: 'เลือกห้อง ยืนยันการจอง และชำระเงินอย่างปลอดภัย' },
-  { icon: Heart,         step: '03', title: 'เช็กอินและพัก',   desc: 'รับ QR Code เช็กอิน พร้อมจัดการการเดินทางผ่านแอป' },
+  { icon: Search,        step: 1, title: 'ค้นหาที่พัก',    desc: 'เลือกปลายทาง วันที่ และจำนวนผู้เข้าพักที่ต้องการ' },
+  { icon: CalendarCheck, step: 2, title: 'จองและชำระเงิน', desc: 'เลือกห้อง ยืนยันการจอง และชำระเงินอย่างปลอดภัย' },
+  { icon: Heart,         step: 3, title: 'เช็กอินและพัก',  desc: 'รับ QR Code เช็กอิน พร้อมจัดการการเดินทางผ่านแอป' },
 ];
 
 const TESTIMONIALS = [
@@ -55,7 +55,7 @@ const TESTIMONIALS = [
 const SOCIAL_PROVIDERS = [
   {
     label: 'Google',
-    className: 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50',
+    className: 'bg-white border border-white/30 text-gray-800 hover:bg-white/90 shadow-sm',
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" aria-hidden>
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -67,7 +67,7 @@ const SOCIAL_PROVIDERS = [
   },
   {
     label: 'Facebook',
-    className: 'bg-[#1877F2] border border-[#1877F2] text-white hover:bg-[#166FE5]',
+    className: 'bg-[#1877F2] border border-[#1877F2] text-white hover:bg-[#166FE5] shadow-sm',
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-white" aria-hidden>
         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -76,7 +76,7 @@ const SOCIAL_PROVIDERS = [
   },
   {
     label: 'Apple',
-    className: 'bg-black border border-black text-white hover:bg-black/80',
+    className: 'bg-white/10 border border-white/30 text-white hover:bg-white/20 shadow-sm backdrop-blur-sm',
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-white" aria-hidden>
         <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
@@ -87,19 +87,19 @@ const SOCIAL_PROVIDERS = [
 
 export default function GuestHomePage() {
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#2A2522]">
+    <div className="min-h-screen bg-white text-[#2A2522]">
 
-      {/* ─── Navigation ───────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/10 bg-[#2A2522]/85 backdrop-blur-xl">
+      {/* ─── Navigation ─────────────────────────────────────────────────── */}
+      <nav className="fixed top-0 inset-x-0 z-50 bg-[#1C1410]/90 backdrop-blur-xl border-b border-white/8">
         <div className="container max-w-7xl flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="h-8 w-8 bg-[#C66A30] rounded-lg flex items-center justify-center">
+          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+            <div className="h-9 w-9 bg-gradient-to-br from-[#C66A30] to-[#A4522A] rounded-xl flex items-center justify-center shadow-lg shadow-[#C66A30]/25">
               <span className="text-white font-bold text-sm">M</span>
             </div>
-            <span className="font-serif text-xl font-medium text-white tracking-tight">Maitri</span>
+            <span className="font-serif text-xl font-semibold text-white tracking-tight">Maitri</span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8 text-sm text-white/60">
+          <div className="hidden md:flex items-center gap-7 text-sm font-medium text-white/70">
             <Link href="/search" className="hover:text-white transition-colors">ค้นหาที่พัก</Link>
             <a href="#destinations" className="hover:text-white transition-colors">จุดหมาย</a>
             <a href="#how-it-works" className="hover:text-white transition-colors">วิธีจอง</a>
@@ -107,16 +107,12 @@ export default function GuestHomePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              href="/portal/login"
-              className="text-sm text-white/70 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition-all"
-            >
+            <Link href="/portal/login"
+              className="text-sm text-white/80 hover:text-white px-4 py-2 rounded-xl hover:bg-white/10 transition-all font-medium">
               เข้าสู่ระบบ
             </Link>
-            <Link
-              href="/portal/login"
-              className="text-sm bg-[#C66A30] hover:bg-[#A4522A] text-white px-5 py-2 rounded-full font-medium transition-colors"
-            >
+            <Link href="/portal/login"
+              className="text-sm bg-[#C66A30] hover:bg-[#B05B28] text-white px-5 py-2 rounded-full font-semibold transition-colors shadow-lg shadow-[#C66A30]/30">
               สมัครสมาชิก
             </Link>
           </div>
@@ -125,54 +121,58 @@ export default function GuestHomePage() {
 
       {/* ─── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <video
-            autoPlay muted loop playsInline
-            poster={IMAGES.heroLobby}
-            className="w-full h-full object-cover"
-          >
+        {/* Background */}
+        <div className="absolute inset-0">
+          <video autoPlay muted loop playsInline poster={IMAGES.heroLobby}
+            className="w-full h-full object-cover">
             <source src="/hero-video.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1A1614]/70 via-[#1A1614]/50 to-[#1A1614]/85" />
+          {/* Strong layered gradient for readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0D0A08]/85 via-[#0D0A08]/60 to-[#0D0A08]/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0D0A08]/70 via-transparent to-[#0D0A08]/40" />
         </div>
 
-        <div className="container max-w-7xl px-4 pt-24 pb-16">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 mb-6">
-              <div className="badge-luxury">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
-                </span>
-                จองตรงกับโรงแรม — ราคาดีที่สุด ไม่มีค่าธรรมเนียมซ่อน
-              </div>
+        <div className="container max-w-7xl px-4 pt-24 pb-20 relative z-10">
+          <div className="max-w-2xl">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 mb-7 px-4 py-2 rounded-full
+              bg-[#C66A30]/20 border border-[#C66A30]/40 backdrop-blur-sm">
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#C66A30] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#C66A30]" />
+              </span>
+              <span className="text-[#E8A87C] text-xs font-semibold tracking-wide uppercase">
+                จองตรงกับโรงแรม · ราคาดีที่สุด
+              </span>
             </div>
 
-            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-medium text-white leading-[0.95] tracking-tight mb-6">
-              ค้นหาที่พัก<br/>
-              <span className="italic gradient-text">ในฝัน</span><br/>
-              ทั่วประเทศไทย
+            {/* Headline */}
+            <h1 className="font-serif font-semibold text-white leading-tight tracking-tight mb-5"
+              style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', lineHeight: 1.1 }}>
+              ค้นหาที่พักในฝัน<br/>
+              <span className="text-[#E8A87C] italic">ทั่วประเทศไทย</span>
             </h1>
 
-            <p className="text-lg text-white/70 leading-relaxed max-w-xl mb-8">
-              จองโรงแรม รีสอร์ท และที่พักตากอากาศ ราคาดีที่สุด Check-in ออนไลน์
-              และจัดการการเดินทางผ่านแอปได้ทุกที่
+            {/* Subtitle */}
+            <p className="text-[1.05rem] text-white/85 leading-relaxed mb-8 max-w-lg">
+              จองโรงแรม รีสอร์ท และที่พักตากอากาศ ราคาดีที่สุด
+              พร้อม Check-in ออนไลน์และจัดการการเดินทางผ่านแอปได้ทุกที่
             </p>
 
+            {/* Search form */}
             <div className="mb-8">
               <SearchHeader variant="hero" />
             </div>
 
-            {/* Social login prompt */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <span className="text-white/50 text-sm shrink-0">เข้าสู่ระบบด้วย</span>
+            {/* Social login */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <span className="text-white/60 text-sm font-medium shrink-0 whitespace-nowrap">
+                หรือเข้าสู่ระบบด้วย
+              </span>
               <div className="flex flex-wrap gap-2">
                 {SOCIAL_PROVIDERS.map(p => (
-                  <Link
-                    key={p.label}
-                    href="/portal/login"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${p.className}`}
-                  >
+                  <Link key={p.label} href="/portal/login"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${p.className}`}>
                     {p.icon}
                     {p.label}
                   </Link>
@@ -182,26 +182,27 @@ export default function GuestHomePage() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40 animate-float">
-          <span className="text-xs tracking-widest uppercase">Scroll</span>
-          <div className="h-8 w-px bg-gradient-to-b from-white/40 to-transparent" />
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/50">
+          <span className="text-[10px] tracking-[0.2em] uppercase font-medium">เลื่อนลง</span>
+          <div className="h-8 w-px bg-gradient-to-b from-white/50 to-transparent" />
         </div>
       </section>
 
       {/* ─── Trust signals ───────────────────────────────────────────────── */}
-      <section className="bg-[#2A2522] py-10">
+      <section className="bg-[#1C1410] py-10">
         <div className="container max-w-7xl px-4">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
             {TRUST_SIGNALS.map(t => {
               const Icon = t.icon;
               return (
-                <div key={t.title} className="flex items-center gap-4">
-                  <div className="h-10 w-10 bg-[#C66A30]/20 rounded-xl flex items-center justify-center shrink-0">
-                    <Icon className="h-5 w-5 text-[#C66A30]" />
+                <div key={t.title} className="flex items-center gap-4 py-6 md:py-0 md:px-8 first:md:pl-0 last:md:pr-0">
+                  <div className="h-11 w-11 bg-[#C66A30]/25 border border-[#C66A30]/30 rounded-2xl flex items-center justify-center shrink-0">
+                    <Icon className="h-5 w-5 text-[#E8A87C]" />
                   </div>
                   <div>
-                    <p className="font-semibold text-white text-sm">{t.title}</p>
-                    <p className="text-xs text-white/40 leading-relaxed">{t.desc}</p>
+                    <p className="font-semibold text-white text-[0.95rem] mb-0.5">{t.title}</p>
+                    <p className="text-sm text-white/65 leading-snug">{t.desc}</p>
                   </div>
                 </div>
               );
@@ -210,21 +211,24 @@ export default function GuestHomePage() {
         </div>
       </section>
 
-      {/* ─── Seasonal Campaign ────────────────────────────────────────────── */}
+      {/* ─── Seasonal Campaign ───────────────────────────────────────────── */}
       <SeasonalBanner />
 
       {/* ─── Recently Viewed ─────────────────────────────────────────────── */}
       <RecentlyViewed />
 
-      {/* ─── Destinations ─────────────────────────────────────────────────── */}
-      <section id="destinations" className="py-16 bg-white/50">
+      {/* ─── Destinations ────────────────────────────────────────────────── */}
+      <section id="destinations" className="py-20 bg-[#FAF7F2]">
         <div className="container max-w-7xl px-4">
-          <div className="flex items-end justify-between mb-6">
+          <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="overline text-[#C66A30] mb-1">สำรวจ</p>
-              <h2 className="font-serif text-3xl md:text-4xl font-medium">จุดหมายยอดนิยม</h2>
+              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-2">สำรวจ</p>
+              <h2 className="font-serif text-3xl md:text-4xl font-semibold text-[#1C1410]">
+                จุดหมายยอดนิยม
+              </h2>
             </div>
-            <Link href="/search" className="hidden md:flex items-center gap-1 text-sm text-[#C66A30] hover:underline">
+            <Link href="/search"
+              className="hidden md:flex items-center gap-1 text-sm font-semibold text-[#C66A30] hover:text-[#A4522A] transition-colors">
               ดูทั้งหมด <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
@@ -232,24 +236,26 @@ export default function GuestHomePage() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {DESTINATIONS.slice(0, 2).map(d => (
               <Link key={d.name} href={`/search?city=${d.name}`}
-                className="relative rounded-2xl overflow-hidden h-48 md:h-64 group cursor-pointer">
-                <Image src={d.img} alt={d.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                className="relative rounded-2xl overflow-hidden h-52 md:h-72 group cursor-pointer">
+                <Image src={d.img} alt={d.name} fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4">
-                  <p className="text-white font-bold text-lg">{d.nameTh}</p>
-                  <p className="text-white/70 text-xs">{d.hotels.toLocaleString()} ที่พัก</p>
+                  <p className="text-white font-bold text-xl leading-tight">{d.nameTh}</p>
+                  <p className="text-white/80 text-xs mt-0.5">{d.hotels.toLocaleString()} ที่พัก</p>
                 </div>
               </Link>
             ))}
             <div className="grid grid-rows-2 gap-3 md:gap-4">
               {DESTINATIONS.slice(2, 4).map(d => (
                 <Link key={d.name} href={`/search?city=${d.name}`}
-                  className="relative rounded-2xl overflow-hidden h-[calc(50%-6px)] min-h-[100px] group cursor-pointer">
-                  <Image src={d.img} alt={d.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  className="relative rounded-2xl overflow-hidden min-h-[110px] group cursor-pointer">
+                  <Image src={d.img} alt={d.name} fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute bottom-3 left-3">
                     <p className="text-white font-semibold text-sm">{d.nameTh}</p>
-                    <p className="text-white/60 text-xs">{d.hotels.toLocaleString()} ที่พัก</p>
+                    <p className="text-white/75 text-xs">{d.hotels.toLocaleString()} ที่พัก</p>
                   </div>
                 </Link>
               ))}
@@ -257,11 +263,12 @@ export default function GuestHomePage() {
             {DESTINATIONS.slice(4).map(d => (
               <Link key={d.name} href={`/search?city=${d.name}`}
                 className="relative rounded-2xl overflow-hidden h-28 md:h-36 group cursor-pointer hidden md:block">
-                <Image src={d.img} alt={d.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <Image src={d.img} alt={d.name} fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <div className="absolute bottom-3 left-3">
                   <p className="text-white font-semibold text-sm">{d.nameTh}</p>
-                  <p className="text-white/60 text-xs">{d.hotels.toLocaleString()} ที่พัก</p>
+                  <p className="text-white/75 text-xs">{d.hotels.toLocaleString()} ที่พัก</p>
                 </div>
               </Link>
             ))}
@@ -270,30 +277,36 @@ export default function GuestHomePage() {
       </section>
 
       {/* ─── How it works ────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="py-24 bg-[#FAF7F2]">
+      <section id="how-it-works" className="py-24 bg-white">
         <div className="container max-w-7xl px-4">
           <div className="text-center mb-16">
-            <p className="overline text-[#C66A30] mb-4">ง่ายมาก</p>
-            <h2 className="font-serif text-4xl md:text-5xl font-medium tracking-tight">
-              จองที่พักใน<br/>
-              <span className="italic text-[#C66A30]">3 ขั้นตอน</span>
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-3">ง่ายมาก</p>
+            <h2 className="font-serif text-4xl md:text-5xl font-semibold text-[#1C1410] tracking-tight">
+              จองที่พักใน <span className="text-[#C66A30] italic">3 ขั้นตอน</span>
             </h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {HOW_IT_WORKS.map(step => {
+
+          <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            {HOW_IT_WORKS.map((step, i) => {
               const Icon = step.icon;
               return (
-                <div key={step.step} className="text-center">
-                  <div className="relative inline-flex mb-6">
-                    <div className="h-16 w-16 bg-[#C66A30]/10 rounded-2xl flex items-center justify-center">
-                      <Icon className="h-7 w-7 text-[#C66A30]" />
+                <div key={step.step}
+                  className="relative bg-[#FAF7F2] rounded-3xl p-8 border border-[#E8DDD5]">
+                  {/* Step connector */}
+                  {i < HOW_IT_WORKS.length - 1 && (
+                    <div className="hidden md:block absolute top-12 -right-2 z-10
+                      h-0.5 w-4 bg-[#C66A30]/30" />
+                  )}
+                  <div className="flex items-start gap-4 mb-5">
+                    <div className="h-12 w-12 bg-[#C66A30] rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-[#C66A30]/25">
+                      <Icon className="h-6 w-6 text-white" />
                     </div>
-                    <span className="absolute -top-2 -right-2 h-6 w-6 bg-[#2A2522] text-white rounded-full text-xs font-bold flex items-center justify-center">
-                      {step.step.slice(1)}
+                    <span className="font-serif text-5xl font-bold text-[#C66A30]/15 leading-none mt-1">
+                      {step.step}
                     </span>
                   </div>
-                  <h3 className="font-semibold text-[#2A2522] text-lg mb-2">{step.title}</h3>
-                  <p className="text-sm text-[#2A2522]/60 leading-relaxed">{step.desc}</p>
+                  <h3 className="font-bold text-[#1C1410] text-lg mb-2">{step.title}</h3>
+                  <p className="text-[#2A2522]/70 text-sm leading-relaxed">{step.desc}</p>
                 </div>
               );
             })}
@@ -305,31 +318,40 @@ export default function GuestHomePage() {
       <FAQSection />
 
       {/* ─── Testimonials ────────────────────────────────────────────────── */}
-      <section id="reviews" className="py-24 bg-[#2A2522]">
+      <section id="reviews" className="py-24 bg-[#1C1410]">
         <div className="container max-w-7xl px-4">
-          <div className="text-center mb-16">
-            <div className="overline text-[#C66A30] mb-4">รีวิวจากนักท่องเที่ยว</div>
-            <h2 className="font-serif text-4xl font-medium text-white">
-              ประสบการณ์จริง<br/>
-              <span className="italic text-[#C66A30]">จากผู้ใช้ทั่วไทย</span>
+          <div className="text-center mb-14">
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-3">
+              รีวิวจากนักท่องเที่ยว
+            </p>
+            <h2 className="font-serif text-4xl font-semibold text-white">
+              ประสบการณ์จริง{' '}
+              <span className="text-[#E8A87C] italic">จากผู้ใช้ทั่วไทย</span>
             </h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+
+          <div className="grid md:grid-cols-3 gap-5">
             {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="glass rounded-3xl p-6">
-                <div className="flex mb-4">
+              <div key={i}
+                className="bg-white/8 border border-white/12 rounded-3xl p-7 flex flex-col gap-5">
+                {/* Stars */}
+                <div className="flex gap-0.5">
                   {Array.from({ length: t.rating }).map((_, j) => (
                     <Star key={j} className="h-4 w-4 text-amber-400 fill-amber-400" />
                   ))}
                 </div>
-                <p className="text-white/80 text-sm leading-relaxed mb-6 italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3 border-t border-white/10 pt-4">
-                  <div className="h-10 w-10 bg-white/10 rounded-full flex items-center justify-center text-lg">
+                {/* Quote */}
+                <p className="text-white text-[0.95rem] leading-relaxed flex-1">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                {/* Author */}
+                <div className="flex items-center gap-3 pt-5 border-t border-white/12">
+                  <div className="h-10 w-10 bg-[#C66A30]/20 border border-[#C66A30]/30 rounded-full flex items-center justify-center text-lg shrink-0">
                     {t.avatar}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">{t.name}</p>
-                    <p className="text-xs text-white/40">{t.trip}</p>
+                    <p className="text-sm font-semibold text-white">{t.name}</p>
+                    <p className="text-xs text-white/60 mt-0.5">{t.trip}</p>
                   </div>
                 </div>
               </div>
@@ -339,61 +361,72 @@ export default function GuestHomePage() {
       </section>
 
       {/* ─── CTA ─────────────────────────────────────────────────────────── */}
-      <section className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0 -z-10">
+      <section className="relative py-28 overflow-hidden">
+        <div className="absolute inset-0">
           <Image src={IMAGES.heroBeach} alt="" fill className="object-cover" />
-          <div className="absolute inset-0 bg-[#1A1614]/75" />
+          <div className="absolute inset-0 bg-[#0D0A08]/80" />
         </div>
-        <div className="container max-w-3xl px-4 text-center">
-          <div className="overline text-[#C66A30] mb-4">เริ่มต้นวันนี้</div>
-          <h2 className="font-serif text-4xl md:text-6xl font-medium text-white mb-6">
-            สมัครฟรี<br/>
-            <span className="italic text-[#C66A30]">จองง่าย ราคาดีที่สุด</span>
+        <div className="container max-w-2xl px-4 text-center relative z-10">
+          <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#E8A87C] mb-4">เริ่มต้นวันนี้</p>
+          <h2 className="font-serif text-4xl md:text-5xl font-semibold text-white mb-5 leading-tight">
+            สมัครฟรี จองง่าย<br/>
+            <span className="text-[#E8A87C] italic">ราคาดีที่สุด</span>
           </h2>
-          <p className="text-white/60 mb-10 text-lg">
-            สมัครสมาชิกฟรี เข้าถึงราคาพิเศษ ติดตามการจอง และ Check-in ออนไลน์
+          <p className="text-white/80 mb-10 text-base leading-relaxed">
+            สมัครสมาชิกฟรี เข้าถึงราคาพิเศษ ติดตามการจอง<br className="hidden sm:block" />
+            และ Check-in ออนไลน์ผ่านมือถือ
           </p>
+
+          {/* Primary CTAs */}
           <div className="flex flex-wrap justify-center gap-3 mb-8">
             <Link href="/portal/login"
-              className="btn-shimmer flex items-center gap-2 bg-[#C66A30] text-white px-8 py-4 rounded-full font-medium hover:bg-[#A4522A] transition-colors">
+              className="flex items-center gap-2 bg-[#C66A30] hover:bg-[#B05B28] text-white
+                px-8 py-3.5 rounded-full font-semibold text-sm transition-colors
+                shadow-xl shadow-[#C66A30]/30">
               สมัครสมาชิกฟรี <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/search"
-              className="flex items-center gap-2 glass text-white px-8 py-4 rounded-full font-medium hover:bg-white/15 transition-colors">
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/18 border border-white/25
+                text-white px-8 py-3.5 rounded-full font-semibold text-sm transition-colors backdrop-blur-sm">
               ค้นหาที่พัก
             </Link>
           </div>
-          <div className="flex justify-center gap-3 flex-wrap">
-            {SOCIAL_PROVIDERS.map(p => (
-              <Link
-                key={p.label}
-                href="/portal/login"
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${p.className}`}
-              >
-                {p.icon}
-                {p.label}
-              </Link>
-            ))}
+
+          {/* Social login */}
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-white/55 text-xs font-medium">หรือเข้าสู่ระบบด้วย</p>
+            <div className="flex justify-center gap-2 flex-wrap">
+              {SOCIAL_PROVIDERS.map(p => (
+                <Link key={p.label} href="/portal/login"
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${p.className}`}>
+                  {p.icon}
+                  {p.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ─── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="bg-[#1A1614] py-12">
+      <footer className="bg-[#0D0A08] py-14">
         <div className="container max-w-7xl px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-10">
+          <div className="grid md:grid-cols-4 gap-10 mb-12">
+            {/* Brand */}
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-8 w-8 bg-[#C66A30] rounded-lg flex items-center justify-center">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="h-8 w-8 bg-gradient-to-br from-[#C66A30] to-[#A4522A] rounded-xl flex items-center justify-center">
                   <span className="text-white font-bold text-sm">M</span>
                 </div>
-                <span className="font-serif text-xl font-medium text-white">Maitri</span>
+                <span className="font-serif text-lg font-semibold text-white">Maitri</span>
               </div>
-              <p className="text-sm text-white/40 leading-relaxed">
+              <p className="text-sm text-white/55 leading-relaxed">
                 จองที่พักทั่วไทยในราคาที่ดีที่สุด<br/>
                 Built with ❤️ in Thailand 🇹🇭
               </p>
             </div>
+
+            {/* Links */}
             {[
               { title: 'ที่พัก', links: [
                 { label: 'ค้นหาที่พัก', href: '/search' },
@@ -414,11 +447,14 @@ export default function GuestHomePage() {
               ]},
             ].map(col => (
               <div key={col.title}>
-                <h4 className="text-sm font-semibold text-white mb-4">{col.title}</h4>
-                <ul className="space-y-2">
+                <h4 className="text-xs font-bold tracking-[0.15em] uppercase text-white/40 mb-5">
+                  {col.title}
+                </h4>
+                <ul className="space-y-3">
                   {col.links.map(link => (
                     <li key={link.label}>
-                      <Link href={link.href} className="text-sm text-white/40 hover:text-white/70 transition-colors">
+                      <Link href={link.href}
+                        className="text-sm text-white/65 hover:text-white transition-colors">
                         {link.label}
                       </Link>
                     </li>
@@ -427,15 +463,16 @@ export default function GuestHomePage() {
               </div>
             ))}
           </div>
-          <div className="border-t border-white/5 pt-6 flex flex-wrap items-center justify-between gap-4">
-            <p className="text-xs text-white/30">© 2026 Maitri Collection · All rights reserved</p>
-            <p className="text-xs text-white/20">
-              <Link href="/owner/login" className="hover:text-white/40 transition-colors">Hotel Partner Login</Link>
-            </p>
+
+          <div className="border-t border-white/8 pt-6 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-white/40">© 2026 Maitri Collection · All rights reserved</p>
+            <Link href="/owner/login"
+              className="text-xs text-white/25 hover:text-white/50 transition-colors">
+              Hotel Partner Login
+            </Link>
           </div>
         </div>
       </footer>
-
     </div>
   );
 }
