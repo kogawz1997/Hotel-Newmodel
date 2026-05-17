@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import NextImage from 'next/image';
 
 interface LightboxProps {
   images: { url: string; alt?: string }[];
@@ -54,9 +55,10 @@ export function Lightbox({ images, index, onClose, onNext, onPrev }: LightboxPro
       )}
 
       {/* Image */}
-      <img src={images[index].url} alt={images[index].alt || ''}
-        className="max-w-[90vw] max-h-[85vh] object-contain select-none"
-        onClick={e => e.stopPropagation()} />
+      <div className="relative max-w-[90vw] max-h-[85vh] w-full h-full flex items-center justify-center" onClick={e => e.stopPropagation()}>
+        <NextImage src={images[index].url} alt={images[index].alt || ''}
+          fill className="object-contain select-none" />
+      </div>
 
       {/* Caption */}
       {images[index].alt && (
@@ -78,8 +80,8 @@ export function Lightbox({ images, index, onClose, onNext, onPrev }: LightboxPro
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 max-w-sm overflow-x-auto pb-2">
           {images.map((img, i) => (
             <button key={i} onClick={e => { e.stopPropagation(); /* parent handles via index */ }}
-              className={`h-12 w-16 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${i === index ? 'border-white' : 'border-transparent opacity-50 hover:opacity-80'}`}>
-              <img src={img.url} alt="" className="w-full h-full object-cover" />
+              className={`relative h-12 w-16 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${i === index ? 'border-white' : 'border-transparent opacity-50 hover:opacity-80'}`}>
+              <NextImage src={img.url} alt="" fill className="object-cover" />
             </button>
           ))}
         </div>

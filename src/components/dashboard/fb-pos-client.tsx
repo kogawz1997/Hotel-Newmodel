@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -23,16 +23,16 @@ export function FBPosClient({ reservations }: { reservations: Reservation[] }) {
   const [newItem, setNewItem] = useState({ name: '', price: '' });
   const [loading, setLoading] = useState(false);
 
-  async function load() {
+  const load = useCallback(async () => {
     const [menuRes, ordersRes] = await Promise.all([fetch('/api/fb/menu'), fetch('/api/fb/orders')]);
     const menuJson = await menuRes.json();
     const ordersJson = await ordersRes.json();
     setMenu(menuJson.items || []);
     setOrders(Array.isArray(ordersJson) ? ordersJson : []);
     if (!menuItemId && menuJson.items?.[0]) setMenuItemId(menuJson.items[0].id);
-  }
+  }, [menuItemId]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const selected = useMemo(() => menu.find(item => item.id === menuItemId), [menu, menuItemId]);
   const totalPreview = selected ? Number(selected.price) * quantity * 1.177 : 0;

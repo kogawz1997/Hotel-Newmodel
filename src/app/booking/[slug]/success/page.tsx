@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { createAdminClient } from '@/lib/supabase/server';
 import { formatCurrency } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
@@ -71,7 +72,7 @@ export default async function BookingSuccessPage({
           <div className="bg-white rounded-2xl border border-black/5 overflow-hidden mb-5">
             {hotel.hero_image_url && (
               <div className="relative h-40 overflow-hidden">
-                <img src={hotel.hero_image_url} alt={hotel.name} className="w-full h-full object-cover" />
+                <Image src={hotel.hero_image_url} alt={hotel.name} fill className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-4 left-5 text-white">
                   <p className="font-bold text-lg">{hotel.name}</p>

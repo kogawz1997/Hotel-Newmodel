@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { CheckCircle, Clock, Inbox } from 'lucide-react';
 import { TopBar } from '@/components/layout/top-bar';
 import { Button } from '@/components/ui/button';
@@ -103,7 +104,9 @@ export function MyTasksClient({ myTasks: initMy, availableTasks: initAvail, prof
                 {t.task_photos?.length > 0 && (
                   <div className="ml-4 flex gap-2 flex-wrap">
                     {t.task_photos.map((p: any) => (
-                      <img key={p.id} src={p.photo_url} alt={p.photo_type} className="h-16 w-16 object-cover rounded-lg border" />
+                      <div key={p.id} className="relative h-16 w-16 rounded-lg overflow-hidden border">
+                        <Image src={p.photo_url} alt={p.photo_type} fill className="object-cover" />
+                      </div>
                     ))}
                   </div>
                 )}

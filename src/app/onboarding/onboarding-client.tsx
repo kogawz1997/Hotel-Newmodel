@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import NextImage from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Check, Building2, Bed, Image as ImageIcon, Rocket, ChevronRight, Upload, Plus, Trash2, Clock } from 'lucide-react';
@@ -300,7 +301,9 @@ export function OnboardingClient({ user, organizationId, existingHotel, hasRoomT
               <div className="p-5 border border-black/8 rounded-xl">
                 <p className="text-sm font-medium text-[#2A2522] mb-3">Logo โรงแรม</p>
                 {images.logo ? (
-                  <img src={images.logo} alt="logo" className="h-12 mb-3 object-contain" />
+                  <div className="relative h-12 w-32 mb-3">
+                    <NextImage src={images.logo} alt="logo" fill className="object-contain" />
+                  </div>
                 ) : (
                   <div className="h-16 bg-[#FAF7F2] rounded-lg flex items-center justify-center mb-3 text-[#2A2522]/20">
                     <Building2 className="h-8 w-8" />
@@ -319,7 +322,9 @@ export function OnboardingClient({ user, organizationId, existingHotel, hasRoomT
               <div className="p-5 border border-black/8 rounded-xl">
                 <p className="text-sm font-medium text-[#2A2522] mb-3">รูปหลัก (Hero Image)</p>
                 {images.hero ? (
-                  <img src={images.hero} alt="hero" className="w-full h-40 object-cover rounded-lg mb-3" />
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden mb-3">
+                    <NextImage src={images.hero} alt="hero" fill className="object-cover" />
+                  </div>
                 ) : (
                   <div className="h-40 bg-[#FAF7F2] rounded-lg flex items-center justify-center mb-3 text-[#2A2522]/20">
                     <ImageIcon className="h-12 w-12" />

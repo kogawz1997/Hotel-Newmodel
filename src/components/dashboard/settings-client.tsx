@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import NextImage from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -357,8 +358,9 @@ function BrandingTab({ hotel, s }: { hotel: any; s: Strings }) {
             <Input label={bs.logo} value={form.logo_url} onChange={e => set('logo_url', e.target.value)} placeholder="https://..." hint={bs.logoDesc} />
             {form.logo_url && (
               <div className="rounded-xl border border-border p-3 flex items-center gap-3 bg-secondary/30">
-                <img src={form.logo_url} alt="Logo" className="h-12 w-12 rounded-lg object-contain bg-white"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-white shrink-0">
+                  <NextImage src={form.logo_url} alt="Logo" fill className="object-contain" />
+                </div>
                 <p className="text-xs text-muted-foreground">{bs.preview}</p>
               </div>
             )}
@@ -366,9 +368,8 @@ function BrandingTab({ hotel, s }: { hotel: any; s: Strings }) {
           <div className="space-y-3">
             <Input label={bs.hero} value={form.hero_image_url} onChange={e => set('hero_image_url', e.target.value)} placeholder="https://..." hint={bs.heroDesc} />
             {form.hero_image_url && (
-              <div className="rounded-xl border border-border overflow-hidden">
-                <img src={form.hero_image_url} alt="Hero" className="w-full h-28 object-cover"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              <div className="rounded-xl border border-border overflow-hidden relative h-28">
+                <NextImage src={form.hero_image_url} alt="Hero" fill className="object-cover" />
               </div>
             )}
           </div>

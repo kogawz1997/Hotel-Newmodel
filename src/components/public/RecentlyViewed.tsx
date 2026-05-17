@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Clock, ChevronRight } from 'lucide-react';
 
 interface ViewedHotel {
@@ -55,9 +56,9 @@ export function RecentlyViewed() {
           {hotels.map(h => (
             <Link key={h.id} href={`/h/${h.slug}`}
               className="bg-[#FAF7F2] rounded-2xl overflow-hidden border border-black/5 hover:shadow-md transition-shadow group">
-              <div className="h-32 bg-[#2A2522]/10 overflow-hidden">
+              <div className="h-32 bg-[#2A2522]/10 overflow-hidden relative">
                 {h.hero_image_url
-                  ? <img src={h.hero_image_url} alt={h.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ? <Image src={h.hero_image_url} alt={h.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                   : <div className="w-full h-full flex items-center justify-center text-3xl font-serif text-[#2A2522]/10">{h.name.charAt(0)}</div>
                 }
               </div>

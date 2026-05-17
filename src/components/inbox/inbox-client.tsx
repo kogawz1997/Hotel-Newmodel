@@ -59,7 +59,8 @@ const LANGUAGE_FLAGS: Record<string, string> = {
 };
 
 export function InboxClient({ hotelId, hotelName }: { hotelId: string; hotelName: string }) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -99,7 +100,7 @@ export function InboxClient({ hotelId, hotelName }: { hotelId: string; hotelName
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [hotelId]);
+  }, [hotelId, supabase, activeId]);
 
   // Load messages for active
   useEffect(() => {
@@ -130,7 +131,7 @@ export function InboxClient({ hotelId, hotelName }: { hotelId: string; hotelName
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [activeId]);
+  }, [activeId, supabase]);
 
   const filteredConversations = useMemo(() => {
     return conversations.filter((c) => {

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
+import NextImage from 'next/image';
 
 type LuxuryGalleryImage = {
   id?: string | number;
@@ -31,11 +32,12 @@ export function LuxuryGallery({ images, hotelName = 'Hotel', className }: Luxury
 
   return (
     <section className={cn('space-y-3', className)} aria-label="Luxury gallery">
-      <div className="relative overflow-hidden rounded-2xl bg-[#FAF7F2]">
-        <img
+      <div className="relative overflow-hidden rounded-2xl bg-[#FAF7F2] h-[280px] md:h-[420px]">
+        <NextImage
           src={activeImage.url}
           alt={activeImage.alt || `${hotelName} photo ${activeIndex + 1}`}
-          className="h-[280px] w-full object-cover md:h-[420px]"
+          fill
+          className="object-cover"
         />
       </div>
 
@@ -47,14 +49,14 @@ export function LuxuryGallery({ images, hotelName = 'Hotel', className }: Luxury
               type="button"
               onClick={() => setActiveIndex(index)}
               className={cn(
-                'overflow-hidden rounded-lg border-2 transition-all',
+                'relative h-16 overflow-hidden rounded-lg border-2 transition-all',
                 activeIndex === index
                   ? 'border-[#C66A30] ring-2 ring-[#C66A30]/20'
                   : 'border-transparent opacity-80 hover:opacity-100'
               )}
               aria-label={`ดูรูปที่ ${index + 1}`}
             >
-              <img src={img.url} alt={img.alt || `${hotelName} thumbnail ${index + 1}`} className="h-16 w-full object-cover" />
+              <NextImage src={img.url} alt={img.alt || `${hotelName} thumbnail ${index + 1}`} fill className="object-cover" />
             </button>
           ))}
         </div>

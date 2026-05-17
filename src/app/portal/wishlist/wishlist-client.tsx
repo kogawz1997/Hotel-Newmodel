@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Heart, MapPin, ArrowLeft, Bed, Users, Maximize2, ChevronRight, Calendar } from 'lucide-react';
@@ -51,8 +52,8 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
                 <div key={item.id} className="bg-white rounded-2xl border border-black/5 overflow-hidden group">
                   <div className="relative h-44 bg-[#FAF7F2] overflow-hidden">
                     {hotel?.hero_image_url ? (
-                      <img src={hotel.hero_image_url} alt={hotel.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <Image src={hotel.hero_image_url} alt={hotel.name}
+                        fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <span className="text-5xl text-[#2A2522]/10 font-serif">{hotel?.name?.charAt(0)}</span>
