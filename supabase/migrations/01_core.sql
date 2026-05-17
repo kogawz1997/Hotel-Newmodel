@@ -1433,7 +1433,6 @@ BEGIN
         to_tsvector('simple',
           coalesce(name, '') || ' ' ||
           coalesce(city, '') || ' ' ||
-          coalesce(description, '') || ' ' ||
           coalesce(address, '') || ' ' ||
           coalesce(type, '')
         )
