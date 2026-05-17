@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { CookieConsent } from '@/components/ui/cookie-consent';
 import { PortalChatButton } from '@/components/portal/portal-chat-button';
 import { PortalThemeToggle } from '@/components/portal/PortalThemeToggle';
+import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -31,6 +32,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
 
+      <PortalBottomNav />
       <CookieConsent />
       <PortalChatButton />
     </div>
