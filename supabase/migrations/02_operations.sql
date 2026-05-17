@@ -732,7 +732,7 @@ SELECT
   o.id AS organization_id,
   o.name AS organization_name,
   count(h.id) AS hotels_count,
-  count(h.id) FILTER (WHERE h.active = true) AS active_hotels_count
+  count(h.id) AS active_hotels_count
 FROM organizations o
 LEFT JOIN hotels h ON h.organization_id = o.id
 GROUP BY o.id, o.name;
