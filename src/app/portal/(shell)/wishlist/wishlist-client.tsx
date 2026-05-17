@@ -18,8 +18,8 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
   }
 
   return (
-    <div className="min-h-screen bg-muted/50">
-      <nav className="bg-card border-b border-border sticky top-0 z-30">
+    <>
+      <nav className="bg-card border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="h-4 w-4" />
@@ -30,7 +30,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
+      <div className="py-8">
         {items.length === 0 ? (
           <div className="text-center py-24">
             <div className="h-16 w-16 bg-muted/50 border-2 border-dashed border-border rounded-full flex items-center justify-center mx-auto mb-4">
@@ -106,6 +106,6 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

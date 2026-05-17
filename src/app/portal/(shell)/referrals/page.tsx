@@ -77,8 +77,8 @@ export default function PortalReferralsPage() {
   useEffect(() => { load(); }, []);
 
   return (
-    <div className="min-h-screen bg-muted/50">
-      <nav className="bg-card border-b border-border sticky top-0 z-30">
+    <>
+      <nav className="bg-card border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted">
             <ArrowLeft className="h-4 w-4" />
@@ -87,7 +87,7 @@ export default function PortalReferralsPage() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 pb-28 space-y-5">
+      <div className="py-8 space-y-5">
 
         {/* Hero banner */}
         <div className="bg-foreground rounded-2xl p-6 text-center">
@@ -208,6 +208,6 @@ export default function PortalReferralsPage() {
           เงื่อนไข: โค้ดใช้ได้สำหรับการจองแรก · ไม่สามารถใช้ร่วมกับโปรโมชั่นอื่น · Maitri ขอสงวนสิทธิ์เปลี่ยนแปลงเงื่อนไข
         </p>
       </div>
-    </div>
+    </>
   );
 }

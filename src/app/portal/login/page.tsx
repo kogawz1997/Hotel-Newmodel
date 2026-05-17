@@ -435,16 +435,8 @@ export default function GuestLoginPage() {
             </AnimatePresence>
 
             {/* Footer links */}
-            <div className="mt-6 space-y-2 text-center text-xs text-muted-foreground">
-              <p>
-                คุณเป็นเจ้าของโรงแรม?{' '}
-                <Link href="/owner/login" className="text-amber-700 dark:text-amber-400 hover:underline font-medium">
-                  Owner Portal
-                </Link>
-              </p>
-              <p className="text-muted-foreground/60">
-                พนักงาน: ใช้ลิงก์ที่ได้รับจากเจ้าของโรงแรมเท่านั้น
-              </p>
+            <div className="mt-6 text-center text-xs text-muted-foreground/60">
+              <p>ระบบสมาชิกสำหรับผู้เข้าพักเท่านั้น</p>
             </div>
           </div>
         </div>

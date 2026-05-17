@@ -167,9 +167,9 @@ export function GuestProfileClient({ guest }: { guest: any }) {
   ];
 
   return (
-    <div className="min-h-screen bg-muted/50">
+    <>
       {/* Header */}
-      <nav className="bg-card border-b border-border sticky top-0 z-30">
+      <nav className="bg-card border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted transition-colors">
@@ -183,7 +183,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-28">
+      <div className="py-6">
         {/* Avatar card */}
         <div className="bg-card rounded-2xl border border-border p-5 flex items-center gap-4 mb-5">
           <div className="h-14 w-14 rounded-full bg-foreground text-white flex items-center justify-center text-xl font-bold shrink-0">
@@ -214,7 +214,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
         {tab === 'payments'      && <PaymentsTab       s={s} />}
         {tab === 'privacy'       && <PrivacyTab        guest={guest} supabase={supabase} s={s} lang={lang} />}
       </div>
-    </div>
+    </>
   );
 }
 
