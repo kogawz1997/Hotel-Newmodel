@@ -1842,7 +1842,7 @@ CREATE INDEX IF NOT EXISTS channel_integrations_hotel_idx ON channel_integration
 CREATE INDEX IF NOT EXISTS notification_queue_status_idx  ON notification_queue(status, created_at);
 CREATE INDEX IF NOT EXISTS ota_reservations_hotel_idx    ON ota_reservations(hotel_id, status);
 CREATE INDEX IF NOT EXISTS hotel_content_hotel_idx       ON hotel_content(hotel_id, section);
-CREATE INDEX IF NOT EXISTS automation_runs_rule_idx      ON automation_runs(rule_id, ran_at);
+CREATE INDEX IF NOT EXISTS automation_runs_rule_idx      ON automation_runs(rule_id, created_at);
 
 -- RLS
 ALTER TABLE staff_presence        ENABLE ROW LEVEL SECURITY;
