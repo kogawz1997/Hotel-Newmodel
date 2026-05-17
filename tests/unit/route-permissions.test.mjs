@@ -55,7 +55,7 @@ const cronRoutes = [
   'src/app/api/cron/night-audit/route.ts',
   'src/app/api/cron/expire-pending/route.ts',
   'src/app/api/cron/billing-reconcile/route.ts',
-  'src/app/api/cron/trial-expire/route.ts',
+  'src/app/api/cron/trial-expiry/route.ts',
   'src/app/api/cron/no-show/route.ts',
 ];
 

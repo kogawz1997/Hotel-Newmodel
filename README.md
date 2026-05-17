@@ -40,11 +40,11 @@ Maitri คือ **Hotel PMS แบบ SaaS สำหรับตลาดไท
 
 ## 📚 เอกสารสำคัญ (อัปเดตล่าสุด)
 
-- `TODO.md` — สถานะงานและ checklist ก่อน go-live
+- `docs/TODO.md` — สถานะงานและ checklist ก่อน go-live
 - `docs/GITHUB_FILE_STATUS.md` — รายละเอียดทุกไฟล์ที่แสดงบน GitHub (tracked files ทั้งหมด)
 - `docs/PROJECT_FILE_INVENTORY.md` — สรุป inventory + รายการไฟล์ทั้งหมด
 - `docs/MARKDOWN_DOC_STATUS.md` — สถานะล่าสุดของไฟล์เอกสาร `.md` ทั้งโปรเจกต์
-- `ROADMAP.md` — แผนงานและทิศทางฟีเจอร์
+- `docs/ROADMAP.md` — แผนงานและทิศทางฟีเจอร์
 
 > หมายเหตุ: รายการไฟล์แบบละเอียดถูก generate จาก `git ls-files` เพื่อให้ตรงกับสิ่งที่เห็นบน GitHub
 
@@ -264,7 +264,7 @@ cp .env.demo .env.local
 - Current blocker in this exported snapshot: `package-lock.json` is not present, so `npm ci` cannot be re-verified until a connected Node 20 environment regenerates and commits the lockfile
 - External go-live dependencies still required: production Supabase, SendGrid sender verification, Upstash Redis, Stripe live keys, and optional Sentry DSN
 
-See `TODO.md`, `docs/MASTER_4P_TASKS.md`, and `docs/OPS_HANDOFF_GO_LIVE.md` for the current delivery checklist.
+See `docs/TODO.md`, `docs/MASTER_4P_TASKS.md`, and `docs/OPS_HANDOFF_GO_LIVE.md` for the current delivery checklist.
 
 ```env
 # Supabase (Project Settings → API)
@@ -393,8 +393,8 @@ maitri/
 │   ├── workflows/ci.yml                  # Lint → Build → Deploy
 │   └── SETUP_VERCEL.md
 │
-├── ROADMAP.md                            # Detailed roadmap + code hints
-├── TODO.md                               # Sprint checklist
+├── docs/ROADMAP.md                       # Detailed roadmap + code hints
+├── docs/TODO.md                          # Sprint checklist
 └── .env.demo                             # Demo keys (dev ready)
 ```
 
@@ -528,7 +528,7 @@ maitri/
 | 33 | **Mobile app** — React Native (Expo SDK 51, `mobile/` scaffold) | ✅ |
 | 34 | **SEA expansion** — Vietnam, Indonesia, Malaysia | 🔄 |
 
-> 📋 รายละเอียดแต่ละ item พร้อม code snippets, ไฟล์ที่ต้องแก้, และ ENV vars อยู่ใน [**ROADMAP.md**](ROADMAP.md)
+> 📋 รายละเอียดแต่ละ item พร้อม code snippets, ไฟล์ที่ต้องแก้, และ ENV vars อยู่ใน [**ROADMAP.md**](docs/ROADMAP.md)
 
 ---
 

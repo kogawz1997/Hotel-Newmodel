@@ -20,7 +20,7 @@ function AuthLoader() {
       setSession(session);
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [setSession]);
 
   return null;
 }

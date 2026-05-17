@@ -24,5 +24,5 @@ export function useProfile() {
           });
         }
       });
-  }, [session?.user?.id]);
+  }, [session?.user?.id, setProfile]);
 }

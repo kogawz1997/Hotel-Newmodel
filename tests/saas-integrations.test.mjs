@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const required = [
-  'src/app/api/cron/trial-expire/route.ts',
+  'src/app/api/cron/trial-expiry/route.ts',
   'src/app/api/admin/orgs/[id]/impersonate/route.ts',
   'src/app/api/admin/orgs/[id]/usage/route.ts',
   'src/app/api/admin/errors/route.ts',
@@ -17,7 +17,7 @@ const required = [
 for (const file of required) assert.ok(fs.existsSync(file), `${file} missing`);
 
 const vercel = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
-assert.ok(vercel.crons.some(c => c.path === '/api/cron/trial-expire'), 'trial-expire cron missing');
+assert.ok(vercel.crons.some(c => c.path === '/api/cron/trial-expiry'), 'trial-expiry cron missing');
 assert.ok(vercel.crons.some(c => c.path === '/api/cron/billing-reconcile'), 'billing-reconcile cron missing');
 assert.ok(vercel.crons.some(c => c.path === '/api/cron/billing-retry'), 'billing-retry cron missing');
 assert.ok(vercel.crons.some(c => c.path === '/api/cron/reliability-sweep'), 'reliability-sweep cron missing');

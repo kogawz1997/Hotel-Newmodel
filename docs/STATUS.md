@@ -1,6 +1,6 @@
 # Maitri PMS — Project Status
 
-อัปเดต: 2026-05-15 | Single source of truth สำหรับทุกงานที่ต้องทำ
+อัปเดต: 2026-05-17 | Single source of truth สำหรับทุกงานที่ต้องทำ
 
 ---
 
@@ -11,10 +11,10 @@
 | โค้ด routes + DB schema | ✅ 100% — Phase 1+2+3 เสร็จ |
 | Hotel OS modules (35 roles, 15 departments) | ✅ 100% — Phase 2 เสร็จ |
 | SaaS Platform Admin | ✅ 100% — Phase 3 เสร็จ |
-| DB migrations | ✅ 18 migrations ครบ |
-| business logic สมบูรณ์ | ⚠️ ~70% |
+| DB migrations | ✅ 8 migration files, 165+ tables |
+| business logic สมบูรณ์ | ⚠️ ~80% |
 | production verification | ❌ 0% |
-| vendor integrations (OTA/Payment live) | ❌ ~10% |
+| vendor integrations (OTA/Payment live) | ⚠️ ~40% (6 OTA parsers, payments implemented) |
 | ENV vars configured | ❌ ต้องใส่ |
 | Role/page separation | ✅ ครบ — 35 roles, page guards, sidebar filtering |
 
@@ -25,6 +25,7 @@
 | Phase 1 | Hotel OS Core (auth, reservations, rooms, guests, ops) | ✅ เสร็จ |
 | Phase 2 | Department Modules (15 modules, 9 migrations) | ✅ เสร็จ 2026-05-15 |
 | Phase 3 | SaaS Platform Admin + Night Audit + CRM (2 migrations) | ✅ เสร็จ 2026-05-15 |
+| Phase 4 | OTA expansion (6 providers), CRM engine, Sentiment, Mobile (7 screens) | ✅ เสร็จ 2026-05-17 |
 
 ---
 
@@ -145,14 +146,28 @@
 - [x] Upload/signed URL isolation by tenant → `{hotelId}/` path prefix + signed upload URLs
 - [x] RBAC enforcement matrix → guards.ts exports `requireHotelAccess`, `requirePlatformAdmin`, `requireCronSecret`, `requireUser`, `assertReservationAccess`
 
-### C.4 OTA Worker Logic — ✅ DONE
+### C.4 OTA Worker Logic — ✅ DONE (6 providers)
 - [x] Booking.com XML parser → `src/lib/ota/parsers/booking-com.ts` (OTA_HotelResNotifRQ)
 - [x] Agoda YCS JSON parser → `src/lib/ota/parsers/agoda.ts`
 - [x] Airbnb iCal + JSON webhook → `src/lib/ota/parsers/airbnb.ts`
+- [x] Expedia EQC XML parser → `src/lib/ota/parsers/expedia.ts`
+- [x] Trip.com JSON parser → `src/lib/ota/parsers/trip-com.ts`
+- [x] Hostelworld JSON parser → `src/lib/ota/parsers/hostelworld.ts`
 - [x] Reservation mapper → `src/lib/ota/reservation-mapper.ts` (guest upsert → reservation → folio + dedup)
 - [x] Retry/alert policy → 5-attempt failure alert via `alertOtaFailure`
 - [x] Dead letter queue (infrastructure) — `dead_letter_queue` table + reliability sweep move logic (`src/app/api/cron/reliability-sweep/route.ts`)
 - [x] Conflict resolution UI — `/dashboard/ota/conflicts` (DLQ viewer + resolve button)
+
+### C.4.5 CRM Engine — ✅ DONE
+- [x] Segment engine → `src/lib/crm/segments.ts` (rule-based guest segmentation)
+- [x] Churn scoring → `src/lib/crm/churn-score.ts` (risk model for at-risk guests)
+- [x] Cohort analysis → `src/lib/crm/cohort.ts` (retention cohorts by booking month)
+- [x] CRM API routes → `src/app/api/crm/` (segments, churn, cohort endpoints)
+
+### C.4.6 Sentiment & Inbox Automation — ✅ DONE
+- [x] Auto-routing → `src/lib/sentiment/router.ts` (classify + route incoming messages)
+- [x] SLA tracker → `src/lib/sentiment/sla.ts` (response time monitoring)
+- [x] AI draft response → `src/lib/sentiment/draft.ts` (Claude-powered reply suggestions)
 
 ### C.5 Monitoring + Alerting — ✅ DONE
 - [x] Payment/OTA/cron failure monitors → `src/lib/ops/alerts.ts` (`alertPaymentFailure`, `alertOtaFailure`, `alertCronFailure`)
@@ -547,10 +562,14 @@ Legend: ✅ = ทำแล้ว | `[ ]` = ยังต้องทำ
 
 ### P5 — Mobile Experience
 
-**Staff Mobile**
+**Staff Mobile** (7 screens implemented — React Native/Expo)
 - [x] Mobile housekeeping (PWA board)
 - [x] Mobile front desk (arrivals, room grid)
 - [x] Mobile owner analytics
+- [x] Auth screens (login, register) → `mobile/app/(auth)/`
+- [x] Dashboard home → `mobile/app/(tabs)/index.tsx`
+- [x] Reservations screen → `mobile/app/(tabs)/reservations.tsx`
+- [x] Profile screen → `mobile/app/(tabs)/profile.tsx`
 - [ ] Push notifications (web push / LINE notify เมื่อมี check-in หรือ incident)
 - [ ] Photo uploads บน mobile (housekeeping proof)
 - [ ] Swipe interactions บน task cards
@@ -601,12 +620,14 @@ Legend: ✅ = ทำแล้ว | `[ ]` = ยังต้องทำ
 
 ### P7 — OTA & Channel Manager
 
-**OTA Integration**
+**OTA Integration** (6 providers implemented)
 - [x] Booking.com XML parser (inbound)
 - [x] Agoda YCS JSON parser (inbound)
 - [x] Airbnb iCal + JSON (inbound)
+- [x] Expedia EQC XML parser (inbound)
+- [x] Trip.com JSON parser (inbound)
+- [x] Hostelworld JSON parser (inbound)
 - [x] Dead letter queue + conflict resolution UI
-- [ ] Expedia integration (inbound parser)
 - [ ] **OTA 2-way sync** (push availability + rate ออก) — *นี่คือ gap ที่ใหญ่ที่สุด*
 - [ ] Rate parity calendar (visual bulk edit ราคาทุก channel)
 - [ ] Room mapping UI (map internal room type → OTA room type)
@@ -733,7 +754,7 @@ Legend: ✅ = ทำแล้ว | `[ ]` = ยังต้องทำ
 | P4 Guest Experience | 22 | 12 | 10 |
 | P5 Mobile | 10 | 6 | 4 |
 | P6 AI | 14 | 8 | 6 |
-| P7 OTA | 9 | 4 | 5 |
+| P7 OTA | 11 | 7 | 4 |
 | P8 Payments & Finance | 10 | 7 | 3 |
 | P9 Analytics & Reputation | 10 | 4 | 6 |
 | P10 Automation | 11 | 5 | 6 |
