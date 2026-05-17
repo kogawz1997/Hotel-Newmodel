@@ -1,9 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ShieldAlert, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { loginInternal } from '@/lib/auth/role-login';
 
 export default function InternalLoginPage() {
@@ -11,7 +12,7 @@ export default function InternalLoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [tokenChecked, setTokenChecked] = useState(false);
-  const [tokenValid, setTokenValid] = useState(true);
+  const [tokenValid, setTokenValid] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -22,7 +23,6 @@ export default function InternalLoginPage() {
     if (error === '2fa_required') setErrorMessage('บัญชีนี้ต้องยืนยัน 2FA ก่อนใช้งาน');
     if (!token) {
       setTokenValid(false);
-      setErrorMessage('หน้านี้ใช้สำหรับพนักงานที่ได้รับลิงก์จากเจ้าของโรงแรมเท่านั้น');
       setTokenChecked(true);
       return;
     }
@@ -58,20 +58,79 @@ export default function InternalLoginPage() {
     }
   }
 
+  if (!tokenChecked) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Users className="h-4 w-4" />
+          </div>
+          <span className="text-sm font-medium text-muted-foreground">Staff Portal</span>
+        </div>
+        <p className="text-sm text-muted-foreground">กำลังตรวจสอบลิงก์พนักงาน...</p>
+      </div>
+    );
+  }
+
+  if (!tokenValid) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+            <ShieldAlert className="h-4 w-4" />
+          </div>
+          <span className="text-sm font-medium text-muted-foreground">Staff Portal</span>
+        </div>
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 space-y-2">
+          <p className="text-sm font-medium text-amber-900">ไม่มีสิทธิ์เข้าถึงหน้านี้</p>
+          <p className="text-xs text-amber-800">
+            หน้านี้ใช้สำหรับพนักงานที่ได้รับลิงก์จากเจ้าของโรงแรมเท่านั้น
+            กรุณาติดต่อเจ้าของโรงแรมเพื่อขอลิงก์เข้าสู่ระบบ
+          </p>
+          {errorMessage && <p className="text-xs text-amber-800 border-t border-amber-200 pt-2">{errorMessage}</p>}
+        </div>
+        <div className="space-y-2 text-center text-xs text-muted-foreground">
+          <p>
+            ลูกค้าโรงแรม?{' '}
+            <Link href="/portal/login" className="text-primary hover:underline">
+              เข้าสู่ระบบ Guest Portal
+            </Link>
+          </p>
+          <p>
+            เจ้าของโรงแรม?{' '}
+            <Link href="/owner/login" className="text-primary hover:underline">
+              เข้าสู่ระบบ Owner Portal
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
-        {errorMessage && <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">{errorMessage}</div>}
-        <h1 className="font-display text-3xl font-medium tracking-tight">เข้าสู่ระบบพนักงาน/ผู้ดูแล</h1>
-        <p className="text-sm text-muted-foreground mt-2">ลูกค้าเข้าใช้งานแยกที่หน้า Portal Login</p>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Users className="h-4 w-4" />
+          </div>
+          <span className="text-sm font-medium text-muted-foreground">Staff Portal</span>
+        </div>
+        {errorMessage && (
+          <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            {errorMessage}
+          </div>
+        )}
+        <h1 className="font-display text-3xl font-medium tracking-tight">เข้าสู่ระบบพนักงาน</h1>
+        <p className="text-sm text-muted-foreground mt-2">ลิงก์ผ่านการตรวจสอบแล้ว กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบ</p>
       </div>
-      {!tokenChecked ? <p className="text-sm text-muted-foreground">กำลังตรวจสอบลิงก์พนักงาน...</p> : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input type="email" label="อีเมล" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={!tokenValid} />
-          <Input type="password" label="รหัสผ่าน" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={!tokenValid} />
-          <Button type="submit" className="w-full" disabled={loading || !tokenValid}>{loading ? 'กำลังเข้าสู่ระบบ...' : <>เข้าสู่ระบบ<ArrowRight /></>}</Button>
-        </form>
-      )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input type="email" label="อีเมล" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Input type="password" label="รหัสผ่าน" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'กำลังเข้าสู่ระบบ...' : <>เข้าสู่ระบบ <ArrowRight className="ml-2 h-4 w-4" /></>}
+        </Button>
+      </form>
     </div>
   );
 }

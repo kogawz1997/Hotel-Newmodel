@@ -7,7 +7,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 export default async function OwnerLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/auth/login');
+  if (!user) redirect('/owner/login');
 
   const admin = createAdminClient();
   const { data: profile } = await admin
@@ -17,7 +17,7 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
     .single();
 
   const ownerRoles = ['owner', 'hotel_owner', 'general_manager'];
-  if (!profile || !ownerRoles.includes(profile.role)) redirect('/dashboard');
+  if (!profile || !ownerRoles.includes(profile.role)) redirect('/owner/login?error=forbidden');
 
   const { data: hotel } = await admin
     .from('hotels')

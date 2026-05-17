@@ -58,12 +58,13 @@ export async function loginOwner(email: string, password: string) {
   if (result.error) return { ok: false, message: result.error.message };
 
   const { data: profile } = await supabase.from('user_profiles').select('role,active').eq('id', result.data.user?.id).maybeSingle();
-  if (!profile || !profile.active || !['owner', 'admin'].includes(profile.role || '')) {
+  const ownerRoles = ['owner', 'hotel_owner', 'general_manager', 'admin'];
+  if (!profile || !profile.active || !ownerRoles.includes(profile.role || '')) {
     await supabase.auth.signOut();
     return { ok: false, message: 'บัญชีนี้ไม่มีสิทธิ์หน้าเจ้าของโรงแรม' };
   }
 
-  return { ok: true, redirectTo: '/dashboard' as const };
+  return { ok: true, redirectTo: '/owner/overview' as const };
 }
 
 export async function loginStaff(email: string, password: string) {
