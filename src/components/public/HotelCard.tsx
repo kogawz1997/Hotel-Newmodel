@@ -75,10 +75,10 @@ export function HotelCard({ hotel, nights = 0, checkIn = '', checkOut = '' }: Pr
   const bookHref = `/h/${hotel.slug}${checkIn ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ''}`;
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-black/5 hover:shadow-xl transition-all duration-300 group cursor-pointer">
+    <div className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:shadow-xl transition-all duration-300 group cursor-pointer">
       {/* Image */}
       <Link href={bookHref} className="block">
-        <div className="relative h-52 bg-[#FAF7F2] overflow-hidden"
+        <div className="relative h-52 bg-muted/30 overflow-hidden"
           onTouchStart={e => setTouchStartX(e.touches[0]?.clientX ?? null)}
           onTouchEnd={e => {
             if (touchStartX === null || imgs.length < 2) return;
@@ -90,7 +90,7 @@ export function HotelCard({ hotel, nights = 0, checkIn = '', checkOut = '' }: Pr
         >
           {heroSrc
             ? <Image src={heroSrc} alt={hotel.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-            : <div className="w-full h-full flex items-center justify-center text-5xl text-[#2A2522]/10 font-serif">{hotel.name?.charAt(0)}</div>
+            : <div className="w-full h-full flex items-center justify-center text-5xl text-foreground/10 font-serif">{hotel.name?.charAt(0)}</div>
           }
 
           {/* Deal badge */}
@@ -143,13 +143,13 @@ export function HotelCard({ hotel, nights = 0, checkIn = '', checkOut = '' }: Pr
             <Star key={i} className="h-3 w-3 text-amber-400 fill-amber-400" />
           ))}
           {hotel.type && (
-            <span className="text-2xs text-[#2A2522]/40 ml-1 capitalize">{hotel.type.replace('_', ' ')}</span>
+            <span className="text-2xs text-muted-foreground ml-1 capitalize">{hotel.type.replace('_', ' ')}</span>
           )}
         </div>
 
         {/* Name + score badge */}
         <div className="flex items-start justify-between gap-2 mb-0.5">
-          <h3 className="font-bold text-[#2A2522] text-sm leading-tight line-clamp-2 flex-1">{hotel.name}</h3>
+          <h3 className="font-bold text-foreground text-sm leading-tight line-clamp-2 flex-1">{hotel.name}</h3>
           {score && hotel.avg_rating && (
             <div className="shrink-0 rounded-lg px-2 py-1 text-white text-sm font-bold leading-none" style={{ backgroundColor: score.bg }}>
               {hotel.avg_rating.toFixed(1)}
@@ -161,16 +161,16 @@ export function HotelCard({ hotel, nights = 0, checkIn = '', checkOut = '' }: Pr
         {score && hotel.avg_rating && (
           <p className="text-xs font-semibold mb-0.5" style={{ color: score.bg }}>
             {score.th}
-            {hotel.review_count ? <span className="font-normal text-[#2A2522]/40"> · {hotel.review_count} รีวิว</span> : null}
+            {hotel.review_count ? <span className="font-normal text-muted-foreground"> · {hotel.review_count} รีวิว</span> : null}
           </p>
         )}
 
         {/* Location */}
-        <p className="text-xs text-[#2A2522]/50 flex items-center gap-1 mb-2">
+        <p className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
           <MapPin className="h-3 w-3 shrink-0" />
           {hotel.city || 'Thailand'}
           {hotel.distance_km !== undefined && hotel.distance_km > 0 && (
-            <span className="text-[#2A2522]/30"> · {hotel.distance_km < 1 ? `${Math.round(hotel.distance_km * 1000)} ม.` : `${hotel.distance_km.toFixed(1)} กม.`}</span>
+            <span className="text-muted-foreground"> · {hotel.distance_km < 1 ? `${Math.round(hotel.distance_km * 1000)} ม.` : `${hotel.distance_km.toFixed(1)} กม.`}</span>
           )}
         </p>
 
@@ -197,10 +197,10 @@ export function HotelCard({ hotel, nights = 0, checkIn = '', checkOut = '' }: Pr
         {/* Price + CTA */}
         <div className="flex items-end justify-between gap-2">
           <div>
-            <p className="text-2xs text-[#2A2522]/40">ราคาเริ่มต้น / คืน</p>
-            <p className="text-xl font-bold text-[#2A2522] leading-tight">{formatCurrency(price)}</p>
+            <p className="text-2xs text-muted-foreground">ราคาเริ่มต้น / คืน</p>
+            <p className="text-xl font-bold text-foreground leading-tight">{formatCurrency(price)}</p>
             {nights > 1 && price > 0 && (
-              <p className="text-xs text-[#2A2522]/50">{nights} คืน · {formatCurrency(price * nights)}</p>
+              <p className="text-xs text-muted-foreground">{nights} คืน · {formatCurrency(price * nights)}</p>
             )}
           </div>
           <div className="shrink-0 px-4 py-2 bg-[#C66A30] hover:bg-[#A4522A] text-white text-xs font-bold rounded-xl transition-colors">

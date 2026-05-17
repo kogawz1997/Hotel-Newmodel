@@ -6,7 +6,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { formatCurrency } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { CheckCircle, Calendar, Bed, Users, MapPin, Download, QrCode, ArrowLeft, Share2 } from 'lucide-react';
+import { CheckCircle, MapPin, Download, QrCode, ArrowLeft } from 'lucide-react';
 
 export default async function BookingSuccessPage({
   params,
@@ -36,16 +36,21 @@ export default async function BookingSuccessPage({
     } catch {}
   }
 
-  const hotel = reservation?.hotels as any;
-  const rt    = reservation?.room_types as any;
+  const hotel  = reservation?.hotels as any;
+  const rt     = reservation?.room_types as any;
   const nights = reservation?.nights ?? 1;
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-background">
       {/* Nav */}
-      <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
+      <nav className="bg-card border-b border-border sticky top-0 z-30">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/" className="font-serif text-xl font-medium text-[#2A2522]">🪷 Maitri</Link>
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="h-8 w-8 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <span className="font-display text-sm font-bold text-amber-700 dark:text-amber-400">M</span>
+            </div>
+            <span className="font-semibold text-foreground text-sm">Maitri Collection</span>
+          </Link>
         </div>
       </nav>
 
@@ -53,11 +58,11 @@ export default async function BookingSuccessPage({
 
         {/* Success header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-emerald-50 border-4 border-emerald-100 mb-5">
+          <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border-4 border-emerald-100 dark:border-emerald-800 mb-5">
             <CheckCircle className="h-10 w-10 text-emerald-500" />
           </div>
-          <h1 className="text-2xl font-bold text-[#2A2522] mb-1">การจองสำเร็จ!</h1>
-          <p className="text-[#2A2522]/50 text-sm">ระบบได้ส่งอีเมลยืนยันไปที่กล่องจดหมายของคุณแล้ว</p>
+          <h1 className="text-2xl font-bold text-foreground mb-1">การจองสำเร็จ!</h1>
+          <p className="text-muted-foreground text-sm">ระบบได้ส่งอีเมลยืนยันไปที่กล่องจดหมายของคุณแล้ว</p>
         </div>
 
         {/* Booking code card */}
@@ -69,7 +74,7 @@ export default async function BookingSuccessPage({
 
         {/* Hotel details */}
         {hotel && (
-          <div className="bg-white rounded-2xl border border-black/5 overflow-hidden mb-5">
+          <div className="bg-card rounded-2xl border border-border overflow-hidden mb-5">
             {hotel.hero_image_url && (
               <div className="relative h-40 overflow-hidden">
                 <Image src={hotel.hero_image_url} alt={hotel.name} fill className="object-cover" />
@@ -87,35 +92,35 @@ export default async function BookingSuccessPage({
 
             <div className="p-5 grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-[#2A2522]/40 mb-1">เช็คอิน</p>
-                <p className="font-semibold text-[#2A2522] text-sm">
+                <p className="text-xs text-muted-foreground mb-1">เช็คอิน</p>
+                <p className="font-semibold text-foreground text-sm">
                   {reservation?.check_in
                     ? format(parseISO(reservation.check_in + 'T00:00:00'), 'EEE d MMM yyyy', { locale: th })
                     : '—'}
                 </p>
                 {hotel.check_in_time && (
-                  <p className="text-xs text-[#2A2522]/40 mt-0.5">ตั้งแต่ {hotel.check_in_time}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">ตั้งแต่ {hotel.check_in_time}</p>
                 )}
               </div>
               <div>
-                <p className="text-xs text-[#2A2522]/40 mb-1">เช็คเอาท์</p>
-                <p className="font-semibold text-[#2A2522] text-sm">
+                <p className="text-xs text-muted-foreground mb-1">เช็คเอาท์</p>
+                <p className="font-semibold text-foreground text-sm">
                   {reservation?.check_out
                     ? format(parseISO(reservation.check_out + 'T00:00:00'), 'EEE d MMM yyyy', { locale: th })
                     : '—'}
                 </p>
                 {hotel.check_out_time && (
-                  <p className="text-xs text-[#2A2522]/40 mt-0.5">ก่อน {hotel.check_out_time}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">ก่อน {hotel.check_out_time}</p>
                 )}
               </div>
 
               <div>
-                <p className="text-xs text-[#2A2522]/40 mb-1">ประเภทห้อง</p>
-                <p className="font-semibold text-[#2A2522] text-sm">{rt?.name || '—'}</p>
+                <p className="text-xs text-muted-foreground mb-1">ประเภทห้อง</p>
+                <p className="font-semibold text-foreground text-sm">{rt?.name || '—'}</p>
               </div>
               <div>
-                <p className="text-xs text-[#2A2522]/40 mb-1">จำนวน</p>
-                <p className="font-semibold text-[#2A2522] text-sm">
+                <p className="text-xs text-muted-foreground mb-1">จำนวน</p>
+                <p className="font-semibold text-foreground text-sm">
                   {nights} คืน · {reservation?.adults || 1} ผู้ใหญ่
                   {reservation?.children ? ` · ${reservation.children} เด็ก` : ''}
                 </p>
@@ -123,16 +128,16 @@ export default async function BookingSuccessPage({
             </div>
 
             {/* Total */}
-            <div className="mx-5 mb-5 p-4 bg-[#FAF7F2] rounded-xl flex items-center justify-between">
+            <div className="mx-5 mb-5 p-4 bg-muted/30 rounded-xl flex items-center justify-between">
               <div>
-                <p className="text-xs text-[#2A2522]/40 mb-0.5">ยอดรวม</p>
-                <p className="text-xl font-bold text-[#2A2522]">
+                <p className="text-xs text-muted-foreground mb-0.5">ยอดรวม</p>
+                <p className="text-xl font-bold text-foreground">
                   {reservation?.total_amount ? formatCurrency(reservation.total_amount) : '—'}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-[#2A2522]/40 mb-0.5">สถานะ</p>
-                <span className="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-medium">
+                <p className="text-xs text-muted-foreground mb-0.5">สถานะ</p>
+                <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full font-medium">
                   ยืนยันแล้ว ✓
                 </span>
               </div>
@@ -140,15 +145,15 @@ export default async function BookingSuccessPage({
 
             {/* Special requests */}
             {reservation?.special_requests && (
-              <div className="mx-5 mb-5 p-3 bg-amber-50 border border-amber-100 rounded-lg text-xs text-amber-800">
+              <div className="mx-5 mb-5 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-lg text-xs text-amber-800 dark:text-amber-300">
                 <span className="font-semibold">คำขอพิเศษ: </span>{reservation.special_requests}
               </div>
             )}
 
             {/* Hotel contact */}
             {(hotel.phone || hotel.email) && (
-              <div className="mx-5 mb-5 p-3 border border-black/5 rounded-xl text-xs text-[#2A2522]/60">
-                <p className="font-semibold text-[#2A2522] mb-1">ติดต่อโรงแรม</p>
+              <div className="mx-5 mb-5 p-3 border border-border rounded-xl text-xs text-muted-foreground">
+                <p className="font-semibold text-foreground mb-1">ติดต่อโรงแรม</p>
                 {hotel.phone && <p>📞 {hotel.phone}</p>}
                 {hotel.email && <p>✉️ {hotel.email}</p>}
               </div>
@@ -163,9 +168,9 @@ export default async function BookingSuccessPage({
             { icon: '✓', label: 'ยืนยันทันที' },
             { icon: '📧', label: 'อีเมลยืนยัน' },
           ].map(t => (
-            <div key={t.label} className="bg-white border border-black/5 rounded-xl py-3 px-2">
+            <div key={t.label} className="bg-card border border-border rounded-xl py-3 px-2">
               <div className="text-xl mb-1">{t.icon}</div>
-              <p className="text-2xs text-[#2A2522]/60">{t.label}</p>
+              <p className="text-2xs text-muted-foreground">{t.label}</p>
             </div>
           ))}
         </div>
@@ -178,18 +183,18 @@ export default async function BookingSuccessPage({
           </Link>
           {code && (
             <Link href={`/portal/bookings/qr?code=${code}`}
-              className="flex items-center justify-center gap-2 w-full py-3 border border-black/10 bg-white rounded-xl text-sm font-medium text-[#2A2522] hover:bg-[#FAF7F2] transition-colors">
+              className="flex items-center justify-center gap-2 w-full py-3 border border-border bg-card rounded-xl text-sm font-medium text-foreground hover:bg-muted/30 transition-colors">
               <QrCode className="h-4 w-4" /> แสดง QR Code เช็คอิน
             </Link>
           )}
           {reservation?.id && (
             <a href={`/api/guest/bookings/${reservation.id}/receipt`} target="_blank" rel="noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-3 border border-black/10 bg-white rounded-xl text-sm font-medium text-[#2A2522] hover:bg-[#FAF7F2] transition-colors">
+              className="flex items-center justify-center gap-2 w-full py-3 border border-border bg-card rounded-xl text-sm font-medium text-foreground hover:bg-muted/30 transition-colors">
               <Download className="h-4 w-4" /> ดาวน์โหลดใบยืนยัน
             </a>
           )}
           <Link href={`/h/${slug}`}
-            className="flex items-center justify-center gap-2 w-full py-3 text-sm text-[#2A2522]/50 hover:text-[#2A2522] transition-colors">
+            className="flex items-center justify-center gap-2 w-full py-3 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" /> กลับไปหน้าที่พัก
           </Link>
         </div>

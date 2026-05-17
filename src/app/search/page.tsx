@@ -76,7 +76,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-[#2A2522]">
+        <h3 className="font-bold text-foreground">
           ตัวกรอง
           {activeCount > 0 && (
             <span className="ml-1.5 text-xs bg-[#C66A30] text-white px-1.5 py-0.5 rounded-full">{activeCount}</span>
@@ -89,29 +89,29 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
 
       {/* Price range */}
       <div>
-        <p className="text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5">ราคาต่อคืน (บาท)</p>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">ราคาต่อคืน (บาท)</p>
         <div className="flex items-center gap-2">
           <input
             type="number"
             value={query.minPrice || ''}
             onChange={e => setQuery(p => ({ ...p, minPrice: Number(e.target.value) }))}
             placeholder="0"
-            className="flex-1 px-3 py-2 bg-[#FAF7F2] border border-black/5 rounded-lg text-sm focus:outline-none"
+            className="flex-1 px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none"
           />
-          <span className="text-[#2A2522]/30 text-sm">—</span>
+          <span className="text-muted-foreground text-sm">—</span>
           <input
             type="number"
             value={query.maxPrice < 50000 ? query.maxPrice : ''}
             onChange={e => setQuery(p => ({ ...p, maxPrice: Number(e.target.value) || 50000 }))}
             placeholder="ไม่จำกัด"
-            className="flex-1 px-3 py-2 bg-[#FAF7F2] border border-black/5 rounded-lg text-sm focus:outline-none"
+            className="flex-1 px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none"
           />
         </div>
       </div>
 
       {/* Star rating */}
       <div>
-        <p className="text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5">ระดับดาวโรงแรม</p>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">ระดับดาวโรงแรม</p>
         <div className="flex flex-wrap gap-2">
           {[5, 4, 3, 2, 1].map(s => (
             <button
@@ -121,7 +121,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
                 'flex items-center gap-0.5 px-3 py-1.5 rounded-full border text-xs transition-all',
                 query.stars.includes(s)
                   ? 'bg-amber-50 border-amber-400 text-amber-700'
-                  : 'border-black/10 text-[#2A2522]/60 hover:border-amber-300',
+                  : 'border-border text-muted-foreground hover:border-amber-300',
               )}
             >
               {Array.from({ length: s }).map((_, i) => (
@@ -134,7 +134,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
 
       {/* Guest rating */}
       <div>
-        <p className="text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5">คะแนนผู้เข้าพัก</p>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">คะแนนผู้เข้าพัก</p>
         <div className="space-y-1">
           {[
             { v: 4.5, label: 'ยอดเยี่ยมมาก', sub: '4.5+' },
@@ -149,8 +149,8 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
               className={cn(
                 'w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all text-left',
                 query.minRating === r.v
-                  ? 'bg-[#2A2522] text-white'
-                  : 'hover:bg-[#FAF7F2] text-[#2A2522]/70',
+                  ? 'bg-foreground text-background'
+                  : 'hover:bg-muted/50 text-muted-foreground',
               )}
             >
               <span>{r.label}</span>
@@ -162,7 +162,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
 
       {/* Popular filters */}
       <div>
-        <p className="text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5">ฟิลเตอร์ยอดนิยม</p>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">ฟิลเตอร์ยอดนิยม</p>
         <div className="space-y-2.5">
           {([
             { key: 'freeCancel' as const, label: 'ยกเลิกฟรี' },
@@ -180,7 +180,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
               >
                 {query[item.key] && <Check className="h-3 w-3 text-white" />}
               </div>
-              <span className="text-sm text-[#2A2522]/70 select-none">{item.label}</span>
+              <span className="text-sm text-muted-foreground select-none">{item.label}</span>
             </label>
           ))}
         </div>
@@ -190,7 +190,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
       <div>
         <button
           onClick={() => setShowAmenities(p => !p)}
-          className="w-full flex items-center justify-between text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide mb-2.5"
+          className="w-full flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5"
         >
           <span>สิ่งอำนวยความสะดวก</span>
           {showAmenities ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -204,8 +204,8 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
                 className={cn(
                   'px-3 py-1.5 rounded-full border text-xs transition-all',
                   query.amenities.includes(a.value)
-                    ? 'bg-[#2A2522] text-white border-[#2A2522]'
-                    : 'border-black/10 text-[#2A2522]/60 hover:border-[#2A2522]/20',
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'border-border text-muted-foreground hover:border-[#2A2522]/20',
                 )}
               >
                 {a.label}
@@ -376,20 +376,23 @@ function SearchContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-muted/30">
 
       {/* ── Sticky nav ── */}
-      <nav className="bg-white border-b border-black/5 sticky top-0 z-40 shadow-sm">
+      <nav className="bg-card border-b border-border/50 sticky top-0 z-40 shadow-sm">
         <div className="max-w-screen-xl mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
-            <Link href="/" className="font-serif text-xl font-bold text-[#2A2522] shrink-0 hidden md:block">
-              🪷 Maitri
+            <Link href="/" className="hidden md:flex items-center gap-2 group shrink-0">
+              <div className="h-8 w-8 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <span className="font-display text-sm font-bold text-amber-700 dark:text-amber-400">M</span>
+              </div>
+              <span className="font-semibold text-foreground text-sm">Maitri</span>
             </Link>
 
             {/* Search form */}
-            <div className="flex-1 flex items-center bg-[#FAF7F2] border border-black/10 rounded-2xl overflow-hidden max-w-4xl">
+            <div className="flex-1 flex items-center bg-muted/30 border border-border rounded-2xl overflow-hidden max-w-4xl">
               {/* Destination */}
-              <div className="flex items-center gap-2 px-4 py-2.5 border-r border-black/8 flex-1 min-w-0">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-r border-border/60 flex-1 min-w-0">
                 <MapPin className="h-4 w-4 text-[#C66A30] shrink-0" />
                 <input
                   value={query.city}
@@ -411,26 +414,26 @@ function SearchContent() {
               </div>
 
               {/* Dates */}
-              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-black/8">
-                <Calendar className="h-3.5 w-3.5 text-[#2A2522]/30 shrink-0" />
+              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-border/60">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <input type="date" value={query.checkIn}
                   onChange={e => setQuery(p => ({ ...p, checkIn: e.target.value }))}
-                  className="text-xs bg-transparent focus:outline-none w-28 text-[#2A2522]/70" />
+                  className="text-xs bg-transparent focus:outline-none w-28 text-muted-foreground" />
               </div>
-              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-black/8">
-                <Calendar className="h-3.5 w-3.5 text-[#2A2522]/30 shrink-0" />
+              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-border/60">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <input type="date" value={query.checkOut}
                   onChange={e => setQuery(p => ({ ...p, checkOut: e.target.value }))}
-                  className="text-xs bg-transparent focus:outline-none w-28 text-[#2A2522]/70" />
+                  className="text-xs bg-transparent focus:outline-none w-28 text-muted-foreground" />
               </div>
 
               {/* Guests */}
-              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-black/8">
-                <Users className="h-3.5 w-3.5 text-[#2A2522]/30 shrink-0" />
+              <div className="hidden md:flex items-center gap-2 px-4 py-2.5 border-r border-border/60">
+                <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={query.adults}
                   onChange={e => setQuery(p => ({ ...p, adults: Number(e.target.value) }))}
-                  className="text-xs bg-transparent focus:outline-none text-[#2A2522]/70 cursor-pointer"
+                  className="text-xs bg-transparent focus:outline-none text-muted-foreground cursor-pointer"
                 >
                   {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n} คน</option>)}
                 </select>
@@ -463,8 +466,8 @@ function SearchContent() {
               className={cn(
                 'flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all shrink-0 whitespace-nowrap',
                 query.type === t.value
-                  ? 'bg-[#2A2522] text-white border-[#2A2522]'
-                  : 'bg-white border-black/10 text-[#2A2522]/60 hover:border-[#2A2522]/30',
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'bg-card border-border text-muted-foreground hover:border-[#2A2522]/30',
               )}
             >
               <span>{t.emoji}</span>{t.label}
@@ -477,7 +480,7 @@ function SearchContent() {
 
           {/* ── Filter sidebar (desktop) ── */}
           <aside className="hidden lg:block w-72 shrink-0">
-            <div className="sticky top-20 bg-white rounded-2xl border border-black/5 p-5">
+            <div className="sticky top-20 bg-card rounded-2xl border border-border/50 p-5">
               <FilterPanel
                 query={query}
                 setQuery={setQuery}
@@ -493,14 +496,14 @@ function SearchContent() {
             {/* Sort + filter controls */}
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               {/* Sort tabs */}
-              <div className="flex items-center bg-white border border-black/8 rounded-xl overflow-hidden">
+              <div className="flex items-center bg-card border border-border/60 rounded-xl overflow-hidden">
                 {SORT_TABS.map(s => (
                   <button
                     key={s.value}
                     onClick={() => { const nq = { ...query, sort: s.value }; setQuery(nq); search(nq); }}
                     className={cn(
-                      'px-4 py-2 text-xs font-medium transition-colors border-r border-black/8 last:border-0 whitespace-nowrap',
-                      query.sort === s.value ? 'bg-[#2A2522] text-white' : 'text-[#2A2522]/60 hover:bg-[#FAF7F2]',
+                      'px-4 py-2 text-xs font-medium transition-colors border-r border-border/60 last:border-0 whitespace-nowrap',
+                      query.sort === s.value ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted/50',
                     )}
                   >
                     {s.label}
@@ -511,7 +514,7 @@ function SearchContent() {
               {/* Mobile filter button */}
               <button
                 onClick={() => setShowFilter(true)}
-                className="lg:hidden flex items-center gap-1.5 px-4 py-2 bg-white border border-black/8 rounded-xl text-xs font-medium text-[#2A2522]/70 hover:bg-[#FAF7F2] transition-colors"
+                className="lg:hidden flex items-center gap-1.5 px-4 py-2 bg-card border border-border/60 rounded-xl text-xs font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
                 ตัวกรอง
@@ -521,8 +524,8 @@ function SearchContent() {
               </button>
 
               {searched && !loading && (
-                <p className="ml-auto text-sm text-[#2A2522]/50 shrink-0">
-                  พบ <strong className="text-[#2A2522]">{total}</strong> ที่พัก
+                <p className="ml-auto text-sm text-muted-foreground shrink-0">
+                  พบ <strong className="text-foreground">{total}</strong> ที่พัก
                   {query.city && ` · ${query.city}`}
                   {` · ${nights} คืน`}
                 </p>
@@ -565,7 +568,7 @@ function SearchContent() {
                   </span>
                 )}
                 {query.amenities.map(a => (
-                  <span key={a} className="flex items-center gap-1 px-3 py-1 bg-[#2A2522]/5 border border-[#2A2522]/10 text-[#2A2522]/70 text-xs rounded-full">
+                  <span key={a} className="flex items-center gap-1 px-3 py-1 bg-muted/20 border border-[#2A2522]/10 text-muted-foreground text-xs rounded-full">
                     {AMENITY_CHIPS.find(c => c.value === a)?.label ?? a}
                     <button onClick={() => setQuery(p => ({ ...p, amenities: p.amenities.filter(x => x !== a) }))}><X className="h-3 w-3" /></button>
                   </span>
@@ -578,14 +581,14 @@ function SearchContent() {
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5, 6].map(i => (
-                  <div key={i} className="bg-white rounded-2xl overflow-hidden border border-black/5">
-                    <div className="h-52 bg-[#2A2522]/5 animate-pulse" />
+                  <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border/50">
+                    <div className="h-52 bg-muted/20 animate-pulse" />
                     <div className="p-4 space-y-2.5">
-                      <div className="h-3 bg-[#2A2522]/5 rounded animate-pulse w-1/3" />
-                      <div className="h-4 bg-[#2A2522]/8 rounded animate-pulse" />
-                      <div className="h-3 bg-[#2A2522]/5 rounded animate-pulse w-2/3" />
-                      <div className="h-3 bg-[#2A2522]/5 rounded animate-pulse w-1/2" />
-                      <div className="h-8 bg-[#2A2522]/5 rounded-xl animate-pulse mt-3" />
+                      <div className="h-3 bg-muted/20 rounded animate-pulse w-1/3" />
+                      <div className="h-4 bg-muted/30 rounded animate-pulse" />
+                      <div className="h-3 bg-muted/20 rounded animate-pulse w-2/3" />
+                      <div className="h-3 bg-muted/20 rounded animate-pulse w-1/2" />
+                      <div className="h-8 bg-muted/20 rounded-xl animate-pulse mt-3" />
                     </div>
                   </div>
                 ))}
@@ -596,12 +599,12 @@ function SearchContent() {
               <div>
                 <div className="text-center py-20 mb-8">
                   <div className="text-7xl mb-5">🏨</div>
-                  <h2 className="text-2xl font-bold text-[#2A2522] mb-2">ค้นหาที่พักในฝัน</h2>
-                  <p className="text-[#2A2522]/50 mb-6">ระบุปลายทางและวันที่เพื่อดูห้องว่าง</p>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">ค้นหาที่พักในฝัน</h2>
+                  <p className="text-muted-foreground mb-6">ระบุปลายทางและวันที่เพื่อดูห้องว่าง</p>
                   <button
                     onClick={handleGeolocate}
                     disabled={geoLoading}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#2A2522] text-white rounded-xl text-sm font-semibold hover:bg-[#2A2522]/80 transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity disabled:opacity-50"
                   >
                     {geoLoading
                       ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -612,19 +615,19 @@ function SearchContent() {
 
                 {recentViewed.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="font-bold text-[#2A2522] mb-3">ดูล่าสุด</h3>
+                    <h3 className="font-bold text-foreground mb-3">ดูล่าสุด</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {recentViewed.map(h => (
                         <Link key={h.id} href={`/h/${h.slug}`}
-                          className="bg-white rounded-xl border border-black/5 overflow-hidden hover:shadow-md transition-shadow">
+                          className="bg-card rounded-xl border border-border/50 overflow-hidden hover:shadow-md transition-shadow">
                           {h.hero_image_url && (
                             <div className="relative w-full h-20">
                               <Image src={h.hero_image_url} alt={h.name} fill className="object-cover" />
                             </div>
                           )}
                           <div className="p-3">
-                            <p className="text-xs font-semibold text-[#2A2522] line-clamp-1">{h.name}</p>
-                            <p className="text-xs text-[#2A2522]/50">{h.city}</p>
+                            <p className="text-xs font-semibold text-foreground line-clamp-1">{h.name}</p>
+                            <p className="text-xs text-muted-foreground">{h.city}</p>
                           </div>
                         </Link>
                       ))}
@@ -637,8 +640,8 @@ function SearchContent() {
               /* ── No results ── */
               <div className="text-center py-24">
                 <div className="text-5xl mb-4">😔</div>
-                <h2 className="text-lg font-bold text-[#2A2522] mb-2">ไม่พบที่พักในช่วงนี้</h2>
-                <p className="text-[#2A2522]/50 text-sm mb-5">ลองเปลี่ยนวันที่หรือเงื่อนไขการค้นหา</p>
+                <h2 className="text-lg font-bold text-foreground mb-2">ไม่พบที่พักในช่วงนี้</h2>
+                <p className="text-muted-foreground text-sm mb-5">ลองเปลี่ยนวันที่หรือเงื่อนไขการค้นหา</p>
                 <button onClick={clearAllFilters}
                   className="px-5 py-2.5 bg-[#C66A30] text-white rounded-xl text-sm font-semibold">
                   ล้างตัวกรอง
@@ -654,8 +657,8 @@ function SearchContent() {
                   <div className="mb-8">
                     <div className="flex items-center gap-2 mb-3">
                       <MapPin className="h-4 w-4 text-[#C66A30]" />
-                      <h3 className="font-bold text-[#2A2522]">โรงแรมใกล้คุณ</h3>
-                      <span className="text-xs text-[#2A2522]/40 bg-[#2A2522]/5 px-2 py-0.5 rounded-full">ภายใน 10 กม.</span>
+                      <h3 className="font-bold text-foreground">โรงแรมใกล้คุณ</h3>
+                      <span className="text-xs text-muted-foreground bg-muted/20 px-2 py-0.5 rounded-full">ภายใน 10 กม.</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                       {nearby.map(hotel => (
@@ -664,7 +667,7 @@ function SearchContent() {
                         </div>
                       ))}
                     </div>
-                    <div className="my-6 border-t border-black/5" />
+                    <div className="my-6 border-t border-border/50" />
                   </div>
                 )}
 
@@ -702,7 +705,7 @@ function SearchContent() {
                   <div className="mt-8 flex justify-center">
                     <button
                       onClick={() => setVisibleCount(n => n + 12)}
-                      className="px-8 py-3 bg-white border border-black/10 rounded-xl text-sm font-medium text-[#2A2522] hover:bg-[#FAF7F2] hover:border-[#2A2522]/20 transition-all"
+                      className="px-8 py-3 bg-card border border-border rounded-xl text-sm font-medium text-foreground hover:bg-muted/50 hover:border-[#2A2522]/20 transition-all"
                     >
                       โหลดเพิ่ม ({Math.min(12, hotels.length - visibleCount)} รายการ)
                     </button>
@@ -718,10 +721,10 @@ function SearchContent() {
       {showFilter && (
         <div className="fixed inset-0 z-50 flex items-end lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilter(false)} />
-          <div className="relative bg-white w-full max-h-[88vh] overflow-y-auto rounded-t-3xl p-6">
+          <div className="relative bg-card w-full max-h-[88vh] overflow-y-auto rounded-t-3xl p-6">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-[#2A2522]">ตัวกรอง</h2>
-              <button onClick={() => setShowFilter(false)} className="p-2 rounded-full hover:bg-[#FAF7F2]">
+              <h2 className="text-lg font-bold text-foreground">ตัวกรอง</h2>
+              <button onClick={() => setShowFilter(false)} className="p-2 rounded-full hover:bg-muted/50">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -736,12 +739,12 @@ function SearchContent() {
       )}
 
       {/* ── Mobile sticky bottom bar ── */}
-      <div className="fixed bottom-0 inset-x-0 z-40 border-t border-black/10 bg-white/95 backdrop-blur px-4 py-3 lg:hidden">
+      <div className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur-md px-4 py-3 lg:hidden">
         <div className="max-w-screen-xl mx-auto grid grid-cols-2 gap-3">
           <button onClick={() => doSearch()} className="py-3 bg-[#C66A30] text-white rounded-xl text-sm font-bold hover:bg-[#A4522A] transition-colors flex items-center justify-center gap-2">
             <Search className="h-4 w-4" />ค้นหา
           </button>
-          <button onClick={() => setShowFilter(true)} className="py-3 border border-black/15 bg-white rounded-xl text-sm font-medium hover:bg-[#FAF7F2] transition-colors flex items-center justify-center gap-2">
+          <button onClick={() => setShowFilter(true)} className="py-3 border border-border bg-card rounded-xl text-sm font-medium hover:bg-muted/50 transition-colors flex items-center justify-center gap-2">
             <SlidersHorizontal className="h-4 w-4" />
             ตัวกรอง{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
           </button>
@@ -753,7 +756,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FAF7F2] animate-pulse" />}>
+    <Suspense fallback={<div className="min-h-screen bg-muted/30 animate-pulse" />}>
       <SearchContent />
     </Suspense>
   );
