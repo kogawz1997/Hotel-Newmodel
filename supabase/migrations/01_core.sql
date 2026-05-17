@@ -1493,7 +1493,7 @@ CREATE INDEX IF NOT EXISTS conversations_hotel_unread_idx
 CREATE INDEX IF NOT EXISTS messages_conversation_created_asc_idx
   ON messages(conversation_id, created_at ASC);
 CREATE INDEX IF NOT EXISTS housekeeping_tasks_hotel_status_idx
-  ON housekeeping_tasks(hotel_id, status, priority, due_date);
+  ON housekeeping_tasks(hotel_id, status, priority, created_at);
 CREATE INDEX IF NOT EXISTS maintenance_requests_hotel_status_idx
   ON maintenance_requests(hotel_id, status, priority, created_at DESC);
 
