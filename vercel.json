@@ -30,7 +30,7 @@
     },
     {
       "path": "/api/cron/billing-reconcile",
-      "schedule": "10 * * * *"
+      "schedule": "10 2 * * *"
     },
     {
       "path": "/api/cron/billing-retry",
@@ -38,23 +38,23 @@
     },
     {
       "path": "/api/cron/reliability-sweep",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 4 * * *"
     },
     {
       "path": "/api/cron/abandoned-booking-recovery",
-      "schedule": "15 */2 * * *"
+      "schedule": "15 3 * * *"
     },
     {
       "path": "/api/cron/ota-sync",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 0 * * *"
     },
     {
       "path": "/api/ota/process",
-      "schedule": "*/15 * * * *"
+      "schedule": "30 0 * * *"
     },
     {
       "path": "/api/cron/expire-pending",
-      "schedule": "*/15 * * * *"
+      "schedule": "45 0 * * *"
     },
     {
       "path": "/api/cron/email-report",
