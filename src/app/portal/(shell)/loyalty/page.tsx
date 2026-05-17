@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { cn, formatCurrency } from '@/lib/utils';
 import { Star, ArrowLeft, Gift, Trophy, TrendingUp, ChevronRight, Zap, Cake, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 const TIERS = [
   { id: 'bronze',   label: 'Bronze',   minPoints: 0,     color: '#CD7F32', bg: 'bg-amber-50',   border: 'border-amber-200',   text: 'text-amber-700',   emoji: '🥉' },
@@ -95,21 +94,21 @@ export default function LoyaltyPortalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
-      <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
+    <>
+      <nav className="bg-card border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-black/5">
+          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <span className="font-medium text-[#2A2522]">Maitri Rewards</span>
+          <span className="font-medium text-foreground">Maitri Rewards</span>
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 pb-28 space-y-5">
+      <div className="py-8 space-y-5">
 
         {loading ? (
           <div className="space-y-4">
-            {[1,2,3].map(i => <div key={i} className="h-32 bg-white rounded-2xl animate-pulse border border-black/5" />)}
+            {[1,2,3].map(i => <div key={i} className="h-32 bg-card rounded-2xl animate-pulse border border-border" />)}
           </div>
         ) : (
           <>
@@ -118,10 +117,10 @@ export default function LoyaltyPortalPage() {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-xs text-[#2A2522]/50 uppercase tracking-wider mb-1">คะแนนสะสม Maitri Rewards</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">คะแนนสะสม Maitri Rewards</p>
                     <div className="flex items-end gap-2">
-                      <span className="text-4xl font-bold text-[#2A2522]">{points.toLocaleString()}</span>
-                      <span className="text-sm text-[#2A2522]/40 mb-1">แต้ม</span>
+                      <span className="text-4xl font-bold text-foreground">{points.toLocaleString()}</span>
+                      <span className="text-sm text-muted-foreground mb-1">แต้ม</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -130,7 +129,7 @@ export default function LoyaltyPortalPage() {
                       {tier.emoji} {tier.label}
                     </span>
                     {data?.totalStays ? (
-                      <p className="text-xs text-[#2A2522]/40 mt-1">{data.totalStays} ครั้งที่เข้าพัก</p>
+                      <p className="text-xs text-muted-foreground mt-1">{data.totalStays} ครั้งที่เข้าพัก</p>
                     ) : null}
                   </div>
                 </div>
@@ -138,18 +137,18 @@ export default function LoyaltyPortalPage() {
                 {/* Progress to next tier */}
                 {nextTier && (
                   <div>
-                    <div className="flex items-center justify-between text-xs text-[#2A2522]/50 mb-1.5">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
                       <span>ระดับปัจจุบัน: {tier.label}</span>
                       <span>เป้าหมาย: {nextTier.label} ({toNextTier.toLocaleString()} แต้ม)</span>
                     </div>
-                    <div className="h-2.5 bg-black/10 rounded-full overflow-hidden">
+                    <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{ width: `${progress}%`, backgroundColor: tier.color }}
                       />
                     </div>
-                    <p className="text-xs text-[#2A2522]/40 mt-1.5">
-                      อีก <strong className="text-[#2A2522]">{toNextTier.toLocaleString()} แต้ม</strong> จะขึ้นระดับ {nextTier.label} {nextTier.emoji}
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      อีก <strong className="text-foreground">{toNextTier.toLocaleString()} แต้ม</strong> จะขึ้นระดับ {nextTier.label} {nextTier.emoji}
                     </p>
                   </div>
                 )}
@@ -162,14 +161,14 @@ export default function LoyaltyPortalPage() {
             </div>
 
             {/* Benefits */}
-            <div className="bg-white rounded-2xl border border-black/5 p-5">
+            <div className="bg-card rounded-2xl border border-border p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Trophy className="h-4 w-4 text-[#C66A30]" />
-                <h2 className="font-bold text-[#2A2522]">สิทธิประโยชน์ระดับ {tier.label}</h2>
+                <h2 className="font-bold text-foreground">สิทธิประโยชน์ระดับ {tier.label}</h2>
               </div>
               <ul className="space-y-2">
                 {(BENEFITS[tier.id] || []).map(b => (
-                  <li key={b} className="flex items-center gap-2.5 text-sm text-[#2A2522]/70">
+                  <li key={b} className="flex items-center gap-2.5 text-sm text-muted-foreground">
                     <div className="h-5 w-5 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${tier.color}20` }}>
                       <Zap className="h-3 w-3" style={{ color: tier.color }} />
                     </div>
@@ -178,13 +177,13 @@ export default function LoyaltyPortalPage() {
                 ))}
               </ul>
               {nextTier && (
-                <div className="mt-4 pt-4 border-t border-black/5">
-                  <p className="text-xs text-[#2A2522]/40 mb-2">เพิ่มเติมเมื่อขึ้นระดับ {nextTier.label}:</p>
+                <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-2">เพิ่มเติมเมื่อขึ้นระดับ {nextTier.label}:</p>
                   <ul className="space-y-1.5">
                     {(BENEFITS[nextTier.id] || []).filter(b => !(BENEFITS[tier.id] || []).includes(b)).map(b => (
-                      <li key={b} className="flex items-center gap-2 text-xs text-[#2A2522]/40">
-                        <div className="h-4 w-4 rounded-full border border-dashed border-black/15 flex items-center justify-center shrink-0">
-                          <Zap className="h-2.5 w-2.5 text-[#2A2522]/20" />
+                      <li key={b} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <div className="h-4 w-4 rounded-full border border-dashed border-border flex items-center justify-center shrink-0">
+                          <Zap className="h-2.5 w-2.5 text-muted-foreground/40" />
                         </div>
                         {b}
                       </li>
@@ -195,11 +194,11 @@ export default function LoyaltyPortalPage() {
             </div>
 
             {/* Redeem Points */}
-            <div className="bg-white rounded-2xl border border-black/5 p-5">
+            <div className="bg-card rounded-2xl border border-border p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Gift className="h-4 w-4 text-[#C66A30]" />
-                  <h2 className="font-bold text-[#2A2522]">แลกคะแนน</h2>
+                  <h2 className="font-bold text-foreground">แลกคะแนน</h2>
                 </div>
                 <span className="text-sm font-bold text-[#C66A30]">{points.toLocaleString()} แต้มที่แลกได้</span>
               </div>
@@ -207,10 +206,10 @@ export default function LoyaltyPortalPage() {
                 {REDEEM_OPTIONS.map(opt => {
                   const canRedeem = points >= opt.points && !redeemLoading;
                   return (
-                    <div key={opt.id} className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${canRedeem ? 'border-black/10 hover:border-[#C66A30]/30' : 'border-black/5 opacity-50'}`}>
+                    <div key={opt.id} className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${canRedeem ? 'border-border hover:border-[#C66A30]/30' : 'border-border opacity-50'}`}>
                       <div>
-                        <p className="text-sm font-medium text-[#2A2522]">{opt.label}</p>
-                        <p className="text-xs text-[#2A2522]/50">{opt.points.toLocaleString()} แต้ม · {opt.desc}</p>
+                        <p className="text-sm font-medium text-foreground">{opt.label}</p>
+                        <p className="text-xs text-muted-foreground">{opt.points.toLocaleString()} แต้ม · {opt.desc}</p>
                       </div>
                       <button
                         disabled={!canRedeem}
@@ -237,25 +236,25 @@ export default function LoyaltyPortalPage() {
             <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl border border-pink-100 p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Cake className="h-4 w-4 text-rose-500" />
-                <h2 className="font-bold text-[#2A2522]">Birthday Privileges</h2>
+                <h2 className="font-bold text-foreground">Birthday Privileges</h2>
                 <span className="text-xs bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-medium">ระดับ {tier.label}</span>
               </div>
               <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="bg-white rounded-xl p-3 text-center border border-pink-100">
+                <div className="bg-card rounded-xl p-3 text-center border border-pink-100">
                   <p className="text-2xl font-bold text-rose-500">{bPerks.discount}%</p>
-                  <p className="text-2xs text-[#2A2522]/50 mt-0.5">ส่วนลดในเดือนเกิด</p>
+                  <p className="text-2xs text-muted-foreground mt-0.5">ส่วนลดในเดือนเกิด</p>
                 </div>
-                <div className="bg-white rounded-xl p-3 text-center border border-pink-100">
+                <div className="bg-card rounded-xl p-3 text-center border border-pink-100">
                   <p className="text-2xl font-bold text-rose-500">{bPerks.bonus.toLocaleString()}</p>
-                  <p className="text-2xs text-[#2A2522]/50 mt-0.5">แต้มโบนัสพิเศษ</p>
+                  <p className="text-2xs text-muted-foreground mt-0.5">แต้มโบนัสพิเศษ</p>
                 </div>
-                <div className="bg-white rounded-xl p-3 text-center border border-pink-100">
+                <div className="bg-card rounded-xl p-3 text-center border border-pink-100">
                   <p className="text-xs font-bold text-rose-500 leading-tight">{bPerks.gift}</p>
-                  <p className="text-2xs text-[#2A2522]/50 mt-0.5">ของขวัญพิเศษ</p>
+                  <p className="text-2xs text-muted-foreground mt-0.5">ของขวัญพิเศษ</p>
                 </div>
               </div>
               <div>
-                <p className="text-xs text-[#2A2522]/60 mb-2">วันเกิดของคุณ (เพื่อรับสิทธิพิเศษ)</p>
+                <p className="text-xs text-muted-foreground mb-2">วันเกิดของคุณ (เพื่อรับสิทธิพิเศษ)</p>
                 <div className="flex gap-2">
                   <input
                     type="date"
@@ -271,7 +270,7 @@ export default function LoyaltyPortalPage() {
                   </button>
                 </div>
                 {birthday && (
-                  <p className="text-2xs text-[#2A2522]/40 mt-2">
+                  <p className="text-2xs text-muted-foreground mt-2">
                     ระบบจะส่งโค้ดส่วนลด {bPerks.discount}% ให้ทางอีเมลก่อนวันเกิด 7 วัน
                   </p>
                 )}
@@ -279,8 +278,8 @@ export default function LoyaltyPortalPage() {
             </div>
 
             {/* All tiers overview */}
-            <div className="bg-white rounded-2xl border border-black/5 p-5">
-              <h2 className="font-bold text-[#2A2522] mb-4 flex items-center gap-2">
+            <div className="bg-card rounded-2xl border border-border p-5">
+              <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
                 <Star className="h-4 w-4 text-[#C66A30]" /> ระดับสมาชิก
               </h2>
               <div className="grid grid-cols-2 gap-3">
@@ -288,14 +287,14 @@ export default function LoyaltyPortalPage() {
                   <div key={t.id}
                     className={cn(
                       'rounded-xl border p-3 transition-all',
-                      tier.id === t.id ? `${t.bg} ${t.border}` : 'border-black/5',
+                      tier.id === t.id ? `${t.bg} ${t.border}` : 'border-border',
                     )}
                   >
                     <div className="flex items-center gap-1.5 mb-1">
                       <span className="text-lg">{t.emoji}</span>
-                      <span className={cn('text-sm font-bold', tier.id === t.id ? t.text : 'text-[#2A2522]/50')}>{t.label}</span>
+                      <span className={cn('text-sm font-bold', tier.id === t.id ? t.text : 'text-muted-foreground')}>{t.label}</span>
                     </div>
-                    <p className={cn('text-xs', tier.id === t.id ? t.text + '/70' : 'text-[#2A2522]/30')}>
+                    <p className={cn('text-xs', tier.id === t.id ? t.text + '/70' : 'text-muted-foreground/60')}>
                       {t.minPoints === 0 ? 'เริ่มต้น' : `${t.minPoints.toLocaleString()} แต้ม`}
                     </p>
                   </div>
@@ -304,14 +303,14 @@ export default function LoyaltyPortalPage() {
             </div>
 
             {/* Transaction history */}
-            <div className="bg-white rounded-2xl border border-black/5 p-5">
-              <h2 className="font-bold text-[#2A2522] mb-4 flex items-center gap-2">
+            <div className="bg-card rounded-2xl border border-border p-5">
+              <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-[#C66A30]" /> ประวัติคะแนน
               </h2>
               {(data?.transactions || []).length === 0 ? (
                 <div className="text-center py-8">
-                  <Gift className="h-8 w-8 text-[#2A2522]/20 mx-auto mb-2" />
-                  <p className="text-sm text-[#2A2522]/40">ยังไม่มีประวัติการสะสมคะแนน</p>
+                  <Gift className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">ยังไม่มีประวัติการสะสมคะแนน</p>
                   <Link href="/search"
                     className="inline-flex items-center gap-1 mt-3 text-xs text-[#C66A30] hover:underline">
                     จองที่พักเพื่อเริ่มสะสม <ChevronRight className="h-3.5 w-3.5" />
@@ -321,17 +320,17 @@ export default function LoyaltyPortalPage() {
                 <div className="space-y-2">
                   {data?.transactions?.map((tx, i) => (
                     <div key={`${tx.created_at}-${i}`}
-                      className="flex items-center justify-between py-3 border-b border-black/5 last:border-0">
+                      className="flex items-center justify-between py-3 border-b border-border last:border-0">
                       <div className="flex items-center gap-3">
                         <div className={cn(
                           'h-8 w-8 rounded-full flex items-center justify-center shrink-0',
-                          tx.points >= 0 ? 'bg-emerald-50' : 'bg-red-50',
+                          tx.points >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10',
                         )}>
                           <Zap className={cn('h-4 w-4', tx.points >= 0 ? 'text-emerald-600' : 'text-red-500')} />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-[#2A2522]">{tx.description || tx.type}</p>
-                          <p className="text-xs text-[#2A2522]/40">
+                          <p className="text-sm font-medium text-foreground">{tx.description || tx.type}</p>
+                          <p className="text-xs text-muted-foreground">
                             {new Date(tx.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
                           </p>
                         </div>
@@ -346,7 +345,7 @@ export default function LoyaltyPortalPage() {
             </div>
 
             {/* Earn more CTA */}
-            <div className="bg-[#2A2522] rounded-2xl p-5 flex items-center justify-between">
+            <div className="bg-foreground rounded-2xl p-5 flex items-center justify-between">
               <div>
                 <p className="text-white font-bold mb-1">สะสมคะแนนเพิ่ม</p>
                 <p className="text-white/50 text-xs">จองที่พักผ่าน Maitri รับคะแนนทุกครั้ง</p>
@@ -359,7 +358,6 @@ export default function LoyaltyPortalPage() {
           </>
         )}
       </div>
-      <PortalBottomNav />
-    </div>
+    </>
   );
 }

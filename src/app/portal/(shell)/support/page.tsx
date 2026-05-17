@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ChevronDown, Phone, Mail, MessageCircle, Clock } from 'lucide-react';
-import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 const FAQS = [
   { q: 'ฉันจะดูรหัสการจองได้จากที่ไหน?', a: 'รหัสการจองจะแสดงในอีเมลยืนยัน และในหน้า "การจองของฉัน" หลังเข้าสู่ระบบ' },
@@ -19,33 +18,33 @@ const FAQS = [
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-black/5 last:border-0">
+    <div className="border-b border-border last:border-0">
       <button onClick={() => setOpen(p => !p)}
         className="w-full flex items-center justify-between py-4 text-left">
-        <span className="text-sm font-semibold text-[#2A2522] pr-4">{q}</span>
-        <ChevronDown className={`h-4 w-4 text-[#2A2522]/40 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <span className="text-sm font-semibold text-foreground pr-4">{q}</span>
+        <ChevronDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && <p className="text-sm text-[#2A2522]/60 pb-4 leading-relaxed">{a}</p>}
+      {open && <p className="text-sm text-muted-foreground pb-4 leading-relaxed">{a}</p>}
     </div>
   );
 }
 
 export default function SupportPage() {
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
-      <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
+    <>
+      <nav className="bg-card border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-black/5">
+          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <span className="font-medium text-[#2A2522]">ศูนย์ช่วยเหลือ</span>
+          <span className="font-medium text-foreground">ศูนย์ช่วยเหลือ</span>
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 pb-28 space-y-5">
+      <div className="py-8 space-y-5">
 
         {/* Hero */}
-        <div className="bg-[#2A2522] rounded-2xl p-6 text-center">
+        <div className="bg-foreground rounded-2xl p-6 text-center">
           <div className="text-4xl mb-3">🛎️</div>
           <h1 className="text-white font-bold text-xl mb-1">ศูนย์ช่วยเหลือ Maitri</h1>
           <p className="text-white/50 text-sm">มีคำถาม? เราพร้อมช่วยเหลือคุณตลอด 24/7</p>
@@ -59,36 +58,36 @@ export default function SupportPage() {
             { icon: MessageCircle, label: 'LINE', sub: '@maitriapp', href: 'https://line.me/ti/p/@maitriapp', color: 'bg-green-50 text-green-700' },
           ].map(({ icon: Icon, label, sub, href, color }) => (
             <a key={label} href={href} target="_blank" rel="noreferrer"
-              className="bg-white rounded-2xl border border-black/5 p-4 text-center hover:shadow-md transition-shadow">
+              className="bg-card rounded-2xl border border-border p-4 text-center hover:shadow-md transition-shadow">
               <div className={`h-10 w-10 rounded-full ${color} flex items-center justify-center mx-auto mb-2`}>
                 <Icon className="h-5 w-5" />
               </div>
-              <p className="font-semibold text-xs text-[#2A2522]">{label}</p>
-              <p className="text-2xs text-[#2A2522]/40 mt-0.5 break-all">{sub}</p>
+              <p className="font-semibold text-xs text-foreground">{label}</p>
+              <p className="text-2xs text-muted-foreground mt-0.5 break-all">{sub}</p>
             </a>
           ))}
         </div>
 
         {/* Hours */}
-        <div className="bg-white rounded-2xl border border-black/5 p-4 flex items-center gap-3">
+        <div className="bg-card rounded-2xl border border-border p-4 flex items-center gap-3">
           <Clock className="h-5 w-5 text-[#C66A30] shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-[#2A2522]">เวลาให้บริการ</p>
-            <p className="text-xs text-[#2A2522]/50">จันทร์–ศุกร์ 8:00–22:00 น. · เสาร์–อาทิตย์ 9:00–20:00 น.</p>
+            <p className="text-sm font-semibold text-foreground">เวลาให้บริการ</p>
+            <p className="text-xs text-muted-foreground">จันทร์–ศุกร์ 8:00–22:00 น. · เสาร์–อาทิตย์ 9:00–20:00 น.</p>
           </div>
         </div>
 
         {/* FAQ */}
-        <div className="bg-white rounded-2xl border border-black/5 p-5">
-          <h2 className="font-bold text-[#2A2522] mb-4">คำถามที่พบบ่อย</h2>
+        <div className="bg-card rounded-2xl border border-border p-5">
+          <h2 className="font-bold text-foreground mb-4">คำถามที่พบบ่อย</h2>
           <div>
             {FAQS.map(f => <FAQItem key={f.q} q={f.q} a={f.a} />)}
           </div>
         </div>
 
         {/* Quick links */}
-        <div className="bg-white rounded-2xl border border-black/5 p-5">
-          <h2 className="font-bold text-[#2A2522] mb-4">ลิงก์ที่เป็นประโยชน์</h2>
+        <div className="bg-card rounded-2xl border border-border p-5">
+          <h2 className="font-bold text-foreground mb-4">ลิงก์ที่เป็นประโยชน์</h2>
           <div className="space-y-2">
             {[
               { label: 'ดูการจองของฉัน', href: '/portal/bookings' },
@@ -98,7 +97,7 @@ export default function SupportPage() {
               { label: 'นโยบายความเป็นส่วนตัว', href: '/privacy' },
             ].map(({ label, href }) => (
               <Link key={href} href={href}
-                className="flex items-center justify-between py-2.5 border-b border-black/5 last:border-0 text-sm text-[#2A2522] hover:text-[#C66A30] transition-colors">
+                className="flex items-center justify-between py-2.5 border-b border-border last:border-0 text-sm text-foreground hover:text-[#C66A30] transition-colors">
                 {label}
                 <ChevronDown className="h-4 w-4 -rotate-90 opacity-30" />
               </Link>
@@ -106,7 +105,6 @@ export default function SupportPage() {
           </div>
         </div>
       </div>
-      <PortalBottomNav />
-    </div>
+    </>
   );
 }

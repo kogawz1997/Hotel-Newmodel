@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Gift, Copy, Check, ChevronRight, Users, Tag, ArrowLeft, Share2 } from 'lucide-react';
-import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
 
 type ReferralItem = {
   id: string;
@@ -78,28 +77,28 @@ export default function PortalReferralsPage() {
   useEffect(() => { load(); }, []);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
-      <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
+    <>
+      <nav className="bg-card border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-black/5">
+          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <span className="font-medium text-[#2A2522]">แนะนำเพื่อน</span>
+          <span className="font-medium text-foreground">แนะนำเพื่อน</span>
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 pb-28 space-y-5">
+      <div className="py-8 space-y-5">
 
         {/* Hero banner */}
-        <div className="bg-[#2A2522] rounded-2xl p-6 text-center">
+        <div className="bg-foreground rounded-2xl p-6 text-center">
           <div className="text-4xl mb-3">🎁</div>
           <h1 className="text-white font-bold text-xl mb-1">แนะนำเพื่อน รับรางวัล</h1>
           <p className="text-white/50 text-sm">แชร์โค้ดของคุณ เพื่อนได้ส่วนลด 10% คุณได้ Maitri Points</p>
         </div>
 
         {/* How it works */}
-        <div className="bg-white rounded-2xl border border-black/5 p-5">
-          <h2 className="font-bold text-[#2A2522] mb-4">วิธีการ</h2>
+        <div className="bg-card rounded-2xl border border-border p-5">
+          <h2 className="font-bold text-foreground mb-4">วิธีการ</h2>
           <div className="space-y-4">
             {HOW_IT_WORKS.map(s => {
               const Icon = s.icon;
@@ -109,8 +108,8 @@ export default function PortalReferralsPage() {
                     {s.step}
                   </div>
                   <div>
-                    <p className="font-semibold text-[#2A2522] text-sm">{s.title}</p>
-                    <p className="text-xs text-[#2A2522]/50 mt-0.5">{s.desc}</p>
+                    <p className="font-semibold text-foreground text-sm">{s.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
                   </div>
                 </div>
               );
@@ -119,9 +118,9 @@ export default function PortalReferralsPage() {
         </div>
 
         {/* My codes */}
-        <div className="bg-white rounded-2xl border border-black/5 p-5">
+        <div className="bg-card rounded-2xl border border-border p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-[#2A2522]">โค้ดของฉัน</h2>
+            <h2 className="font-bold text-foreground">โค้ดของฉัน</h2>
             <button
               onClick={createCode}
               disabled={creating}
@@ -134,34 +133,34 @@ export default function PortalReferralsPage() {
 
           {loading ? (
             <div className="space-y-2">
-              {[1, 2].map(i => <div key={i} className="h-16 bg-[#FAF7F2] rounded-xl animate-pulse" />)}
+              {[1, 2].map(i => <div key={i} className="h-16 bg-muted/50 rounded-xl animate-pulse" />)}
             </div>
           ) : items.length === 0 ? (
             <div className="text-center py-8">
-              <Gift className="h-8 w-8 text-[#2A2522]/15 mx-auto mb-2" />
-              <p className="text-sm text-[#2A2522]/40">ยังไม่มีโค้ด กดสร้างโค้ดเพื่อเริ่มแนะนำเพื่อน</p>
+              <Gift className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">ยังไม่มีโค้ด กดสร้างโค้ดเพื่อเริ่มแนะนำเพื่อน</p>
             </div>
           ) : (
             <div className="space-y-3">
               {items.map(item => (
-                <div key={item.id} className="border border-black/8 rounded-xl p-4">
+                <div key={item.id} className="border border-border rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-lg text-[#2A2522] tracking-wider">{item.code}</span>
+                      <span className="font-mono font-bold text-lg text-foreground tracking-wider">{item.code}</span>
                       <button
                         onClick={() => copyCode(item.code)}
-                        className="p-1.5 rounded-lg hover:bg-[#FAF7F2] transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-muted transition-colors"
                       >
                         {copied === item.code
                           ? <Check className="h-3.5 w-3.5 text-emerald-500" />
-                          : <Copy className="h-3.5 w-3.5 text-[#2A2522]/40" />}
+                          : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
                       </button>
                     </div>
                     <span className="text-sm font-bold text-[#C66A30]">
                       {item.reward_value}{item.reward_type === 'percent' ? '%' : ' บาท'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-[#2A2522]/40">
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Users className="h-3 w-3" />
                       ใช้แล้ว {item.uses_count ?? 0}{item.max_uses ? `/${item.max_uses}` : ''} ครั้ง
@@ -183,21 +182,21 @@ export default function PortalReferralsPage() {
         </div>
 
         {/* Apply a referral code */}
-        <div className="bg-white rounded-2xl border border-black/5 p-5">
-          <h2 className="font-bold text-[#2A2522] mb-1">มีโค้ดจากเพื่อน?</h2>
-          <p className="text-xs text-[#2A2522]/50 mb-4">ใส่โค้ดเพื่อรับส่วนลดครั้งแรก</p>
+        <div className="bg-card rounded-2xl border border-border p-5">
+          <h2 className="font-bold text-foreground mb-1">มีโค้ดจากเพื่อน?</h2>
+          <p className="text-xs text-muted-foreground mb-4">ใส่โค้ดเพื่อรับส่วนลดครั้งแรก</p>
           <div className="flex gap-2">
             <input
               value={applyCode}
               onChange={e => setApplyCode(e.target.value.toUpperCase())}
               onKeyDown={e => e.key === 'Enter' && applyReferral()}
               placeholder="MTR-XXXXXX"
-              className="flex-1 px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30"
+              className="flex-1 px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30"
             />
             <button
               onClick={applyReferral}
               disabled={applying || !applyCode.trim()}
-              className="px-4 py-2.5 bg-[#2A2522] hover:bg-black text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
+              className="px-4 py-2.5 bg-foreground hover:bg-foreground/90 text-background rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
             >
               {applying ? 'กำลังใช้...' : 'ใช้โค้ด'}
             </button>
@@ -205,11 +204,10 @@ export default function PortalReferralsPage() {
         </div>
 
         {/* Terms */}
-        <p className="text-center text-xs text-[#2A2522]/30 px-4">
+        <p className="text-center text-xs text-muted-foreground/60 px-4">
           เงื่อนไข: โค้ดใช้ได้สำหรับการจองแรก · ไม่สามารถใช้ร่วมกับโปรโมชั่นอื่น · Maitri ขอสงวนสิทธิ์เปลี่ยนแปลงเงื่อนไข
         </p>
       </div>
-      <PortalBottomNav />
-    </div>
+    </>
   );
 }
