@@ -448,3 +448,51 @@ export function canPerformAction(role: string, action: keyof typeof ACTION_PERMI
 export function getDefaultLanding(role: string): string {
   return DEFAULT_LANDING[role as StaffRole] ?? '/dashboard';
 }
+
+// ─── Multi-role Helpers ───────────────────────────────────────────────────────
+// Use these when a staff member may hold more than one role in a hotel.
+// `allRoles` = [primaryRole, ...additionalRoles] resolved from TenantContext.
+
+/** Returns true if ANY of the user's roles allows the action. */
+export function canPerformActionMulti(
+  allRoles: string[],
+  action: keyof typeof ACTION_PERMISSIONS,
+): boolean {
+  const allowed = ACTION_PERMISSIONS[action] as readonly StaffRole[];
+  return allRoles.some(r => allowed.includes(r as StaffRole));
+}
+
+/** Returns true if ANY of the user's roles can approve the given type. */
+export function canApproveMulti(
+  allRoles: string[],
+  approvalType: keyof typeof APPROVAL_PERMISSIONS,
+): boolean {
+  const allowed = APPROVAL_PERMISSIONS[approvalType] as readonly StaffRole[];
+  return allRoles.some(r => allowed.includes(r as StaffRole));
+}
+
+/** Returns true if ANY of the user's roles is a management role. */
+export function isManagementMulti(allRoles: string[]): boolean {
+  return allRoles.some(r => MGMT_ROLES.includes(r as StaffRole));
+}
+
+/**
+ * Returns the union of all route prefixes accessible by any of the user's roles.
+ * Used to compute which sidebar items and pages are visible.
+ */
+export function getAccessibleRoutes(allRoles: string[]): string[] {
+  const roleSet = new Set(allRoles);
+  return ROUTE_ROLES
+    .filter(entry => entry.roles.some(r => roleSet.has(r)))
+    .map(entry => entry.prefix);
+}
+
+/**
+ * Given a list of roles, returns the "strongest" role for display/navigation.
+ * Priority follows ALL_ROLES order (management first).
+ */
+export function getPrimaryDisplayRole(allRoles: string[]): StaffRole {
+  const roleSet = new Set(allRoles);
+  const found = ALL_ROLES.find(r => roleSet.has(r));
+  return (found ?? 'staff') as StaffRole;
+}
