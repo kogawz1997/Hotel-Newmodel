@@ -39,8 +39,7 @@ export function FolioClient() {
   const currency = hotel?.currency || 'THB';
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-lg mx-auto px-4 py-6">
+    <div className="max-w-lg mx-auto py-2">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/portal" className="p-2 rounded-lg hover:bg-muted transition-colors">
             <ArrowLeft className="h-4 w-4" />
@@ -159,7 +158,6 @@ export function FolioClient() {
             </p>
           </div>
         )}
-      </div>
     </div>
   );
 }
