@@ -64,7 +64,7 @@ export async function loginOwner(email: string, password: string) {
     return { ok: false, message: 'บัญชีนี้ไม่มีสิทธิ์หน้าเจ้าของโรงแรม' };
   }
 
-  return { ok: true, redirectTo: '/owner/overview' as const };
+  return { ok: true, redirectTo: '/owner/hotels' as const };
 }
 
 export async function loginStaff(email: string, password: string) {

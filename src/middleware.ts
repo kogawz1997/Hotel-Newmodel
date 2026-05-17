@@ -212,7 +212,7 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/owner/login') && user && profile) {
     const ownerRoles = ['owner', 'hotel_owner', 'general_manager', 'admin'];
     if (ownerRoles.includes(profile.role || '')) {
-      return NextResponse.redirect(new URL('/owner/overview', request.url));
+      return NextResponse.redirect(new URL('/owner/hotels', request.url));
     }
   }
 

@@ -21,7 +21,6 @@ export default function OwnerLoginPage() {
   const [password, setPassword] = useState('');
 
   // Register fields
-  const [hotelName, setHotelName] = useState('');
   const [fullName, setFullName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
@@ -57,15 +56,15 @@ export default function OwnerLoginPage() {
     setLoading(true);
     try {
       const supabase = createClient();
-      const { data, error: authError } = await supabase.auth.signUp({
+      const { error: authError } = await supabase.auth.signUp({
         email: regEmail, password: regPassword,
-        options: { data: { full_name: fullName, hotel_name: hotelName } },
+        options: { data: { full_name: fullName } },
       });
       if (authError) { toast.error(authError.message); return; }
 
-      const res = await fetch('/api/auth/setup-organization', {
+      const res = await fetch('/api/auth/register-owner', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, hotelName }),
+        body: JSON.stringify({ fullName }),
       });
       if (!res.ok) {
         if (res.status === 401) {
@@ -78,7 +77,7 @@ export default function OwnerLoginPage() {
         return;
       }
       toast.success('สร้างบัญชีสำเร็จ! ยินดีต้อนรับ');
-      window.location.href = '/owner/overview';
+      window.location.href = '/owner/hotels';
     } catch {
       toast.error('เกิดข้อผิดพลาด กรุณาลองใหม่');
     } finally {
@@ -132,8 +131,7 @@ export default function OwnerLoginPage() {
       {/* Register Form */}
       {tab === 'register' && (
         <form onSubmit={handleRegister} className="space-y-3">
-          <Input label="ชื่อโรงแรม *" placeholder="เช่น Lanna Heritage Hotel" value={hotelName} onChange={e => setHotelName(e.target.value)} required />
-          <Input label="ชื่อ-นามสกุลของคุณ *" placeholder="ชื่อจริง นามสกุล" value={fullName} onChange={e => setFullName(e.target.value)} required />
+          <Input label="ชื่อ-นามสกุล *" placeholder="ชื่อจริง นามสกุล" value={fullName} onChange={e => setFullName(e.target.value)} required />
           <Input type="email" label="อีเมล *" placeholder="you@hotel.com" value={regEmail} onChange={e => setRegEmail(e.target.value)} required />
           <div className="relative">
             <Input type={showPass ? 'text' : 'password'} label="รหัสผ่าน *" hint="อย่างน้อย 8 ตัวอักษร" value={regPassword} onChange={e => setRegPassword(e.target.value)} required minLength={8} />
