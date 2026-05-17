@@ -127,4 +127,64 @@ test.describe('Multi-tenant Isolation', () => {
     });
     expect([401, 403]).toContain(res.status());
   });
+
+  test('Hotel A staff cannot access Hotel B CRM segments', async ({ request }) => {
+    const hotelBId = process.env.TEST_HOTEL_B_ID || '';
+    const staffACookie = process.env.TEST_STAFF_A_COOKIE || '';
+
+    if (!hotelBId || !staffACookie) {
+      test.skip();
+      return;
+    }
+
+    const res = await request.get(`${BASE}/api/crm/segments?hotel_id=${hotelBId}`, {
+      headers: { 'Cookie': staffACookie },
+    });
+    expect([401, 403]).toContain(res.status());
+  });
+
+  test('Hotel A staff cannot access Hotel B churn scores', async ({ request }) => {
+    const hotelBId = process.env.TEST_HOTEL_B_ID || '';
+    const staffACookie = process.env.TEST_STAFF_A_COOKIE || '';
+
+    if (!hotelBId || !staffACookie) {
+      test.skip();
+      return;
+    }
+
+    const res = await request.get(`${BASE}/api/crm/churn-score?hotel_id=${hotelBId}`, {
+      headers: { 'Cookie': staffACookie },
+    });
+    expect([401, 403]).toContain(res.status());
+  });
+
+  test('Hotel A staff cannot access Hotel B sentiment routing rules', async ({ request }) => {
+    const hotelBId = process.env.TEST_HOTEL_B_ID || '';
+    const staffACookie = process.env.TEST_STAFF_A_COOKIE || '';
+
+    if (!hotelBId || !staffACookie) {
+      test.skip();
+      return;
+    }
+
+    const res = await request.get(`${BASE}/api/sentiment/routing-rules?hotel_id=${hotelBId}`, {
+      headers: { 'Cookie': staffACookie },
+    });
+    expect([401, 403]).toContain(res.status());
+  });
+
+  test('Hotel A staff cannot access Hotel B cohort analytics', async ({ request }) => {
+    const hotelBId = process.env.TEST_HOTEL_B_ID || '';
+    const staffACookie = process.env.TEST_STAFF_A_COOKIE || '';
+
+    if (!hotelBId || !staffACookie) {
+      test.skip();
+      return;
+    }
+
+    const res = await request.get(`${BASE}/api/analytics/cohort?hotel_id=${hotelBId}`, {
+      headers: { 'Cookie': staffACookie },
+    });
+    expect([401, 403]).toContain(res.status());
+  });
 });
