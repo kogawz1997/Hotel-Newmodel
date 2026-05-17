@@ -2,12 +2,30 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { apiError } from '@/lib/http/errors';
 import { readWebhookToken, verifyBearerOrHeaderToken } from '@/lib/security/webhook';
-import { rateLimit } from '@/lib/security/rate-limit';
+import { rateLimit, rateLimitCheck, rateLimitHeaders, getClientIp } from '@/lib/security/rate-limit';
 import { parseBookingComXml } from '@/lib/ota/parsers/booking-com';
 import { parseAgodaJson } from '@/lib/ota/parsers/agoda';
 import { parseAirbnbIcal, parseAirbnbPayload } from '@/lib/ota/parsers/airbnb';
+import { parseExpediaReservation } from '@/lib/ota/parsers/expedia';
 import { mapOtaReservation } from '@/lib/ota/reservation-mapper';
 import { alertOtaFailure } from '@/lib/ops/alerts';
+
+const OTA_PROVIDER_RATE_LIMIT = 100;
+const OTA_PROVIDER_WINDOW_MS = 60_000;
+
+async function checkProviderRateLimit(request: Request, provider: string): Promise<NextResponse | null> {
+  const normalizedProvider = provider.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const ip = getClientIp(request);
+  const result = await rateLimitCheck(`ota.provider.${normalizedProvider}:${ip}`, OTA_PROVIDER_RATE_LIMIT, OTA_PROVIDER_WINDOW_MS);
+  if (!result.allowed) {
+    const retryAfter = Math.ceil((result.resetAt - Date.now()) / 1000);
+    return NextResponse.json(
+      { error: 'Too many requests for this provider', provider: normalizedProvider, retryAfter },
+      { status: 429, headers: { ...rateLimitHeaders(result), 'Retry-After': String(retryAfter) } },
+    );
+  }
+  return null;
+}
 
 async function parseJobPayload(job: any) {
   const payload = job.payload || {};
@@ -31,6 +49,10 @@ async function parseJobPayload(job: any) {
       return events[0] ?? null;
     }
     return parseAirbnbPayload(payload as any);
+  }
+
+  if (provider.includes('expedia')) {
+    return parseExpediaReservation(payload);
   }
 
   return null;
@@ -60,6 +82,11 @@ async function processQueue(request: Request) {
   let mapped = 0;
 
   for (const job of jobs || []) {
+    const providerLimited = await checkProviderRateLimit(request, job.provider || 'unknown');
+    if (providerLimited) {
+      return providerLimited;
+    }
+
     const started = Date.now();
     await admin.from('ota_sync_queue').update({
       status: 'processing',

@@ -2,22 +2,20 @@ import type { ChannelAdapter } from './types';
 
 // WeChat Official Account adapter
 // SETUP REQUIRED:
-// 1. Register WeChat Official Account at mp.weixin.qq.com (need Chinese business)
-// 2. Get App ID and App Secret
+// 1. Register WeChat Official Account at mp.weixin.qq.com (requires Chinese business entity)
+// 2. Get App ID and App Secret from WeChat Open Platform
 // 3. Configure server URL for webhook
-//
 // Documentation: https://developers.weixin.qq.com/doc/offiaccount/en/
 
-export const wechatAdapter: ChannelAdapter = {
+export const wechatAdapter: ChannelAdapter & { isConfigured(): boolean } = {
   channel: 'wechat',
 
-  async sendMessage(opts) {
-    // TODO: Implement after WeChat Official Account approved
-    // const accessToken = await getWeChatAccessToken();
-    // const url = `https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=${accessToken}`;
-    // ...
-    console.warn('[WeChat] Not configured. Setup required.');
-    return { messageId: `wechat-stub-${Date.now()}`, status: 'pending_setup' };
+  isConfigured(): boolean {
+    return !!(process.env.WECHAT_APP_ID && process.env.WECHAT_APP_SECRET);
+  },
+
+  async sendMessage() {
+    throw new Error('WeChat requires Official Account approval from WeChat Open Platform');
   },
 
   async parseWebhook() {

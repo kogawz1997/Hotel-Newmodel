@@ -19,8 +19,8 @@ const OTA_CHANNELS = [
   { id: 'agoda', name: 'Agoda', emoji: '🏯', setupWeeks: '6–16 wks', commission: '15–18%', via: 'YCS API', docsUrl: 'https://ycs.agoda.com', color: 'from-red-600 to-rose-500', needsKey: 'AGODA_WEBHOOK_TOKEN' },
   { id: 'airbnb', comingSoon: true, name: 'Airbnb', emoji: '🏡', setupWeeks: '2–4 wks', commission: '3%+', via: 'Software Partner', docsUrl: 'https://airbnb.com/partner', color: 'from-rose-500 to-pink-500', needsKey: '' },
   { id: 'expedia', comingSoon: true, name: 'Expedia', emoji: '✈️', setupWeeks: '4–8 wks', commission: '15–25%', via: 'Direct', docsUrl: 'https://expediagroup.com', color: 'from-amber-500 to-yellow-500', needsKey: '' },
-  { id: 'trip_com', comingSoon: true, name: 'Trip.com', emoji: '🌏', setupWeeks: '4–8 wks', commission: '13–15%', via: 'Direct', docsUrl: 'https://trip.com', color: 'from-cyan-600 to-blue-500', needsKey: '' },
-  { id: 'hostelworld', comingSoon: true, name: 'Hostelworld', emoji: '🎒', setupWeeks: '2–4 wks', commission: '12–15%', via: 'Direct', docsUrl: 'https://hostelworld.com', color: 'from-green-600 to-emerald-500', needsKey: '' },
+  { id: 'trip_com', name: 'Trip.com', emoji: '🌏', setupWeeks: '4–8 wks', commission: '13–15%', via: 'Direct', docsUrl: 'https://trip.com', color: 'from-cyan-600 to-blue-500', needsKey: 'TRIP_COM_WEBHOOK_TOKEN' },
+  { id: 'hostelworld', name: 'Hostelworld', emoji: '🎒', setupWeeks: '2–4 wks', commission: '12–15%', via: 'Direct', docsUrl: 'https://hostelworld.com', color: 'from-green-600 to-emerald-500', needsKey: 'HOSTELWORLD_WEBHOOK_TOKEN' },
 ];
 
 const AGGREGATORS = [

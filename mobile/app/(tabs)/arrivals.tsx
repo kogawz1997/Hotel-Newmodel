@@ -1,4 +1,4 @@
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,10 +9,20 @@ import Toast from 'react-native-toast-message';
 
 type View = 'arrivals' | 'departures';
 
+interface WalkInForm {
+  guest_name: string;
+  phone: string;
+  room_type: string;
+  check_out: string;
+  rate: string;
+}
+
 export default function ArrivalsScreen() {
   const { profile } = useAuthStore();
   const qc = useQueryClient();
   const [view, setView] = useState<View>('arrivals');
+  const [walkInVisible, setWalkInVisible] = useState(false);
+  const [form, setForm] = useState<WalkInForm>({ guest_name: '', phone: '', room_type: '', check_out: '', rate: '' });
 
   const { data = [], isRefetching, refetch } = useQuery({
     queryKey: ['arrivals', view, profile?.hotel_id],
@@ -30,6 +40,19 @@ export default function ArrivalsScreen() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['arrivals'] }); Toast.show({ type: 'success', text1: 'เช็คเอาท์สำเร็จ' }); },
   });
 
+  const walkInMutation = useMutation({
+    mutationFn: (body: object) => apiFetch('/api/reservations', { method: 'POST', body: JSON.stringify(body) }),
+    onSuccess: () => {
+      setWalkInVisible(false);
+      setForm({ guest_name: '', phone: '', room_type: '', check_out: '', rate: '' });
+      qc.invalidateQueries({ queryKey: ['arrivals'] });
+      Toast.show({ type: 'success', text1: 'Walk-in registered successfully' });
+    },
+    onError: () => {
+      Toast.show({ type: 'error', text1: 'Failed to register walk-in' });
+    },
+  });
+
   const handleCheckIn = (res: any) => {
     Alert.alert('ยืนยันเช็คอิน', `${res.guest_name}\nห้อง ${res.room_no}`, [
       { text: 'ยกเลิก', style: 'cancel' },
@@ -44,11 +67,38 @@ export default function ArrivalsScreen() {
     ]);
   };
 
+  const handleWalkInSubmit = () => {
+    if (!form.guest_name.trim()) {
+      Toast.show({ type: 'error', text1: 'Guest name is required' });
+      return;
+    }
+    if (!form.check_out.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(form.check_out)) {
+      Toast.show({ type: 'error', text1: 'Check-out date must be YYYY-MM-DD' });
+      return;
+    }
+    walkInMutation.mutate({
+      guest_name: form.guest_name.trim(),
+      phone: form.phone.trim(),
+      room_type: form.room_type.trim(),
+      check_in: new Date().toISOString().slice(0, 10),
+      check_out: form.check_out.trim(),
+      rate: parseFloat(form.rate) || 0,
+      source: 'walk_in',
+      hotel_id: profile?.hotel_id,
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>วันนี้</Text>
-        <Text style={styles.date}>{new Date().toLocaleDateString('th-TH', { dateStyle: 'long' })}</Text>
+        <View>
+          <Text style={styles.title}>วันนี้</Text>
+          <Text style={styles.date}>{new Date().toLocaleDateString('th-TH', { dateStyle: 'long' })}</Text>
+        </View>
+        <TouchableOpacity style={styles.walkInBtn} onPress={() => setWalkInVisible(true)}>
+          <Ionicons name="person-add-outline" size={16} color="#fff" />
+          <Text style={styles.walkInBtnText}>Walk-in</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Toggle */}
@@ -112,15 +162,76 @@ export default function ArrivalsScreen() {
           </View>
         )}
       />
+
+      <Modal visible={walkInVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setWalkInVisible(false)}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <SafeAreaView style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Walk-in Guest</Text>
+              <TouchableOpacity onPress={() => setWalkInVisible(false)}>
+                <Ionicons name="close" size={24} color="#374151" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalBody} keyboardShouldPersistTaps="handled">
+              <Text style={styles.label}>Guest Name *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Full name"
+                value={form.guest_name}
+                onChangeText={v => setForm(f => ({ ...f, guest_name: v }))}
+              />
+              <Text style={styles.label}>Phone</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Phone number"
+                keyboardType="phone-pad"
+                value={form.phone}
+                onChangeText={v => setForm(f => ({ ...f, phone: v }))}
+              />
+              <Text style={styles.label}>Room Type</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. Deluxe, Superior"
+                value={form.room_type}
+                onChangeText={v => setForm(f => ({ ...f, room_type: v }))}
+              />
+              <Text style={styles.label}>Check-out Date (YYYY-MM-DD) *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="2025-12-31"
+                value={form.check_out}
+                onChangeText={v => setForm(f => ({ ...f, check_out: v }))}
+              />
+              <Text style={styles.label}>Rate per Night (THB)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="0"
+                keyboardType="numeric"
+                value={form.rate}
+                onChangeText={v => setForm(f => ({ ...f, rate: v }))}
+              />
+              <TouchableOpacity
+                style={[styles.submitBtn, walkInMutation.isPending && { opacity: 0.6 }]}
+                onPress={handleWalkInSubmit}
+                disabled={walkInMutation.isPending}
+              >
+                <Text style={styles.submitBtnText}>{walkInMutation.isPending ? 'Registering...' : 'Register Walk-in'}</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </SafeAreaView>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F9FAFB' },
-  header: { padding: 20, paddingBottom: 12 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20, paddingBottom: 12 },
   title: { fontSize: 22, fontWeight: '800', color: '#111827' },
   date: { fontSize: 13, color: '#6B7280', marginTop: 2 },
+  walkInBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#059669', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
+  walkInBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
   toggle: { flexDirection: 'row', margin: 16, marginTop: 4, backgroundColor: '#E5E7EB', borderRadius: 12, padding: 4 },
   toggleBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 9 },
   toggleActive: { backgroundColor: '#004B87' },
@@ -143,4 +254,12 @@ const styles = StyleSheet.create({
   special: { fontSize: 12, color: '#6B7280', marginTop: 4 },
   actionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 12, paddingVertical: 12 },
   actionText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  modalContainer: { flex: 1, backgroundColor: '#fff' },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+  modalTitle: { fontSize: 18, fontWeight: '800', color: '#111827' },
+  modalBody: { padding: 20 },
+  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6, marginTop: 16 },
+  input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: '#111827', backgroundColor: '#F9FAFB' },
+  submitBtn: { backgroundColor: '#004B87', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 28, marginBottom: 40 },
+  submitBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 });

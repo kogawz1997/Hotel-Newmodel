@@ -108,10 +108,34 @@ export async function POST(request: Request) {
     }
   }
 
-  // Send LINE if configured (placeholder — uses conversation send API internally)
+  // Send LINE push message if guest has line_user_id and token is configured
   if ((channel === 'line' || channel === 'both') && process.env.LINE_CHANNEL_ACCESS_TOKEN) {
-    // TODO: implement LINE message send
-    lineSent = false;
+    const lineUserId = (guest as any)?.line_user_id;
+    if (lineUserId) {
+      try {
+        const lineRes = await fetch('https://api.line.me/v2/bot/message/push', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: lineUserId,
+            messages: [{
+              type: 'text',
+              text: `สวัสดีคุณ${guestName} ขอบคุณที่เลือกพักที่ ${hotel?.name || 'โรงแรม'}\n\nเราอยากได้รับความคิดเห็นของคุณ กรุณาเขียนรีวิวได้ที่:\n${reviewLink}`,
+            }],
+          }),
+        });
+        lineSent = lineRes.ok;
+        if (!lineRes.ok) {
+          const err = await lineRes.json().catch(() => ({}));
+          logger.warn('Review request LINE push failed', { error: err, lineUserId });
+        }
+      } catch (e) {
+        logger.error('Review request LINE push exception', { error: e });
+      }
+    }
   }
 
   // Record the request

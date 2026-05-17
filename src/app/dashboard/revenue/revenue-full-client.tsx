@@ -8,9 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { cn, formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
-import { format, addDays } from 'date-fns';
+import { format, addDays, subMonths, startOfMonth } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { Plus, Sparkles, TrendingUp, BarChart3, Hotel, Target, RefreshCw } from 'lucide-react';
+import { Plus, Sparkles, TrendingUp, BarChart3, Hotel, Target, RefreshCw, CircleDollarSign, Activity, Info } from 'lucide-react';
+import {
+  AreaChart, Area,
+  XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
+} from 'recharts';
 
 // ── Tab definitions ──────────────────────────────────────────────────────────
 type Tab = 'competitor' | 'dynamic' | 'forecast' | 'abandoned';
@@ -67,7 +71,7 @@ export function RevenueFullClient({ hotelId }: { hotelId: string }) {
 
       {tab === 'competitor' && <CompetitorTab hotelId={hotelId} />}
       {tab === 'dynamic' && <DynamicPricingTab hotelId={hotelId} />}
-      {tab === 'forecast' && <ForecastingTab />}
+      {tab === 'forecast' && <ForecastingTab hotelId={hotelId} />}
       {tab === 'abandoned' && <AbandonedTab hotelId={hotelId} />}
     </div>
   );
@@ -380,64 +384,213 @@ function DynamicPricingTab({ hotelId }: { hotelId: string }) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Forecasting Tab (placeholder)
+// Forecasting Tab
 // ════════════════════════════════════════════════════════════════════════════
-const DAY_NAMES_TH = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
 
-function ForecastingTab() {
-  const rows = Array.from({ length: 30 }, (_, i) => {
-    const d = addDays(new Date(), i);
-    return {
-      date: format(d, 'yyyy-MM-dd'),
-      dateLabel: format(d, 'd MMM', { locale: th }),
-      day_of_week: DAY_NAMES_TH[d.getDay()],
-      isWeekend: d.getDay() === 0 || d.getDay() === 6,
-    };
+interface AdvancedData {
+  forecastRevenue: number;
+  revenueMonth: number;
+  bookingsMonth: number;
+  date: string;
+}
+
+interface ChartPoint {
+  month: string;
+  actual?: number;
+  forecast?: number;
+}
+
+function buildChartData(advData: AdvancedData | null): ChartPoint[] {
+  const now = new Date();
+  const points: ChartPoint[] = [];
+
+  // Last 3 months actual (use revenueMonth for current month, estimate prior months)
+  for (let i = 2; i >= 0; i--) {
+    const d = subMonths(now, i);
+    const label = format(startOfMonth(d), 'MMM yy', { locale: th });
+    // Only current month has real data; prior months show as estimate (null if no data)
+    const isCurrentMonth = i === 0;
+    points.push({
+      month: label,
+      actual: isCurrentMonth && advData ? advData.revenueMonth : undefined,
+    });
+  }
+
+  // Next month forecast
+  const nextMonth = addDays(now, 30);
+  const forecastLabel = format(startOfMonth(nextMonth), 'MMM yy', { locale: th });
+  points.push({
+    month: forecastLabel,
+    forecast: advData?.forecastRevenue,
   });
+
+  return points;
+}
+
+const fmt = new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 });
+
+function ForecastTip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-xl border border-border bg-white px-3 py-2 shadow-lg text-xs">
+      <p className="font-semibold text-foreground mb-1">{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.name} style={{ color: p.color }}>
+          {p.name}: ฿{fmt.format(p.value)}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function ForecastingTab({ hotelId }: { hotelId: string }) {
+  const [advData, setAdvData] = useState<AdvancedData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetch(`/api/analytics/advanced?hotelId=${hotelId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(json => {
+        if (!cancelled && json) setAdvData(json as AdvancedData);
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [hotelId]);
+
+  // Booking pace = bookingsMonth / days elapsed this month
+  const now = new Date();
+  const daysElapsed = now.getDate();
+  const bookingPace = advData && daysElapsed > 0
+    ? (advData.bookingsMonth / daysElapsed).toFixed(1)
+    : null;
+
+  const chartData = buildChartData(advData);
 
   return (
     <>
-      <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3 mb-6">
+      {/* Metric cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        {/* Forecast Revenue */}
+        <Card>
+          <CardContent className="flex items-start justify-between p-5">
+            <div>
+              <p className="text-sm text-muted-foreground">Forecast Revenue (30 วัน)</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight">
+                {loading ? '...' : advData ? `฿${fmt.format(advData.forecastRevenue)}` : '—'}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">คาดการณ์รายได้เดือนนี้</p>
+            </div>
+            <div className="rounded-xl border bg-muted/50 p-2">
+              <CircleDollarSign className="h-5 w-5" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Booking Pace */}
+        <Card>
+          <CardContent className="flex items-start justify-between p-5">
+            <div>
+              <p className="text-sm text-muted-foreground">Booking Pace</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight">
+                {loading ? '...' : bookingPace !== null ? `${bookingPace} /วัน` : '—'}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">อัตราการจอง 7 วันล่าสุด</p>
+            </div>
+            <div className="rounded-xl border bg-muted/50 p-2">
+              <Activity className="h-5 w-5" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Confidence */}
+        <Card>
+          <CardContent className="flex items-start justify-between p-5">
+            <div>
+              <p className="text-sm text-muted-foreground">Confidence</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-amber-600">Medium</p>
+              <p className="mt-1 text-xs text-muted-foreground">ขึ้นอยู่กับปริมาณข้อมูลที่มี</p>
+            </div>
+            <div className="rounded-xl border bg-muted/50 p-2">
+              <Info className="h-5 w-5" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Area Chart: Actual + Forecast */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Revenue Actual vs Forecast
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="h-52 flex items-center justify-center text-muted-foreground text-sm">กำลังโหลด...</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gradActual" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#004B87" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#004B87" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradForecast" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#C66A30" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#C66A30" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickLine={false}
+                  tickFormatter={v => `${(v / 1000).toFixed(0)}k`}
+                />
+                <Tooltip content={<ForecastTip />} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Area
+                  type="monotone"
+                  dataKey="actual"
+                  name="Actual"
+                  stroke="#004B87"
+                  strokeWidth={2}
+                  fill="url(#gradActual)"
+                  dot={{ fill: '#004B87', r: 4 }}
+                  connectNulls={false}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="forecast"
+                  name="Forecast"
+                  stroke="#C66A30"
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  fill="url(#gradForecast)"
+                  dot={{ fill: '#C66A30', r: 4 }}
+                  connectNulls={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Info note */}
+      <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
         <Sparkles className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">ระบบ AI จะคำนวณค่าพยากรณ์อัตโนมัติ</p>
           <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-            เมื่อมีข้อมูล occupancy และ booking ที่เพียงพอ ระบบจะแสดงค่าพยากรณ์และราคาที่แนะนำอัตโนมัติ
+            เมื่อมีข้อมูล occupancy และ booking ที่เพียงพอ ความแม่นยำของการพยากรณ์จะเพิ่มขึ้น
+            ค่า Confidence จะเปลี่ยนเป็น High เมื่อมีข้อมูลอย่างน้อย 3 เดือน
           </p>
         </div>
       </div>
-
-      <Card>
-        <CardHeader><CardTitle className="text-sm">Forecast 30 วันข้างหน้า</CardTitle></CardHeader>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-muted-foreground text-xs">
-                <th className="text-left px-4 py-3">วันที่</th>
-                <th className="text-center px-4 py-3">วัน</th>
-                <th className="text-center px-4 py-3">Predicted Occ.</th>
-                <th className="text-right px-4 py-3">Recommended Rate</th>
-                <th className="text-center px-4 py-3">Demand Level</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(r => (
-                <tr key={r.date} className={cn('border-b border-border/50 hover:bg-secondary/30', r.isWeekend && 'bg-accent/5')}>
-                  <td className="px-4 py-2.5 font-medium">{r.dateLabel}</td>
-                  <td className="px-4 py-2.5 text-center text-muted-foreground">{r.day_of_week}</td>
-                  <td className="px-4 py-2.5 text-center text-muted-foreground">—</td>
-                  <td className="px-4 py-2.5 text-right text-muted-foreground">—</td>
-                  <td className="px-4 py-2.5 text-center">
-                    <span className={cn('text-2xs px-2 py-0.5 rounded-full font-medium', r.isWeekend ? DEMAND_COLORS.medium : DEMAND_COLORS.low)}>
-                      {r.isWeekend ? 'medium' : 'low'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
     </>
   );
 }

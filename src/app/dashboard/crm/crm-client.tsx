@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Users, Star, Crown, Medal, Award, Search, TrendingUp } from 'lucide-react';
+import { Users, Star, Crown, Medal, Award, Search, TrendingUp, AlertTriangle, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const TIER_CONFIG: Record<string, { icon: any; color: string; label: string }> = {
   bronze: { icon: Medal, color: 'text-amber-600 bg-amber-600/10', label: 'Bronze' },
@@ -11,9 +12,42 @@ const TIER_CONFIG: Record<string, { icon: any; color: string; label: string }> =
   platinum: { icon: Crown, color: 'text-violet-400 bg-violet-400/10', label: 'Platinum' },
 };
 
-export function CrmClient({ guests, segmentCounts, loyalty }: { guests: any[]; segmentCounts: any; loyalty: any[] }) {
-  const [tab, setTab] = useState<'guests'|'loyalty'|'segments'>('guests');
+interface ChurnGuest {
+  guest_id: string;
+  first_name: string;
+  last_name: string | null;
+  email: string | null;
+  total_stays: number;
+  days_since_last_stay: number;
+  churn_risk_score: number;
+  recommended_action: string;
+}
+
+export function CrmClient({ guests, segmentCounts, loyalty, hotelId }: { guests: any[]; segmentCounts: any; loyalty: any[]; hotelId?: string }) {
+  const [tab, setTab] = useState<'guests'|'loyalty'|'segments'|'at_risk'>('guests');
   const [q, setQ] = useState('');
+  const [churnGuests, setChurnGuests] = useState<ChurnGuest[]>([]);
+  const [churnLoading, setChurnLoading] = useState(false);
+  const [churnLoaded, setChurnLoaded] = useState(false);
+
+  const fetchChurn = useCallback(async () => {
+    if (!hotelId || churnLoaded) return;
+    setChurnLoading(true);
+    try {
+      const res = await fetch(`/api/crm/churn-score?hotel_id=${hotelId}`);
+      const data = await res.json();
+      setChurnGuests(data.at_risk_guests || []);
+      setChurnLoaded(true);
+    } catch {
+      toast.error('ไม่สามารถโหลดข้อมูลลูกค้าเสี่ยงได้');
+    } finally {
+      setChurnLoading(false);
+    }
+  }, [hotelId, churnLoaded]);
+
+  useEffect(() => {
+    if (tab === 'at_risk') fetchChurn();
+  }, [tab, fetchChurn]);
 
   const filtered = guests.filter(g => {
     if (!q) return true;
