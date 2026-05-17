@@ -1,6 +1,8 @@
 import { parseBookingComXml } from '@/lib/ota/parsers/booking-com';
 import { parseAgodaJson } from '@/lib/ota/parsers/agoda';
 import { parseExpediaReservation } from '@/lib/ota/parsers/expedia';
+import { parseTripComReservation } from '@/lib/ota/parsers/trip-com';
+import { parseHostelworldReservation } from '@/lib/ota/parsers/hostelworld';
 
 describe('OTA Parsers', () => {
 
@@ -298,6 +300,181 @@ describe('OTA Parsers', () => {
     it('returns null for null/undefined input', () => {
       expect(parseExpediaReservation(null)).toBeNull();
       expect(parseExpediaReservation(undefined)).toBeNull();
+    });
+  });
+
+  describe('Trip.com JSON parser', () => {
+    const validPayload = {
+      order_id: 'TC-20250801-001',
+      hotel_id: 'HTLTC001',
+      room_type_id: 'DLX-KING',
+      check_in_date: '2025-10-10',
+      check_out_date: '2025-10-13',
+      order_status: 'confirmed',
+      currency: 'THB',
+      total_price: 12000,
+      adult_count: 2,
+      child_count: 1,
+      special_requests: 'Quiet room please',
+      guest_info: {
+        first_name: 'Wei',
+        last_name: 'Zhang',
+        email: 'wei.zhang@example.com',
+        mobile: '+8613912345678',
+      },
+    };
+
+    it('parses valid JSON payload into correct fields', () => {
+      const result = parseTripComReservation(validPayload);
+      expect(result).not.toBeNull();
+      expect(result!.externalId).toBe('TC-20250801-001');
+      expect(result!.status).toBe('new');
+      expect(result!.checkIn).toBe('2025-10-10');
+      expect(result!.checkOut).toBe('2025-10-13');
+      expect(result!.numAdults).toBe(2);
+      expect(result!.numChildren).toBe(1);
+      expect(result!.totalAmount).toBe(12000);
+      expect(result!.currency).toBe('THB');
+      expect(result!.roomTypeCode).toBe('DLX-KING');
+      expect(result!.firstName).toBe('Wei');
+      expect(result!.lastName).toBe('Zhang');
+      expect(result!.email).toBe('wei.zhang@example.com');
+      expect(result!.phone).toBe('+8613912345678');
+      expect(result!.specialRequests).toBe('Quiet room please');
+      expect(result!.source).toBe('trip_com');
+    });
+
+    it('parses guest.name as single field and splits into first/last', () => {
+      const payload = {
+        order_id: 'TC-NAME-001',
+        check_in_date: '2025-11-01',
+        check_out_date: '2025-11-03',
+        guest: { name: 'Li Mei', email: 'li@example.com', phone: '+86-100' },
+        total_price: 5000,
+        currency: 'CNY',
+      };
+      const result = parseTripComReservation(payload);
+      expect(result).not.toBeNull();
+      expect(result!.firstName).toBe('Li');
+      expect(result!.lastName).toBe('Mei');
+      expect(result!.email).toBe('li@example.com');
+    });
+
+    it('uses booking_id fallback when order_id absent', () => {
+      const result = parseTripComReservation({
+        booking_id: 'TC-BID-999',
+        check_in_date: '2025-12-01',
+        check_out_date: '2025-12-04',
+      });
+      expect(result).not.toBeNull();
+      expect(result!.externalId).toBe('TC-BID-999');
+    });
+
+    it('defaults currency to THB when absent', () => {
+      const result = parseTripComReservation({
+        order_id: 'TC-CUR-001',
+        check_in_date: '2025-12-01',
+        check_out_date: '2025-12-02',
+      });
+      expect(result!.currency).toBe('THB');
+    });
+
+    it('returns null when check-in or check-out dates are missing', () => {
+      expect(parseTripComReservation({ order_id: 'TC-NODATE' })).toBeNull();
+      expect(parseTripComReservation({ order_id: 'TC-PARTIAL', check_in_date: '2025-10-01' })).toBeNull();
+    });
+
+    it('returns null for non-object input', () => {
+      expect(parseTripComReservation(null)).toBeNull();
+      expect(parseTripComReservation('invalid')).toBeNull();
+    });
+  });
+
+  describe('Hostelworld JSON parser', () => {
+    const validPayload = {
+      booking_id: 'HW-20250901-042',
+      property_id: 'PROP-BKK-01',
+      bed_type_id: 'DORM-6BED',
+      arrival_date: '2025-11-15',
+      departure_date: '2025-11-18',
+      status: 'confirmed',
+      currency_code: 'THB',
+      total_sell_price: 1800,
+      num_guests: 1,
+      special_requirements: 'Bottom bunk preferred',
+      customer: {
+        first_name: 'Emma',
+        last_name: 'Backpacker',
+        email: 'emma@example.com',
+        phone: '+447890123456',
+      },
+    };
+
+    it('parses valid JSON payload into correct fields', () => {
+      const result = parseHostelworldReservation(validPayload);
+      expect(result).not.toBeNull();
+      expect(result!.externalId).toBe('HW-20250901-042');
+      expect(result!.status).toBe('new');
+      expect(result!.checkIn).toBe('2025-11-15');
+      expect(result!.checkOut).toBe('2025-11-18');
+      expect(result!.numAdults).toBe(1);
+      expect(result!.numChildren).toBe(0);
+      expect(result!.totalAmount).toBe(1800);
+      expect(result!.currency).toBe('THB');
+      expect(result!.roomTypeCode).toBe('DORM-6BED');
+      expect(result!.firstName).toBe('Emma');
+      expect(result!.lastName).toBe('Backpacker');
+      expect(result!.email).toBe('emma@example.com');
+      expect(result!.phone).toBe('+447890123456');
+      expect(result!.specialRequests).toBe('Bottom bunk preferred');
+      expect(result!.source).toBe('hostelworld');
+    });
+
+    it('maps cancelled status correctly', () => {
+      const result = parseHostelworldReservation({ ...validPayload, status: 'cancelled' });
+      expect(result).not.toBeNull();
+      expect(result!.status).toBe('cancelled');
+    });
+
+    it('falls back to room_id when bed_type_id absent', () => {
+      const result = parseHostelworldReservation({
+        booking_id: 'HW-ROOM-001',
+        arrival_date: '2025-12-01',
+        departure_date: '2025-12-03',
+        room_id: 'PRIVATE-TWIN',
+        total: 2400,
+      });
+      expect(result).not.toBeNull();
+      expect(result!.roomTypeCode).toBe('PRIVATE-TWIN');
+    });
+
+    it('uses total fallback when total_sell_price absent', () => {
+      const result = parseHostelworldReservation({
+        booking_id: 'HW-TOT-001',
+        arrival_date: '2025-12-01',
+        departure_date: '2025-12-02',
+        total: 900,
+      });
+      expect(result!.totalAmount).toBe(900);
+    });
+
+    it('uses guest_count fallback when num_guests absent', () => {
+      const result = parseHostelworldReservation({
+        booking_id: 'HW-GC-001',
+        arrival_date: '2025-12-05',
+        departure_date: '2025-12-07',
+        guest_count: 3,
+      });
+      expect(result!.numAdults).toBe(3);
+    });
+
+    it('returns null when arrival or departure dates are missing', () => {
+      expect(parseHostelworldReservation({ booking_id: 'HW-NODATE' })).toBeNull();
+    });
+
+    it('returns null for non-object input', () => {
+      expect(parseHostelworldReservation(null)).toBeNull();
+      expect(parseHostelworldReservation(42)).toBeNull();
     });
   });
 });

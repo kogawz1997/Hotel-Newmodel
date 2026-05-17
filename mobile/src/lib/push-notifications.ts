@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { router } from 'expo-router';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -48,25 +49,20 @@ export async function sendLocalNotification(title: string, body: string): Promis
   });
 }
 
-export function handleNotification(notification: Notifications.Notification): {
-  screen: string | null;
-  params: Record<string, string> | null;
-} {
-  const data = notification.request.content.data as Record<string, string> | undefined;
-  if (!data?.type) return { screen: null, params: null };
-
-  switch (data.type) {
-    case 'task':
-    case 'work_order':
-      return { screen: '/(tabs)/tasks', params: { taskId: data.id } };
-    case 'checkin':
-    case 'checkout':
-      return { screen: '/(tabs)/arrivals', params: { reservationId: data.id } };
-    case 'kitchen_order':
-      return { screen: '/(tabs)/kitchen', params: { orderId: data.id } };
-    case 'room':
-      return { screen: '/(tabs)/rooms', params: { roomId: data.id } };
-    default:
-      return { screen: '/(tabs)', params: null };
+export function handleNotification(notification: Notifications.Notification): void {
+  switch (notification.request.content.data?.type) {
+    case 'task': router.push('/(tabs)/tasks'); break;
+    case 'checkin': router.push('/(tabs)/arrivals'); break;
+    case 'kitchen_order': router.push('/(tabs)/kitchen'); break;
+    case 'room': router.push('/(tabs)/rooms'); break;
+    case 'checkout': router.push('/(tabs)/arrivals'); break;
+    default: router.push('/(tabs)/');
   }
+}
+
+export async function scheduleReminderNotification(title: string, body: string, triggerSeconds: number): Promise<void> {
+  await Notifications.scheduleNotificationAsync({
+    content: { title, body, sound: true },
+    trigger: { seconds: triggerSeconds },
+  });
 }

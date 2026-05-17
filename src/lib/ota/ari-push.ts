@@ -169,6 +169,64 @@ function formatExpedia(
   };
 }
 
+function formatTripCom(
+  hotelId: string,
+  dates: string[],
+  rooms: ARIPayload[],
+  rateCalendar: RateCalendarRow[],
+): unknown {
+  const calendarMap = new Map<string, RateCalendarRow>();
+  for (const row of rateCalendar) {
+    calendarMap.set(`${row.room_type_id}:${row.date}`, row);
+  }
+
+  return {
+    hotel_id: hotelId,
+    updates: dates.flatMap((date) =>
+      rooms.map((room) => {
+        const cal = calendarMap.get(`${room.roomTypeId}:${date}`);
+        return {
+          room_type_id: room.roomTypeCode ?? room.roomTypeId,
+          date,
+          allotment: cal?.availability ?? room.availability ?? 0,
+          selling_price: cal?.rate ?? room.rate ?? 0,
+          min_los: cal?.min_stay ?? room.minStay ?? 1,
+          max_los: cal?.max_stay ?? room.maxStay ?? undefined,
+          stop_sell: (cal?.availability ?? room.availability ?? 0) === 0,
+        };
+      })
+    ),
+  };
+}
+
+function formatHostelworld(
+  hotelId: string,
+  dates: string[],
+  rooms: ARIPayload[],
+  rateCalendar: RateCalendarRow[],
+): unknown {
+  const calendarMap = new Map<string, RateCalendarRow>();
+  for (const row of rateCalendar) {
+    calendarMap.set(`${row.room_type_id}:${row.date}`, row);
+  }
+
+  return {
+    property_id: hotelId,
+    rate_updates: dates.flatMap((date) =>
+      rooms.map((room) => {
+        const cal = calendarMap.get(`${room.roomTypeId}:${date}`);
+        return {
+          bed_type_id: room.roomTypeCode ?? room.roomTypeId,
+          date,
+          availability: cal?.availability ?? room.availability ?? 0,
+          price: cal?.rate ?? room.rate ?? 0,
+          min_stay: cal?.min_stay ?? room.minStay ?? 1,
+        };
+      })
+    ),
+  };
+}
+
 const FORMATTERS: Record<string, ProviderFormatter> = {
   booking_com: (hotelId, dates, rooms, rateCalendar) =>
     formatBookingCom(hotelId, dates, rooms, rateCalendar),
@@ -178,6 +236,10 @@ const FORMATTERS: Record<string, ProviderFormatter> = {
     formatAirbnb(hotelId, dates, rooms, rateCalendar),
   expedia: (hotelId, dates, rooms, rateCalendar) =>
     formatExpedia(hotelId, dates, rooms, rateCalendar),
+  trip_com: (hotelId, dates, rooms, rateCalendar) =>
+    formatTripCom(hotelId, dates, rooms, rateCalendar),
+  hostelworld: (hotelId, dates, rooms, rateCalendar) =>
+    formatHostelworld(hotelId, dates, rooms, rateCalendar),
 };
 
 function getProviderEndpoint(provider: string): string | null {
