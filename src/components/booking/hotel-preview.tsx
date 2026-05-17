@@ -3,6 +3,7 @@
 import { MapPin, Phone, Mail, Star, ArrowRight, Calendar, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { formatCurrency } from '@/lib/utils';
 
 export function HotelPreview({ hotel, gallery }: { hotel: any; gallery: any[] }) {
@@ -14,7 +15,11 @@ export function HotelPreview({ hotel, gallery }: { hotel: any; gallery: any[] })
       <nav className="sticky top-0 z-40 border-b border-border/50 bg-white/95 backdrop-blur-sm">
         <div className="container max-w-6xl flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
-            {hotel.logo_url && <img src={hotel.logo_url} alt="logo" className="h-8" />}
+            {hotel.logo_url && (
+              <div className="relative h-8 w-24">
+                <NextImage src={hotel.logo_url} alt="logo" fill className="object-contain" />
+              </div>
+            )}
             <div>
               <div className="font-medium text-sm">{hotel.name}</div>
               {hotel.tagline && <div className="text-2xs text-muted-foreground">{hotel.tagline}</div>}
@@ -29,10 +34,11 @@ export function HotelPreview({ hotel, gallery }: { hotel: any; gallery: any[] })
 
       {/* Hero Section */}
       <div className="relative h-96 w-full overflow-hidden">
-        <img
+        <NextImage
           src={hotel.hero_image_url || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1600'}
           alt="hero"
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center">
@@ -65,10 +71,11 @@ export function HotelPreview({ hotel, gallery }: { hotel: any; gallery: any[] })
                     i === 0 ? 'lg:col-span-2 lg:row-span-2 lg:h-auto' : ''
                   }`}
                 >
-                  <img
+                  <NextImage
                     src={img.image_url}
                     alt={img.alt_text}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
                   />
                   {i === 0 && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,8 @@ const PERIODS = [
 ];
 
 export function ReportsClient({ hotelId }: { hotelId: string }) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [revenueData, setRevenueData] = useState<any[]>([]);
   const [channelMix, setChannelMix] = useState<any[]>([]);
   const [kpis, setKpis] = useState({ adr: 0, revpar: 0, occupancy: 0, totalRevenue: 0 });
@@ -96,7 +97,7 @@ export function ReportsClient({ hotelId }: { hotelId: string }) {
       setLoading(false);
     }
     load();
-  }, [hotelId, period, customPeriod, getDateRange]);
+  }, [supabase, hotelId, period, customPeriod, getDateRange]);
 
   function exportCSV() {
     if (revenueData.length === 0) { toast.error('ไม่มีข้อมูลให้ export'); return; }

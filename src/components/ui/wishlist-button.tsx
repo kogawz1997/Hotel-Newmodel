@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Heart } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
 export function WishlistButton({ hotelId, roomTypeId }: { hotelId: string; roomTypeId?: string }) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +24,7 @@ export function WishlistButton({ hotelId, roomTypeId }: { hotelId: string; roomT
       setSaved(!!data);
     }
     check();
-  }, [hotelId]);
+  }, [hotelId, supabase]);
 
   async function toggle() {
     const { data: { user } } = await supabase.auth.getUser();

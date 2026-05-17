@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { TopBar } from '@/components/layout/top-bar';
 import { toast } from 'sonner';
-import { Image, Upload, Trash2, Eye, Star, Palette, Type, FileText } from 'lucide-react';
+import { ImageIcon, Upload, Trash2, Eye, Star, Palette, Type, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export function BrandingClient({ hotel, gallery }: { hotel: any; gallery: any[] }) {
@@ -152,7 +153,9 @@ export function BrandingClient({ hotel, gallery }: { hotel: any; gallery: any[] 
           {h.logo_url && (
             <div>
               <div className="text-xs text-muted-foreground mb-2">Logo</div>
-              <img src={h.logo_url} alt="logo" className="h-10 object-contain" />
+              <div className="relative h-10 w-32">
+                <NextImage src={h.logo_url} alt="logo" fill className="object-contain" />
+              </div>
             </div>
           )}
         </CardContent>
@@ -164,7 +167,7 @@ export function BrandingClient({ hotel, gallery }: { hotel: any; gallery: any[] 
           <CardHeader><CardTitle className="text-sm">Hero Image</CardTitle></CardHeader>
           <CardContent>
             <div className="relative w-full h-48 bg-secondary rounded-lg overflow-hidden">
-              <img src={h.hero_image_url} alt="hero" className="w-full h-full object-cover" />
+              <NextImage src={h.hero_image_url} alt="hero" fill className="object-cover" />
             </div>
           </CardContent>
         </Card>
@@ -173,7 +176,7 @@ export function BrandingClient({ hotel, gallery }: { hotel: any; gallery: any[] 
       {/* Gallery */}
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-sm flex items-center gap-2"><Image className="h-4 w-4" />Gallery ({gal.length})</CardTitle>
+          <CardTitle className="text-sm flex items-center gap-2"><ImageIcon className="h-4 w-4" />Gallery ({gal.length})</CardTitle>
           <label className="cursor-pointer">
             <input type="file" accept="image/*" onChange={uploadGalleryImage} className="hidden" disabled={uploading} />
             <Button size="sm" asChild>
@@ -190,7 +193,9 @@ export function BrandingClient({ hotel, gallery }: { hotel: any; gallery: any[] 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {gal.map(img => (
                 <div key={img.id} className="relative group">
-                  <img src={img.image_url} alt={img.alt_text} className="w-full h-32 object-cover rounded-lg" />
+                  <div className="relative w-full h-32 rounded-lg overflow-hidden">
+                    <NextImage src={img.image_url} alt={img.alt_text || ''} fill className="object-cover" />
+                  </div>
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
                     <Button
                       size="sm"
@@ -253,9 +258,13 @@ export function BrandingClient({ hotel, gallery }: { hotel: any; gallery: any[] 
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-2 block flex items-center gap-2">
-                <Image className="h-3 w-3" /> Logo
+                <ImageIcon className="h-3 w-3" /> Logo
               </label>
-              {editForm.logo_url && <img src={editForm.logo_url} alt="logo" className="h-8 mb-2" />}
+              {editForm.logo_url && (
+                <div className="relative h-8 w-24 mb-2">
+                  <NextImage src={editForm.logo_url} alt="logo" fill className="object-contain" />
+                </div>
+              )}
               <label className="cursor-pointer">
                 <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" disabled={uploading} />
                 <Button size="sm" variant="outline" className="w-full" asChild>
@@ -268,7 +277,9 @@ export function BrandingClient({ hotel, gallery }: { hotel: any; gallery: any[] 
                 <Palette className="h-3 w-3" /> Hero Image
               </label>
               {editForm.hero_image_url && (
-                <img src={editForm.hero_image_url} alt="hero" className="w-full h-24 object-cover rounded-lg mb-2" />
+                <div className="relative w-full h-24 rounded-lg overflow-hidden mb-2">
+                  <NextImage src={editForm.hero_image_url} alt="hero" fill className="object-cover" />
+                </div>
               )}
               <label className="cursor-pointer">
                 <input type="file" accept="image/*" onChange={handleHeroUpload} className="hidden" disabled={uploading} />

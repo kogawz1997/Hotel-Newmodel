@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import NextImage from 'next/image';
 import {
   Zap, ListChecks, Info, MessageCircle,
   Send, Phone, Wifi, Clock, Check, X, Loader2,
@@ -711,7 +712,11 @@ export function InStayChatClient({
       <div className="bg-[#2A2522] text-white px-4 py-4 sticky top-0 z-20">
         <div className="flex items-center gap-3">
           {hotel.logo_url
-            ? <img src={hotel.logo_url} alt="logo" className="h-8 object-contain" />
+            ? (
+              <div className="relative h-8 w-16">
+                <NextImage src={hotel.logo_url} alt="logo" fill className="object-contain" />
+              </div>
+            )
             : (
               <div className="h-8 w-8 bg-[#C66A30] rounded-lg flex items-center justify-center font-bold text-sm">
                 {hotel.name.charAt(0)}

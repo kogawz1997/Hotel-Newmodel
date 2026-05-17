@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import NextImage from 'next/image';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -246,11 +247,14 @@ export function LostFoundClient({ hotelId, userId, items: initialItems }: Props)
           <div className="flex flex-col gap-2">
             {item.photo_url && (
               <a href={item.photo_url} target="_blank" rel="noopener noreferrer">
-                <img
-                  src={item.photo_url}
-                  alt="รูปสิ่งของ"
-                  className="h-14 w-14 rounded-lg object-cover ring-1 ring-stone-200 dark:ring-stone-700"
-                />
+                <div className="relative h-14 w-14 rounded-lg overflow-hidden ring-1 ring-stone-200 dark:ring-stone-700">
+                  <NextImage
+                    src={item.photo_url}
+                    alt="รูปสิ่งของ"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               </a>
             )}
             {item.status === 'stored' && (

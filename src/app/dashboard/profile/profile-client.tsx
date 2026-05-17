@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import NextImage from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { useTheme } from '@/components/providers/theme-provider';
 import { useLocale } from '@/components/providers/locale-provider';
@@ -692,7 +693,7 @@ function PersonalTab({ profile, user, hotel, s, setLocale }: {
         <div className="flex items-center gap-4 mb-5">
           <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-semibold shrink-0 overflow-hidden border-2 border-border">
             {avatarSrc
-              ? <img src={avatarSrc} alt="avatar" className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              ? <NextImage src={avatarSrc} alt="avatar" fill className="object-cover" unoptimized />
               : displayName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
@@ -1459,7 +1460,7 @@ export function ProfileClient({ profile, user, hotel }: {
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-semibold shrink-0 overflow-hidden border-2 border-border">
             {avatarSrc
-              ? <img src={avatarSrc} alt="" className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              ? <NextImage src={avatarSrc} alt="" fill className="object-cover" unoptimized />
               : displayName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">

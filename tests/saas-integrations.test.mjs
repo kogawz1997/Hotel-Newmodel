@@ -11,7 +11,7 @@ const required = [
   'src/app/api/channels/line/connect/route.ts',
   'src/app/api/compliance/tm30/export/route.ts',
   'src/lib/ota/conflicts.ts',
-  'supabase/migrations/0002_phase_buildout.sql',
+  'supabase/migrations/02_operations.sql',
 ];
 
 for (const file of required) assert.ok(fs.existsSync(file), `${file} missing`);

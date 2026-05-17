@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import { Users, Maximize2, Bed, Coffee, X, Check, ChevronRight, AlertTriangle } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { LuxuryButton } from '@/components/luxury/LuxuryButton';
@@ -44,7 +45,7 @@ export function RoomCard({ room, nights, onSelect, selected }: RoomCardProps) {
         {/* Image */}
         <div className="relative md:w-56 h-48 md:h-auto bg-[#FAF7F2] shrink-0 overflow-hidden">
           {img ? (
-            <img src={img} alt={room.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+            <Image src={img} alt={room.name} fill className="object-cover hover:scale-105 transition-transform duration-500" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Bed className="h-12 w-12 text-[#2A2522]/10" />

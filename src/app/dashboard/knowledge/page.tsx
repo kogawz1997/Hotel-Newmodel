@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,8 @@ interface KnowledgeItem {
 }
 
 export default function KnowledgePage() {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [items, setItems] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [hotelId, setHotelId] = useState('');
@@ -41,18 +42,7 @@ export default function KnowledgePage() {
   const [saving, setSaving] = useState(false);
 
 
-  useEffect(() => {
-    async function init() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
-      const { data: hotels } = await supabase.from('hotels').select('id').eq('organization_id', profile?.organization_id).limit(1);
-      if (hotels?.[0]) { setHotelId(hotels[0].id); load(hotels[0].id); }
-    }
-    init();
-  }, []);
-
-  async function load(hid = hotelId) {
+  const load = useCallback(async (hid = hotelId) => {
     setLoading(true);
     const { data } = await supabase
       .from('knowledge_base')
@@ -62,7 +52,18 @@ export default function KnowledgePage() {
       .order('title');
     setItems(data || []);
     setLoading(false);
-  }
+  }, [supabase, hotelId]);
+
+  useEffect(() => {
+    async function init() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).single();
+      const { data: hotels } = await supabase.from('hotels').select('id').eq('organization_id', profile?.organization_id).limit(1);
+      if (hotels?.[0]) { setHotelId(hotels[0].id); load(hotels[0].id); }
+    }
+    init();
+  }, [supabase, load]);
 
   function openCreate() {
     setEditItem(null);

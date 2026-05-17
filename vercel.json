@@ -1,32 +1,32 @@
 {
   "crons": [
     {
-      "path": "/api/cron/pre-arrival",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/post-stay",
-      "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/cron/night-audit",
+      "path": "/api/cron/daily-summary",
       "schedule": "0 18 * * *"
     },
     {
-      "path": "/api/cron/tm30-reminder",
-      "schedule": "0 2 * * *"
+      "path": "/api/cron/pre-arrival",
+      "schedule": "0 19 * * *"
     },
     {
-      "path": "/api/cron/daily-summary",
-      "schedule": "0 1 * * *"
+      "path": "/api/cron/post-stay",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/night-audit",
+      "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/cron/tm30-reminder",
+      "schedule": "30 19 * * *"
     },
     {
       "path": "/api/cron/no-show",
-      "schedule": "30 18 * * *"
+      "schedule": "30 11 * * *"
     },
     {
       "path": "/api/cron/trial-expiry",
-      "schedule": "0 1 * * *"
+      "schedule": "0 18 * * *"
     },
     {
       "path": "/api/cron/billing-reconcile",
@@ -34,7 +34,7 @@
     },
     {
       "path": "/api/cron/billing-retry",
-      "schedule": "0 5 * * *"
+      "schedule": "0 22 * * *"
     },
     {
       "path": "/api/cron/reliability-sweep",
@@ -58,17 +58,17 @@
     },
     {
       "path": "/api/cron/email-report",
-      "schedule": "0 0 * * 1"
+      "schedule": "0 17 * * 0"
     },
     {
       "path": "/api/cron/ai-cost-check",
-      "schedule": "0 9 * * 1"
+      "schedule": "0 2 * * 1"
     },
     {
       "path": "/api/cron/backup-check",
-      "schedule": "0 6 * * *"
+      "schedule": "0 23 * * *"
     }
   ],
-  "installCommand": "npm ci --no-audit --no-fund --progress=false",
+  "installCommand": "npm install --legacy-peer-deps --no-audit --no-fund --progress=false",
   "buildCommand": "npm run build"
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAdminLang } from '@/contexts/admin-lang-context';
 import { cn } from '@/lib/utils';
@@ -40,16 +40,16 @@ export default function AdminErrorsPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const locale = lang === 'th' ? thLocale : enUS;
 
-  function load() {
+  const load = useCallback(() => {
     setLoading(true);
     const qs = severity !== 'all' ? `?severity=${severity}` : '';
     fetch(`/api/admin/errors${qs}`)
       .then(r => r.ok ? r.json() : { events: [] })
       .then(d => setEvents(d.events || []))
       .finally(() => setLoading(false));
-  }
+  }, [severity]);
 
-  useEffect(() => { load(); }, [severity]);
+  useEffect(() => { load(); }, [load]);
 
   function toggle(id: string) {
     setExpanded(prev => {

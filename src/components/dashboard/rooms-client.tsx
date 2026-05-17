@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,8 @@ const STATUS_CONFIG: Record<string, { label: string; variant: any }> = {
 };
 
 export function RoomsClient({ hotelId }: { hotelId: string }) {
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
   const [rooms, setRooms] = useState<any[]>([]);
   const [roomTypes, setRoomTypes] = useState<any[]>([]);
   const [showRoomTypeModal, setShowRoomTypeModal] = useState(false);
@@ -43,16 +44,16 @@ export function RoomsClient({ hotelId }: { hotelId: string }) {
     } finally { setTimelineLoading(false); }
   }
 
-  useEffect(() => { load(); }, []);
-
-  async function load() {
+  const load = useCallback(async () => {
     const [{ data: rs }, { data: rts }] = await Promise.all([
       supabase.from('rooms').select('*, room_types(name, base_rate)').eq('hotel_id', hotelId).order('room_number'),
       supabase.from('room_types').select('*').eq('hotel_id', hotelId),
     ]);
     setRooms(rs || []);
     setRoomTypes(rts || []);
-  }
+  }, [supabase, hotelId]);
+
+  useEffect(() => { load(); }, [load]);
 
   async function updateStatus(roomId: string, status: string) {
     const { error } = await supabase.from('rooms').update({ status }).eq('id', roomId);

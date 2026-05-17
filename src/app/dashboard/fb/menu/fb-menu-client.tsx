@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import NextImage from 'next/image';
 import { TopBar } from '@/components/layout/top-bar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -88,7 +89,11 @@ export function FBMenuClient({ hotelId, outlets, categories: initCats }: { hotel
                     {(cat.fb_menu_items || []).map((item: any) => (
                       <Card key={item.id} className={cn(!item.available && 'opacity-50')}>
                         <CardContent className="p-4 flex items-center gap-4">
-                          {item.image_url && <img src={item.image_url} alt={item.name} className="h-14 w-14 object-cover rounded-lg shrink-0" />}
+                          {item.image_url && (
+                            <div className="relative h-14 w-14 rounded-lg overflow-hidden shrink-0">
+                              <NextImage src={item.image_url} alt={item.name} fill className="object-cover" />
+                            </div>
+                          )}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium">{item.name}</span>
