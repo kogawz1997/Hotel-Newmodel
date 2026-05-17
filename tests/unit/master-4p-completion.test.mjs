@@ -60,7 +60,7 @@ const requiredAnchors = [
   'docs/PRODUCTION_HANDOFF_4P.md',
   'docs/SCALE_AND_RESTORE_RUNBOOK.md',
   'src/app/mobile/front-desk/page.tsx',
-  'supabase/migrations/0002_phase_buildout.sql',
+  'supabase/migrations/02_operations.sql',
 ];
 
 for (const file of requiredAnchors) assert.ok(fs.existsSync(file), `${file} missing`);
