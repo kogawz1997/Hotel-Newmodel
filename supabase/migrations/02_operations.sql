@@ -3255,7 +3255,7 @@ ALTER TABLE referral_codes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "referral_guest_own" ON referral_codes
   USING (
     owner_guest_id IN (
-      SELECT id FROM guest_accounts WHERE auth_user_id = auth.uid()
+      SELECT id FROM guest_accounts WHERE id = auth.uid()
     )
   );
 
@@ -3460,7 +3460,7 @@ ALTER TABLE wishlists ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "wishlists_guest_own" ON wishlists
   USING (
     guest_account_id IN (
-      SELECT id FROM guest_accounts WHERE auth_user_id = auth.uid()
+      SELECT id FROM guest_accounts WHERE id = auth.uid()
     )
   );
 
