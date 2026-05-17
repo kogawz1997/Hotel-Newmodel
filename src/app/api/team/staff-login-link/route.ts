@@ -28,6 +28,7 @@ export async function POST(request: Request) {
 
   const expiresInMinutes = Number(process.env.STAFF_LOGIN_LINK_TTL_MINUTES || 15);
   const token = createStaffLoginToken(ctx.hotelId, expiresInMinutes);
-  const loginUrl = `${appUrl}/backoffice/login?hotel=${ctx.hotelId}&token=${token}`;
+  const slugPath = hotel?.slug ? `/backoffice/${hotel.slug}/login` : '/backoffice/login';
+  const loginUrl = `${appUrl}${slugPath}?token=${token}`;
   return NextResponse.json({ success: true, loginUrl, hotelId: ctx.hotelId, hotelSlug: hotel?.slug || null, subdomainEnabled, expiresInMinutes });
 }
