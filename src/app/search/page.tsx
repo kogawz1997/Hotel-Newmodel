@@ -88,15 +88,15 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
       </div>
 
       {/* Price range */}
-      <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">ราคาต่อคืน (บาท)</p>
+      <div className="border-t border-border/50 pt-4">
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/70 mb-3">ราคาต่อคืน (บาท)</p>
         <div className="flex items-center gap-2">
           <input
             type="number"
             value={query.minPrice || ''}
             onChange={e => setQuery(p => ({ ...p, minPrice: Number(e.target.value) }))}
             placeholder="0"
-            className="flex-1 px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none"
+            className="flex-1 px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none text-foreground placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-[#C66A30]/20"
           />
           <span className="text-muted-foreground text-sm">—</span>
           <input
@@ -104,14 +104,14 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
             value={query.maxPrice < 50000 ? query.maxPrice : ''}
             onChange={e => setQuery(p => ({ ...p, maxPrice: Number(e.target.value) || 50000 }))}
             placeholder="ไม่จำกัด"
-            className="flex-1 px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none"
+            className="flex-1 px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none text-foreground placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-[#C66A30]/20"
           />
         </div>
       </div>
 
       {/* Star rating */}
-      <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">ระดับดาวโรงแรม</p>
+      <div className="border-t border-border/50 pt-4">
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/70 mb-3">ระดับดาวโรงแรม</p>
         <div className="flex flex-wrap gap-2">
           {[5, 4, 3, 2, 1].map(s => (
             <button
@@ -120,7 +120,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
               className={cn(
                 'flex items-center gap-0.5 px-3 py-1.5 rounded-full border text-xs transition-all',
                 query.stars.includes(s)
-                  ? 'bg-amber-50 border-amber-400 text-amber-700'
+                  ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-400 text-amber-700 dark:text-amber-400 shadow-sm'
                   : 'border-border text-muted-foreground hover:border-amber-300',
               )}
             >
@@ -133,8 +133,8 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
       </div>
 
       {/* Guest rating */}
-      <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">คะแนนผู้เข้าพัก</p>
+      <div className="border-t border-border/50 pt-4">
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/70 mb-3">คะแนนผู้เข้าพัก</p>
         <div className="space-y-1">
           {[
             { v: 4.5, label: 'ยอดเยี่ยมมาก', sub: '4.5+' },
@@ -147,10 +147,10 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
               key={r.v}
               onClick={() => setQuery(p => ({ ...p, minRating: r.v }))}
               className={cn(
-                'w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all text-left',
+                'w-full flex items-center justify-between px-3 py-2 text-sm transition-all text-left',
                 query.minRating === r.v
-                  ? 'bg-foreground text-background'
-                  : 'hover:bg-muted/50 text-muted-foreground',
+                  ? 'bg-foreground text-background rounded-xl'
+                  : 'hover:bg-muted/50 text-muted-foreground rounded-xl',
               )}
             >
               <span>{r.label}</span>
@@ -161,8 +161,8 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
       </div>
 
       {/* Popular filters */}
-      <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">ฟิลเตอร์ยอดนิยม</p>
+      <div className="border-t border-border/50 pt-4">
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/70 mb-3">ฟิลเตอร์ยอดนิยม</p>
         <div className="space-y-2.5">
           {([
             { key: 'freeCancel' as const, label: 'ยกเลิกฟรี' },
@@ -187,10 +187,10 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
       </div>
 
       {/* Amenities */}
-      <div>
+      <div className="border-t border-border/50 pt-4">
         <button
           onClick={() => setShowAmenities(p => !p)}
-          className="w-full flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5"
+          className="w-full flex items-center justify-between text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em] mb-3"
         >
           <span>สิ่งอำนวยความสะดวก</span>
           {showAmenities ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -217,7 +217,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
 
       <button
         onClick={onApply}
-        className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl text-sm font-bold transition-colors"
+        className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl text-sm font-bold transition-colors shadow-lg shadow-[#C66A30]/20"
       >
         ค้นหา
       </button>
@@ -599,12 +599,12 @@ function SearchContent() {
               <div>
                 <div className="text-center py-20 mb-8">
                   <div className="text-7xl mb-5">🏨</div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">ค้นหาที่พักในฝัน</h2>
+                  <h2 className="text-3xl font-display font-semibold text-foreground mb-2">ค้นหาที่พักในฝัน</h2>
                   <p className="text-muted-foreground mb-6">ระบุปลายทางและวันที่เพื่อดูห้องว่าง</p>
                   <button
                     onClick={handleGeolocate}
                     disabled={geoLoading}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background hover:opacity-80 rounded-2xl text-sm font-semibold transition-opacity disabled:opacity-50"
                   >
                     {geoLoading
                       ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -640,7 +640,7 @@ function SearchContent() {
               /* ── No results ── */
               <div className="text-center py-24">
                 <div className="text-5xl mb-4">😔</div>
-                <h2 className="text-lg font-bold text-foreground mb-2">ไม่พบที่พักในช่วงนี้</h2>
+                <h2 className="text-xl font-display font-semibold text-foreground mb-2">ไม่พบที่พักในช่วงนี้</h2>
                 <p className="text-muted-foreground text-sm mb-5">ลองเปลี่ยนวันที่หรือเงื่อนไขการค้นหา</p>
                 <button onClick={clearAllFilters}
                   className="px-5 py-2.5 bg-[#C66A30] text-white rounded-xl text-sm font-semibold">
@@ -657,7 +657,7 @@ function SearchContent() {
                   <div className="mb-8">
                     <div className="flex items-center gap-2 mb-3">
                       <MapPin className="h-4 w-4 text-[#C66A30]" />
-                      <h3 className="font-bold text-foreground">โรงแรมใกล้คุณ</h3>
+                      <h3 className="font-semibold text-foreground">โรงแรมใกล้คุณ</h3>
                       <span className="text-xs text-muted-foreground bg-muted/20 px-2 py-0.5 rounded-full">ภายใน 10 กม.</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -676,7 +676,7 @@ function SearchContent() {
                   <div className="mb-8 rounded-2xl bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <Tag className="h-4 w-4 text-red-600" />
-                      <h3 className="font-bold text-red-700">ดีลวันนี้เท่านั้น!</h3>
+                      <h3 className="font-semibold text-foreground">ดีลวันนี้เท่านั้น!</h3>
                       <span className="text-xs text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
                         เช็คอิน {daysToCheckIn === 0 ? 'วันนี้' : `${daysToCheckIn} วัน`}
                       </span>
@@ -705,7 +705,7 @@ function SearchContent() {
                   <div className="mt-8 flex justify-center">
                     <button
                       onClick={() => setVisibleCount(n => n + 12)}
-                      className="px-8 py-3 bg-card border border-border rounded-xl text-sm font-medium text-foreground hover:bg-muted/50 hover:border-[#2A2522]/20 transition-all"
+                      className="px-10 py-3.5 bg-card border border-border rounded-2xl text-sm font-semibold text-foreground hover:bg-muted/50 hover:border-[#C66A30]/30 transition-all shadow-sm hover:shadow-md"
                     >
                       โหลดเพิ่ม ({Math.min(12, hotels.length - visibleCount)} รายการ)
                     </button>
@@ -723,7 +723,7 @@ function SearchContent() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilter(false)} />
           <div className="relative bg-card w-full max-h-[88vh] overflow-y-auto rounded-t-3xl p-6">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-foreground">ตัวกรอง</h2>
+              <h2 className="text-xl font-semibold text-foreground">ตัวกรอง</h2>
               <button onClick={() => setShowFilter(false)} className="p-2 rounded-full hover:bg-muted/50">
                 <X className="h-5 w-5" />
               </button>

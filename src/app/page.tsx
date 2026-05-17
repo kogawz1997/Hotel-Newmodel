@@ -85,9 +85,16 @@ const SOCIAL_PROVIDERS = [
   },
 ];
 
+const STATS = [
+  { value: '50,000+', label: 'ที่พัก' },
+  { value: '4.9/5',   label: 'คะแนน' },
+  { value: '200+',    label: 'เมืองทั่วไทย' },
+  { value: '24/7',    label: 'ซัพพอร์ต' },
+];
+
 export default function GuestHomePage() {
   return (
-    <div className="min-h-screen bg-white text-[#2A2522]">
+    <div className="min-h-screen bg-background text-foreground">
 
       {/* ─── Navigation ─────────────────────────────────────────────────── */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-[#1C1410]/90 backdrop-blur-xl border-b border-white/8">
@@ -218,12 +225,12 @@ export default function GuestHomePage() {
       <RecentlyViewed />
 
       {/* ─── Destinations ────────────────────────────────────────────────── */}
-      <section id="destinations" className="py-20 bg-[#FAF7F2]">
+      <section id="destinations" className="py-20 bg-muted/30">
         <div className="container max-w-7xl px-4">
           <div className="flex items-end justify-between mb-8">
             <div>
               <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-2">สำรวจ</p>
-              <h2 className="font-serif text-3xl md:text-4xl font-semibold text-[#1C1410]">
+              <h2 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
                 จุดหมายยอดนิยม
               </h2>
             </div>
@@ -236,12 +243,12 @@ export default function GuestHomePage() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {DESTINATIONS.slice(0, 2).map(d => (
               <Link key={d.name} href={`/search?city=${d.name}`}
-                className="relative rounded-2xl overflow-hidden h-52 md:h-72 group cursor-pointer">
+                className="relative rounded-2xl overflow-hidden h-72 md:h-96 group cursor-pointer ring-2 ring-white/0 group-hover:ring-[#C66A30]/30 transition-all">
                 <Image src={d.img} alt={d.name} fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4">
-                  <p className="text-white font-bold text-xl leading-tight">{d.nameTh}</p>
+                  <p className="text-white font-bold text-2xl md:text-3xl leading-tight">{d.nameTh}</p>
                   <p className="text-white/80 text-xs mt-0.5">{d.hotels.toLocaleString()} ที่พัก</p>
                 </div>
               </Link>
@@ -249,7 +256,7 @@ export default function GuestHomePage() {
             <div className="grid grid-rows-2 gap-3 md:gap-4">
               {DESTINATIONS.slice(2, 4).map(d => (
                 <Link key={d.name} href={`/search?city=${d.name}`}
-                  className="relative rounded-2xl overflow-hidden min-h-[110px] group cursor-pointer">
+                  className="relative rounded-2xl overflow-hidden min-h-[110px] group cursor-pointer ring-2 ring-white/0 group-hover:ring-[#C66A30]/30 transition-all">
                   <Image src={d.img} alt={d.name} fill
                     className="object-cover group-hover:scale-105 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -262,7 +269,7 @@ export default function GuestHomePage() {
             </div>
             {DESTINATIONS.slice(4).map(d => (
               <Link key={d.name} href={`/search?city=${d.name}`}
-                className="relative rounded-2xl overflow-hidden h-28 md:h-36 group cursor-pointer hidden md:block">
+                className="relative rounded-2xl overflow-hidden h-28 md:h-36 group cursor-pointer hidden md:block ring-2 ring-white/0 group-hover:ring-[#C66A30]/30 transition-all">
                 <Image src={d.img} alt={d.name} fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -276,12 +283,26 @@ export default function GuestHomePage() {
         </div>
       </section>
 
+      {/* ─── Stats strip ─────────────────────────────────────────────────── */}
+      <section className="bg-[#1C1410] py-12">
+        <div className="container max-w-7xl px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-y-2 md:divide-y-0 md:divide-x divide-white/10">
+            {STATS.map(s => (
+              <div key={s.label} className="flex flex-col items-center justify-center py-6 md:py-0 md:px-8 gap-1.5">
+                <span className="font-serif text-3xl md:text-4xl font-semibold text-[#E8A87C]">{s.value}</span>
+                <span className="text-sm text-white/55 tracking-wide">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── How it works ────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="py-24 bg-white">
+      <section id="how-it-works" className="py-24 bg-card">
         <div className="container max-w-7xl px-4">
           <div className="text-center mb-16">
             <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-3">ง่ายมาก</p>
-            <h2 className="font-serif text-4xl md:text-5xl font-semibold text-[#1C1410] tracking-tight">
+            <h2 className="font-serif text-4xl md:text-5xl font-semibold text-foreground tracking-tight">
               จองที่พักใน <span className="text-[#C66A30] italic">3 ขั้นตอน</span>
             </h2>
           </div>
@@ -291,22 +312,25 @@ export default function GuestHomePage() {
               const Icon = step.icon;
               return (
                 <div key={step.step}
-                  className="relative bg-[#FAF7F2] rounded-3xl p-8 border border-[#E8DDD5]">
-                  {/* Step connector */}
+                  className="relative bg-card rounded-3xl p-8 border border-border shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                  {/* Decorative step number watermark */}
+                  <span className="font-display text-[#C66A30]/8 absolute -top-4 -right-4 leading-none select-none pointer-events-none"
+                    style={{ fontSize: '120px', fontWeight: 700 }}>
+                    {step.step}
+                  </span>
+                  {/* Step connector arrow */}
                   {i < HOW_IT_WORKS.length - 1 && (
-                    <div className="hidden md:block absolute top-12 -right-2 z-10
-                      h-0.5 w-4 bg-[#C66A30]/30" />
+                    <div className="hidden md:block absolute top-12 -right-3 z-10">
+                      <ChevronRight className="h-5 w-5 text-[#C66A30]/40" />
+                    </div>
                   )}
                   <div className="flex items-start gap-4 mb-5">
-                    <div className="h-12 w-12 bg-[#C66A30] rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-[#C66A30]/25">
-                      <Icon className="h-6 w-6 text-white" />
+                    <div className="h-14 w-14 bg-[#C66A30]/15 rounded-2xl flex items-center justify-center shrink-0">
+                      <Icon className="h-7 w-7 text-[#C66A30]" />
                     </div>
-                    <span className="font-serif text-5xl font-bold text-[#C66A30]/15 leading-none mt-1">
-                      {step.step}
-                    </span>
                   </div>
-                  <h3 className="font-bold text-[#1C1410] text-lg mb-2">{step.title}</h3>
-                  <p className="text-[#2A2522]/70 text-sm leading-relaxed">{step.desc}</p>
+                  <h3 className="font-bold text-foreground text-lg mb-2">{step.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
                 </div>
               );
             })}
