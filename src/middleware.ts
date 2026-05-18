@@ -151,7 +151,14 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/portal/bookings', request.url));
       }
 
-      if (pathname.startsWith('/portal/login') && profile) {
+      // Redirect already-logged-in guests away from portal login
+      if (pathname.startsWith('/portal/login') && guestAccount) {
+        return NextResponse.redirect(new URL('/portal/bookings', request.url));
+      }
+
+      // Redirect staff (non-guest) away from portal login — must check !guestAccount
+      // because DB triggers create user_profiles rows for ALL signUps including guests
+      if (pathname.startsWith('/portal/login') && profile && !guestAccount) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
     }
