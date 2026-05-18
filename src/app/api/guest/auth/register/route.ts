@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { RegisterSchema, validateBody, RATE_LIMITS } from '@/lib/validation';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { dbError } from '@/lib/http/validation';
 import { apiError } from '@/lib/http/errors';
 
 export async function POST(request: NextRequest) {
@@ -16,7 +14,7 @@ export async function POST(request: NextRequest) {
   const { email, password, firstName, lastName, phone, marketingConsent } = body;
   if (!email || !password || !firstName)
     return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบ' }, { status: 400 });
-  if (password.length < 8)
+  if (typeof password === 'string' && password.length < 8)
     return NextResponse.json({ error: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร' }, { status: 400 });
 
   const supabase = await createClient();
