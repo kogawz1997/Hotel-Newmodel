@@ -153,7 +153,7 @@ export default function GuestLoginPage() {
         });
         const data = await res.json();
         if (!res.ok) { toast.error(data.error); return; }
-        toast.success('สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยัน');
+        toast.success('สมัครสมาชิกสำเร็จ! เข้าสู่ระบบได้เลย');
         setMode('login');
         return;
       }

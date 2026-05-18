@@ -7,6 +7,7 @@ import { rateLimit } from '@/lib/security/rate-limit';
 import { HOTEL_ROLES } from '@/lib/hotel-roles';
 import { redactPii } from '@/lib/utils/redact';
 import { apiError } from '@/lib/http/errors';
+import { randomUUID } from 'node:crypto';
 
 const schema = z.object({
   email: z.string().email(),
@@ -43,11 +44,16 @@ export async function POST(request: Request) {
 
   if (existingInOrg) return NextResponse.json({ error: 'อีเมลนี้มีในทีมแล้ว' }, { status: 409 });
 
+  // Use a UUID-based internal email so the same real email can be used as
+  // staff across different hotels without conflicting in auth.users.
+  const staffId = randomUUID();
+  const authEmail = `${staffId}@staff.internal`;
   const { data: created, error: createError } = await admin.auth.admin.createUser({
-    email: email.toLowerCase(),
+    id: staffId,
+    email: authEmail,
     password,
     email_confirm: true,
-    user_metadata: { full_name: fullName, owner_created: true },
+    user_metadata: { full_name: fullName, real_email: email.toLowerCase(), owner_created: true },
   });
 
   if (createError || !created.user) {
@@ -56,9 +62,10 @@ export async function POST(request: Request) {
 
   const initialActive = ctx.profile.role === 'owner';
   const { error: profileError } = await admin.from('user_profiles').insert({
-    id: created.user.id,
+    id: staffId,
     organization_id: ctx.profile.organization_id,
     email: email.toLowerCase(),
+    real_email: email.toLowerCase(),
     full_name: fullName,
     role,
     active: initialActive,
