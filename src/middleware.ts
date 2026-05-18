@@ -5,6 +5,14 @@ import { ROUTE_ROLES } from '@/lib/auth/roles';
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
+// Portal pages that don't require a session (auth flow pages)
+const PORTAL_PUBLIC = [
+  '/portal/login',
+  '/portal/forgot-password',
+  '/portal/reset-password',
+  '/portal/auth',
+];
+
 const KNOWN_HOSTNAME_PATTERNS = ['localhost', '127.0.0.1', 'vercel.app', 'vercel.dev'];
 
 function isKnownHost(host: string): boolean {
@@ -26,8 +34,8 @@ export async function middleware(request: NextRequest) {
 
   const portalHost = process.env.NEXT_PUBLIC_PORTAL_HOST;
   const backofficeHost = process.env.NEXT_PUBLIC_BACKOFFICE_HOST;
-  const host = request.nextUrl.hostname; // no port — for domain matching
-  const hostWithPort = request.nextUrl.host; // with port — for redirect comparisons
+  const host = request.nextUrl.hostname;
+  const hostWithPort = request.nextUrl.host;
 
   // ─── Custom domain routing ──────────────────────────────────────────
   if (!isKnownHost(host)) {
@@ -51,8 +59,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Early return for public paths on known hosts — no auth checks needed
-  const protectedPrefixes = ['/dashboard', '/portal/bookings', '/portal/profile', '/portal/wishlist', '/admin', '/auth', '/backoffice', '/portal/login', '/mobile', '/owner'];
+  // Early return for fully public paths — no auth checks needed
+  const protectedPrefixes = [
+    '/portal',   // ALL portal pages (public sub-paths listed in PORTAL_PUBLIC above)
+    '/dashboard', '/admin', '/auth', '/backoffice', '/mobile', '/owner',
+  ];
   if (!protectedPrefixes.some(p => pathname.startsWith(p))) {
     return NextResponse.next();
   }
@@ -78,7 +89,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -98,14 +108,14 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Single profile fetch — reused throughout middleware for all protected routes
+  // Fetch staff profile for all paths that need role checks
   const needsProfile = user && (
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/admin') ||
     pathname.startsWith('/backoffice') ||
     pathname.startsWith('/auth') ||
-    pathname.startsWith('/portal/login') ||
-    pathname.startsWith('/owner')
+    pathname.startsWith('/owner') ||
+    pathname.startsWith('/portal')   // needed to redirect staff away from guest portal
   );
 
   const { data: profile } = needsProfile
@@ -116,9 +126,13 @@ export async function middleware(request: NextRequest) {
         .maybeSingle()
     : { data: null };
 
-
   // ─── Access policy enforcement (session timeout + 2FA baseline) ───
-  if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/backoffice') || (pathname.startsWith('/owner') && !pathname.startsWith('/owner/login')))) {
+  if (user && (
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/backoffice') ||
+    (pathname.startsWith('/owner') && !pathname.startsWith('/owner/login'))
+  )) {
     const role = (profile?.role || 'staff') as keyof typeof ACCESS_POLICIES.sessionTimeoutMinutes;
     const timeoutMin = ACCESS_POLICIES.sessionTimeoutMinutes[role] || ACCESS_POLICIES.sessionTimeoutMinutes.staff;
     const signedAt = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : Date.now();
@@ -138,8 +152,68 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ─── Separate customer portal vs internal backoffice ─────────────
-  if (pathname.startsWith('/backoffice') || pathname.startsWith('/auth') || pathname.startsWith('/portal/login') || pathname.startsWith('/owner/login')) {
+  // ─── Guest portal — complete isolation ─────────────────────────────
+  // All /portal/* routes except PORTAL_PUBLIC require a guest_accounts row.
+  // Staff users are sent back to their own system; no cross-access allowed.
+  if (pathname.startsWith('/portal')) {
+    const isPublicPortalPath = PORTAL_PUBLIC.some(p => pathname.startsWith(p));
+
+    if (!isPublicPortalPath) {
+      // Protected portal page — must have a guest session
+      if (!user) {
+        const url = new URL('/portal/login', request.url);
+        url.searchParams.set('next', pathname);
+        return NextResponse.redirect(url);
+      }
+
+      const { data: guestAccount } = await supabase
+        .from('guest_accounts')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!guestAccount) {
+        // Logged-in but NOT a guest (staff account) — send to staff portal
+        if (profile) {
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+        // Authenticated but no guest_accounts and no profile — force re-login
+        return NextResponse.redirect(new URL('/portal/login', request.url));
+      }
+    } else {
+      // Public portal page (/portal/login etc.) — redirect if already authenticated
+      if (user) {
+        const { data: guestAccount } = await supabase
+          .from('guest_accounts')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (guestAccount) {
+          // Already logged in as guest → guest home
+          return NextResponse.redirect(new URL('/portal/bookings', request.url));
+        }
+        if (profile && !pathname.startsWith('/portal/login')) {
+          // Staff hitting /portal/forgot-password etc. → staff portal
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+        if (profile && pathname.startsWith('/portal/login')) {
+          // Staff hitting /portal/login → redirect to staff portal
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+      }
+    }
+
+    return response;
+  }
+
+  // ─── Staff-facing login pages — block guest users ──────────────────
+  // Guests who land on /backoffice, /auth, or /owner/login are sent home.
+  if (
+    pathname.startsWith('/backoffice') ||
+    pathname.startsWith('/auth') ||
+    pathname.startsWith('/owner/login')
+  ) {
     if (user) {
       const { data: guestAccount } = await supabase
         .from('guest_accounts')
@@ -147,19 +221,8 @@ export async function middleware(request: NextRequest) {
         .eq('id', user.id)
         .maybeSingle();
 
-      if ((pathname.startsWith('/backoffice') || pathname.startsWith('/auth') || pathname.startsWith('/owner/login')) && guestAccount) {
+      if (guestAccount) {
         return NextResponse.redirect(new URL('/portal/bookings', request.url));
-      }
-
-      // Redirect already-logged-in guests away from portal login
-      if (pathname.startsWith('/portal/login') && guestAccount) {
-        return NextResponse.redirect(new URL('/portal/bookings', request.url));
-      }
-
-      // Redirect staff (non-guest) away from portal login — must check !guestAccount
-      // because DB triggers create user_profiles rows for ALL signUps including guests
-      if (pathname.startsWith('/portal/login') && profile && !guestAccount) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
       }
     }
   }
@@ -223,31 +286,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ─── Guest portal (account required pages) ───────────────────────
-  const guestProtected = ['/portal/bookings', '/portal/profile', '/portal/wishlist'];
-  if (guestProtected.some(p => pathname.startsWith(p))) {
-    if (!user) {
-      const redirectUrl = new URL('/portal/login', request.url);
-      redirectUrl.searchParams.set('next', pathname);
-      return NextResponse.redirect(redirectUrl);
-    }
-    // Verify they have a guest_account row
-    const { data: guestAccount } = await supabase
-      .from('guest_accounts')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-    if (!guestAccount) {
-      return NextResponse.redirect(new URL('/portal/login', request.url));
-    }
-  }
-
   return response;
 }
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and static files
     '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)).*)',
   ],
 };
