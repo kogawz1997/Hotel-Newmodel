@@ -170,10 +170,8 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
         <h2 className="font-display font-semibold text-foreground mb-3">ข้อมูลโรงแรม</h2>
         <div className="rounded-2xl border border-border bg-card divide-y divide-border">
-          {hotel.check_in_time && (
-            <InfoRow icon={Clock} label="เวลาเช็คอิน / เช็คเอาท์"
-              value={`${hotel.check_in_time || '14:00'} / ${hotel.check_out_time || '12:00'}`} />
-          )}
+          <InfoRow icon={Clock} label="เวลาเช็คอิน / เช็คเอาท์"
+            value={`${hotel.check_in_time || '14:00'} / ${hotel.check_out_time || '12:00'}`} />
           {hotel.phone && (
             <InfoRow icon={Phone} label="Front Desk" value={hotel.phone}
               href={`tel:${hotel.phone}`} />

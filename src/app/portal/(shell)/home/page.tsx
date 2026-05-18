@@ -14,7 +14,7 @@ export default async function PortalHomePage() {
     admin.from('guest_accounts').select('first_name, email').eq('id', user.id).single(),
     supabase
       .from('hotels')
-      .select('id, name, slug, city, hero_image_url, description, country')
+      .select('id, name, slug, city, hero_image_url, description, country, room_types(base_rate)')
       .limit(20),
     supabase
       .from('reservations')

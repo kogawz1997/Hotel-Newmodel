@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   const { data: reservation } = await supabase
     .from('reservations')
     .select('id, hotel_id, rooms(room_number)')
-    .eq('guest_id', user.id)
+    .eq('guest_account_id', user.id)
     .eq('status', 'checked_in')
     .order('check_in', { ascending: false })
     .limit(1)

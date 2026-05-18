@@ -158,7 +158,7 @@ export function ServicesClient() {
 
         {/* Back button + title overlay */}
         <div className="absolute inset-x-0 top-0 px-4 pt-4 flex items-center gap-3 z-10">
-          <Link href="/portal/bookings"
+          <Link href="/portal/stay"
             className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-black/40 transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </Link>
