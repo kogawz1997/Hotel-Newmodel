@@ -100,43 +100,43 @@ CREATE INDEX IF NOT EXISTS invoices_payment_lookup_idx
 -- This patch makes WITH CHECK explicit so writes cannot cross tenant borders.
 DROP POLICY IF EXISTS "hotel_data_isolation" ON fb_outlets;
 CREATE POLICY "hotel_data_isolation" ON fb_outlets FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "fb_categories_via_outlet" ON fb_menu_categories;
 CREATE POLICY "fb_categories_via_outlet" ON fb_menu_categories FOR ALL
-  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 
 DROP POLICY IF EXISTS "fb_items_via_outlet" ON fb_menu_items;
 CREATE POLICY "fb_items_via_outlet" ON fb_menu_items FOR ALL
-  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON fb_orders;
 CREATE POLICY "hotel_data_isolation" ON fb_orders FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "fb_order_items_via_order" ON fb_order_items;
 CREATE POLICY "fb_order_items_via_order" ON fb_order_items FOR ALL
-  USING (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON spa_services;
 CREATE POLICY "hotel_data_isolation" ON spa_services FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON spa_therapists;
 CREATE POLICY "hotel_data_isolation" ON spa_therapists FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON spa_bookings;
 CREATE POLICY "hotel_data_isolation" ON spa_bookings FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 
 -- ============================================================
@@ -305,38 +305,38 @@ ALTER TABLE ota_sync_logs ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON automation_rules;
 CREATE POLICY "hotel_data_isolation" ON automation_rules FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON automation_runs;
 CREATE POLICY "hotel_data_isolation" ON automation_runs FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON ai_concierge_knowledge;
 CREATE POLICY "hotel_data_isolation" ON ai_concierge_knowledge FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON ai_concierge_logs;
 CREATE POLICY "hotel_data_isolation" ON ai_concierge_logs FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON hotel_localization_settings;
 CREATE POLICY "hotel_data_isolation" ON hotel_localization_settings FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON ota_connections;
 CREATE POLICY "hotel_data_isolation" ON ota_connections FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON ota_sync_logs;
 CREATE POLICY "hotel_data_isolation" ON ota_sync_logs FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 
 -- ============================================================
@@ -412,7 +412,7 @@ CREATE INDEX IF NOT EXISTS ota_sync_queue_hotel_status_created_idx ON ota_sync_q
 CREATE INDEX IF NOT EXISTS ota_sync_queue_pending_idx ON ota_sync_queue(status, created_at ASC) WHERE status IN ('pending', 'processing');
 ALTER TABLE ota_sync_queue ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "hotel_data_isolation" ON ota_sync_queue;
-CREATE POLICY "hotel_data_isolation" ON ota_sync_queue FOR ALL USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())) WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+CREATE POLICY "hotel_data_isolation" ON ota_sync_queue FOR ALL USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())) WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 ALTER TABLE ai_concierge_logs ADD COLUMN IF NOT EXISTS intent TEXT;
 ALTER TABLE ai_concierge_logs ADD COLUMN IF NOT EXISTS metadata JSONB NOT NULL DEFAULT '{}'::jsonb;
 CREATE INDEX IF NOT EXISTS ai_logs_hotel_intent_created_idx ON ai_concierge_logs(hotel_id, intent, created_at DESC);
@@ -584,7 +584,7 @@ ALTER TABLE organizations ADD COLUMN IF NOT EXISTS suspension_reason text;
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS owner_email text;
 ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS is_platform_admin boolean NOT NULL DEFAULT false;
 
-CREATE OR REPLACE FUNCTION auth.is_platform_admin()
+CREATE OR REPLACE FUNCTION public.is_platform_admin()
 RETURNS boolean
 LANGUAGE sql
 STABLE
@@ -645,15 +645,15 @@ ALTER TABLE ota_reservation_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscription_events ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS platform_admin_all ON admin_impersonation_sessions;
-CREATE POLICY platform_admin_all ON admin_impersonation_sessions FOR ALL USING (auth.is_platform_admin()) WITH CHECK (auth.is_platform_admin());
+CREATE POLICY platform_admin_all ON admin_impersonation_sessions FOR ALL USING (public.is_platform_admin()) WITH CHECK (public.is_platform_admin());
 
 DROP POLICY IF EXISTS platform_admin_subscription_events ON subscription_events;
-CREATE POLICY platform_admin_subscription_events ON subscription_events FOR ALL USING (auth.is_platform_admin()) WITH CHECK (auth.is_platform_admin());
+CREATE POLICY platform_admin_subscription_events ON subscription_events FOR ALL USING (public.is_platform_admin()) WITH CHECK (public.is_platform_admin());
 
 DROP POLICY IF EXISTS hotel_data_isolation ON ota_reservation_events;
 CREATE POLICY hotel_data_isolation ON ota_reservation_events FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 
 -- ============================================================
@@ -708,8 +708,8 @@ CREATE INDEX IF NOT EXISTS guest_identity_org_idx ON guest_identity_map(organiza
 ALTER TABLE guest_identity_map ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "guest_identity_org_isolation" ON guest_identity_map;
 CREATE POLICY "guest_identity_org_isolation" ON guest_identity_map
-FOR ALL USING (organization_id = auth.user_organization_id())
-WITH CHECK (organization_id = auth.user_organization_id());
+FOR ALL USING (organization_id = public.user_organization_id())
+WITH CHECK (organization_id = public.user_organization_id());
 
 CREATE OR REPLACE VIEW org_central_revenue_daily AS
 SELECT
@@ -1152,7 +1152,7 @@ CREATE INDEX IF NOT EXISTS user_profiles_dept_prefs_idx         ON user_profiles
 
 -- Concierge: guest service requests
 CREATE TABLE IF NOT EXISTS concierge_requests (
-  id            UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id      UUID        NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
   reservation_id UUID       REFERENCES reservations(id),
   guest_id      UUID        REFERENCES guests(id),
@@ -1177,7 +1177,7 @@ CREATE INDEX IF NOT EXISTS concierge_requests_hotel_status_idx
 
 -- Security: incident log
 CREATE TABLE IF NOT EXISTS security_incidents (
-  id            UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id      UUID        NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
   type          TEXT        NOT NULL DEFAULT 'other',
   -- 'theft', 'disturbance', 'medical', 'fire', 'access', 'damage', 'other'
@@ -1201,7 +1201,7 @@ CREATE INDEX IF NOT EXISTS security_incidents_hotel_status_idx
 
 -- Security: visitor check-in/out log
 CREATE TABLE IF NOT EXISTS visitor_log (
-  id              UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id        UUID        NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
   visitor_name    TEXT        NOT NULL,
   visiting_room   TEXT,

@@ -24,7 +24,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- ============================================
 
 CREATE TABLE organizations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   subscription_plan TEXT DEFAULT 'starter' CHECK (subscription_plan IN ('starter', 'standard', 'pro', 'enterprise')),
@@ -35,7 +35,7 @@ CREATE TABLE organizations (
 );
 
 CREATE TABLE hotels (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE user_profiles (
 -- ============================================
 
 CREATE TABLE room_types (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   name TEXT NOT NULL, -- "ห้องดีลักซ์", "Deluxe", "Suite"
   code TEXT, -- DLX, STD, SUITE
@@ -87,7 +87,7 @@ CREATE TABLE room_types (
 );
 
 CREATE TABLE rooms (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   room_type_id UUID REFERENCES room_types(id),
   room_number TEXT NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE rooms (
 );
 
 CREATE TABLE rate_plans (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   room_type_id UUID REFERENCES room_types(id),
   name TEXT NOT NULL, -- "Standard", "Non-refundable", "Breakfast Included"
@@ -110,7 +110,7 @@ CREATE TABLE rate_plans (
 );
 
 CREATE TABLE rate_calendar (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   room_type_id UUID REFERENCES room_types(id),
   rate_plan_id UUID REFERENCES rate_plans(id),
@@ -129,7 +129,7 @@ CREATE TABLE rate_calendar (
 -- ============================================
 
 CREATE TABLE guests (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   first_name TEXT NOT NULL,
   last_name TEXT,
@@ -153,13 +153,13 @@ CREATE TABLE guests (
 );
 
 CREATE TABLE reservations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   guest_id UUID REFERENCES guests(id),
   room_id UUID REFERENCES rooms(id),
   room_type_id UUID REFERENCES room_types(id),
   rate_plan_id UUID REFERENCES rate_plans(id),
-  reservation_code TEXT UNIQUE NOT NULL DEFAULT 'BK' || UPPER(SUBSTRING(uuid_generate_v4()::TEXT, 1, 8)),
+  reservation_code TEXT UNIQUE NOT NULL DEFAULT 'BK' || UPPER(SUBSTRING(gen_random_uuid()::TEXT, 1, 8)),
   
   check_in DATE NOT NULL,
   check_out DATE NOT NULL,
@@ -211,7 +211,7 @@ CREATE INDEX idx_reservations_status ON reservations(status);
 
 -- Folio (กระดาษคำนวณค่าใช้จ่ายแขก)
 CREATE TABLE folios (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   reservation_id UUID REFERENCES reservations(id) ON DELETE CASCADE,
   hotel_id UUID REFERENCES hotels(id),
   status TEXT DEFAULT 'open' CHECK (status IN ('open', 'closed', 'transferred')),
@@ -223,7 +223,7 @@ CREATE TABLE folios (
 );
 
 CREATE TABLE folio_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   folio_id UUID REFERENCES folios(id) ON DELETE CASCADE,
   type TEXT CHECK (type IN ('room', 'tax', 'fb', 'spa', 'minibar', 'service', 'damage', 'discount', 'payment', 'refund')),
   description TEXT NOT NULL,
@@ -240,7 +240,7 @@ CREATE TABLE folio_items (
 -- ============================================
 
 CREATE TABLE housekeeping_tasks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   room_id UUID REFERENCES rooms(id),
   assigned_to UUID REFERENCES user_profiles(id),
@@ -255,7 +255,7 @@ CREATE TABLE housekeeping_tasks (
 );
 
 CREATE TABLE maintenance_requests (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   room_id UUID REFERENCES rooms(id),
   reported_by UUID REFERENCES user_profiles(id),
@@ -274,7 +274,7 @@ CREATE TABLE maintenance_requests (
 -- ============================================
 
 CREATE TABLE conversations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   guest_id UUID REFERENCES guests(id),
   reservation_id UUID REFERENCES reservations(id),
@@ -312,7 +312,7 @@ CREATE INDEX idx_conversations_status ON conversations(status);
 CREATE INDEX idx_conversations_last_msg ON conversations(last_message_at DESC);
 
 CREATE TABLE messages (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
   
   direction TEXT CHECK (direction IN ('inbound', 'outbound')),
@@ -352,7 +352,7 @@ CREATE INDEX idx_messages_conversation ON messages(conversation_id, created_at D
 
 -- Quick reply templates
 CREATE TABLE message_templates (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   name TEXT NOT NULL, -- "Check-in instructions", "WiFi info"
   category TEXT, -- "pre_arrival", "during_stay", "post_stay"
@@ -368,7 +368,7 @@ CREATE TABLE message_templates (
 -- ============================================
 
 CREATE TABLE channel_connections (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   channel TEXT NOT NULL, -- 'booking_com', 'agoda', 'airbnb', 'expedia'
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'error', 'disabled')),
@@ -382,7 +382,7 @@ CREATE TABLE channel_connections (
 );
 
 CREATE TABLE channel_room_mappings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   channel_connection_id UUID REFERENCES channel_connections(id) ON DELETE CASCADE,
   room_type_id UUID REFERENCES room_types(id),
   rate_plan_id UUID REFERENCES rate_plans(id),
@@ -392,7 +392,7 @@ CREATE TABLE channel_room_mappings (
 );
 
 CREATE TABLE channel_sync_log (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   channel_connection_id UUID REFERENCES channel_connections(id),
   sync_type TEXT, -- 'inventory', 'rate', 'booking_pull', 'booking_push'
   status TEXT,
@@ -407,7 +407,7 @@ CREATE TABLE channel_sync_log (
 -- ============================================
 
 CREATE TABLE payments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   reservation_id UUID REFERENCES reservations(id),
   folio_id UUID REFERENCES folios(id),
@@ -442,7 +442,7 @@ CREATE TABLE payments (
 -- ============================================
 
 CREATE TABLE invoices (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   reservation_id UUID REFERENCES reservations(id),
   guest_id UUID REFERENCES guests(id),
@@ -480,7 +480,7 @@ CREATE TABLE invoices (
 );
 
 CREATE TABLE invoice_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   invoice_id UUID REFERENCES invoices(id) ON DELETE CASCADE,
   description TEXT NOT NULL,
   quantity DECIMAL DEFAULT 1,
@@ -492,7 +492,7 @@ CREATE TABLE invoice_items (
 
 -- ทร.30 (Foreign guest report)
 CREATE TABLE tm30_reports (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   guest_id UUID REFERENCES guests(id),
   reservation_id UUID REFERENCES reservations(id),
@@ -509,7 +509,7 @@ CREATE TABLE tm30_reports (
 
 -- Tax filings (ภพ.30, ภงด.)
 CREATE TABLE tax_filings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   filing_type TEXT CHECK (filing_type IN ('por_por_30', 'por_ngor_dor_1', 'por_ngor_dor_3', 'por_ngor_dor_53', 'por_ngor_dor_50', 'por_ngor_dor_51')),
   period_year INT NOT NULL,
@@ -525,7 +525,7 @@ CREATE TABLE tax_filings (
 
 -- Accounting integration
 CREATE TABLE accounting_sync_log (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   provider TEXT CHECK (provider IN ('peak', 'flowaccount', 'express', 'acccloud', 'xero')),
   entity_type TEXT, -- 'invoice', 'payment', 'expense'
@@ -538,7 +538,7 @@ CREATE TABLE accounting_sync_log (
 
 -- OTA Reconciliation
 CREATE TABLE ota_reconciliations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   reservation_id UUID REFERENCES reservations(id),
   ota_channel TEXT NOT NULL,
@@ -557,7 +557,7 @@ CREATE TABLE ota_reconciliations (
 -- ============================================
 
 CREATE TABLE fb_outlets (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   name TEXT NOT NULL, -- "Main Restaurant", "Pool Bar"
   type TEXT, -- 'restaurant', 'bar', 'room_service', 'banquet'
@@ -565,14 +565,14 @@ CREATE TABLE fb_outlets (
 );
 
 CREATE TABLE fb_menu_categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   outlet_id UUID REFERENCES fb_outlets(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   display_order INT DEFAULT 0
 );
 
 CREATE TABLE fb_menu_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   outlet_id UUID REFERENCES fb_outlets(id) ON DELETE CASCADE,
   category_id UUID REFERENCES fb_menu_categories(id),
   name TEXT NOT NULL,
@@ -586,7 +586,7 @@ CREATE TABLE fb_menu_items (
 );
 
 CREATE TABLE fb_orders (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   outlet_id UUID REFERENCES fb_outlets(id),
   reservation_id UUID REFERENCES reservations(id),
@@ -603,7 +603,7 @@ CREATE TABLE fb_orders (
 );
 
 CREATE TABLE fb_order_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID REFERENCES fb_orders(id) ON DELETE CASCADE,
   menu_item_id UUID REFERENCES fb_menu_items(id),
   quantity INT NOT NULL DEFAULT 1,
@@ -618,7 +618,7 @@ CREATE TABLE fb_order_items (
 -- ============================================
 
 CREATE TABLE spa_services (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT,
@@ -629,7 +629,7 @@ CREATE TABLE spa_services (
 );
 
 CREATE TABLE spa_therapists (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   specialties JSONB DEFAULT '[]',
@@ -637,7 +637,7 @@ CREATE TABLE spa_therapists (
 );
 
 CREATE TABLE spa_bookings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   reservation_id UUID REFERENCES reservations(id),
   guest_id UUID REFERENCES guests(id),
@@ -657,7 +657,7 @@ CREATE TABLE spa_bookings (
 -- ============================================
 
 CREATE TABLE event_spaces (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   capacity INT,
@@ -668,7 +668,7 @@ CREATE TABLE event_spaces (
 );
 
 CREATE TABLE events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   space_id UUID REFERENCES event_spaces(id),
   name TEXT NOT NULL,
@@ -689,7 +689,7 @@ CREATE TABLE events (
 -- ============================================
 
 CREATE TABLE loyalty_tiers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   min_points INT NOT NULL,
@@ -698,7 +698,7 @@ CREATE TABLE loyalty_tiers (
 );
 
 CREATE TABLE loyalty_transactions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   guest_id UUID REFERENCES guests(id),
   reservation_id UUID REFERENCES reservations(id),
@@ -714,7 +714,7 @@ CREATE TABLE loyalty_transactions (
 -- ============================================
 
 CREATE TABLE marketing_campaigns (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   type TEXT, -- 'email', 'sms', 'line_broadcast', 'whatsapp_broadcast'
@@ -729,7 +729,7 @@ CREATE TABLE marketing_campaigns (
 );
 
 CREATE TABLE reviews (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   reservation_id UUID REFERENCES reservations(id),
   guest_id UUID REFERENCES guests(id),
@@ -751,7 +751,7 @@ CREATE TABLE reviews (
 -- ============================================
 
 CREATE TABLE ai_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   task_type TEXT, -- 'translate', 'reply', 'review_response', 'sentiment'
   input_text TEXT,
@@ -765,7 +765,7 @@ CREATE TABLE ai_logs (
 );
 
 CREATE TABLE ai_evaluations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   message_id UUID REFERENCES messages(id),
   rating INT, -- 1-5
@@ -776,7 +776,7 @@ CREATE TABLE ai_evaluations (
 
 -- Knowledge base for RAG
 CREATE TABLE knowledge_base (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
   category TEXT, -- 'faq', 'policy', 'amenity', 'local_info'
   title TEXT NOT NULL,
@@ -791,7 +791,7 @@ CREATE TABLE knowledge_base (
 -- ============================================
 
 CREATE TABLE audit_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id),
   user_id UUID REFERENCES user_profiles(id),
   action TEXT NOT NULL,
@@ -823,33 +823,33 @@ ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE housekeeping_tasks ENABLE ROW LEVEL SECURITY;
 
 -- Helper function: get user's organization
-CREATE OR REPLACE FUNCTION auth.user_organization_id()
+CREATE OR REPLACE FUNCTION public.user_organization_id()
 RETURNS UUID AS $$
   SELECT organization_id FROM user_profiles WHERE id = auth.uid();
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- Generic RLS policy: data accessible only by users in same org
 CREATE POLICY "org_isolation_select" ON hotels FOR SELECT
-  USING (organization_id = auth.user_organization_id());
+  USING (organization_id = public.user_organization_id());
 CREATE POLICY "org_isolation_insert" ON hotels FOR INSERT
-  WITH CHECK (organization_id = auth.user_organization_id());
+  WITH CHECK (organization_id = public.user_organization_id());
 CREATE POLICY "org_isolation_update" ON hotels FOR UPDATE
-  USING (organization_id = auth.user_organization_id());
+  USING (organization_id = public.user_organization_id());
 
 -- Apply same pattern to all tables (simplified - in production write per-table)
 CREATE POLICY "hotel_data_isolation" ON reservations FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 CREATE POLICY "hotel_data_isolation" ON guests FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 CREATE POLICY "hotel_data_isolation" ON conversations FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 CREATE POLICY "messages_via_conversation" ON messages FOR ALL
   USING (conversation_id IN (
     SELECT id FROM conversations WHERE hotel_id IN (
-      SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()
+      SELECT id FROM hotels WHERE organization_id = public.user_organization_id()
     )
   ));
 
@@ -929,118 +929,118 @@ ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE maintenance_requests ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "profiles_same_org_select" ON user_profiles FOR SELECT
-  USING (organization_id = auth.user_organization_id() OR id = auth.uid());
+  USING (organization_id = public.user_organization_id() OR id = auth.uid());
 CREATE POLICY "profiles_self_update" ON user_profiles FOR UPDATE
   USING (id = auth.uid()) WITH CHECK (id = auth.uid());
 
 CREATE POLICY "organizations_member_select" ON organizations FOR SELECT
-  USING (id = auth.user_organization_id());
+  USING (id = public.user_organization_id());
 CREATE POLICY "organizations_owner_update" ON organizations FOR UPDATE
-  USING (id = auth.user_organization_id() AND EXISTS (
+  USING (id = public.user_organization_id() AND EXISTS (
     SELECT 1 FROM user_profiles WHERE id = auth.uid() AND role IN ('owner','admin')
   ));
 
 CREATE POLICY "hotel_data_isolation" ON rooms FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON room_types FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON rate_plans FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON rate_calendar FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON folios FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "folio_items_via_folio" ON folio_items FOR ALL
-  USING (folio_id IN (SELECT id FROM folios WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (folio_id IN (SELECT id FROM folios WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 CREATE POLICY "hotel_data_isolation" ON invoices FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "invoice_items_via_invoice" ON invoice_items FOR ALL
-  USING (invoice_id IN (SELECT id FROM invoices WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (invoice_id IN (SELECT id FROM invoices WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 CREATE POLICY "hotel_data_isolation" ON payments FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON housekeeping_tasks FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON maintenance_requests FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON message_templates FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON channel_connections FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "channel_mapping_via_connection" ON channel_room_mappings FOR ALL
-  USING (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 CREATE POLICY "channel_log_via_connection" ON channel_sync_log FOR ALL
-  USING (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 CREATE POLICY "hotel_data_isolation" ON tm30_reports FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON tax_filings FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON accounting_sync_log FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 CREATE POLICY "hotel_data_isolation" ON fb_outlets FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "fb_categories_via_outlet" ON fb_menu_categories FOR ALL
-  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 
 CREATE POLICY "hotel_data_isolation" ON fb_menu_items FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON fb_orders FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "fb_order_items_via_order" ON fb_order_items FOR ALL
-  USING (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 CREATE POLICY "hotel_data_isolation" ON spa_services FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 CREATE POLICY "hotel_data_isolation" ON spa_therapists FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 CREATE POLICY "hotel_data_isolation" ON spa_bookings FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 CREATE POLICY "hotel_data_isolation" ON loyalty_tiers FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 CREATE POLICY "hotel_data_isolation" ON loyalty_transactions FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON marketing_campaigns FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON reviews FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON ai_logs FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON ai_evaluations FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON knowledge_base FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 CREATE POLICY "hotel_data_isolation" ON audit_logs FOR SELECT
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 
 -- ============================================================
@@ -1064,46 +1064,46 @@ CREATE INDEX IF NOT EXISTS channel_connections_lookup_idx
   ON channel_connections(channel, external_property_id, status);
 
 ALTER POLICY "hotel_data_isolation" ON reservations
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 ALTER POLICY "hotel_data_isolation" ON guests
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 ALTER POLICY "hotel_data_isolation" ON conversations
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 ALTER POLICY "messages_via_conversation" ON messages
-  USING (conversation_id IN (SELECT id FROM conversations WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (conversation_id IN (SELECT id FROM conversations WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (conversation_id IN (SELECT id FROM conversations WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (conversation_id IN (SELECT id FROM conversations WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 ALTER POLICY "org_isolation_update" ON hotels
-  USING (organization_id = auth.user_organization_id())
-  WITH CHECK (organization_id = auth.user_organization_id());
+  USING (organization_id = public.user_organization_id())
+  WITH CHECK (organization_id = public.user_organization_id());
 ALTER POLICY "organizations_owner_update" ON organizations
-  USING (id = auth.user_organization_id() AND EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND role IN ('owner','admin')))
-  WITH CHECK (id = auth.user_organization_id() AND EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND role IN ('owner','admin')));
+  USING (id = public.user_organization_id() AND EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND role IN ('owner','admin')))
+  WITH CHECK (id = public.user_organization_id() AND EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND role IN ('owner','admin')));
 
 ALTER POLICY "folio_items_via_folio" ON folio_items
-  USING (folio_id IN (SELECT id FROM folios WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (folio_id IN (SELECT id FROM folios WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (folio_id IN (SELECT id FROM folios WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (folio_id IN (SELECT id FROM folios WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 ALTER POLICY "invoice_items_via_invoice" ON invoice_items
-  USING (invoice_id IN (SELECT id FROM invoices WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (invoice_id IN (SELECT id FROM invoices WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (invoice_id IN (SELECT id FROM invoices WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (invoice_id IN (SELECT id FROM invoices WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 ALTER POLICY "channel_mapping_via_connection" ON channel_room_mappings
-  USING (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 ALTER POLICY "channel_log_via_connection" ON channel_sync_log
-  USING (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (channel_connection_id IN (SELECT id FROM channel_connections WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 ALTER POLICY "fb_categories_via_outlet" ON fb_menu_categories
-  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (outlet_id IN (SELECT id FROM fb_outlets WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 ALTER POLICY "fb_order_items_via_order" ON fb_order_items
-  USING (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())))
-  WITH CHECK (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id())));
+  USING (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())))
+  WITH CHECK (order_id IN (SELECT id FROM fb_orders WHERE hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id())));
 
 DROP POLICY IF EXISTS "audit_logs_server_insert" ON audit_logs;
 CREATE POLICY "audit_logs_server_insert" ON audit_logs FOR INSERT
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 
 -- ============================================================
@@ -1500,7 +1500,7 @@ CREATE INDEX IF NOT EXISTS maintenance_requests_hotel_status_idx
 
 -- lightweight privacy request ledger for PDPA operational follow-up
 CREATE TABLE IF NOT EXISTS privacy_requests (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   guest_account_id UUID REFERENCES guest_accounts(id) ON DELETE SET NULL,
   email TEXT NOT NULL,
   request_type TEXT NOT NULL CHECK (request_type IN ('export', 'delete', 'rectify')),
@@ -1542,27 +1542,27 @@ DROP POLICY IF EXISTS "profiles_org_admin_update" ON user_profiles;
 DROP POLICY IF EXISTS "profiles_self_insert" ON user_profiles;
 
 CREATE POLICY "profiles_same_org_select" ON user_profiles FOR SELECT
-  USING (id = auth.uid() OR organization_id = auth.user_organization_id());
+  USING (id = auth.uid() OR organization_id = public.user_organization_id());
 
 CREATE POLICY "profiles_self_update" ON user_profiles FOR UPDATE
   USING (id = auth.uid())
   WITH CHECK (
     id = auth.uid()
-    AND organization_id = auth.user_organization_id()
+    AND organization_id = public.user_organization_id()
   );
 
 CREATE POLICY "profiles_org_admin_update" ON user_profiles FOR UPDATE
   USING (
-    organization_id = auth.user_organization_id()
+    organization_id = public.user_organization_id()
     AND EXISTS (
       SELECT 1 FROM user_profiles p
       WHERE p.id = auth.uid()
-        AND p.organization_id = auth.user_organization_id()
+        AND p.organization_id = public.user_organization_id()
         AND p.role IN ('owner', 'admin')
         AND p.active = true
     )
   )
-  WITH CHECK (organization_id = auth.user_organization_id());
+  WITH CHECK (organization_id = public.user_organization_id());
 
 -- Invited users may create/update their own profile only inside the org embedded in auth metadata.
 CREATE POLICY "profiles_self_insert" ON user_profiles FOR INSERT
@@ -1574,29 +1574,29 @@ CREATE POLICY "profiles_self_insert" ON user_profiles FOR INSERT
 -- Tighten common hotel-data policies so writes cannot hop hotel_id across tenants.
 DROP POLICY IF EXISTS "hotel_data_isolation" ON reservations;
 CREATE POLICY "hotel_data_isolation" ON reservations FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON guests;
 CREATE POLICY "hotel_data_isolation" ON guests FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "hotel_data_isolation" ON conversations;
 CREATE POLICY "hotel_data_isolation" ON conversations FOR ALL
-  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()))
-  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()));
+  USING (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()))
+  WITH CHECK (hotel_id IN (SELECT id FROM hotels WHERE organization_id = public.user_organization_id()));
 
 DROP POLICY IF EXISTS "messages_via_conversation" ON messages;
 CREATE POLICY "messages_via_conversation" ON messages FOR ALL
   USING (conversation_id IN (
     SELECT id FROM conversations WHERE hotel_id IN (
-      SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()
+      SELECT id FROM hotels WHERE organization_id = public.user_organization_id()
     )
   ))
   WITH CHECK (conversation_id IN (
     SELECT id FROM conversations WHERE hotel_id IN (
-      SELECT id FROM hotels WHERE organization_id = auth.user_organization_id()
+      SELECT id FROM hotels WHERE organization_id = public.user_organization_id()
     )
   ));
 
@@ -1814,17 +1814,17 @@ CREATE INDEX IF NOT EXISTS idx_revenue_targets_hotel ON revenue_targets(hotel_id
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT, ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT, ADD COLUMN IF NOT EXISTS billing_email TEXT, ADD COLUMN IF NOT EXISTS suspended_at TIMESTAMPTZ, ADD COLUMN IF NOT EXISTS suspension_reason TEXT, ADD COLUMN IF NOT EXISTS billing_metadata JSONB DEFAULT '{}';
 CREATE UNIQUE INDEX IF NOT EXISTS organizations_stripe_customer_unique ON organizations(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS organizations_stripe_subscription_unique ON organizations(stripe_subscription_id) WHERE stripe_subscription_id IS NOT NULL;
-CREATE TABLE IF NOT EXISTS subscription_events (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE, provider TEXT NOT NULL DEFAULT 'stripe', provider_event_id TEXT UNIQUE, event_type TEXT NOT NULL, status TEXT, payload JSONB DEFAULT '{}', created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS subscription_events (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE, provider TEXT NOT NULL DEFAULT 'stripe', provider_event_id TEXT UNIQUE, event_type TEXT NOT NULL, status TEXT, payload JSONB DEFAULT '{}', created_at TIMESTAMPTZ DEFAULT NOW());
 ALTER TABLE subscription_events ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS subscription_events_same_org_select ON subscription_events;
-CREATE POLICY subscription_events_same_org_select ON subscription_events FOR SELECT USING (organization_id = auth.user_organization_id());
+CREATE POLICY subscription_events_same_org_select ON subscription_events FOR SELECT USING (organization_id = public.user_organization_id());
 CREATE INDEX IF NOT EXISTS subscription_events_org_created_idx ON subscription_events(organization_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS audit_logs_hotel_created_idx ON audit_logs(hotel_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS audit_logs_entity_idx ON audit_logs(entity_type, entity_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS payments_gateway_tx_status_idx ON payments(gateway, gateway_transaction_id, status) WHERE gateway_transaction_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS invoices_hotel_issue_date_idx ON invoices(hotel_id, issue_date DESC);
 CREATE INDEX IF NOT EXISTS privacy_requests_email_created_idx ON privacy_requests(lower(email), created_at DESC);
-CREATE TABLE IF NOT EXISTS backup_runs (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), provider TEXT NOT NULL DEFAULT 'supabase', status TEXT NOT NULL CHECK (status IN ('started','completed','failed')), backup_url TEXT, checksum TEXT, size_bytes BIGINT, error TEXT, started_at TIMESTAMPTZ DEFAULT NOW(), finished_at TIMESTAMPTZ);
+CREATE TABLE IF NOT EXISTS backup_runs (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), provider TEXT NOT NULL DEFAULT 'supabase', status TEXT NOT NULL CHECK (status IN ('started','completed','failed')), backup_url TEXT, checksum TEXT, size_bytes BIGINT, error TEXT, started_at TIMESTAMPTZ DEFAULT NOW(), finished_at TIMESTAMPTZ);
 ALTER TABLE backup_runs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS backup_runs_owner_admin_select ON backup_runs;
 CREATE POLICY backup_runs_owner_admin_select ON backup_runs FOR SELECT USING (EXISTS (SELECT 1 FROM user_profiles p WHERE p.id = auth.uid() AND p.role IN ('owner','admin') AND p.active = true));
@@ -1835,7 +1835,7 @@ CREATE INDEX IF NOT EXISTS backup_runs_status_started_idx ON backup_runs(status,
 
 -- Review Requests table for post-stay review solicitation
 CREATE TABLE IF NOT EXISTS review_requests (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id      UUID REFERENCES hotels(id) ON DELETE CASCADE,
   reservation_id UUID REFERENCES reservations(id) ON DELETE SET NULL,
   guest_id      UUID REFERENCES guests(id) ON DELETE SET NULL,
