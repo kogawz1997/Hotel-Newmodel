@@ -3,14 +3,18 @@
 
 ALTER TABLE guest_accounts ENABLE ROW LEVEL SECURITY;
 
+-- Drop first so this script is safe to re-run
+DROP POLICY IF EXISTS "guests_select_own" ON guest_accounts;
+DROP POLICY IF EXISTS "guests_update_own" ON guest_accounts;
+
 -- Guests can read their own account
-CREATE POLICY IF NOT EXISTS "guests_select_own"
+CREATE POLICY "guests_select_own"
   ON guest_accounts FOR SELECT
   TO authenticated
   USING (auth.uid() = id);
 
 -- Guests can update their own account (profile page)
-CREATE POLICY IF NOT EXISTS "guests_update_own"
+CREATE POLICY "guests_update_own"
   ON guest_accounts FOR UPDATE
   TO authenticated
   USING (auth.uid() = id)
