@@ -158,12 +158,21 @@ export default function GuestLoginPage() {
         return;
       }
 
-      const res = await fetch('/api/guest/auth/login', {
+      // Step 1: resolve the internal auth email from the guest's real email
+      const resolveRes = await fetch('/api/guest/auth/resolve-email', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password }),
+        body: JSON.stringify({ email: form.email }),
       });
-      const data = await res.json();
-      if (!res.ok) { toast.error(data.error); return; }
+      if (!resolveRes.ok) { toast.error('ไม่สามารถเชื่อมต่อระบบได้'); return; }
+      const { authEmail } = await resolveRes.json();
+
+      // Step 2: sign in client-side so the browser Supabase client manages the session cookie
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: authEmail,
+        password: form.password,
+      });
+      if (signInError) { toast.error('อีเมลหรือรหัสผ่านไม่ถูกต้อง'); return; }
       router.push(next);
       router.refresh();
     } catch {
