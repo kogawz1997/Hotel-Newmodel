@@ -71,10 +71,7 @@ export default function GuestHomePage() {
       <section className="relative min-h-screen flex items-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0">
-          <video autoPlay muted loop playsInline poster={IMAGES.heroLobby}
-            className="w-full h-full object-cover">
-            <source src="/hero-video.mp4" type="video/mp4" />
-          </video>
+          <Image src={IMAGES.heroLobby} alt="" fill className="object-cover" priority />
           {/* Strong layered gradient for readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0D0A08]/85 via-[#0D0A08]/60 to-[#0D0A08]/30" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0D0A08]/70 via-transparent to-[#0D0A08]/40" />
