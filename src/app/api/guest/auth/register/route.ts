@@ -9,7 +9,11 @@ export async function POST(request: NextRequest) {
   const limited = await rateLimit(request, 'guest.auth.register', 10, 60_000);
   if (limited) return limited;
 
-  const { email, password, firstName, lastName, phone, marketingConsent } = await request.json();
+  const body = await request.json() as {
+    email: string; password: string; firstName: string;
+    lastName?: string; phone?: string; marketingConsent?: boolean;
+  };
+  const { email, password, firstName, lastName, phone, marketingConsent } = body;
   if (!email || !password || !firstName)
     return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบ' }, { status: 400 });
   if (password.length < 8)
@@ -35,6 +39,6 @@ export async function POST(request: NextRequest) {
     first_name: firstName, last_name: lastName || null,
     phone: phone || null, marketing_consent: marketingConsent || false,
   }, { onConflict: 'id' });
-  if (error) return NextResponse.json({ error: dbError(error) }, { status: 500 });
+  if (error) return dbError(error);
   return NextResponse.json({ success: true });
 }
