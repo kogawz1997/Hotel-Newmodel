@@ -59,7 +59,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
                       </div>
                     )}
                     <button onClick={() => remove(item.id)}
-                      className="absolute top-3 right-3 h-8 w-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-50 transition-colors">
+                      className="absolute top-3 right-3 h-8 w-8 bg-card/90 rounded-full flex items-center justify-center shadow-sm hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
                       <Heart className="h-4 w-4 text-red-500 fill-red-500" />
                     </button>
                   </div>
