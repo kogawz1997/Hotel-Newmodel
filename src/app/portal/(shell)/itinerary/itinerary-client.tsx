@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 type ItineraryItem = { id: string; date: string; time?: string; title: string; category: string; location?: string; notes?: string; confirmed: boolean };
-type Reservation = { id: string; check_in: string; check_out: string; guest_name: string; rooms: { room_number: string } | null };
+type Reservation = { id: string; check_in: string; check_out: string; guest_name?: string; rooms: { room_number: string } | null };
 
 const CATEGORIES = [
   { key: 'hotel', label: 'โรงแรม', icon: Star, color: 'bg-violet-100 text-violet-700' },
@@ -79,7 +79,7 @@ export function ItineraryClient({ reservation, items: initItems }: { reservation
       <Card>
         <CardContent className="p-4 flex items-center justify-between">
           <div>
-            <p className="font-medium">{reservation.guest_name}</p>
+            {reservation.guest_name && <p className="font-medium">{reservation.guest_name}</p>}
             <p className="text-xs text-muted-foreground">
               {new Date(reservation.check_in).toLocaleDateString('th-TH', { dateStyle: 'medium' })} – {new Date(reservation.check_out).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
               {reservation.rooms?.room_number && ` · ห้อง ${reservation.rooms.room_number}`}

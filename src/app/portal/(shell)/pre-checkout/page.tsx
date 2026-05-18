@@ -64,7 +64,7 @@ export default async function PreCheckoutPage() {
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-24">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/portal/bookings" className="p-2 rounded-lg hover:bg-muted transition-colors" aria-label="กลับ">
+        <Link href="/portal/stay" className="p-2 rounded-lg hover:bg-muted transition-colors" aria-label="กลับ">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
@@ -123,7 +123,7 @@ export default async function PreCheckoutPage() {
         </Link>
         {outstanding === 0 && (
           <Link
-            href="/portal/bookings"
+            href="/portal/trips"
             className="flex-1 text-center rounded-xl bg-primary text-primary-foreground py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
           >
             ดูการจองทั้งหมด

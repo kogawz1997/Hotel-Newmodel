@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { Gift, Copy, Check, ChevronRight, Users, Tag, ArrowLeft, Share2 } from 'lucide-react';
+import { Gift, Copy, Check, Users, Tag, ArrowLeft, Share2, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 type ReferralItem = {
   id: string;
@@ -14,17 +15,23 @@ type ReferralItem = {
   uses_count?: number;
   max_uses?: number;
   expires_at?: string | null;
-  is_active?: boolean;
+  active?: boolean;
 };
 
 const HOW_IT_WORKS = [
-  { step: '1', icon: Share2, title: 'แชร์โค้ดของคุณ', desc: 'ส่งโค้ดให้เพื่อนหรือครอบครัวที่กำลังมองหาที่พัก' },
-  { step: '2', icon: Tag,    title: 'เพื่อนใช้โค้ด',   desc: 'เพื่อนใช้โค้ดตอนจองที่พักผ่าน Maitri ได้รับส่วนลดทันที' },
-  { step: '3', icon: Gift,   title: 'รับรางวัล',       desc: 'คุณได้รับ Maitri Points สะสมแต้มเป็นของขวัญ' },
+  { step: '1', icon: Share2, title: 'แชร์โค้ดของคุณ', desc: 'ส่งโค้ดให้เพื่อนหรือครอบครัวที่กำลังมองหาที่พัก', bg: 'bg-sky-500/10', color: 'text-sky-600 dark:text-sky-400' },
+  { step: '2', icon: Tag,    title: 'เพื่อนใช้โค้ด',   desc: 'เพื่อนใช้โค้ดตอนจองที่พักผ่าน Maitri ได้รับส่วนลดทันที', bg: 'bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-400' },
+  { step: '3', icon: Gift,   title: 'รับรางวัล',       desc: 'คุณได้รับ Maitri Points สะสมแต้มเป็นของขวัญ', bg: 'bg-amber-500/10', color: 'text-amber-700 dark:text-amber-400' },
 ];
 
+const ease = [0.25, 0.46, 0.45, 0.94] as const;
+const v = {
+  hidden: { opacity: 0, y: 12 },
+  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.35, ease } }),
+};
+
 export default function PortalReferralsPage() {
-  const [items, setItems]   = useState<ReferralItem[]>([]);
+  const [items, setItems]     = useState<ReferralItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyCode, setApplyCode] = useState('');
   const [applying, setApplying]   = useState(false);
@@ -77,54 +84,66 @@ export default function PortalReferralsPage() {
   useEffect(() => { load(); }, []);
 
   return (
-    <>
-      <nav className="bg-card border-b border-border">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted">
+    <div className="min-h-screen bg-background">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+        <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
+          <Link href="/portal/account"
+            className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <span className="font-medium text-foreground">แนะนำเพื่อน</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-bold text-foreground">แนะนำเพื่อน</p>
+          </div>
+          <Gift className="h-4 w-4 text-muted-foreground/40" />
         </div>
-      </nav>
+      </div>
 
-      <div className="py-8 space-y-5">
+      <div className="px-4 py-5 pb-24 max-w-screen-sm mx-auto space-y-4">
 
-        {/* Hero banner */}
-        <div className="bg-foreground rounded-2xl p-6 text-center">
-          <div className="text-4xl mb-3">🎁</div>
-          <h1 className="text-white font-bold text-xl mb-1">แนะนำเพื่อน รับรางวัล</h1>
-          <p className="text-white/50 text-sm">แชร์โค้ดของคุณ เพื่อนได้ส่วนลด 10% คุณได้ Maitri Points</p>
-        </div>
+        {/* Hero */}
+        <motion.div custom={0} variants={v} initial="hidden" animate="show">
+          <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 text-center relative">
+            <div className="absolute top-0 right-0 translate-x-4 -translate-y-4 h-32 w-32 rounded-full bg-white/10" />
+            <div className="absolute bottom-0 left-4 translate-y-6 h-20 w-20 rounded-full bg-white/8" />
+            <div className="relative">
+              <div className="text-4xl mb-3">🎁</div>
+              <h1 className="font-display font-bold text-white text-xl mb-1">แนะนำเพื่อน รับรางวัล</h1>
+              <p className="text-white/70 text-sm">แชร์โค้ดของคุณ เพื่อนได้ส่วนลด 10% คุณได้ Maitri Points</p>
+            </div>
+          </div>
+        </motion.div>
 
         {/* How it works */}
-        <div className="bg-card rounded-2xl border border-border p-5">
-          <h2 className="font-bold text-foreground mb-4">วิธีการ</h2>
-          <div className="space-y-4">
-            {HOW_IT_WORKS.map(s => {
+        <motion.div custom={1} variants={v} initial="hidden" animate="show">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">วิธีการ</p>
+          <div className="bg-card rounded-2xl border border-border/60 overflow-hidden shadow-sm divide-y divide-border/30">
+            {HOW_IT_WORKS.map((s, i) => {
               const Icon = s.icon;
               return (
-                <div key={s.step} className="flex items-start gap-4">
-                  <div className="h-9 w-9 rounded-full bg-[#C66A30] text-white flex items-center justify-center text-sm font-bold shrink-0">
-                    {s.step}
+                <div key={s.step} className="flex items-center gap-4 px-4 py-3.5">
+                  <div className={`h-9 w-9 rounded-xl ${s.bg} flex items-center justify-center shrink-0`}>
+                    <Icon className={`h-4 w-4 ${s.color}`} strokeWidth={1.8} />
                   </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">{s.title}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{s.title}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
                   </div>
+                  <span className="text-xs font-bold text-muted-foreground/40">0{s.step}</span>
                 </div>
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* My codes */}
-        <div className="bg-card rounded-2xl border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-foreground">โค้ดของฉัน</h2>
+        <motion.div custom={2} variants={v} initial="hidden" animate="show">
+          <div className="flex items-center justify-between px-1 mb-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">โค้ดของฉัน</p>
             <button
               onClick={createCode}
               disabled={creating}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C66A30] hover:bg-[#A4522A] text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 dark:bg-amber-500 hover:opacity-90 text-white text-xs font-bold rounded-lg transition-opacity disabled:opacity-50"
             >
               <Gift className="h-3.5 w-3.5" />
               {creating ? 'กำลังสร้าง...' : 'สร้างโค้ดใหม่'}
@@ -133,18 +152,18 @@ export default function PortalReferralsPage() {
 
           {loading ? (
             <div className="space-y-2">
-              {[1, 2].map(i => <div key={i} className="h-16 bg-muted/50 rounded-xl animate-pulse" />)}
+              {[1, 2].map(i => <div key={i} className="h-20 bg-muted/40 rounded-2xl animate-pulse" />)}
             </div>
           ) : items.length === 0 ? (
-            <div className="text-center py-8">
-              <Gift className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">ยังไม่มีโค้ด กดสร้างโค้ดเพื่อเริ่มแนะนำเพื่อน</p>
+            <div className="bg-card rounded-2xl border border-border/60 p-8 text-center shadow-sm">
+              <Gift className="h-10 w-10 text-muted-foreground/20 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">ยังไม่มีโค้ด กดสร้างเพื่อเริ่มแนะนำเพื่อน</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {items.map(item => (
-                <div key={item.id} className="border border-border rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-2">
+                <div key={item.id} className="bg-card border border-border/60 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-bold text-lg text-foreground tracking-wider">{item.code}</span>
                       <button
@@ -156,11 +175,11 @@ export default function PortalReferralsPage() {
                           : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
                       </button>
                     </div>
-                    <span className="text-sm font-bold text-[#C66A30]">
+                    <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
                       {item.reward_value}{item.reward_type === 'percent' ? '%' : ' บาท'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Users className="h-3 w-3" />
                       ใช้แล้ว {item.uses_count ?? 0}{item.max_uses ? `/${item.max_uses}` : ''} ครั้ง
@@ -169,45 +188,50 @@ export default function PortalReferralsPage() {
                       <span>หมดอายุ {new Date(item.expires_at).toLocaleDateString('th-TH')}</span>
                     )}
                     <span className={cn(
-                      'px-2 py-0.5 rounded-full font-medium',
-                      item.is_active !== false ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400',
+                      'ml-auto px-2 py-0.5 rounded-full text-[10px] font-semibold',
+                      item.active !== false
+                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-muted text-muted-foreground',
                     )}>
-                      {item.is_active !== false ? 'ใช้งานได้' : 'หมดอายุ'}
+                      {item.active !== false ? 'ใช้งานได้' : 'หมดอายุ'}
                     </span>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Apply a referral code */}
-        <div className="bg-card rounded-2xl border border-border p-5">
-          <h2 className="font-bold text-foreground mb-1">มีโค้ดจากเพื่อน?</h2>
-          <p className="text-xs text-muted-foreground mb-4">ใส่โค้ดเพื่อรับส่วนลดครั้งแรก</p>
-          <div className="flex gap-2">
-            <input
-              value={applyCode}
-              onChange={e => setApplyCode(e.target.value.toUpperCase())}
-              onKeyDown={e => e.key === 'Enter' && applyReferral()}
-              placeholder="MTR-XXXXXX"
-              className="flex-1 px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30"
-            />
-            <button
-              onClick={applyReferral}
-              disabled={applying || !applyCode.trim()}
-              className="px-4 py-2.5 bg-foreground hover:bg-foreground/90 text-background rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
-            >
-              {applying ? 'กำลังใช้...' : 'ใช้โค้ด'}
-            </button>
+        <motion.div custom={3} variants={v} initial="hidden" animate="show">
+          <div className="bg-card rounded-2xl border border-border/60 p-5 shadow-sm">
+            <h2 className="font-display font-bold text-foreground mb-1">มีโค้ดจากเพื่อน?</h2>
+            <p className="text-xs text-muted-foreground mb-4">ใส่โค้ดเพื่อรับส่วนลดครั้งแรก</p>
+            <div className="flex gap-2">
+              <input
+                value={applyCode}
+                onChange={e => setApplyCode(e.target.value.toUpperCase())}
+                onKeyDown={e => e.key === 'Enter' && applyReferral()}
+                placeholder="MTR-XXXXXX"
+                className="flex-1 px-3 py-2.5 bg-background border border-input rounded-xl text-sm font-mono
+                  focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 transition-all"
+              />
+              <button
+                onClick={applyReferral}
+                disabled={applying || !applyCode.trim()}
+                className="px-4 py-2.5 bg-foreground hover:opacity-90 text-background rounded-xl text-sm font-bold transition-opacity disabled:opacity-50"
+              >
+                {applying ? 'กำลังใช้...' : 'ใช้โค้ด'}
+              </button>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Terms */}
-        <p className="text-center text-xs text-muted-foreground/60 px-4">
+        <p className="text-center text-[10px] text-muted-foreground/50 px-4 pb-2">
           เงื่อนไข: โค้ดใช้ได้สำหรับการจองแรก · ไม่สามารถใช้ร่วมกับโปรโมชั่นอื่น · Maitri ขอสงวนสิทธิ์เปลี่ยนแปลงเงื่อนไข
         </p>
       </div>
-    </>
+    </div>
   );
 }
