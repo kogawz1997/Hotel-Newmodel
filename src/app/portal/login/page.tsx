@@ -88,6 +88,7 @@ export default function GuestLoginPage() {
   const [next, setNext] = useState('/portal/home');
   const [mode, setMode] = useState<Mode>('login');
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [socialLoading, setSocialLoading] = useState<OAuthProvider | null>(null);
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -173,6 +174,8 @@ export default function GuestLoginPage() {
         password: form.password,
       });
       if (signInError) { toast.error('อีเมลหรือรหัสผ่านไม่ถูกต้อง'); return; }
+      toast.success('เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับ 🎉');
+      setRedirecting(true);
       router.push(next);
       router.refresh();
     } catch {
@@ -433,7 +436,9 @@ export default function GuestLoginPage() {
                         className="btn-gold w-full mt-1"
                         whileTap={{ scale: 0.98 }}
                       >
-                        {loading
+                        {redirecting
+                          ? <><CheckCircle className="h-4 w-4 mr-2 text-emerald-300" />กำลังนำคุณไปหน้าหลัก...</>
+                          : loading
                           ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />กำลังดำเนินการ...</>
                           : <>{mode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'} <ArrowRight className="h-4 w-4 ml-1.5" /></>}
                       </motion.button>
