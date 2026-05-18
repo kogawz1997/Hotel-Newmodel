@@ -1,0 +1,2180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ORGANIZATION & MULTI-TENANCY ────────────────────────────────────────────
+
+model Organization {
+  id                   String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  name                 String    @db.NVarChar(255)
+  slug                 String    @unique @db.NVarChar(100)
+  subscriptionPlan     String    @default("starter") @map("subscription_plan") @db.NVarChar(50)
+  subscriptionStatus   String    @default("trial") @map("subscription_status") @db.NVarChar(50)
+  trialEndsAt          DateTime? @map("trial_ends_at")
+  stripeCustomerId     String?   @unique @map("stripe_customer_id") @db.NVarChar(255)
+  stripeSubscriptionId String?   @unique @map("stripe_subscription_id") @db.NVarChar(255)
+  billingEmail         String?   @map("billing_email") @db.NVarChar(255)
+  billingMetadata      Json?     @map("billing_metadata")
+  suspendedAt          DateTime? @map("suspended_at")
+  suspensionReason     String?   @map("suspension_reason") @db.NVarChar(Max)
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  hotels               Hotel[]
+  userProfiles         UserProfile[]
+  loyaltyProgram       LoyaltyProgram?
+  loyaltyMembers       LoyaltyMember[]
+  subscriptionEvents   SubscriptionEvent[]
+  billingSubscription  BillingSubscription?
+  billingInvoices      BillingInvoice[]
+  billingCredits       BillingCredit[]
+  platformAddons       PlatformAddon[]
+  platformAuditLogs    PlatformAuditLog[]
+
+  @@map("organizations")
+}
+
+model Hotel {
+  id               String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  organizationId   String   @map("organization_id") @db.UniqueIdentifier
+  name             String   @db.NVarChar(255)
+  slug             String   @unique @db.NVarChar(100)
+  type             String?  @db.NVarChar(50)
+  address          String?  @db.NVarChar(Max)
+  city             String?  @db.NVarChar(100)
+  country          String   @default("Thailand") @db.NVarChar(100)
+  timezone         String   @default("Asia/Bangkok") @db.NVarChar(50)
+  currency         String   @default("THB") @db.NVarChar(10)
+  phone            String?  @db.NVarChar(40)
+  email            String?  @db.NVarChar(255)
+  website          String?  @db.NVarChar(255)
+  checkInTime      String   @default("14:00") @map("check_in_time") @db.NVarChar(10)
+  checkOutTime     String   @default("12:00") @map("check_out_time") @db.NVarChar(10)
+  taxId            String?  @map("tax_id") @db.NVarChar(20)
+  vatRate          Decimal  @default(0.07) @map("vat_rate") @db.Decimal(5, 4)
+  logoUrl          String?  @map("logo_url") @db.NVarChar(Max)
+  heroImageUrl     String?  @map("hero_image_url") @db.NVarChar(Max)
+  tagline          String?  @db.NVarChar(500)
+  latitude         Decimal? @db.Decimal(10, 7)
+  longitude        Decimal? @db.Decimal(10, 7)
+  starRating       Int      @default(3) @map("star_rating")
+  totalRooms       Int      @default(0) @map("total_rooms")
+  description      String?  @db.NVarChar(Max)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  organization              Organization               @relation(fields: [organizationId], references: [id])
+  roomTypes                 RoomType[]
+  rooms                     Room[]
+  ratePlans                 RatePlan[]
+  rateCalendars             RateCalendar[]
+  guests                    Guest[]
+  reservations              Reservation[]
+  folios                    Folio[]
+  housekeepingTasks         HousekeepingTask[]
+  maintenanceRequests       MaintenanceRequest[]
+  workOrders                WorkOrder[]
+  conversations             Conversation[]
+  messageTemplates          MessageTemplate[]
+  channelConnections        ChannelConnection[]
+  payments                  Payment[]
+  invoices                  Invoice[]
+  tm30Reports               Tm30Report[]
+  taxFilings                TaxFiling[]
+  accountingSyncLogs        AccountingSyncLog[]
+  otaReconciliations        OtaReconciliation[]
+  fbOutlets                 FbOutlet[]
+  fbOrders                  FbOrder[]
+  spaServices               SpaService[]
+  spaTherapists             SpaTherapist[]
+  spaBookings               SpaBooking[]
+  eventSpaces               EventSpace[]
+  events                    Event[]
+  loyaltyTiers              LoyaltyTier[]
+  loyaltyTransactions       LoyaltyTransaction[]
+  marketingCampaigns        MarketingCampaign[]
+  reviews                   Review[]
+  bookingReviews            BookingReview[]
+  aiLogs                    AiLog[]
+  aiEvaluations             AiEvaluation[]
+  knowledgeBases            KnowledgeBase[]
+  auditLogs                 AuditLog[]
+  hotelGallery              HotelGallery[]
+  groupBookings             GroupBooking[]
+  mobileKeys                MobileKey[]
+  iotDevices                IotDevice[]
+  distributionChannels      DistributionChannel[]
+  revenueTargets            RevenueTarget[]
+  operationalEvents         OperationalEvent[]
+  automationRules           AutomationRule[]
+  automationRuns            AutomationRun[]
+  aiConciergeKnowledge      AiConciergeKnowledge[]
+  aiConciergeLogs           AiConciergeLog[]
+  localizationSettings      HotelLocalizationSettings?
+  otaConnections            OtaConnection[]
+  otaSyncLogs               OtaSyncLog[]
+  goLiveChecks              GoLiveCheck[]
+  platformAuditLogs         PlatformAuditLog[]
+  approvals                 Approval[]
+  departmentSlaRules        DepartmentSlaRule[]
+  guestRequestRoutes        GuestRequestRoute[]
+  roomStatusEvents          RoomStatusEvent[]
+  workflowTemplates         WorkflowTemplate[]
+  shifts                    Shift[]
+  shiftHandovers            ShiftHandover[]
+  staffNotifications        StaffNotification[]
+  crmSegmentDefinitions     CrmSegmentDefinition[]
+  conversationRoutingRules  ConversationRoutingRule[]
+  operationalIncidents      OperationalIncident[]
+  emailLogs                 EmailLog[]
+  promoCodes                PromoCode[]
+  webhookEvents             WebhookEvent[]
+  reviewRequests            ReviewRequest[]
+  userAdditionalRoles       UserAdditionalRole[]
+
+  @@index([organizationId])
+  @@map("hotels")
+}
+
+model UserProfile {
+  id                  String    @id @db.UniqueIdentifier
+  organizationId      String?   @map("organization_id") @db.UniqueIdentifier
+  email               String    @db.NVarChar(255)
+  fullName            String?   @map("full_name") @db.NVarChar(255)
+  role                String    @default("staff") @db.NVarChar(50)
+  language            String    @default("th") @db.NVarChar(10)
+  phone               String?   @db.NVarChar(40)
+  active              Boolean   @default(true)
+  onboardingCompleted Boolean   @default(false) @map("onboarding_completed")
+  lastLoginAt         DateTime? @map("last_login_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  organization        Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("user_profiles")
+}
+
+// ─── ROOM MANAGEMENT ─────────────────────────────────────────────────────────
+
+model RoomType {
+  id            String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId       String   @map("hotel_id") @db.UniqueIdentifier
+  name          String   @db.NVarChar(160)
+  code          String?  @db.NVarChar(20)
+  description   String?  @db.NVarChar(Max)
+  maxOccupancy  Int      @default(2) @map("max_occupancy")
+  baseRate      Decimal  @map("base_rate") @db.Decimal(12, 2)
+  amenities     Json     @default("[]")
+  sizeSqm       Int?     @map("size_sqm")
+  bedType       String?  @map("bed_type") @db.NVarChar(50)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  hotel              Hotel               @relation(fields: [hotelId], references: [id])
+  rooms              Room[]
+  ratePlans          RatePlan[]
+  rateCalendars      RateCalendar[]
+  reservations       Reservation[]
+  channelRoomMappings ChannelRoomMapping[]
+  roomTypeImages     RoomTypeImage[]
+  guestWishlists     GuestWishlist[]
+
+  @@index([hotelId])
+  @@map("room_types")
+}
+
+model Room {
+  id           String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId      String   @map("hotel_id") @db.UniqueIdentifier
+  roomTypeId   String?  @map("room_type_id") @db.UniqueIdentifier
+  roomNumber   String   @map("room_number") @db.NVarChar(20)
+  floor        Int?
+  status       String   @default("available") @db.NVarChar(20)
+  notes        String?  @db.NVarChar(Max)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  hotel               Hotel                @relation(fields: [hotelId], references: [id])
+  roomType            RoomType?            @relation(fields: [roomTypeId], references: [id])
+  reservations        Reservation[]
+  housekeepingTasks   HousekeepingTask[]
+  maintenanceRequests MaintenanceRequest[]
+  workOrders          WorkOrder[]
+  mobileKeys          MobileKey[]
+  iotDevices          IotDevice[]
+  roomStatusEvents    RoomStatusEvent[]
+  operationalIncidents OperationalIncident[]
+
+  @@unique([hotelId, roomNumber])
+  @@index([hotelId])
+  @@index([roomTypeId])
+  @@map("rooms")
+}
+
+model RatePlan {
+  id                  String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId             String   @map("hotel_id") @db.UniqueIdentifier
+  roomTypeId          String?  @map("room_type_id") @db.UniqueIdentifier
+  name                String   @db.NVarChar(160)
+  rateModifier        Decimal  @default(1.0) @map("rate_modifier") @db.Decimal(8, 4)
+  includesBreakfast   Boolean  @default(false) @map("includes_breakfast")
+  cancellationPolicy  String?  @map("cancellation_policy") @db.NVarChar(Max)
+  active              Boolean  @default(true)
+
+  hotel               Hotel               @relation(fields: [hotelId], references: [id])
+  roomType            RoomType?           @relation(fields: [roomTypeId], references: [id])
+  rateCalendars       RateCalendar[]
+  reservations        Reservation[]
+  channelRoomMappings ChannelRoomMapping[]
+
+  @@index([hotelId])
+  @@map("rate_plans")
+}
+
+model RateCalendar {
+  id                  String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId             String   @map("hotel_id") @db.UniqueIdentifier
+  roomTypeId          String   @map("room_type_id") @db.UniqueIdentifier
+  ratePlanId          String   @map("rate_plan_id") @db.UniqueIdentifier
+  date                DateTime @db.Date
+  rate                Decimal  @db.Decimal(12, 2)
+  availableCount      Int?     @map("available_count")
+  minStay             Int      @default(1) @map("min_stay")
+  maxStay             Int?     @map("max_stay")
+  closedToArrival     Boolean  @default(false) @map("closed_to_arrival")
+  closedToDeparture   Boolean  @default(false) @map("closed_to_departure")
+
+  hotel      Hotel    @relation(fields: [hotelId], references: [id])
+  roomType   RoomType @relation(fields: [roomTypeId], references: [id])
+  ratePlan   RatePlan @relation(fields: [ratePlanId], references: [id])
+
+  @@unique([hotelId, roomTypeId, ratePlanId, date])
+  @@index([hotelId, date])
+  @@map("rate_calendar")
+}
+
+// ─── GUESTS ───────────────────────────────────────────────────────────────────
+
+model Guest {
+  id                String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId           String   @map("hotel_id") @db.UniqueIdentifier
+  firstName         String   @map("first_name") @db.NVarChar(100)
+  lastName          String?  @map("last_name") @db.NVarChar(100)
+  email             String?  @db.NVarChar(255)
+  phone             String?  @db.NVarChar(40)
+  nationality       String?  @db.NVarChar(60)
+  passportNumber    String?  @map("passport_number") @db.NVarChar(60)
+  idCardNumber      String?  @map("id_card_number") @db.NVarChar(60)
+  dateOfBirth       DateTime? @map("date_of_birth") @db.Date
+  preferredLanguage String   @default("th") @map("preferred_language") @db.NVarChar(10)
+  preferences       Json     @default("{}")
+  vipStatus         Boolean  @default(false) @map("vip_status")
+  loyaltyPoints     Int      @default(0) @map("loyalty_points")
+  loyaltyTier       String   @default("bronze") @map("loyalty_tier") @db.NVarChar(30)
+  notes             String?  @db.NVarChar(Max)
+  marketingConsent  Boolean  @default(false) @map("marketing_consent")
+  totalStays        Int      @default(0) @map("total_stays")
+  totalRevenue      Decimal  @default(0) @map("total_revenue") @db.Decimal(12, 2)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  hotel                Hotel                @relation(fields: [hotelId], references: [id])
+  reservations         Reservation[]
+  conversations        Conversation[]
+  invoices             Invoice[]
+  tm30Reports          Tm30Report[]
+  loyaltyTransactions  LoyaltyTransaction[]
+  reviews              Review[]
+  spaBookings          SpaBooking[]
+  emailLogs            EmailLog[]
+  reviewRequests       ReviewRequest[]
+  crmSegmentMembers    CrmSegmentMember[]
+
+  @@index([hotelId])
+  @@index([email])
+  @@map("guests")
+}
+
+model GuestAccount {
+  id                String    @id @db.UniqueIdentifier
+  email             String    @db.NVarChar(255)
+  firstName         String    @map("first_name") @db.NVarChar(100)
+  lastName          String?   @map("last_name") @db.NVarChar(100)
+  phone             String?   @db.NVarChar(40)
+  nationality       String?   @db.NVarChar(60)
+  dateOfBirth       DateTime? @map("date_of_birth") @db.Date
+  passportNumber    String?   @map("passport_number") @db.NVarChar(60)
+  preferredLanguage String    @default("th") @map("preferred_language") @db.NVarChar(10)
+  avatarUrl         String?   @map("avatar_url") @db.NVarChar(Max)
+  marketingConsent  Boolean   @default(false) @map("marketing_consent")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  reservations   Reservation[]
+  bookingReviews BookingReview[]
+  mobileKeys     MobileKey[]
+  guestWishlists GuestWishlist[]
+  privacyRequests PrivacyRequest[]
+  loyaltyMembers LoyaltyMember[]
+
+  @@index([email])
+  @@map("guest_accounts")
+}
+
+// ─── RESERVATIONS ─────────────────────────────────────────────────────────────
+
+model Reservation {
+  id                  String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId             String    @map("hotel_id") @db.UniqueIdentifier
+  guestId             String?   @map("guest_id") @db.UniqueIdentifier
+  roomId              String?   @map("room_id") @db.UniqueIdentifier
+  roomTypeId          String    @map("room_type_id") @db.UniqueIdentifier
+  ratePlanId          String?   @map("rate_plan_id") @db.UniqueIdentifier
+  guestAccountId      String?   @map("guest_account_id") @db.UniqueIdentifier
+  groupBookingId      String?   @map("group_booking_id") @db.UniqueIdentifier
+  reservationCode     String    @unique @map("reservation_code") @db.NVarChar(20)
+  checkIn             DateTime  @map("check_in") @db.Date
+  checkOut            DateTime  @map("check_out") @db.Date
+  numAdults           Int       @default(1) @map("num_adults")
+  numChildren         Int       @default(0) @map("num_children")
+  status              String    @default("confirmed") @db.NVarChar(30)
+  source              String    @default("direct") @db.NVarChar(40)
+  externalId          String?   @map("external_id") @db.NVarChar(100)
+  totalAmount         Decimal   @map("total_amount") @db.Decimal(12, 2)
+  paidAmount          Decimal   @default(0) @map("paid_amount") @db.Decimal(12, 2)
+  depositAmount       Decimal   @default(0) @map("deposit_amount") @db.Decimal(12, 2)
+  cancellationPolicy  Json?     @map("cancellation_policy")
+  paymentMethod       String    @default("online") @map("payment_method") @db.NVarChar(30)
+  paymentStatus       String    @default("pending") @map("payment_status") @db.NVarChar(20)
+  specialRequests     String?   @map("special_requests") @db.NVarChar(Max)
+  internalNotes       String?   @map("internal_notes") @db.NVarChar(Max)
+  estimatedArrival    String?   @map("estimated_arrival") @db.NVarChar(10)
+  roomPreference      String?   @map("room_preference") @db.NVarChar(255)
+  preferredLanguage   String?   @map("preferred_language") @db.NVarChar(10)
+  isGroupMaster       Boolean   @default(false) @map("is_group_master")
+  tm30Reported        Boolean   @default(false) @map("tm30_reported")
+  tm30ReportedAt      DateTime? @map("tm30_reported_at")
+  idempotencyKey      String?   @map("idempotency_key") @db.NVarChar(128)
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  cancelledAt         DateTime? @map("cancelled_at")
+  cancellationReason  String?   @map("cancellation_reason") @db.NVarChar(Max)
+
+  hotel               Hotel                @relation(fields: [hotelId], references: [id])
+  guest               Guest?               @relation(fields: [guestId], references: [id])
+  room                Room?                @relation(fields: [roomId], references: [id])
+  roomType            RoomType             @relation(fields: [roomTypeId], references: [id])
+  ratePlan            RatePlan?            @relation(fields: [ratePlanId], references: [id])
+  guestAccount        GuestAccount?        @relation(fields: [guestAccountId], references: [id])
+  groupBooking        GroupBooking?        @relation(fields: [groupBookingId], references: [id])
+  folios              Folio[]
+  payments            Payment[]
+  invoices            Invoice[]
+  tm30Reports         Tm30Report[]
+  conversations       Conversation[]
+  reviews             Review[]
+  spaBookings         SpaBooking[]
+  fbOrders            FbOrder[]
+  loyaltyTransactions LoyaltyTransaction[]
+  otaReconciliations  OtaReconciliation[]
+  mobileKeys          MobileKey[]
+  bookingReviews      BookingReview[]
+  emailLogs           EmailLog[]
+  reviewRequests      ReviewRequest[]
+  roomStatusEvents    RoomStatusEvent[]
+  automationRuns      AutomationRun[]
+  aiConciergeLogs     AiConciergeLog[]
+
+  @@index([hotelId])
+  @@index([guestId])
+  @@index([checkIn, checkOut])
+  @@index([status])
+  @@map("reservations")
+}
+
+model ReservationIdempotencyKey {
+  id             String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId        String   @map("hotel_id") @db.UniqueIdentifier
+  idempotencyKey String   @map("idempotency_key") @db.NVarChar(128)
+  reservationId  String   @map("reservation_id") @db.UniqueIdentifier
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([hotelId, idempotencyKey])
+  @@map("reservation_idempotency_keys")
+}
+
+// ─── BILLING / FOLIO ──────────────────────────────────────────────────────────
+
+model Folio {
+  id             String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  reservationId  String    @map("reservation_id") @db.UniqueIdentifier
+  hotelId        String    @map("hotel_id") @db.UniqueIdentifier
+  status         String    @default("open") @db.NVarChar(20)
+  totalCharges   Decimal   @default(0) @map("total_charges") @db.Decimal(12, 2)
+  totalPayments  Decimal   @default(0) @map("total_payments") @db.Decimal(12, 2)
+  balance        Decimal   @default(0) @db.Decimal(12, 2)
+  closedAt       DateTime? @map("closed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel       @relation(fields: [hotelId], references: [id])
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+  folioItems  FolioItem[]
+  payments    Payment[]
+
+  @@index([reservationId])
+  @@index([hotelId])
+  @@map("folios")
+}
+
+model FolioItem {
+  id             String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  folioId        String   @map("folio_id") @db.UniqueIdentifier
+  type           String   @db.NVarChar(50)
+  description    String   @db.NVarChar(255)
+  amount         Decimal  @db.Decimal(12, 2)
+  quantity       Int      @default(1)
+  postedBy       String?  @map("posted_by") @db.NVarChar(255)
+  postedAt       DateTime @default(now()) @map("posted_at")
+  referenceId    String?  @map("reference_id") @db.NVarChar(100)
+  referenceType  String?  @map("reference_type") @db.NVarChar(50)
+
+  folio Folio @relation(fields: [folioId], references: [id])
+
+  @@index([folioId])
+  @@map("folio_items")
+}
+
+// ─── HOUSEKEEPING & MAINTENANCE ───────────────────────────────────────────────
+
+model HousekeepingTask {
+  id                   String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId              String    @map("hotel_id") @db.UniqueIdentifier
+  roomId               String?   @map("room_id") @db.UniqueIdentifier
+  assignedTo           String?   @map("assigned_to") @db.UniqueIdentifier
+  taskType             String    @map("task_type") @db.NVarChar(50)
+  priority             String    @default("normal") @db.NVarChar(20)
+  status               String    @default("pending") @db.NVarChar(20)
+  notes                String?   @db.NVarChar(Max)
+  estimatedDurationMin Int?      @map("estimated_duration_min")
+  startedAt            DateTime? @map("started_at")
+  completedAt          DateTime? @map("completed_at")
+  dueDate              DateTime? @map("due_date")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+  room  Room? @relation(fields: [roomId], references: [id])
+
+  @@index([hotelId])
+  @@index([roomId])
+  @@map("housekeeping_tasks")
+}
+
+model MaintenanceRequest {
+  id               String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId          String    @map("hotel_id") @db.UniqueIdentifier
+  roomId           String?   @map("room_id") @db.UniqueIdentifier
+  reportedBy       String?   @map("reported_by") @db.UniqueIdentifier
+  assignedTo       String?   @map("assigned_to") @db.UniqueIdentifier
+  category         String?   @db.NVarChar(100)
+  description      String    @db.NVarChar(Max)
+  priority         String    @default("normal") @db.NVarChar(20)
+  status           String    @default("open") @db.NVarChar(30)
+  resolvedAt       DateTime? @map("resolved_at")
+  resolutionNotes  String?   @map("resolution_notes") @db.NVarChar(Max)
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+  room  Room? @relation(fields: [roomId], references: [id])
+
+  @@index([hotelId])
+  @@map("maintenance_requests")
+}
+
+model WorkOrder {
+  id          String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId     String    @map("hotel_id") @db.UniqueIdentifier
+  roomId      String?   @map("room_id") @db.UniqueIdentifier
+  assignedTo  String?   @map("assigned_to") @db.UniqueIdentifier
+  department  String?   @db.NVarChar(50)
+  category    String?   @db.NVarChar(100)
+  title       String    @db.NVarChar(255)
+  description String?   @db.NVarChar(Max)
+  priority    String    @default("normal") @db.NVarChar(20)
+  status      String    @default("open") @db.NVarChar(30)
+  dueAt       DateTime? @map("due_at")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  hotel                Hotel                @relation(fields: [hotelId], references: [id])
+  room                 Room?                @relation(fields: [roomId], references: [id])
+  taskComments         TaskComment[]
+  taskAttachments      TaskAttachment[]
+  roomStatusEvents     RoomStatusEvent[]
+  operationalIncidents OperationalIncident[]
+
+  @@index([hotelId])
+  @@map("work_orders")
+}
+
+// ─── MESSAGING / CONVERSATIONS ────────────────────────────────────────────────
+
+model Conversation {
+  id                  String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId             String    @map("hotel_id") @db.UniqueIdentifier
+  guestId             String?   @map("guest_id") @db.UniqueIdentifier
+  reservationId       String?   @map("reservation_id") @db.UniqueIdentifier
+  channel             String    @db.NVarChar(40)
+  channelUserId       String    @map("channel_user_id") @db.NVarChar(255)
+  channelThreadId     String?   @map("channel_thread_id") @db.NVarChar(255)
+  guestLanguage       String    @default("th") @map("guest_language") @db.NVarChar(10)
+  guestName           String?   @map("guest_name") @db.NVarChar(255)
+  status              String    @default("open") @db.NVarChar(20)
+  assignedTo          String?   @map("assigned_to") @db.UniqueIdentifier
+  lastMessageAt       DateTime? @map("last_message_at")
+  lastMessagePreview  String?   @map("last_message_preview") @db.NVarChar(500)
+  unreadCount         Int       @default(0) @map("unread_count")
+  aiHandling          Boolean   @default(false) @map("ai_handling")
+  needsHuman          Boolean   @default(false) @map("needs_human")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  hotel         Hotel         @relation(fields: [hotelId], references: [id])
+  guest         Guest?        @relation(fields: [guestId], references: [id])
+  reservation   Reservation?  @relation(fields: [reservationId], references: [id])
+  messages      Message[]
+  aiConciergeLogs AiConciergeLog[]
+
+  @@unique([hotelId, channel, channelUserId])
+  @@index([hotelId])
+  @@map("conversations")
+}
+
+model Message {
+  id               String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  conversationId   String    @map("conversation_id") @db.UniqueIdentifier
+  direction        String    @db.NVarChar(20)
+  senderType       String    @map("sender_type") @db.NVarChar(20)
+  senderId         String?   @map("sender_id") @db.NVarChar(255)
+  originalText     String?   @map("original_text") @db.NVarChar(Max)
+  originalLanguage String?   @map("original_language") @db.NVarChar(10)
+  translatedText   String?   @map("translated_text") @db.NVarChar(Max)
+  messageType      String    @default("text") @map("message_type") @db.NVarChar(20)
+  mediaUrl         String?   @map("media_url") @db.NVarChar(Max)
+  mediaMetadata    Json?     @map("media_metadata")
+  channelMessageId String?   @map("channel_message_id") @db.NVarChar(255)
+  aiGenerated      Boolean   @default(false) @map("ai_generated")
+  aiConfidence     Decimal?  @map("ai_confidence") @db.Decimal(5, 4)
+  aiReviewedBy     String?   @map("ai_reviewed_by") @db.UniqueIdentifier
+  status           String    @default("sent") @db.NVarChar(20)
+  errorMessage     String?   @map("error_message") @db.NVarChar(Max)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  deliveredAt      DateTime? @map("delivered_at")
+  readAt           DateTime? @map("read_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  aiEvaluations AiEvaluation[]
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model MessageTemplate {
+  id           String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId      String   @map("hotel_id") @db.UniqueIdentifier
+  name         String   @db.NVarChar(255)
+  category     String?  @db.NVarChar(100)
+  contentTh    String   @map("content_th") @db.NVarChar(Max)
+  translations Json     @default("{}")
+  variables    Json     @default("[]")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  hotel             Hotel              @relation(fields: [hotelId], references: [id])
+  marketingCampaigns MarketingCampaign[]
+
+  @@index([hotelId])
+  @@map("message_templates")
+}
+
+// ─── CHANNEL MANAGER ──────────────────────────────────────────────────────────
+
+model ChannelConnection {
+  id                 String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId            String    @map("hotel_id") @db.UniqueIdentifier
+  channel            String    @db.NVarChar(40)
+  status             String    @default("active") @db.NVarChar(20)
+  externalPropertyId String?   @map("external_property_id") @db.NVarChar(100)
+  credentials        Json?
+  config             Json      @default("{}")
+  lastSyncAt         DateTime? @map("last_sync_at")
+  lastError          String?   @map("last_error") @db.NVarChar(Max)
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  hotel               Hotel                @relation(fields: [hotelId], references: [id])
+  channelRoomMappings ChannelRoomMapping[]
+  channelSyncLogs     ChannelSyncLog[]
+
+  @@unique([hotelId, channel])
+  @@map("channel_connections")
+}
+
+model ChannelRoomMapping {
+  id                  String  @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  channelConnectionId String  @map("channel_connection_id") @db.UniqueIdentifier
+  roomTypeId          String? @map("room_type_id") @db.UniqueIdentifier
+  ratePlanId          String? @map("rate_plan_id") @db.UniqueIdentifier
+  externalRoomId      String? @map("external_room_id") @db.NVarChar(100)
+  externalRateId      String? @map("external_rate_id") @db.NVarChar(100)
+  active              Boolean @default(true)
+
+  channelConnection ChannelConnection @relation(fields: [channelConnectionId], references: [id])
+  roomType          RoomType?         @relation(fields: [roomTypeId], references: [id])
+  ratePlan          RatePlan?         @relation(fields: [ratePlanId], references: [id])
+
+  @@index([channelConnectionId])
+  @@map("channel_room_mappings")
+}
+
+model ChannelSyncLog {
+  id                  String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  channelConnectionId String?   @map("channel_connection_id") @db.UniqueIdentifier
+  syncType            String?   @map("sync_type") @db.NVarChar(50)
+  status              String?   @db.NVarChar(20)
+  recordsProcessed    Int?      @map("records_processed")
+  errors              Json?
+  durationMs          Int?      @map("duration_ms")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  channelConnection ChannelConnection? @relation(fields: [channelConnectionId], references: [id])
+
+  @@index([channelConnectionId])
+  @@map("channel_sync_log")
+}
+
+// ─── PAYMENTS & INVOICING ─────────────────────────────────────────────────────
+
+model Payment {
+  id                    String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId               String    @map("hotel_id") @db.UniqueIdentifier
+  reservationId         String?   @map("reservation_id") @db.UniqueIdentifier
+  folioId               String?   @map("folio_id") @db.UniqueIdentifier
+  amount                Decimal   @db.Decimal(12, 2)
+  currency              String    @default("THB") @db.NVarChar(10)
+  paymentMethod         String?   @map("payment_method") @db.NVarChar(30)
+  status                String    @default("pending") @db.NVarChar(20)
+  gateway               String?   @db.NVarChar(50)
+  gatewayTransactionId  String?   @map("gateway_transaction_id") @db.NVarChar(255)
+  gatewayResponse       Json?     @map("gateway_response")
+  installmentMonths     Int?      @map("installment_months")
+  paidAt                DateTime? @map("paid_at")
+  refundedAt            DateTime? @map("refunded_at")
+  refundAmount          Decimal?  @map("refund_amount") @db.Decimal(12, 2)
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  folio       Folio?       @relation(fields: [folioId], references: [id])
+
+  @@index([hotelId])
+  @@index([reservationId])
+  @@map("payments")
+}
+
+model Invoice {
+  id               String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId          String    @map("hotel_id") @db.UniqueIdentifier
+  reservationId    String?   @map("reservation_id") @db.UniqueIdentifier
+  guestId          String?   @map("guest_id") @db.UniqueIdentifier
+  invoiceNumber    String    @unique @map("invoice_number") @db.NVarChar(50)
+  invoiceType      String?   @map("invoice_type") @db.NVarChar(30)
+  issueDate        DateTime  @map("issue_date") @db.Date
+  dueDate          DateTime? @map("due_date") @db.Date
+  subtotal         Decimal   @db.Decimal(12, 2)
+  vatAmount        Decimal   @map("vat_amount") @db.Decimal(12, 2)
+  totalAmount      Decimal   @map("total_amount") @db.Decimal(12, 2)
+  buyerName        String?   @map("buyer_name") @db.NVarChar(255)
+  buyerTaxId       String?   @map("buyer_tax_id") @db.NVarChar(20)
+  buyerAddress     String?   @map("buyer_address") @db.NVarChar(Max)
+  buyerBranch      String?   @map("buyer_branch") @db.NVarChar(100)
+  isEtax           Boolean   @default(false) @map("is_etax")
+  etaxStatus       String?   @map("etax_status") @db.NVarChar(30)
+  etaxSignedXml    String?   @map("etax_signed_xml") @db.NVarChar(Max)
+  etaxPdfUrl       String?   @map("etax_pdf_url") @db.NVarChar(Max)
+  etaxSubmittedAt  DateTime? @map("etax_submitted_at")
+  etaxResponse     Json?     @map("etax_response")
+  status           String    @default("draft") @db.NVarChar(20)
+  pdfUrl           String?   @map("pdf_url") @db.NVarChar(Max)
+  sentToEmail      String?   @map("sent_to_email") @db.NVarChar(255)
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  hotel        Hotel        @relation(fields: [hotelId], references: [id])
+  reservation  Reservation? @relation(fields: [reservationId], references: [id])
+  guest        Guest?       @relation(fields: [guestId], references: [id])
+  invoiceItems InvoiceItem[]
+
+  @@index([hotelId])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  invoiceId   String  @map("invoice_id") @db.UniqueIdentifier
+  description String  @db.NVarChar(255)
+  quantity    Decimal @db.Decimal(10, 2)
+  unitPrice   Decimal @map("unit_price") @db.Decimal(12, 2)
+  discount    Decimal @default(0) @db.Decimal(12, 2)
+  vatRate     Decimal @map("vat_rate") @db.Decimal(5, 4)
+  amount      Decimal @db.Decimal(12, 2)
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+// ─── COMPLIANCE ───────────────────────────────────────────────────────────────
+
+model Tm30Report {
+  id                 String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId            String    @map("hotel_id") @db.UniqueIdentifier
+  guestId            String?   @map("guest_id") @db.UniqueIdentifier
+  reservationId      String?   @map("reservation_id") @db.UniqueIdentifier
+  passportNumber     String    @map("passport_number") @db.NVarChar(60)
+  nationality        String    @db.NVarChar(60)
+  arrivalDate        DateTime  @map("arrival_date") @db.Date
+  departureDate      DateTime? @map("departure_date") @db.Date
+  status             String    @default("pending") @db.NVarChar(20)
+  submittedAt        DateTime? @map("submitted_at")
+  confirmationNumber String?   @map("confirmation_number") @db.NVarChar(100)
+  responseData       Json?     @map("response_data")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  guest       Guest?       @relation(fields: [guestId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+
+  @@index([hotelId])
+  @@map("tm30_reports")
+}
+
+model TaxFiling {
+  id               String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId          String    @map("hotel_id") @db.UniqueIdentifier
+  filingType       String?   @map("filing_type") @db.NVarChar(30)
+  periodYear       Int       @map("period_year")
+  periodMonth      Int?      @map("period_month")
+  totalRevenue     Decimal?  @map("total_revenue") @db.Decimal(14, 2)
+  totalVat         Decimal?  @map("total_vat") @db.Decimal(14, 2)
+  totalWithholding Decimal?  @map("total_withholding") @db.Decimal(14, 2)
+  status           String    @default("draft") @db.NVarChar(20)
+  filedAt          DateTime? @map("filed_at")
+  data             Json?
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("tax_filings")
+}
+
+model AccountingSyncLog {
+  id          String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId     String    @map("hotel_id") @db.UniqueIdentifier
+  provider    String?   @db.NVarChar(50)
+  entityType  String?   @map("entity_type") @db.NVarChar(50)
+  entityId    String?   @map("entity_id") @db.UniqueIdentifier
+  externalId  String?   @map("external_id") @db.NVarChar(100)
+  status      String?   @db.NVarChar(20)
+  syncedAt    DateTime  @default(now()) @map("synced_at")
+  error       String?   @db.NVarChar(Max)
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("accounting_sync_log")
+}
+
+model OtaReconciliation {
+  id                String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId           String    @map("hotel_id") @db.UniqueIdentifier
+  reservationId     String?   @map("reservation_id") @db.UniqueIdentifier
+  otaChannel        String    @map("ota_channel") @db.NVarChar(40)
+  expectedAmount    Decimal   @map("expected_amount") @db.Decimal(12, 2)
+  otaInvoicedAmount Decimal?  @map("ota_invoiced_amount") @db.Decimal(12, 2)
+  otaPaidAmount     Decimal?  @map("ota_paid_amount") @db.Decimal(12, 2)
+  commissionAmount  Decimal?  @map("commission_amount") @db.Decimal(12, 2)
+  variance          Decimal?  @db.Decimal(12, 2)
+  status            String?   @db.NVarChar(20)
+  reconciledAt      DateTime? @map("reconciled_at")
+  notes             String?   @db.NVarChar(Max)
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+
+  @@index([hotelId])
+  @@map("ota_reconciliations")
+}
+
+// ─── F&B ──────────────────────────────────────────────────────────────────────
+
+model FbOutlet {
+  id             String        @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId        String        @map("hotel_id") @db.UniqueIdentifier
+  name           String        @db.NVarChar(160)
+  type           String?       @db.NVarChar(50)
+  active         Boolean       @default(true)
+
+  hotel          Hotel            @relation(fields: [hotelId], references: [id])
+  menuCategories FbMenuCategory[]
+  menuItems      FbMenuItem[]
+  fbOrders       FbOrder[]
+
+  @@index([hotelId])
+  @@map("fb_outlets")
+}
+
+model FbMenuCategory {
+  id           String @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  outletId     String @map("outlet_id") @db.UniqueIdentifier
+  name         String @db.NVarChar(160)
+  displayOrder Int    @default(0) @map("display_order")
+
+  outlet    FbOutlet     @relation(fields: [outletId], references: [id])
+  menuItems FbMenuItem[]
+
+  @@index([outletId])
+  @@map("fb_menu_categories")
+}
+
+model FbMenuItem {
+  id           String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  outletId     String   @map("outlet_id") @db.UniqueIdentifier
+  categoryId   String?  @map("category_id") @db.UniqueIdentifier
+  name         String   @db.NVarChar(160)
+  description  String?  @db.NVarChar(Max)
+  price        Decimal  @db.Decimal(10, 2)
+  cost         Decimal? @db.Decimal(10, 2)
+  imageUrl     String?  @map("image_url") @db.NVarChar(Max)
+  available    Boolean  @default(true)
+  tags         Json     @default("[]")
+  translations Json     @default("{}")
+
+  outlet     FbOutlet        @relation(fields: [outletId], references: [id])
+  category   FbMenuCategory? @relation(fields: [categoryId], references: [id])
+  orderItems FbOrderItem[]
+
+  @@index([outletId])
+  @@map("fb_menu_items")
+}
+
+model FbOrder {
+  id               String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId          String    @map("hotel_id") @db.UniqueIdentifier
+  outletId         String?   @map("outlet_id") @db.UniqueIdentifier
+  reservationId    String?   @map("reservation_id") @db.UniqueIdentifier
+  tableNumber      String?   @map("table_number") @db.NVarChar(20)
+  orderNumber      String    @map("order_number") @db.NVarChar(30)
+  status           String    @default("open") @db.NVarChar(20)
+  subtotal         Decimal   @db.Decimal(12, 2)
+  serviceCharge    Decimal   @default(0) @map("service_charge") @db.Decimal(12, 2)
+  tax              Decimal   @default(0) @db.Decimal(12, 2)
+  total            Decimal   @db.Decimal(12, 2)
+  paymentMethod    String?   @map("payment_method") @db.NVarChar(30)
+  notes            String?   @db.NVarChar(Max)
+  postedToFolioAt  DateTime? @map("posted_to_folio_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  outlet      FbOutlet?    @relation(fields: [outletId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  orderItems  FbOrderItem[]
+
+  @@index([hotelId])
+  @@map("fb_orders")
+}
+
+model FbOrderItem {
+  id         String  @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  orderId    String  @map("order_id") @db.UniqueIdentifier
+  menuItemId String? @map("menu_item_id") @db.UniqueIdentifier
+  quantity   Int
+  unitPrice  Decimal @map("unit_price") @db.Decimal(10, 2)
+  modifiers  Json    @default("[]")
+  notes      String? @db.NVarChar(Max)
+  amount     Decimal @db.Decimal(10, 2)
+
+  order    FbOrder     @relation(fields: [orderId], references: [id])
+  menuItem FbMenuItem? @relation(fields: [menuItemId], references: [id])
+
+  @@index([orderId])
+  @@map("fb_order_items")
+}
+
+// ─── SPA ──────────────────────────────────────────────────────────────────────
+
+model SpaService {
+  id          String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId     String   @map("hotel_id") @db.UniqueIdentifier
+  name        String   @db.NVarChar(160)
+  description String?  @db.NVarChar(Max)
+  durationMin Int      @map("duration_min")
+  price       Decimal  @db.Decimal(10, 2)
+  category    String?  @db.NVarChar(100)
+  active      Boolean  @default(true)
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  spaBookings SpaBooking[]
+
+  @@index([hotelId])
+  @@map("spa_services")
+}
+
+model SpaTherapist {
+  id          String  @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId     String  @map("hotel_id") @db.UniqueIdentifier
+  name        String  @db.NVarChar(160)
+  specialties Json    @default("[]")
+  active      Boolean @default(true)
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  spaBookings SpaBooking[]
+
+  @@index([hotelId])
+  @@map("spa_therapists")
+}
+
+model SpaBooking {
+  id               String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId          String    @map("hotel_id") @db.UniqueIdentifier
+  reservationId    String?   @map("reservation_id") @db.UniqueIdentifier
+  guestId          String?   @map("guest_id") @db.UniqueIdentifier
+  serviceId        String?   @map("service_id") @db.UniqueIdentifier
+  therapistId      String?   @map("therapist_id") @db.UniqueIdentifier
+  startTime        DateTime  @map("start_time")
+  endTime          DateTime  @map("end_time")
+  status           String    @default("confirmed") @db.NVarChar(20)
+  amount           Decimal?  @db.Decimal(10, 2)
+  paymentMethod    String?   @map("payment_method") @db.NVarChar(30)
+  notes            String?   @db.NVarChar(Max)
+  postedToFolioAt  DateTime? @map("posted_to_folio_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  guest       Guest?       @relation(fields: [guestId], references: [id])
+  service     SpaService?  @relation(fields: [serviceId], references: [id])
+  therapist   SpaTherapist? @relation(fields: [therapistId], references: [id])
+
+  @@index([hotelId])
+  @@map("spa_bookings")
+}
+
+// ─── EVENTS ───────────────────────────────────────────────────────────────────
+
+model EventSpace {
+  id          String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId     String   @map("hotel_id") @db.UniqueIdentifier
+  name        String   @db.NVarChar(160)
+  capacity    Int?
+  sizeSqm     Int?     @map("size_sqm")
+  hourlyRate  Decimal? @map("hourly_rate") @db.Decimal(10, 2)
+  dailyRate   Decimal? @map("daily_rate") @db.Decimal(10, 2)
+  amenities   Json     @default("[]")
+
+  hotel  Hotel   @relation(fields: [hotelId], references: [id])
+  events Event[]
+
+  @@index([hotelId])
+  @@map("event_spaces")
+}
+
+model Event {
+  id               String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId          String    @map("hotel_id") @db.UniqueIdentifier
+  spaceId          String?   @map("space_id") @db.UniqueIdentifier
+  name             String    @db.NVarChar(255)
+  organizerName    String?   @map("organizer_name") @db.NVarChar(255)
+  organizerContact String?   @map("organizer_contact") @db.NVarChar(255)
+  eventType        String?   @map("event_type") @db.NVarChar(50)
+  startTime        DateTime  @map("start_time")
+  endTime          DateTime  @map("end_time")
+  numAttendees     Int?      @map("num_attendees")
+  totalAmount      Decimal?  @map("total_amount") @db.Decimal(12, 2)
+  status           String    @default("tentative") @db.NVarChar(20)
+  notes            String?   @db.NVarChar(Max)
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel       @relation(fields: [hotelId], references: [id])
+  space EventSpace? @relation(fields: [spaceId], references: [id])
+
+  @@index([hotelId])
+  @@map("events")
+}
+
+// ─── LOYALTY ──────────────────────────────────────────────────────────────────
+
+model LoyaltyTier {
+  id         String  @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId    String  @map("hotel_id") @db.UniqueIdentifier
+  name       String  @db.NVarChar(100)
+  minPoints  Int     @map("min_points")
+  benefits   Json    @default("[]")
+  multiplier Decimal @db.Decimal(5, 2)
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("loyalty_tiers")
+}
+
+model LoyaltyTransaction {
+  id            String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId       String    @map("hotel_id") @db.UniqueIdentifier
+  guestId       String?   @map("guest_id") @db.UniqueIdentifier
+  reservationId String?   @map("reservation_id") @db.UniqueIdentifier
+  type          String    @db.NVarChar(30)
+  points        Int
+  description   String?   @db.NVarChar(255)
+  expiresAt     DateTime? @map("expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  guest       Guest?       @relation(fields: [guestId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+
+  @@index([hotelId])
+  @@map("loyalty_transactions")
+}
+
+model LoyaltyProgram {
+  id             String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  organizationId String   @unique @map("organization_id") @db.UniqueIdentifier
+  programName    String   @map("program_name") @db.NVarChar(160)
+  pointsPerThb   Decimal  @map("points_per_thb") @db.Decimal(8, 4)
+  thbPerPoint    Decimal  @map("thb_per_point") @db.Decimal(8, 4)
+  tiers          Json     @default("[]")
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("loyalty_programs")
+}
+
+model LoyaltyMember {
+  id             String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  organizationId String   @map("organization_id") @db.UniqueIdentifier
+  guestAccountId String?  @map("guest_account_id") @db.UniqueIdentifier
+  memberNumber   String?  @unique @map("member_number") @db.NVarChar(30)
+  totalPoints    Int      @default(0) @map("total_points")
+  lifetimePoints Int      @default(0) @map("lifetime_points")
+  tier           String   @default("bronze") @db.NVarChar(30)
+  totalStays     Int      @default(0) @map("total_stays")
+  totalSpent     Decimal  @default(0) @map("total_spent") @db.Decimal(14, 2)
+  joinedAt       DateTime @default(now()) @map("joined_at")
+
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  guestAccount GuestAccount? @relation(fields: [guestAccountId], references: [id])
+
+  @@unique([organizationId, guestAccountId])
+  @@index([organizationId])
+  @@map("loyalty_members")
+}
+
+// ─── MARKETING & REVIEWS ─────────────────────────────────────────────────────
+
+model MarketingCampaign {
+  id             String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId        String    @map("hotel_id") @db.UniqueIdentifier
+  name           String    @db.NVarChar(255)
+  type           String?   @db.NVarChar(50)
+  status         String    @default("draft") @db.NVarChar(20)
+  audienceFilter Json?     @map("audience_filter")
+  templateId     String?   @map("template_id") @db.UniqueIdentifier
+  scheduledAt    DateTime? @map("scheduled_at")
+  sentCount      Int       @default(0) @map("sent_count")
+  openedCount    Int       @default(0) @map("opened_count")
+  clickedCount   Int       @default(0) @map("clicked_count")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  hotel    Hotel            @relation(fields: [hotelId], references: [id])
+  template MessageTemplate? @relation(fields: [templateId], references: [id])
+
+  @@index([hotelId])
+  @@map("marketing_campaigns")
+}
+
+model Review {
+  id               String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId          String    @map("hotel_id") @db.UniqueIdentifier
+  reservationId    String?   @map("reservation_id") @db.UniqueIdentifier
+  guestId          String?   @map("guest_id") @db.UniqueIdentifier
+  source           String?   @db.NVarChar(50)
+  rating           Int?
+  title            String?   @db.NVarChar(255)
+  content          String?   @db.NVarChar(Max)
+  language         String?   @db.NVarChar(10)
+  sentiment        String?   @db.NVarChar(20)
+  aiResponseDraft  String?   @map("ai_response_draft") @db.NVarChar(Max)
+  responseText     String?   @map("response_text") @db.NVarChar(Max)
+  respondedAt      DateTime? @map("responded_at")
+  externalId       String?   @map("external_id") @db.NVarChar(100)
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  guest       Guest?       @relation(fields: [guestId], references: [id])
+
+  @@index([hotelId])
+  @@map("reviews")
+}
+
+model BookingReview {
+  id              String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId         String    @map("hotel_id") @db.UniqueIdentifier
+  reservationId   String?   @map("reservation_id") @db.UniqueIdentifier
+  guestAccountId  String?   @map("guest_account_id") @db.UniqueIdentifier
+  reviewerName    String?   @map("reviewer_name") @db.NVarChar(255)
+  rating          Int
+  ratingClean     Int?      @map("rating_clean")
+  ratingService   Int?      @map("rating_service")
+  ratingLocation  Int?      @map("rating_location")
+  ratingValue     Int?      @map("rating_value")
+  title           String?   @db.NVarChar(255)
+  comment         String?   @db.NVarChar(Max)
+  replyText       String?   @map("reply_text") @db.NVarChar(Max)
+  repliedAt       DateTime? @map("replied_at")
+  platform        String    @default("direct") @db.NVarChar(30)
+  verifiedStay    Boolean   @default(false) @map("verified_stay")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  hotel        Hotel         @relation(fields: [hotelId], references: [id])
+  reservation  Reservation?  @relation(fields: [reservationId], references: [id])
+  guestAccount GuestAccount? @relation(fields: [guestAccountId], references: [id])
+
+  @@index([hotelId])
+  @@map("booking_reviews")
+}
+
+// ─── AI / ML ─────────────────────────────────────────────────────────────────
+
+model AiLog {
+  id           String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId      String    @map("hotel_id") @db.UniqueIdentifier
+  taskType     String?   @map("task_type") @db.NVarChar(50)
+  inputText    String?   @map("input_text") @db.NVarChar(Max)
+  outputText   String?   @map("output_text") @db.NVarChar(Max)
+  model        String?   @db.NVarChar(100)
+  inputTokens  Int?      @map("input_tokens")
+  outputTokens Int?      @map("output_tokens")
+  costUsd      Decimal?  @map("cost_usd") @db.Decimal(10, 6)
+  durationMs   Int?      @map("duration_ms")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("ai_logs")
+}
+
+model AiEvaluation {
+  id          String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId     String    @map("hotel_id") @db.UniqueIdentifier
+  messageId   String?   @map("message_id") @db.UniqueIdentifier
+  rating      Int?
+  feedback    String?   @db.NVarChar(Max)
+  evaluatorId String?   @map("evaluator_id") @db.UniqueIdentifier
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  hotel   Hotel    @relation(fields: [hotelId], references: [id])
+  message Message? @relation(fields: [messageId], references: [id])
+
+  @@index([hotelId])
+  @@map("ai_evaluations")
+}
+
+model KnowledgeBase {
+  id        String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId   String   @map("hotel_id") @db.UniqueIdentifier
+  category  String?  @db.NVarChar(100)
+  title     String   @db.NVarChar(255)
+  content   String   @db.NVarChar(Max)
+  language  String   @default("th") @db.NVarChar(10)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("knowledge_base")
+}
+
+// ─── AUDIT & SYSTEM LOGS ─────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId    String?   @map("hotel_id") @db.UniqueIdentifier
+  userId     String?   @map("user_id") @db.UniqueIdentifier
+  action     String    @db.NVarChar(100)
+  entityType String?   @map("entity_type") @db.NVarChar(50)
+  entityId   String?   @map("entity_id") @db.UniqueIdentifier
+  changes    Json?
+  ipAddress  String?   @map("ip_address") @db.NVarChar(50)
+  userAgent  String?   @map("user_agent") @db.NVarChar(500)
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel? @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+// ─── MEDIA ────────────────────────────────────────────────────────────────────
+
+model HotelGallery {
+  id           String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId      String   @map("hotel_id") @db.UniqueIdentifier
+  imageUrl     String   @map("image_url") @db.NVarChar(Max)
+  altText      String?  @map("alt_text") @db.NVarChar(255)
+  displayOrder Int      @default(0) @map("display_order")
+  isFeatured   Boolean  @default(false) @map("is_featured")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("hotel_gallery")
+}
+
+model RoomTypeImage {
+  id           String  @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  roomTypeId   String  @map("room_type_id") @db.UniqueIdentifier
+  imageUrl     String  @map("image_url") @db.NVarChar(Max)
+  displayOrder Int     @default(0) @map("display_order")
+  altText      String? @map("alt_text") @db.NVarChar(255)
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+
+  @@index([roomTypeId])
+  @@map("room_type_images")
+}
+
+// ─── GUEST PORTAL ─────────────────────────────────────────────────────────────
+
+model GuestWishlist {
+  id             String  @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  guestAccountId String  @map("guest_account_id") @db.UniqueIdentifier
+  hotelId        String  @map("hotel_id") @db.UniqueIdentifier
+  roomTypeId     String? @map("room_type_id") @db.UniqueIdentifier
+
+  guestAccount GuestAccount @relation(fields: [guestAccountId], references: [id])
+  roomType     RoomType?    @relation(fields: [roomTypeId], references: [id])
+
+  @@unique([guestAccountId, hotelId, roomTypeId])
+  @@map("guest_wishlists")
+}
+
+model PrivacyRequest {
+  id             String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  guestAccountId String?   @map("guest_account_id") @db.UniqueIdentifier
+  email          String    @db.NVarChar(255)
+  requestType    String    @map("request_type") @db.NVarChar(30)
+  status         String    @default("pending") @db.NVarChar(20)
+  fulfilledAt    DateTime? @map("fulfilled_at")
+  metadata       Json      @default("{}")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  guestAccount GuestAccount? @relation(fields: [guestAccountId], references: [id])
+
+  @@map("privacy_requests")
+}
+
+// ─── COMMUNICATIONS ───────────────────────────────────────────────────────────
+
+model EmailLog {
+  id            String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId       String?  @map("hotel_id") @db.UniqueIdentifier
+  reservationId String?  @map("reservation_id") @db.UniqueIdentifier
+  guestId       String?  @map("guest_id") @db.UniqueIdentifier
+  type          String   @db.NVarChar(50)
+  email         String?  @db.NVarChar(255)
+  sentAt        DateTime @default(now()) @map("sent_at")
+
+  hotel       Hotel?       @relation(fields: [hotelId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  guest       Guest?       @relation(fields: [guestId], references: [id])
+
+  @@index([hotelId])
+  @@map("email_logs")
+}
+
+// ─── PROMO / GROUP BOOKINGS ───────────────────────────────────────────────────
+
+model PromoCode {
+  id            String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId       String?   @map("hotel_id") @db.UniqueIdentifier
+  code          String    @db.NVarChar(50)
+  description   String?   @db.NVarChar(255)
+  discountType  String    @map("discount_type") @db.NVarChar(20)
+  discountValue Decimal   @map("discount_value") @db.Decimal(10, 2)
+  minNights     Int       @default(1) @map("min_nights")
+  minAmount     Decimal   @default(0) @map("min_amount") @db.Decimal(12, 2)
+  validFrom     DateTime? @map("valid_from") @db.Date
+  validUntil    DateTime? @map("valid_until") @db.Date
+  maxUses       Int?      @map("max_uses")
+  usedCount     Int       @default(0) @map("used_count")
+  appliesTo     String    @default("all") @map("applies_to") @db.NVarChar(30)
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@unique([hotelId, code])
+  @@map("promo_codes")
+}
+
+model GroupBooking {
+  id             String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId        String   @map("hotel_id") @db.UniqueIdentifier
+  groupName      String   @map("group_name") @db.NVarChar(255)
+  contactName    String?  @map("contact_name") @db.NVarChar(255)
+  contactEmail   String?  @map("contact_email") @db.NVarChar(255)
+  contactPhone   String?  @map("contact_phone") @db.NVarChar(40)
+  checkIn        DateTime @map("check_in") @db.Date
+  checkOut       DateTime @map("check_out") @db.Date
+  roomsRequired  Int      @map("rooms_required")
+  totalGuests    Int      @map("total_guests")
+  status         String   @default("tentative") @db.NVarChar(20)
+  discountPct    Decimal  @default(0) @map("discount_pct") @db.Decimal(5, 2)
+  notes          String?  @db.NVarChar(Max)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  hotel        Hotel         @relation(fields: [hotelId], references: [id])
+  reservations Reservation[]
+
+  @@index([hotelId])
+  @@map("group_bookings")
+}
+
+// ─── IOT / MOBILE KEYS ───────────────────────────────────────────────────────
+
+model MobileKey {
+  id             String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId        String    @map("hotel_id") @db.UniqueIdentifier
+  reservationId  String?   @map("reservation_id") @db.UniqueIdentifier
+  roomId         String?   @map("room_id") @db.UniqueIdentifier
+  guestAccountId String?   @map("guest_account_id") @db.UniqueIdentifier
+  keyToken       String    @unique @map("key_token") @db.NVarChar(255)
+  validFrom      DateTime  @map("valid_from")
+  validUntil     DateTime  @map("valid_until")
+  revoked        Boolean   @default(false)
+  lastUsedAt     DateTime? @map("last_used_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  hotel        Hotel         @relation(fields: [hotelId], references: [id])
+  reservation  Reservation?  @relation(fields: [reservationId], references: [id])
+  room         Room?         @relation(fields: [roomId], references: [id])
+  guestAccount GuestAccount? @relation(fields: [guestAccountId], references: [id])
+
+  @@index([hotelId])
+  @@map("mobile_keys")
+}
+
+model IotDevice {
+  id         String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId    String    @map("hotel_id") @db.UniqueIdentifier
+  roomId     String?   @map("room_id") @db.UniqueIdentifier
+  deviceType String    @map("device_type") @db.NVarChar(50)
+  deviceId   String    @map("device_id") @db.NVarChar(100)
+  name       String?   @db.NVarChar(160)
+  status     String    @default("active") @db.NVarChar(20)
+  lastSeen   DateTime? @map("last_seen")
+  config     Json      @default("{}")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  hotel    Hotel        @relation(fields: [hotelId], references: [id])
+  room     Room?        @relation(fields: [roomId], references: [id])
+  readings IotReading[]
+
+  @@unique([hotelId, deviceId])
+  @@map("iot_devices")
+}
+
+model IotReading {
+  id         String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  deviceId   String    @map("device_id") @db.UniqueIdentifier
+  metric     String    @db.NVarChar(50)
+  value      Decimal?  @db.Decimal(12, 4)
+  unit       String?   @db.NVarChar(20)
+  recordedAt DateTime  @default(now()) @map("recorded_at")
+
+  device IotDevice @relation(fields: [deviceId], references: [id])
+
+  @@index([deviceId])
+  @@index([recordedAt])
+  @@map("iot_readings")
+}
+
+// ─── DISTRIBUTION CHANNELS ────────────────────────────────────────────────────
+
+model DistributionChannel {
+  id        String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId   String    @map("hotel_id") @db.UniqueIdentifier
+  channel   String    @db.NVarChar(40)
+  status    String    @default("active") @db.NVarChar(20)
+  config    Json      @default("{}")
+  lastSync  DateTime? @map("last_sync")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@unique([hotelId, channel])
+  @@map("distribution_channels")
+}
+
+// ─── REVENUE MANAGEMENT ───────────────────────────────────────────────────────
+
+model RevenueTarget {
+  id                String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId           String   @map("hotel_id") @db.UniqueIdentifier
+  year              Int
+  month             Int
+  targetRevenue     Decimal  @map("target_revenue") @db.Decimal(14, 2)
+  targetOccupancy   Decimal  @map("target_occupancy") @db.Decimal(5, 4)
+  targetAdr         Decimal  @map("target_adr") @db.Decimal(12, 2)
+  actualRevenue     Decimal  @default(0) @map("actual_revenue") @db.Decimal(14, 2)
+  actualOccupancy   Decimal  @default(0) @map("actual_occupancy") @db.Decimal(5, 4)
+  actualAdr         Decimal  @default(0) @map("actual_adr") @db.Decimal(12, 2)
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@unique([hotelId, year, month])
+  @@map("revenue_targets")
+}
+
+// ─── BILLING PLATFORM ────────────────────────────────────────────────────────
+
+model SubscriptionEvent {
+  id              String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  organizationId  String   @map("organization_id") @db.UniqueIdentifier
+  provider        String   @db.NVarChar(50)
+  providerEventId String?  @unique @map("provider_event_id") @db.NVarChar(255)
+  eventType       String   @map("event_type") @db.NVarChar(100)
+  status          String?  @db.NVarChar(20)
+  payload         Json     @default("{}")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@map("subscription_events")
+}
+
+model BackupRun {
+  id          String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  provider    String    @db.NVarChar(50)
+  status      String    @db.NVarChar(20)
+  backupUrl   String?   @map("backup_url") @db.NVarChar(Max)
+  checksum    String?   @db.NVarChar(100)
+  sizeBytes   BigInt?   @map("size_bytes")
+  error       String?   @db.NVarChar(Max)
+  startedAt   DateTime  @map("started_at")
+  finishedAt  DateTime? @map("finished_at")
+
+  @@map("backup_runs")
+}
+
+model OperationalEvent {
+  id         String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId    String?   @map("hotel_id") @db.UniqueIdentifier
+  eventType  String    @map("event_type") @db.NVarChar(100)
+  severity   String    @db.NVarChar(20)
+  title      String    @db.NVarChar(255)
+  details    Json      @default("{}")
+  source     String    @db.NVarChar(50)
+  resolvedAt DateTime? @map("resolved_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel? @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("operational_events")
+}
+
+// ─── AUTOMATION ───────────────────────────────────────────────────────────────
+
+model AutomationRule {
+  id            String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId       String   @map("hotel_id") @db.UniqueIdentifier
+  name          String   @db.NVarChar(255)
+  trigger       String   @db.NVarChar(100)
+  channel       String   @db.NVarChar(40)
+  templateKey   String   @map("template_key") @db.NVarChar(100)
+  enabled       Boolean  @default(true)
+  delayMinutes  Int      @default(0) @map("delay_minutes")
+  createdBy     String?  @map("created_by") @db.UniqueIdentifier
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  hotel          Hotel           @relation(fields: [hotelId], references: [id])
+  automationRuns AutomationRun[]
+
+  @@index([hotelId])
+  @@map("automation_rules")
+}
+
+model AutomationRun {
+  id            String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId       String    @map("hotel_id") @db.UniqueIdentifier
+  ruleId        String?   @map("rule_id") @db.UniqueIdentifier
+  reservationId String?   @map("reservation_id") @db.UniqueIdentifier
+  channel       String    @db.NVarChar(40)
+  status        String    @default("pending") @db.NVarChar(20)
+  dedupeKey     String    @unique @map("dedupe_key") @db.NVarChar(255)
+  payload       Json      @default("{}")
+  error         String?   @db.NVarChar(Max)
+  sentAt        DateTime? @map("sent_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel          @relation(fields: [hotelId], references: [id])
+  rule        AutomationRule? @relation(fields: [ruleId], references: [id])
+  reservation Reservation?   @relation(fields: [reservationId], references: [id])
+
+  @@index([hotelId])
+  @@map("automation_runs")
+}
+
+// ─── AI CONCIERGE ─────────────────────────────────────────────────────────────
+
+model AiConciergeKnowledge {
+  id        String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId   String   @map("hotel_id") @db.UniqueIdentifier
+  title     String   @db.NVarChar(255)
+  content   String   @db.NVarChar(Max)
+  tags      Json     @default("[]")
+  enabled   Boolean  @default(true)
+  createdBy String?  @map("created_by") @db.UniqueIdentifier
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("ai_concierge_knowledge")
+}
+
+model AiConciergeLog {
+  id             String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId        String   @map("hotel_id") @db.UniqueIdentifier
+  conversationId String?  @map("conversation_id") @db.UniqueIdentifier
+  reservationId  String?  @map("reservation_id") @db.UniqueIdentifier
+  input          String   @db.NVarChar(Max)
+  output         String   @db.NVarChar(Max)
+  confidence     Decimal  @db.Decimal(5, 4)
+  needsHuman     Boolean  @default(false) @map("needs_human")
+  createdBy      String?  @map("created_by") @db.UniqueIdentifier
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  hotel        Hotel         @relation(fields: [hotelId], references: [id])
+  conversation Conversation? @relation(fields: [conversationId], references: [id])
+  reservation  Reservation?  @relation(fields: [reservationId], references: [id])
+
+  @@index([hotelId])
+  @@map("ai_concierge_logs")
+}
+
+// ─── LOCALIZATION ─────────────────────────────────────────────────────────────
+
+model HotelLocalizationSettings {
+  hotelId                  String   @id @map("hotel_id") @db.UniqueIdentifier
+  defaultLocale            String   @default("th") @map("default_locale") @db.NVarChar(10)
+  enabledLocales           Json     @map("enabled_locales")
+  autoDetectGuestLanguage  Boolean  @default(true) @map("auto_detect_guest_language")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@map("hotel_localization_settings")
+}
+
+// ─── OTA ──────────────────────────────────────────────────────────────────────
+
+model OtaConnection {
+  id                 String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId            String    @map("hotel_id") @db.UniqueIdentifier
+  provider           String    @db.NVarChar(40)
+  externalPropertyId String    @map("external_property_id") @db.NVarChar(100)
+  status             String    @default("active") @db.NVarChar(20)
+  syncRates          Boolean   @default(true) @map("sync_rates")
+  syncInventory      Boolean   @default(true) @map("sync_inventory")
+  syncReservations   Boolean   @default(true) @map("sync_reservations")
+  lastSyncAt         DateTime? @map("last_sync_at")
+  createdBy          String?   @map("created_by") @db.UniqueIdentifier
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  otaSyncLogs OtaSyncLog[]
+
+  @@unique([hotelId, provider, externalPropertyId])
+  @@map("ota_connections")
+}
+
+model OtaSyncLog {
+  id           String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId      String    @map("hotel_id") @db.UniqueIdentifier
+  connectionId String?   @map("connection_id") @db.UniqueIdentifier
+  provider     String    @db.NVarChar(40)
+  direction    String    @db.NVarChar(20)
+  status       String    @db.NVarChar(20)
+  payload      Json      @default("{}")
+  error        String?   @db.NVarChar(Max)
+  createdBy    String?   @map("created_by") @db.UniqueIdentifier
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  hotel      Hotel          @relation(fields: [hotelId], references: [id])
+  connection OtaConnection? @relation(fields: [connectionId], references: [id])
+
+  @@index([hotelId])
+  @@map("ota_sync_logs")
+}
+
+// ─── GO-LIVE ──────────────────────────────────────────────────────────────────
+
+model GoLiveCheck {
+  id         String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId    String?   @map("hotel_id") @db.UniqueIdentifier
+  checkKey   String    @map("check_key") @db.NVarChar(100)
+  status     String    @db.NVarChar(20)
+  notes      String?   @db.NVarChar(Max)
+  checkedBy  String?   @map("checked_by") @db.UniqueIdentifier
+  checkedAt  DateTime  @map("checked_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel? @relation(fields: [hotelId], references: [id])
+
+  @@unique([hotelId, checkKey])
+  @@map("go_live_checks")
+}
+
+// ─── BILLING SUBSCRIPTIONS ────────────────────────────────────────────────────
+
+model BillingSubscription {
+  id                   String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  orgId                String    @unique @map("org_id") @db.UniqueIdentifier
+  plan                 String    @db.NVarChar(50)
+  status               String    @db.NVarChar(20)
+  currentPeriodStart   DateTime? @map("current_period_start")
+  currentPeriodEnd     DateTime? @map("current_period_end")
+  stripeSubscriptionId String?   @map("stripe_subscription_id") @db.NVarChar(255)
+  trialEndsAt          DateTime? @map("trial_ends_at")
+  cancelledAt          DateTime? @map("cancelled_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  @@map("billing_subscriptions")
+}
+
+model BillingInvoice {
+  id              String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  orgId           String    @map("org_id") @db.UniqueIdentifier
+  amount          Decimal   @db.Decimal(12, 2)
+  currency        String    @default("USD") @db.NVarChar(10)
+  status          String    @db.NVarChar(20)
+  dueDate         DateTime? @map("due_date") @db.Date
+  paidAt          DateTime? @map("paid_at")
+  pdfUrl          String?   @map("pdf_url") @db.NVarChar(Max)
+  stripeInvoiceId String?   @map("stripe_invoice_id") @db.NVarChar(255)
+  description     String?   @db.NVarChar(500)
+  periodStart     DateTime? @map("period_start")
+  periodEnd       DateTime? @map("period_end")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  @@index([orgId])
+  @@map("billing_invoices")
+}
+
+model BillingCredit {
+  id        String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  orgId     String    @map("org_id") @db.UniqueIdentifier
+  amount    Decimal   @db.Decimal(12, 2)
+  reason    String?   @db.NVarChar(255)
+  issuedBy  String?   @map("issued_by") @db.UniqueIdentifier
+  expiresAt DateTime? @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  @@index([orgId])
+  @@map("billing_credits")
+}
+
+model PlatformAddon {
+  id           String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  orgId        String   @map("org_id") @db.UniqueIdentifier
+  addonType    String   @map("addon_type") @db.NVarChar(50)
+  quantity     Int      @default(1)
+  pricePerUnit Decimal? @map("price_per_unit") @db.Decimal(10, 2)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  @@index([orgId])
+  @@map("platform_addons")
+}
+
+model PlatformAuditLog {
+  id         String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  orgId      String?  @map("org_id") @db.UniqueIdentifier
+  hotelId    String?  @map("hotel_id") @db.UniqueIdentifier
+  userId     String?  @map("user_id") @db.UniqueIdentifier
+  action     String   @db.NVarChar(100)
+  resource   String   @db.NVarChar(100)
+  resourceId String?  @map("resource_id") @db.NVarChar(100)
+  ipAddress  String?  @map("ip_address") @db.NVarChar(50)
+  userAgent  String?  @map("user_agent") @db.NVarChar(500)
+  details    Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  organization Organization? @relation(fields: [orgId], references: [id])
+  hotel        Hotel?        @relation(fields: [hotelId], references: [id])
+
+  @@index([orgId])
+  @@index([hotelId])
+  @@map("platform_audit_logs")
+}
+
+model SystemHealthLog {
+  id           String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  service      String   @db.NVarChar(100)
+  status       String   @db.NVarChar(20)
+  latencyMs    Int?     @map("latency_ms")
+  errorMessage String?  @map("error_message") @db.NVarChar(Max)
+  details      Json     @default("{}")
+  checkedAt    DateTime @default(now()) @map("checked_at")
+
+  @@index([service])
+  @@map("system_health_log")
+}
+
+model PlatformSalesLead {
+  id             String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelName      String    @map("hotel_name") @db.NVarChar(255)
+  contactName    String?   @map("contact_name") @db.NVarChar(255)
+  contactEmail   String    @map("contact_email") @db.NVarChar(255)
+  contactPhone   String?   @map("contact_phone") @db.NVarChar(40)
+  hotelSize      String?   @map("hotel_size") @db.NVarChar(30)
+  stage          String    @default("lead") @db.NVarChar(30)
+  assignedTo     String?   @map("assigned_to") @db.UniqueIdentifier
+  notes          String?   @db.NVarChar(Max)
+  demoDate       DateTime? @map("demo_date")
+  trialStartedAt DateTime? @map("trial_started_at")
+  wonAt          DateTime? @map("won_at")
+  lostReason     String?   @map("lost_reason") @db.NVarChar(255)
+  source         String    @default("organic") @db.NVarChar(50)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("platform_sales_leads")
+}
+
+model FeatureFlag {
+  id             String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  key            String   @unique @db.NVarChar(100)
+  name           String   @db.NVarChar(255)
+  description    String?  @db.NVarChar(Max)
+  enabled        Boolean  @default(false)
+  rolloutPercent Int      @default(0) @map("rollout_percent")
+  targetOrgIds   Json     @default("[]") @map("target_org_ids")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("feature_flags")
+}
+
+model AbTest {
+  id            String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  name          String    @db.NVarChar(255)
+  description   String?   @db.NVarChar(Max)
+  status        String    @default("draft") @db.NVarChar(20)
+  variants      Json      @default("[]")
+  trafficSplit  Json      @default("{}") @map("traffic_split")
+  startedAt     DateTime? @map("started_at")
+  endedAt       DateTime? @map("ended_at")
+  winnerVariant String?   @map("winner_variant") @db.NVarChar(100)
+  results       Json      @default("{}")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@map("ab_tests")
+}
+
+model WebhookEvent {
+  id           String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId      String?   @map("hotel_id") @db.UniqueIdentifier
+  orgId        String?   @map("org_id") @db.UniqueIdentifier
+  platform     String    @db.NVarChar(50)
+  eventType    String    @map("event_type") @db.NVarChar(100)
+  payload      Json      @default("{}")
+  status       String    @default("pending") @db.NVarChar(20)
+  errorMessage String?   @map("error_message") @db.NVarChar(Max)
+  attempts     Int       @default(0)
+  processedAt  DateTime? @map("processed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel? @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("webhook_events")
+}
+
+// ─── APPROVALS ────────────────────────────────────────────────────────────────
+
+model Approval {
+  id             String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId        String    @map("hotel_id") @db.UniqueIdentifier
+  type           String    @db.NVarChar(50)
+  status         String    @default("pending") @db.NVarChar(20)
+  title          String    @db.NVarChar(255)
+  description    String?   @db.NVarChar(Max)
+  amount         Decimal?  @db.Decimal(12, 2)
+  currency       String    @default("THB") @db.NVarChar(10)
+  requestedBy    String    @map("requested_by") @db.UniqueIdentifier
+  approvedBy     String?   @map("approved_by") @db.UniqueIdentifier
+  referenceType  String?   @map("reference_type") @db.NVarChar(50)
+  referenceId    String?   @map("reference_id") @db.UniqueIdentifier
+  slaMinutes     Int       @map("sla_minutes")
+  escalateAfter  Int       @map("escalate_after")
+  dueAt          DateTime? @map("due_at")
+  resolvedAt     DateTime? @map("resolved_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  hotel        Hotel         @relation(fields: [hotelId], references: [id])
+  approvalLogs ApprovalLog[]
+
+  @@index([hotelId])
+  @@map("approvals")
+}
+
+model ApprovalLog {
+  id         String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  approvalId String   @map("approval_id") @db.UniqueIdentifier
+  actorId    String?  @map("actor_id") @db.UniqueIdentifier
+  action     String   @db.NVarChar(50)
+  note       String?  @db.NVarChar(Max)
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  approval Approval @relation(fields: [approvalId], references: [id])
+
+  @@index([approvalId])
+  @@map("approval_logs")
+}
+
+// ─── SLA & ROUTING ────────────────────────────────────────────────────────────
+
+model DepartmentSlaRule {
+  id               String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId          String   @map("hotel_id") @db.UniqueIdentifier
+  department       String   @db.NVarChar(50)
+  taskType         String?  @map("task_type") @db.NVarChar(50)
+  priority         String   @db.NVarChar(20)
+  responseMinutes  Int      @map("response_minutes")
+  resolveMinutes   Int      @map("resolve_minutes")
+  escalateTo       String?  @map("escalate_to") @db.UniqueIdentifier
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@unique([hotelId, department, taskType, priority])
+  @@map("department_sla_rules")
+}
+
+model GuestRequestRoute {
+  id           String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId      String   @map("hotel_id") @db.UniqueIdentifier
+  requestType  String   @map("request_type") @db.NVarChar(100)
+  department   String   @db.NVarChar(50)
+  assignedRole String?  @map("assigned_role") @db.NVarChar(50)
+  slaMinutes   Int      @map("sla_minutes")
+  autoAssign   Boolean  @default(false) @map("auto_assign")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@unique([hotelId, requestType])
+  @@map("guest_request_routes")
+}
+
+// ─── ROOM STATUS EVENTS ───────────────────────────────────────────────────────
+
+model RoomStatusEvent {
+  id            String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId       String   @map("hotel_id") @db.UniqueIdentifier
+  roomId        String   @map("room_id") @db.UniqueIdentifier
+  fromStatus    String?  @map("from_status") @db.NVarChar(20)
+  toStatus      String   @map("to_status") @db.NVarChar(20)
+  triggeredBy   String   @map("triggered_by") @db.NVarChar(50)
+  actorId       String?  @map("actor_id") @db.UniqueIdentifier
+  reservationId String?  @map("reservation_id") @db.UniqueIdentifier
+  workOrderId   String?  @map("work_order_id") @db.UniqueIdentifier
+  notes         String?  @db.NVarChar(Max)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  hotel       Hotel        @relation(fields: [hotelId], references: [id])
+  room        Room         @relation(fields: [roomId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  workOrder   WorkOrder?   @relation(fields: [workOrderId], references: [id])
+
+  @@index([hotelId])
+  @@index([roomId])
+  @@map("room_status_events")
+}
+
+// ─── WORKFLOWS ────────────────────────────────────────────────────────────────
+
+model WorkflowTemplate {
+  id           String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId      String?  @map("hotel_id") @db.UniqueIdentifier
+  name         String   @db.NVarChar(255)
+  triggerEvent String   @map("trigger_event") @db.NVarChar(100)
+  department   String   @db.NVarChar(50)
+  steps        Json     @default("[]")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  hotel Hotel? @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("workflow_templates")
+}
+
+model TaskComment {
+  id          String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  workOrderId String   @map("work_order_id") @db.UniqueIdentifier
+  authorId    String   @map("author_id") @db.UniqueIdentifier
+  body        String   @db.NVarChar(Max)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id])
+
+  @@index([workOrderId])
+  @@map("task_comments")
+}
+
+model TaskAttachment {
+  id          String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  workOrderId String   @map("work_order_id") @db.UniqueIdentifier
+  uploadedBy  String   @map("uploaded_by") @db.UniqueIdentifier
+  storagePath String   @map("storage_path") @db.NVarChar(Max)
+  fileName    String   @map("file_name") @db.NVarChar(255)
+  mimeType    String?  @map("mime_type") @db.NVarChar(100)
+  sizeBytes   Int?     @map("size_bytes")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id])
+
+  @@index([workOrderId])
+  @@map("task_attachments")
+}
+
+// ─── INCIDENTS ────────────────────────────────────────────────────────────────
+
+model OperationalIncident {
+  id          String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId     String    @map("hotel_id") @db.UniqueIdentifier
+  title       String    @db.NVarChar(255)
+  description String?   @db.NVarChar(Max)
+  severity    String    @db.NVarChar(20)
+  status      String    @default("open") @db.NVarChar(20)
+  department  String?   @db.NVarChar(50)
+  reportedBy  String?   @map("reported_by") @db.UniqueIdentifier
+  assignedTo  String?   @map("assigned_to") @db.UniqueIdentifier
+  resolvedBy  String?   @map("resolved_by") @db.UniqueIdentifier
+  roomId      String?   @map("room_id") @db.UniqueIdentifier
+  workOrderId String?   @map("work_order_id") @db.UniqueIdentifier
+  resolvedAt  DateTime? @map("resolved_at")
+  metadata    Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  hotel     Hotel      @relation(fields: [hotelId], references: [id])
+  room      Room?      @relation(fields: [roomId], references: [id])
+  workOrder WorkOrder? @relation(fields: [workOrderId], references: [id])
+
+  @@index([hotelId])
+  @@map("operational_incidents")
+}
+
+// ─── SHIFTS ───────────────────────────────────────────────────────────────────
+
+model Shift {
+  id         String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId    String   @map("hotel_id") @db.UniqueIdentifier
+  name       String   @db.NVarChar(100)
+  startTime  String   @map("start_time") @db.NVarChar(10)
+  endTime    String   @map("end_time") @db.NVarChar(10)
+  department String?  @db.NVarChar(50)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  hotel         Hotel           @relation(fields: [hotelId], references: [id])
+  shiftHandovers ShiftHandover[]
+
+  @@index([hotelId])
+  @@map("shifts")
+}
+
+model ShiftHandover {
+  id          String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId     String    @map("hotel_id") @db.UniqueIdentifier
+  shiftId     String?   @map("shift_id") @db.UniqueIdentifier
+  department  String    @db.NVarChar(50)
+  handedBy    String    @map("handed_by") @db.UniqueIdentifier
+  receivedBy  String?   @map("received_by") @db.UniqueIdentifier
+  summary     String    @db.NVarChar(Max)
+  openItems   Json      @default("[]") @map("open_items")
+  vipNotes    String?   @map("vip_notes") @db.NVarChar(Max)
+  incidents   Json      @default("[]")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel  @relation(fields: [hotelId], references: [id])
+  shift Shift? @relation(fields: [shiftId], references: [id])
+
+  @@index([hotelId])
+  @@map("shift_handovers")
+}
+
+// ─── STAFF NOTIFICATIONS ─────────────────────────────────────────────────────
+
+model StaffNotification {
+  id        String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId   String    @map("hotel_id") @db.UniqueIdentifier
+  userId    String    @map("user_id") @db.UniqueIdentifier
+  actorId   String?   @map("actor_id") @db.UniqueIdentifier
+  type      String    @db.NVarChar(50)
+  priority  String    @default("normal") @db.NVarChar(20)
+  title     String    @db.NVarChar(255)
+  body      String    @db.NVarChar(Max)
+  deepLink  String?   @map("deep_link") @db.NVarChar(Max)
+  metadata  Json      @default("{}")
+  isRead    Boolean   @default(false) @map("is_read")
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId, userId])
+  @@map("staff_notifications")
+}
+
+// ─── CRM SEGMENTS ─────────────────────────────────────────────────────────────
+
+model CrmSegmentDefinition {
+  id        String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId   String   @map("hotel_id") @db.UniqueIdentifier
+  name      String   @db.NVarChar(255)
+  type      String   @db.NVarChar(50)
+  rules     Json     @default("{}")
+  isActive  Boolean  @default(true) @map("is_active")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  hotel   Hotel              @relation(fields: [hotelId], references: [id])
+  members CrmSegmentMember[]
+
+  @@index([hotelId])
+  @@map("crm_segment_definitions")
+}
+
+model CrmSegmentMember {
+  segmentId String   @map("segment_id") @db.UniqueIdentifier
+  guestId   String   @map("guest_id") @db.UniqueIdentifier
+  enteredAt DateTime @default(now()) @map("entered_at")
+  score     Decimal? @db.Decimal(8, 4)
+
+  segment CrmSegmentDefinition @relation(fields: [segmentId], references: [id])
+  guest   Guest                @relation(fields: [guestId], references: [id])
+
+  @@id([segmentId, guestId])
+  @@map("crm_segment_members")
+}
+
+// ─── CONVERSATION ROUTING ─────────────────────────────────────────────────────
+
+model ConversationRoutingRule {
+  id                    String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId               String   @map("hotel_id") @db.UniqueIdentifier
+  name                  String   @db.NVarChar(255)
+  sentiment             String   @db.NVarChar(20)
+  emotionScoreLt        Decimal? @map("emotion_score_lt") @db.Decimal(5, 4)
+  assignToRole          String   @map("assign_to_role") @db.NVarChar(50)
+  slaMinutes            Int      @map("sla_minutes")
+  escalateAfterMinutes  Int?     @map("escalate_after_minutes")
+  isActive              Boolean  @default(true) @map("is_active")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@map("conversation_routing_rules")
+}
+
+// ─── USER ADDITIONAL ROLES ────────────────────────────────────────────────────
+
+model UserAdditionalRole {
+  id        String   @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  hotelId   String   @map("hotel_id") @db.UniqueIdentifier
+  role      String   @db.NVarChar(50)
+  grantedBy String?  @map("granted_by") @db.UniqueIdentifier
+  grantedAt DateTime @default(now()) @map("granted_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@unique([userId, hotelId, role])
+  @@index([hotelId])
+  @@map("user_additional_roles")
+}
+
+// ─── REVIEW REQUESTS ──────────────────────────────────────────────────────────
+
+model ReviewRequest {
+  id            String    @id @default(dbgenerated("NEWID()")) @db.UniqueIdentifier
+  hotelId       String?   @map("hotel_id") @db.UniqueIdentifier
+  reservationId String?   @unique @map("reservation_id") @db.UniqueIdentifier
+  guestId       String?   @map("guest_id") @db.UniqueIdentifier
+  channel       String    @db.NVarChar(30)
+  emailSent     Boolean   @default(false) @map("email_sent")
+  lineSent      Boolean   @default(false) @map("line_sent")
+  reviewLink    String?   @map("review_link") @db.NVarChar(Max)
+  sentAt        DateTime  @default(now()) @map("sent_at")
+  openedAt      DateTime? @map("opened_at")
+  reviewedAt    DateTime? @map("reviewed_at")
+  reviewId      String?   @map("review_id") @db.UniqueIdentifier
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  hotel       Hotel?       @relation(fields: [hotelId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  guest       Guest?       @relation(fields: [guestId], references: [id])
+
+  @@index([hotelId])
+  @@map("review_requests")
+}
