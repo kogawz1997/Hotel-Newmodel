@@ -11,6 +11,7 @@ const PORTAL_PUBLIC = [
   '/portal/forgot-password',
   '/portal/reset-password',
   '/portal/auth',
+  '/portal/scan',
 ];
 
 const KNOWN_HOSTNAME_PATTERNS = ['localhost', '127.0.0.1', 'vercel.app', 'vercel.dev'];
@@ -181,7 +182,7 @@ export async function middleware(request: NextRequest) {
       if (user) {
         if (isGuest) {
           // Already logged in as guest → guest home
-          return NextResponse.redirect(new URL('/portal/bookings', request.url));
+          return NextResponse.redirect(new URL('/portal/home', request.url));
         }
         if (profile) {
           // Staff hitting any public portal page → staff portal
@@ -201,7 +202,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/owner/login')
   ) {
     if (user && user.user_metadata?.user_type === 'guest') {
-      return NextResponse.redirect(new URL('/portal/bookings', request.url));
+      return NextResponse.redirect(new URL('/portal/home', request.url));
     }
   }
 

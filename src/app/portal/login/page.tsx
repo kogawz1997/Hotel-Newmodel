@@ -85,7 +85,7 @@ const stagger = {
 
 export default function GuestLoginPage() {
   const router = useRouter();
-  const [next, setNext] = useState('/portal/bookings');
+  const [next, setNext] = useState('/portal/home');
   const [mode, setMode] = useState<Mode>('login');
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<OAuthProvider | null>(null);
