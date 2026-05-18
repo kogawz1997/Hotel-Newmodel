@@ -223,32 +223,32 @@ export default function LoyaltyPortalPage() {
                 })}
               </div>
               {redeemResult && (
-                <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-                  <p className="text-sm font-bold text-emerald-700">แลกคะแนนสำเร็จ! 🎉</p>
-                  <p className="text-xs text-emerald-600 mt-1">รางวัล: {redeemResult.label}</p>
-                  <p className="text-xs text-emerald-600 mt-0.5">โค้ดส่วนลด: <span className="font-mono font-bold tracking-wider">{redeemResult.couponCode}</span></p>
-                  <p className="text-xs text-emerald-600/70 mt-1">นำโค้ดนี้ไปกรอกเมื่อจองครั้งถัดไป</p>
+                <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                  <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">แลกคะแนนสำเร็จ!</p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400/80 mt-1">รางวัล: {redeemResult.label}</p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400/80 mt-0.5">โค้ดส่วนลด: <span className="font-mono font-bold tracking-wider">{redeemResult.couponCode}</span></p>
+                  <p className="text-xs text-emerald-600/70 dark:text-emerald-400/60 mt-1">นำโค้ดนี้ไปกรอกเมื่อจองครั้งถัดไป</p>
                 </div>
               )}
             </div>
 
             {/* Birthday perks */}
-            <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl border border-pink-100 p-5">
+            <div className="bg-gradient-to-br from-rose-500/6 to-pink-500/4 dark:from-rose-500/8 dark:to-pink-500/6 rounded-2xl border border-rose-500/15 p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Cake className="h-4 w-4 text-rose-500" />
                 <h2 className="font-bold text-foreground">Birthday Privileges</h2>
-                <span className="text-xs bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full font-medium">ระดับ {tier.label}</span>
+                <span className="text-xs bg-rose-500/12 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full font-medium">ระดับ {tier.label}</span>
               </div>
               <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="bg-card rounded-xl p-3 text-center border border-pink-100">
+                <div className="bg-card rounded-xl p-3 text-center border border-rose-500/12">
                   <p className="text-2xl font-bold text-rose-500">{bPerks.discount}%</p>
                   <p className="text-2xs text-muted-foreground mt-0.5">ส่วนลดในเดือนเกิด</p>
                 </div>
-                <div className="bg-card rounded-xl p-3 text-center border border-pink-100">
+                <div className="bg-card rounded-xl p-3 text-center border border-rose-500/12">
                   <p className="text-2xl font-bold text-rose-500">{bPerks.bonus.toLocaleString()}</p>
                   <p className="text-2xs text-muted-foreground mt-0.5">แต้มโบนัสพิเศษ</p>
                 </div>
-                <div className="bg-card rounded-xl p-3 text-center border border-pink-100">
+                <div className="bg-card rounded-xl p-3 text-center border border-rose-500/12">
                   <p className="text-xs font-bold text-rose-500 leading-tight">{bPerks.gift}</p>
                   <p className="text-2xs text-muted-foreground mt-0.5">ของขวัญพิเศษ</p>
                 </div>
@@ -260,7 +260,7 @@ export default function LoyaltyPortalPage() {
                     type="date"
                     value={birthday}
                     onChange={e => setBirthday(e.target.value)}
-                    className="flex-1 px-3 py-2 text-sm bg-white border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-rose-400"
+                    className="flex-1 px-3 py-2 text-sm bg-card border border-rose-500/20 rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-rose-400/30 focus:border-rose-400/50"
                   />
                   <button
                     onClick={saveBirthday}

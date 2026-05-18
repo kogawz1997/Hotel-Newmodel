@@ -142,21 +142,26 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
             { v: 3.5, label: 'ดีมาก',         sub: '3.5+' },
             { v: 3.0, label: 'ดี',            sub: '3.0+' },
             { v: 0,   label: 'ทั้งหมด',       sub: ''     },
-          ].map(r => (
-            <button
-              key={r.v}
-              onClick={() => setQuery(p => ({ ...p, minRating: r.v }))}
-              className={cn(
-                'w-full flex items-center justify-between px-3 py-2 text-sm transition-all text-left',
-                query.minRating === r.v
-                  ? 'bg-foreground text-background rounded-xl'
-                  : 'hover:bg-muted/50 text-muted-foreground rounded-xl',
-              )}
-            >
-              <span>{r.label}</span>
-              {r.sub && <span className="text-xs opacity-60">{r.sub}</span>}
-            </button>
-          ))}
+          ].map(r => {
+            const active = query.minRating === r.v && r.v > 0;
+            return (
+              <button
+                key={r.v}
+                onClick={() => setQuery(p => ({ ...p, minRating: r.v }))}
+                className={cn(
+                  'w-full flex items-center justify-between px-3 py-2 text-sm rounded-xl transition-all text-left',
+                  active
+                    ? 'bg-amber-500/12 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-medium border border-amber-500/25'
+                    : query.minRating === r.v
+                    ? 'bg-muted/50 text-foreground font-medium'
+                    : 'hover:bg-muted/50 text-muted-foreground',
+                )}
+              >
+                <span>{r.label}</span>
+                {r.sub && <span className="text-xs opacity-60">{r.sub}</span>}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -175,7 +180,7 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
                   'w-5 h-5 rounded border-2 flex items-center justify-center transition-all shrink-0 cursor-pointer',
                   query[item.key]
                     ? 'bg-[#C66A30] border-[#C66A30]'
-                    : 'border-black/20 group-hover:border-[#C66A30]/50',
+                    : 'border-border group-hover:border-[#C66A30]/50',
                 )}
               >
                 {query[item.key] && <Check className="h-3 w-3 text-white" />}
