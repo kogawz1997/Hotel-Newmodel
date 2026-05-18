@@ -30,13 +30,14 @@ export async function POST(request: NextRequest) {
   if (!authData.user) return NextResponse.json({ error: 'สมัครไม่สำเร็จ' }, { status: 500 });
 
   const admin = createAdminClient();
-  // Use upsert: a DB trigger may have already created a partial guest_accounts row
-  // on auth.users insert. Upserting ensures our full data wins without 409 conflicts.
   const { error } = await admin.from('guest_accounts').upsert({
     id: authData.user.id, email,
     first_name: firstName, last_name: lastName || null,
     phone: phone || null, marketing_consent: marketingConsent || false,
   }, { onConflict: 'id' });
-  if (error) return dbError(error);
+  if (error) {
+    console.error('[register] guest_accounts upsert failed:', error.code, error.message);
+    return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
+  }
   return NextResponse.json({ success: true });
 }
