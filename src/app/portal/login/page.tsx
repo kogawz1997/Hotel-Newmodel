@@ -317,7 +317,7 @@ export default function GuestLoginPage() {
                     {PROVIDERS.map(p => (
                       p.soon ? (
                         <div key={p.id}
-                          className={`relative flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-medium opacity-50 ${p.className}`}>
+                          className={`relative flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed pointer-events-none select-none ${p.className}`}>
                           {p.icon}
                           <span>{p.label}</span>
                           <span className="absolute -top-1.5 -right-1.5 bg-foreground text-background text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">

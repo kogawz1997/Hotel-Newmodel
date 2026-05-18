@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { ChevronLeft } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'เงื่อนไขการใช้งาน — Maitri',
@@ -12,7 +13,14 @@ export default function TermsPage() {
     <div className="min-h-screen bg-[#FAF7F2]">
       <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="font-serif text-xl font-medium text-[#2A2522]">🪷 Maitri</Link>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-1 text-sm text-[#2A2522]/50 hover:text-[#2A2522] transition-colors">
+              <ChevronLeft className="h-4 w-4" />
+              <span>กลับ</span>
+            </Link>
+            <span className="text-[#2A2522]/20">|</span>
+            <span className="font-serif text-base font-medium text-[#2A2522]">🪷 Maitri</span>
+          </div>
           <Link href="/portal/login" className="text-sm text-[#C66A30] hover:underline">เข้าสู่ระบบ</Link>
         </div>
       </nav>

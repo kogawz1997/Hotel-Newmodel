@@ -4,6 +4,7 @@ import { SearchHeader } from '@/components/public/SearchHeader';
 import { FAQSection } from '@/components/public/FAQSection';
 import { SeasonalBanner } from '@/components/public/SeasonalBanner';
 import { RecentlyViewed } from '@/components/public/RecentlyViewed';
+import { HomeNav } from '@/components/public/HomeNav';
 import { IMAGES } from '@/lib/images';
 import { ArrowRight, ChevronRight, Star, ShieldCheck, Tag, CreditCard, Search, CalendarCheck, Heart } from 'lucide-react';
 
@@ -52,39 +53,6 @@ const TESTIMONIALS = [
   },
 ];
 
-const SOCIAL_PROVIDERS = [
-  {
-    label: 'Google',
-    className: 'bg-white border border-white/30 text-gray-800 hover:bg-white/90 shadow-sm',
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" aria-hidden>
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Facebook',
-    className: 'bg-[#1877F2] border border-[#1877F2] text-white hover:bg-[#166FE5] shadow-sm',
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-white" aria-hidden>
-        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Apple',
-    className: 'bg-white/10 border border-white/30 text-white hover:bg-white/20 shadow-sm backdrop-blur-sm',
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-white" aria-hidden>
-        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-      </svg>
-    ),
-  },
-];
-
 const STATS = [
   { value: '50,000+', label: 'ที่พัก' },
   { value: '4.9/5',   label: 'คะแนน' },
@@ -97,34 +65,7 @@ export default function GuestHomePage() {
     <div className="min-h-screen bg-background text-foreground">
 
       {/* ─── Navigation ─────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-[#1C1410]/90 backdrop-blur-xl border-b border-white/8">
-        <div className="container max-w-7xl flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="h-9 w-9 bg-gradient-to-br from-[#C66A30] to-[#A4522A] rounded-xl flex items-center justify-center shadow-lg shadow-[#C66A30]/25">
-              <span className="text-white font-bold text-sm">M</span>
-            </div>
-            <span className="font-serif text-xl font-semibold text-white tracking-tight">Maitri</span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-7 text-sm font-medium text-white/70">
-            <Link href="/search" className="hover:text-white transition-colors">ค้นหาที่พัก</Link>
-            <a href="#destinations" className="hover:text-white transition-colors">จุดหมาย</a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">วิธีจอง</a>
-            <a href="#reviews" className="hover:text-white transition-colors">รีวิว</a>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Link href="/portal/login"
-              className="text-sm text-white/80 hover:text-white px-4 py-2 rounded-xl hover:bg-white/10 transition-all font-medium">
-              เข้าสู่ระบบ
-            </Link>
-            <Link href="/portal/login"
-              className="text-sm bg-[#C66A30] hover:bg-[#B05B28] text-white px-5 py-2 rounded-full font-semibold transition-colors shadow-lg shadow-[#C66A30]/30">
-              สมัครสมาชิก
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <HomeNav />
 
       {/* ─── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -171,20 +112,17 @@ export default function GuestHomePage() {
               <SearchHeader variant="hero" />
             </div>
 
-            {/* Social login */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <span className="text-white/60 text-sm font-medium shrink-0 whitespace-nowrap">
-                หรือเข้าสู่ระบบด้วย
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {SOCIAL_PROVIDERS.map(p => (
-                  <Link key={p.label} href="/portal/login"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${p.className}`}>
-                    {p.icon}
-                    {p.label}
-                  </Link>
-                ))}
-              </div>
+            {/* CTA link */}
+            <div className="flex items-center gap-3">
+              <Link href="/portal/login"
+                className="text-sm text-white/60 hover:text-white/90 transition-colors underline underline-offset-4 decoration-white/30">
+                มีบัญชีอยู่แล้ว? เข้าสู่ระบบ
+              </Link>
+              <span className="text-white/30">·</span>
+              <Link href="/portal/login"
+                className="text-sm text-[#E8A87C] hover:text-[#F5C9A0] transition-colors underline underline-offset-4 decoration-[#E8A87C]/30">
+                สมัครสมาชิกฟรี
+              </Link>
             </div>
           </div>
         </div>
@@ -416,19 +354,12 @@ export default function GuestHomePage() {
             </Link>
           </div>
 
-          {/* Social login */}
-          <div className="flex flex-col items-center gap-3">
-            <p className="text-white/55 text-xs font-medium">หรือเข้าสู่ระบบด้วย</p>
-            <div className="flex justify-center gap-2 flex-wrap">
-              {SOCIAL_PROVIDERS.map(p => (
-                <Link key={p.label} href="/portal/login"
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${p.className}`}>
-                  {p.icon}
-                  {p.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+          <p className="text-white/40 text-xs">
+            มีบัญชีอยู่แล้ว?{' '}
+            <Link href="/portal/login" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">
+              เข้าสู่ระบบ
+            </Link>
+          </p>
         </div>
       </section>
 
