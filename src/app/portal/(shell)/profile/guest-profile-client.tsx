@@ -231,9 +231,12 @@ function ProfileTab({ guest, supabase, s }: { guest: any; supabase: any; s: PStr
 
   async function save() {
     setSaving(true);
-    const { error } = await supabase.from('guest_accounts').update({ ...form }).eq('id', guest.id);
+    const res = await fetch('/api/guest/account', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
     setSaving(false);
-    if (error) toast.error(s.error); else toast.success(s.saved);
+    if (!res.ok) toast.error(s.error); else toast.success(s.saved);
   }
 
   return (
@@ -421,11 +424,12 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
 
   async function save() {
     setSaving(true);
-    const { error } = await supabase.from('guest_accounts').update({
-      preferred_language: form.preferred_language, marketing_consent: form.marketing_consent,
-    }).eq('id', guest.id);
+    const res = await fetch('/api/guest/account', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ preferred_language: form.preferred_language, marketing_consent: form.marketing_consent }),
+    });
     setSaving(false);
-    if (error) toast.error(s.error); else toast.success(s.saved);
+    if (!res.ok) toast.error(s.error); else toast.success(s.saved);
   }
 
   return (
@@ -579,7 +583,7 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
   function saveConsents() {
     setSaving(true);
     localStorage.setItem(storageKey, JSON.stringify(consents));
-    supabase.from('guest_accounts').update({ marketing_consent: consents.marketing }).eq('id', guest.id).then(() => {});
+    fetch('/api/guest/account', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ marketing_consent: consents.marketing }) }).catch(() => {});
     setTimeout(() => { setSaving(false); toast.success(s.saved); }, 400);
   }
 
