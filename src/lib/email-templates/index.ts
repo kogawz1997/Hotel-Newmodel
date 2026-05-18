@@ -476,3 +476,30 @@ export async function sendRefundConfirmationEmail(data: RefundConfirmationData) 
     text: `การคืนเงิน ${fmt(data.refundAmount)} สำหรับการจอง ${data.reservationCode} ที่ ${data.hotelName} ดำเนินการสำเร็จแล้ว`,
   });
 }
+
+// ─── 9. Guest Password Reset ──────────────────────────────────────────────────
+
+interface PasswordResetData {
+  to: string;
+  guestName: string;
+  resetUrl: string;
+}
+
+export async function sendPasswordResetEmail(data: PasswordResetData) {
+  const body = `
+    <h2 style="margin:0 0 4px;font-size:22px;color:#2A2522;">รีเซ็ตรหัสผ่าน</h2>
+    <p style="margin:0 0 24px;color:#888;font-size:14px;">สวัสดีคุณ ${data.guestName}</p>
+    <p style="margin:0 0 24px;font-size:14px;color:#2A2522;">เราได้รับคำขอรีเซ็ตรหัสผ่านสำหรับบัญชีของคุณ กดปุ่มด้านล่างเพื่อตั้งรหัสผ่านใหม่ ลิงก์นี้จะหมดอายุใน 1 ชั่วโมง</p>
+    <div style="text-align:center;margin:32px 0;">
+      ${btn('ตั้งรหัสผ่านใหม่', data.resetUrl)}
+    </div>
+    <p style="font-size:12px;color:#aaa;margin:0;">หากคุณไม่ได้ขอรีเซ็ตรหัสผ่าน ไม่ต้องดำเนินการใดๆ รหัสผ่านเดิมจะยังคงใช้งานได้ตามปกติ</p>
+  `;
+  await sgMail.send({
+    to: data.to,
+    from: FROM,
+    subject: '🔑 รีเซ็ตรหัสผ่าน Maitri',
+    html: base('รีเซ็ตรหัสผ่าน', body),
+    text: `รีเซ็ตรหัสผ่าน Maitri — กดลิงก์นี้เพื่อตั้งรหัสผ่านใหม่: ${data.resetUrl}`,
+  });
+}
