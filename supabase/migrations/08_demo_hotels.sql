@@ -166,7 +166,7 @@ VALUES
         'b0000000-0000-0000-0000-000000000002',
         'Pool Access Room',
         'POOL-AC',
-        'Intimate room with direct step-out access to the villa's serene saltwater pool. Blends indoor comfort with outdoor living through full-width sliding doors opening onto a private sala.',
+        'Intimate room with direct step-out access to the villa''s serene saltwater pool. Blends indoor comfort with outdoor living through full-width sliding doors opening onto a private sala.',
         2, 3200.00,
         '["wifi", "air_conditioning", "minibar", "safe", "balcony", "bathtub", "tv", "coffee_maker", "bathrobe", "pool_access", "outdoor_sala"]',
         48, 'king'
@@ -328,7 +328,7 @@ VALUES
         'b0000000-0000-0000-0000-000000000004',
         'Tropical Garden Room',
         'TRP-GD',
-        'A serene retreat nestled within a verdant coconut-palm garden on the island of Koh Samui. The room's natural rattan furnishings, open-air rain shower, and soothing earthy palette create a genuine sense of island escape.',
+        'A serene retreat nestled within a verdant coconut-palm garden on the island of Koh Samui. The room''s natural rattan furnishings, open-air rain shower, and soothing earthy palette create a genuine sense of island escape.',
         2, 2900.00,
         '["wifi", "air_conditioning", "safe", "tv", "coffee_maker", "bathrobe", "garden_view", "outdoor_shower", "hammock"]',
         38, 'queen'
