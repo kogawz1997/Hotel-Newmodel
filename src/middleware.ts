@@ -153,52 +153,38 @@ export async function middleware(request: NextRequest) {
   }
 
   // ─── Guest portal — complete isolation ─────────────────────────────
-  // All /portal/* routes except PORTAL_PUBLIC require a guest_accounts row.
+  // All /portal/* routes except PORTAL_PUBLIC require a guest session.
   // Staff users are sent back to their own system; no cross-access allowed.
+  // Guest identity is determined from user_metadata.user_type ('guest')
+  // set at registration — avoids a DB query that RLS might block.
   if (pathname.startsWith('/portal')) {
     const isPublicPortalPath = PORTAL_PUBLIC.some(p => pathname.startsWith(p));
+    const isGuest = user?.user_metadata?.user_type === 'guest';
 
     if (!isPublicPortalPath) {
-      // Protected portal page — must have a guest session
       if (!user) {
         const url = new URL('/portal/login', request.url);
         url.searchParams.set('next', pathname);
         return NextResponse.redirect(url);
       }
 
-      const { data: guestAccount } = await supabase
-        .from('guest_accounts')
-        .select('id')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (!guestAccount) {
-        // Logged-in but NOT a guest (staff account) — send to staff portal
+      if (!isGuest) {
+        // Logged-in but NOT a guest (staff/owner account) — send to staff portal
         if (profile) {
           return NextResponse.redirect(new URL('/dashboard', request.url));
         }
-        // Authenticated but no guest_accounts and no profile — force re-login
+        // Authenticated but no guest metadata and no profile — force re-login
         return NextResponse.redirect(new URL('/portal/login', request.url));
       }
     } else {
       // Public portal page (/portal/login etc.) — redirect if already authenticated
       if (user) {
-        const { data: guestAccount } = await supabase
-          .from('guest_accounts')
-          .select('id')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (guestAccount) {
+        if (isGuest) {
           // Already logged in as guest → guest home
           return NextResponse.redirect(new URL('/portal/bookings', request.url));
         }
-        if (profile && !pathname.startsWith('/portal/login')) {
-          // Staff hitting /portal/forgot-password etc. → staff portal
-          return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
-        if (profile && pathname.startsWith('/portal/login')) {
-          // Staff hitting /portal/login → redirect to staff portal
+        if (profile) {
+          // Staff hitting any public portal page → staff portal
           return NextResponse.redirect(new URL('/dashboard', request.url));
         }
       }
@@ -214,16 +200,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/auth') ||
     pathname.startsWith('/owner/login')
   ) {
-    if (user) {
-      const { data: guestAccount } = await supabase
-        .from('guest_accounts')
-        .select('id')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (guestAccount) {
-        return NextResponse.redirect(new URL('/portal/bookings', request.url));
-      }
+    if (user && user.user_metadata?.user_type === 'guest') {
+      return NextResponse.redirect(new URL('/portal/bookings', request.url));
     }
   }
 
