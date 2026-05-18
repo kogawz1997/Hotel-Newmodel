@@ -216,7 +216,7 @@ if (!damageRoute.includes('hotel_id')) {
 } else pass('Housekeeping damage route scopes to hotel_id');
 
 // ─── 21. P3: owner/approvals page requires owner role ────────────────────────
-const ownerApprovalsPage = read('src/app/owner/approvals/page.tsx');
+const ownerApprovalsPage = read('src/app/owner/(portal)/approvals/page.tsx');
 if (!ownerApprovalsPage.includes('requireDashboardRole')) {
   fail('Owner approvals page missing requireDashboardRole');
 } else pass('Owner approvals page has requireDashboardRole');
