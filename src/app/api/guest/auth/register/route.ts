@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/lib/security/rate-limit';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { apiError } from '@/lib/http/errors';
+import { createAdminClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   const limited = await rateLimit(request, 'guest.auth.register', 10, 60_000);
@@ -17,19 +16,20 @@ export async function POST(request: NextRequest) {
   if (typeof password === 'string' && password.length < 8)
     return NextResponse.json({ error: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร' }, { status: 400 });
 
-  const supabase = await createClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const { data: authData, error: authError } = await supabase.auth.signUp({
+  const admin = createAdminClient();
+  const { data: authData, error: authError } = await admin.auth.admin.createUser({
     email, password,
-    options: {
-      emailRedirectTo: `${appUrl}/portal/login?verified=1`,
-      data: { full_name: `${firstName} ${lastName||''}`.trim(), user_type: 'guest' },
-    },
+    email_confirm: true,
+    user_metadata: { full_name: `${firstName} ${lastName||''}`.trim(), user_type: 'guest' },
   });
-  if (authError) return apiError(authError);
+  if (authError) {
+    if (authError.message?.toLowerCase().includes('already registered') || (authError as any).code === 'email_exists') {
+      return NextResponse.json({ error: 'อีเมลนี้มีบัญชีอยู่แล้ว' }, { status: 409 });
+    }
+    return NextResponse.json({ error: 'สมัครไม่สำเร็จ กรุณาลองใหม่' }, { status: 500 });
+  }
   if (!authData.user) return NextResponse.json({ error: 'สมัครไม่สำเร็จ' }, { status: 500 });
 
-  const admin = createAdminClient();
   const { error } = await admin.from('guest_accounts').upsert({
     id: authData.user.id, email,
     first_name: firstName, last_name: lastName || null,
