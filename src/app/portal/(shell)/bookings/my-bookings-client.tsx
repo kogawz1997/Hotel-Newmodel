@@ -64,15 +64,20 @@ export function MyBookingsClient({ guest }: { guest: any }) {
 
   async function loadBookings() {
     setLoading(true);
-    const [bookRes, loyaltyRes] = await Promise.all([
-      fetch('/api/guest/bookings'),
-      fetch('/api/guest/loyalty'),
-    ]);
-    const bookData = await bookRes.json();
-    const loyaltyData = loyaltyRes.ok ? await loyaltyRes.json() : {};
-    setBookings(bookData.reservations || []);
-    if (loyaltyData.points !== undefined) setLoyaltyPoints(loyaltyData);
-    setLoading(false);
+    try {
+      const [bookRes, loyaltyRes] = await Promise.all([
+        fetch('/api/guest/bookings'),
+        fetch('/api/guest/loyalty'),
+      ]);
+      const bookData = bookRes.ok ? await bookRes.json() : {};
+      const loyaltyData = loyaltyRes.ok ? await loyaltyRes.json() : {};
+      setBookings(bookData.reservations || []);
+      if (loyaltyData.points !== undefined) setLoyaltyPoints(loyaltyData);
+    } catch {
+      // silently show empty state rather than crashing
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function logout() {

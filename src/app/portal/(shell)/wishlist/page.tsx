@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { WishlistClient } from './wishlist-client';
 
@@ -8,7 +8,8 @@ export default async function WishlistPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/portal/login?next=/portal/wishlist');
 
-  const { data: guest } = await supabase.from('guest_accounts').select('id,first_name').eq('id', user.id).single();
+  const admin = createAdminClient();
+  const { data: guest } = await admin.from('guest_accounts').select('id,first_name').eq('id', user!.id).single();
   if (!guest) redirect('/portal/login');
 
   const { data: wishlists } = await supabase
