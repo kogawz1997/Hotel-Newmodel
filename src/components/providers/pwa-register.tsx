@@ -4,13 +4,12 @@ import { useEffect } from 'react';
 
 export function PwaRegister() {
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production') return;
     if (!('serviceWorker' in navigator)) return;
 
     window.addEventListener('load', () => {
       navigator.serviceWorker
         .register('/sw.js', { scope: '/' })
-        .catch((error) => console.warn('[Maitri PWA] service worker registration failed', error));
+        .catch((error) => console.warn('[Maitri PWA] SW registration failed', error));
     });
   }, []);
 

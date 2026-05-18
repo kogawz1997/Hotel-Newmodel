@@ -1,12 +1,12 @@
 {
-  "name": "Maitri PMS",
+  "name": "Maitri — ที่พักหรู",
   "short_name": "Maitri",
-  "description": "Hotel operating system for Thai hospitality teams.",
-  "start_url": "/dashboard",
+  "description": "ค้นหาและจองที่พักหรูทั่วไทย ดูการจอง เช็คอิน และบริการพิเศษ",
+  "start_url": "/portal/bookings",
   "scope": "/",
   "display": "standalone",
   "lang": "th",
-  "categories": ["business", "productivity"],
+  "categories": ["travel", "lifestyle"],
   "background_color": "#FAF7F2",
   "theme_color": "#C66A30",
   "orientation": "portrait-primary",
@@ -15,8 +15,11 @@
     { "src": "/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    { "name": "การจอง", "url": "/dashboard/reservations" },
-    { "name": "Inbox", "url": "/dashboard/inbox" },
-    { "name": "รายงาน", "url": "/dashboard/reports" }
+    { "name": "การจองของฉัน", "short_name": "จอง", "url": "/portal/bookings", "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }] },
+    { "name": "ค้นหาที่พัก", "short_name": "ค้นหา", "url": "/search", "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }] },
+    { "name": "รายการโปรด", "short_name": "Wishlist", "url": "/portal/wishlist", "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }] }
+  ],
+  "screenshots": [
+    { "src": "/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "form_factor": "narrow", "label": "หน้าหลัก Maitri" }
   ]
 }

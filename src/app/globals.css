@@ -91,11 +91,35 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
+    /* Prevent double-tap zoom on iOS */
+    touch-action: manipulation;
   }
 
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "ss01", "cv11";
+    /* Smooth momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent scroll bounce on iOS when at edges */
+    overscroll-behavior: contain;
+  }
+
+  /* Better tap targets for buttons/links */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Remove iOS input styling */
+  input, textarea, select {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+  }
+
+  input[type="date"],
+  input[type="time"] {
+    -webkit-appearance: none;
   }
 
   /* Thai-optimised font stack */
