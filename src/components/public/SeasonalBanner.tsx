@@ -22,7 +22,7 @@ const CAMPAIGNS: Campaign[] = [
 
 function getActiveCampaign(): Campaign | null {
   const month = new Date().getMonth() + 1;
-  return CAMPAIGNS.find(c => c.month.includes(month)) ?? CAMPAIGNS[0];
+  return CAMPAIGNS.find(c => c.month.includes(month)) ?? null;
 }
 
 export function SeasonalBanner() {

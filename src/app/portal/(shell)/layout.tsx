@@ -30,7 +30,7 @@ export default function PortalShellLayout({ children }: { children: React.ReactN
       </header>
 
       {/* Content — narrow on mobile, slightly wider on desktop, centered */}
-      <main className="mx-auto w-full max-w-screen-sm px-4 py-5 md:py-8 pb-32">
+      <main className="mx-auto w-full max-w-screen-sm px-4 pt-5 md:pt-8 pb-32">
         {children}
       </main>
 

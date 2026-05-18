@@ -7,16 +7,11 @@ export async function POST(request: NextRequest) {
   const limited = await rateLimit(request, 'guest.auth.register', 10, 60_000);
   if (limited) return limited;
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
-  }
-
-  const { email, password, firstName, lastName, phone, marketingConsent } =
-    body as Record<string, unknown>;
-
+  const body = await request.json() as {
+    email: string; password: string; firstName: string;
+    lastName?: string; phone?: string; marketingConsent?: boolean;
+  };
+  const { email, password, firstName, lastName, phone, marketingConsent } = body;
   if (!email || !password || !firstName)
     return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบ' }, { status: 400 });
   if (typeof password === 'string' && password.length < 8)
@@ -35,13 +30,14 @@ export async function POST(request: NextRequest) {
   if (!authData.user) return NextResponse.json({ error: 'สมัครไม่สำเร็จ' }, { status: 500 });
 
   const admin = createAdminClient();
-  // Use upsert: a DB trigger may have already created a partial guest_accounts row
-  // on auth.users insert. Upserting ensures our full data wins without 409 conflicts.
   const { error } = await admin.from('guest_accounts').upsert({
     id: authData.user.id, email,
     first_name: firstName, last_name: lastName || null,
     phone: phone || null, marketing_consent: marketingConsent || false,
   }, { onConflict: 'id' });
-  if (error) return NextResponse.json({ error: dbError(error) }, { status: 500 });
+  if (error) {
+    console.error('[register] guest_accounts upsert failed:', error.code, error.message);
+    return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
+  }
   return NextResponse.json({ success: true });
 }
