@@ -1,27 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useId } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import {
   ArrowLeft, Gift, ChevronRight, Loader2, Check,
-  BellRing, HelpCircle, Coins,
+  BellRing, HelpCircle,
 } from 'lucide-react';
-import { toast } from 'sonner';
 
 /* ── Tier config ── */
 const TIERS = [
   { id: 'bronze',   label: 'บัตรสีน้ำตาล',  labelEn: 'Bronze',   minPoints: 0,
-    hex: 'from-amber-400 to-orange-500',   coin: '🥉', textCls: 'text-amber-600',  spendGoal: 100  },
+    hex: { from: '#f59e0b', to: '#ea580c' }, coin: '🥉', textCls: 'text-amber-600',  spendGoal: 100  },
   { id: 'silver',   label: 'บัตรสีเงิน',     labelEn: 'Silver',   minPoints: 1000,
-    hex: 'from-slate-400 to-slate-500',    coin: '🥈', textCls: 'text-slate-500',  spendGoal: 360  },
+    hex: { from: '#94a3b8', to: '#64748b' }, coin: '🥈', textCls: 'text-slate-500',  spendGoal: 360  },
   { id: 'gold',     label: 'บัตรทอง',        labelEn: 'Gold',     minPoints: 3000,
-    hex: 'from-yellow-400 to-amber-500',   coin: '🥇', textCls: 'text-yellow-600', spendGoal: 1000 },
+    hex: { from: '#facc15', to: '#f59e0b' }, coin: '🥇', textCls: 'text-yellow-600', spendGoal: 1000 },
   { id: 'platinum', label: 'บัตรแพลทินัม',  labelEn: 'Platinum', minPoints: 10000,
-    hex: 'from-sky-400 to-indigo-500',     coin: '💎', textCls: 'text-sky-500',    spendGoal: 3000 },
+    hex: { from: '#38bdf8', to: '#6366f1' }, coin: '💎', textCls: 'text-sky-500',    spendGoal: 3000 },
   { id: 'diamond',  label: 'บัตรไดมอนด์',   labelEn: 'Diamond',  minPoints: 30000,
-    hex: 'from-violet-400 to-purple-600',  coin: '✨', textCls: 'text-violet-500', spendGoal: null },
+    hex: { from: '#a78bfa', to: '#7c3aed' }, coin: '✨', textCls: 'text-violet-500', spendGoal: null },
 ];
 
 const BENEFITS: Record<string, { icon: string; title: string; desc: string }[]> = {
@@ -63,23 +63,32 @@ type LoyaltyData = {
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
+/* Shared fade-up variants — custom prop = stagger index */
+const v = {
+  hidden: { opacity: 0, y: 10 },
+  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.3, ease } }),
+};
+
 /* ── Hexagonal badge SVG ── */
 function HexBadge({ tier }: { tier: typeof TIERS[number] }) {
+  const uid = useId();
+  const gradId  = `hg-${uid}`;
+  const lightId = `hl-${uid}`;
   return (
     <div className="relative w-20 h-20">
       <svg viewBox="0 0 100 115" className="w-full h-full drop-shadow-xl" fill="none">
         <defs>
-          <linearGradient id={`hg-${tier.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={tier.id === 'platinum' ? '#38bdf8' : tier.id === 'gold' ? '#facc15' : tier.id === 'silver' ? '#94a3b8' : tier.id === 'diamond' ? '#a78bfa' : '#f59e0b'} />
-            <stop offset="100%" stopColor={tier.id === 'platinum' ? '#6366f1' : tier.id === 'gold' ? '#f59e0b' : tier.id === 'silver' ? '#64748b' : tier.id === 'diamond' ? '#7c3aed' : '#ea580c'} />
+          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stopColor={tier.hex.from} />
+            <stop offset="100%" stopColor={tier.hex.to} />
           </linearGradient>
-          <linearGradient id={`hl-${tier.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.35)" />
+          <linearGradient id={lightId} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stopColor="rgba(255,255,255,0.35)" />
             <stop offset="100%" stopColor="rgba(255,255,255,0)" />
           </linearGradient>
         </defs>
-        <polygon points="50,5 95,27.5 95,87.5 50,110 5,87.5 5,27.5" fill={`url(#hg-${tier.id})`} />
-        <polygon points="50,5 95,27.5 95,87.5 50,110 5,87.5 5,27.5" fill={`url(#hl-${tier.id})`} />
+        <polygon points="50,5 95,27.5 95,87.5 50,110 5,87.5 5,27.5" fill={`url(#${gradId})`} />
+        <polygon points="50,5 95,27.5 95,87.5 50,110 5,87.5 5,27.5" fill={`url(#${lightId})`} />
         <polygon points="50,12 88,32 88,83 50,103 12,83 12,32" fill="rgba(255,255,255,0.12)" />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
@@ -88,6 +97,11 @@ function HexBadge({ tier }: { tier: typeof TIERS[number] }) {
     </div>
   );
 }
+
+/* Points needed before "simulated spend" amounts make sense */
+const SPEND_DISPLAY_SCALE = 35;  // converts tier spendGoal → display currency
+const SPEND_PROGRESS_RATE = 0.64; // spend progress as fraction of points progress
+const STAY_GOAL = 10;
 
 export default function LoyaltyPortalPage() {
   const [data, setData]   = useState<LoyaltyData | null>(null);
@@ -101,17 +115,15 @@ export default function LoyaltyPortalPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const points   = data?.points ?? 0;
-  const tierObj  = TIERS.find(t => t.id === (data?.tier || 'bronze')) ?? TIERS[0];
-  const tierIdx  = TIERS.indexOf(tierObj);
-  const nextTier = TIERS[tierIdx + 1] ?? null;
+  const points     = data?.points ?? 0;
+  const tierObj    = TIERS.find(t => t.id === (data?.tier || 'bronze')) ?? TIERS[0];
+  const tierIdx    = TIERS.indexOf(tierObj);
+  const nextTier   = TIERS[tierIdx + 1] ?? null;
   const totalStays = data?.totalStays ?? 0;
 
-  /* Simulated spend for UI display */
-  const spendGoal    = nextTier?.spendGoal ? nextTier.spendGoal * 35 : 0;
-  const spendCurrent = Math.min(spendGoal, Math.round((points / (nextTier?.minPoints ?? 1)) * spendGoal * 0.64));
-  const stayGoal     = 10;
-  const stayProgress = Math.min(stayGoal, totalStays);
+  const spendGoal    = nextTier?.spendGoal ? nextTier.spendGoal * SPEND_DISPLAY_SCALE : 0;
+  const spendCurrent = Math.min(spendGoal, Math.round((points / (nextTier?.minPoints ?? 1)) * spendGoal * SPEND_PROGRESS_RATE));
+  const stayProgress = Math.min(STAY_GOAL, totalStays);
 
   const benefits = BENEFITS[tierObj.id] ?? BENEFITS.bronze;
 
@@ -127,19 +139,16 @@ export default function LoyaltyPortalPage() {
               <ArrowLeft className="h-5 w-5 text-blue-900 dark:text-foreground" />
             </motion.div>
           </Link>
-          <div className="flex items-center gap-2">
-            <motion.div whileTap={{ scale: 0.9 }}
-              className="h-9 w-9 rounded-full bg-white/40 flex items-center justify-center">
-              <HelpCircle className="h-5 w-5 text-blue-900 dark:text-foreground" />
-            </motion.div>
-          </div>
+          <motion.div whileTap={{ scale: 0.9 }}
+            className="h-9 w-9 rounded-full bg-white/40 flex items-center justify-center">
+            <HelpCircle className="h-5 w-5 text-blue-900 dark:text-foreground" />
+          </motion.div>
         </div>
       </div>
 
       {/* ── Hero (light blue section) ── */}
       <div className="bg-gradient-to-b from-[#b8d9f7] to-[#d8edfb] dark:bg-slate-800 dark:from-slate-800 dark:to-slate-800 pb-6 pt-2">
         <div className="px-5 max-w-screen-sm mx-auto lg:max-w-2xl">
-
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-7 w-7 text-blue-500 animate-spin" />
@@ -168,7 +177,7 @@ export default function LoyaltyPortalPage() {
               {/* Tier journey circles */}
               <div className="flex items-center mt-2">
                 {TIERS.map((t, i) => {
-                  const achieved = tierIdx >= i;
+                  const achieved  = tierIdx >= i;
                   const isCurrent = tierIdx === i;
                   return (
                     <div key={t.id} className="flex items-center flex-1 last:flex-none">
@@ -215,9 +224,7 @@ export default function LoyaltyPortalPage() {
 
           {/* Progress card */}
           {nextTier && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.3 }}
+            <motion.div custom={0} variants={v} initial="hidden" animate="show"
               className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <button className="w-full px-5 py-4 flex items-start gap-3 text-left hover:bg-gray-50 transition-colors">
                 <div className="flex-1">
@@ -236,7 +243,7 @@ export default function LoyaltyPortalPage() {
                 <div className="flex items-center gap-3 pt-3">
                   <div className={cn(
                     'h-5 w-5 rounded-full flex items-center justify-center shrink-0',
-                    stayProgress >= stayGoal ? 'bg-blue-600' : 'bg-gray-200',
+                    stayProgress >= STAY_GOAL ? 'bg-blue-600' : 'bg-gray-200',
                   )}>
                     <Check className="h-3 w-3 text-white" />
                   </div>
@@ -244,7 +251,7 @@ export default function LoyaltyPortalPage() {
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(100, (stayProgress / stayGoal) * 100)}%` }}
+                        animate={{ width: `${Math.min(100, (stayProgress / STAY_GOAL) * 100)}%` }}
                         transition={{ duration: 1, ease }}
                         className="h-full bg-blue-500 rounded-full"
                       />
@@ -282,9 +289,7 @@ export default function LoyaltyPortalPage() {
           )}
 
           {/* Announcement card */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18, duration: 0.3 }}
+          <motion.div custom={1} variants={v} initial="hidden" animate="show"
             className="mx-4 mt-3 bg-white rounded-2xl border border-gray-100 shadow-sm">
             <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 transition-colors">
               <div className="relative shrink-0">
@@ -298,10 +303,8 @@ export default function LoyaltyPortalPage() {
             </button>
           </motion.div>
 
-          {/* Maitri Points balance (coin style) */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.22, duration: 0.3 }}
+          {/* Maitri Points balance */}
+          <motion.div custom={2} variants={v} initial="hidden" animate="show"
             className="mx-4 mt-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
             <div className="h-12 w-12 rounded-full bg-amber-500 flex items-center justify-center shadow-sm shrink-0">
               <span className="text-white font-black text-lg">M</span>
@@ -320,10 +323,7 @@ export default function LoyaltyPortalPage() {
           </motion.div>
 
           {/* Benefits section */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.26, duration: 0.3 }}
-            className="mt-5">
+          <motion.div custom={3} variants={v} initial="hidden" animate="show" className="mt-5">
             <div className="flex items-center justify-between px-5 mb-3">
               <h2 className="text-sm font-bold text-gray-800">
                 สิทธิประโยชน์สมาชิก{tierObj.label}
@@ -335,7 +335,7 @@ export default function LoyaltyPortalPage() {
             <div className="mx-4 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
               {benefits.map((b, i) => (
                 <motion.div
-                  key={i}
+                  key={b.title}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + i * 0.06, duration: 0.25 }}
@@ -353,24 +353,20 @@ export default function LoyaltyPortalPage() {
             </div>
           </motion.div>
 
-          {/* History teaser */}
-          {data?.transactions && data.transactions.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.3 }}
-              className="mx-4 mt-4">
+          {/* History */}
+          {data?.transactions?.length ? (
+            <motion.div custom={4} variants={v} initial="hidden" animate="show" className="mx-4 mt-4">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-bold text-gray-800">ประวัติแต้มสะสม</h2>
                 <span className="text-xs text-blue-600 font-medium">ดูทั้งหมด</span>
               </div>
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
-                {data.transactions.slice(0, 4).map((tx, i) => (
-                  <div key={i} className="flex items-center justify-between px-4 py-3.5">
+                {data.transactions.slice(0, 4).map((tx) => (
+                  <div key={`${tx.created_at}-${tx.description}`}
+                    className="flex items-center justify-between px-4 py-3.5">
                     <div>
                       <p className="text-sm text-gray-800">{tx.description}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {new Date(tx.created_at).toLocaleDateString('th-TH')}
-                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">{formatDate(tx.created_at)}</p>
                     </div>
                     <span className={cn(
                       'text-sm font-bold',
@@ -382,7 +378,7 @@ export default function LoyaltyPortalPage() {
                 ))}
               </div>
             </motion.div>
-          )}
+          ) : null}
 
           <div className="h-6" />
         </div>
