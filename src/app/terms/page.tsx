@@ -21,13 +21,13 @@ export default function TermsPage() {
             <span className="text-[#2A2522]/20">|</span>
             <span className="font-serif text-base font-medium text-[#2A2522]">🪷 Maitri</span>
           </div>
-          <Link href="/portal/login" className="text-sm text-[#C66A30] hover:underline">เข้าสู่ระบบ</Link>
+          <Link href="/portal/login" className="text-sm text-[#2563eb] hover:underline">เข้าสู่ระบบ</Link>
         </div>
       </nav>
 
       <div className="max-w-3xl mx-auto px-4 py-12">
         <div className="mb-8">
-          <div className="text-xs text-[#C66A30] font-medium uppercase tracking-wider mb-2">Legal</div>
+          <div className="text-xs text-[#2563eb] font-medium uppercase tracking-wider mb-2">Legal</div>
           <h1 className="text-3xl font-bold text-[#2A2522] mb-2">เงื่อนไขการใช้งาน</h1>
           <p className="text-sm text-[#2A2522]/40">อัพเดตล่าสุด: {LAST_UPDATED}</p>
         </div>
@@ -109,7 +109,7 @@ export default function TermsPage() {
         </div>
 
         <div className="flex gap-4 mt-6 text-sm">
-          <Link href="/privacy" className="text-[#C66A30] hover:underline">นโยบายความเป็นส่วนตัว →</Link>
+          <Link href="/privacy" className="text-[#2563eb] hover:underline">นโยบายความเป็นส่วนตัว →</Link>
           <Link href="/" className="text-[#2A2522]/40 hover:text-[#2A2522]">กลับหน้าหลัก</Link>
         </div>
       </div>

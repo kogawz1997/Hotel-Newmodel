@@ -35,13 +35,13 @@ export function CookieConsent() {
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-black/10 p-5">
         <div className="flex items-start gap-3 mb-4">
           <div className="h-9 w-9 bg-[#FAF7F2] rounded-xl flex items-center justify-center shrink-0">
-            <Cookie className="h-5 w-5 text-[#C66A30]" />
+            <Cookie className="h-5 w-5 text-[#2563eb]" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-[#2A2522] text-sm mb-1">เราใช้คุกกี้เพื่อปรับปรุงประสบการณ์ของคุณ</h3>
             <p className="text-xs text-[#2A2522]/50 leading-relaxed">
               เว็บไซต์นี้ใช้คุกกี้ที่จำเป็นสำหรับการทำงาน (Necessary) และคุกกี้วิเคราะห์ (Analytics)
-              ตาม <Link href="/privacy" className="text-[#C66A30] hover:underline">นโยบายความเป็นส่วนตัว</Link> ของเรา (PDPA)
+              ตาม <Link href="/privacy" className="text-[#2563eb] hover:underline">นโยบายความเป็นส่วนตัว</Link> ของเรา (PDPA)
             </p>
           </div>
           <button onClick={() => accept(false)} className="p-1 rounded-lg hover:bg-black/5 shrink-0">
@@ -58,7 +58,7 @@ export function CookieConsent() {
             <p className="text-2xs text-[#2A2522]/40">วิเคราะห์การใช้งานเพื่อปรับปรุงบริการ</p>
           </div>
           <button onClick={() => setAnalytics(p => !p)}
-            className={`relative w-11 h-6 rounded-full transition-colors ${analytics ? 'bg-[#C66A30]' : 'bg-black/15'}`}>
+            className={`relative w-11 h-6 rounded-full transition-colors ${analytics ? 'bg-[#2563eb]' : 'bg-black/15'}`}>
             <div className={`absolute top-1 h-4 w-4 bg-white rounded-full shadow transition-transform ${analytics ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
         </div>

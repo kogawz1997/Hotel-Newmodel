@@ -74,7 +74,7 @@ export default async function BookingFailedPage({
         {/* Actions */}
         <div className="space-y-3">
           <Link href={`/booking/${slug}`}
-            className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl text-sm font-bold transition-colors">
+            className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl text-sm font-bold transition-colors">
             <RefreshCw className="h-4 w-4" /> ลองชำระเงินอีกครั้ง
           </Link>
           <Link href="/portal/trips"

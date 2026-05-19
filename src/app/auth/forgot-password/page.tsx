@@ -64,12 +64,12 @@ export default function ForgotPasswordPage() {
                     <input
                       type="email" value={email} onChange={e => setEmail(e.target.value)}
                       placeholder="your@email.com" required
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30 focus:border-[#C66A30]"
+                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 focus:border-[#2563eb]"
                     />
                   </div>
                 </div>
                 <button type="submit" disabled={loading || !email.trim()}
-                  className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium text-sm transition-colors disabled:opacity-50">
+                  className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-medium text-sm transition-colors disabled:opacity-50">
                   {loading ? 'กำลังส่ง...' : 'ส่งลิงก์รีเซ็ต'}
                 </button>
               </form>
@@ -78,7 +78,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <div className="text-center mt-4">
-          <Link href="/auth/login" className="inline-flex items-center gap-1 text-sm text-[#2A2522]/40 hover:text-[#C66A30] transition-colors">
+          <Link href="/auth/login" className="inline-flex items-center gap-1 text-sm text-[#2A2522]/40 hover:text-[#2563eb] transition-colors">
             <ArrowLeft className="h-3.5 w-3.5" /> กลับไปเข้าสู่ระบบ
           </Link>
         </div>

@@ -46,7 +46,7 @@ export function GuestForm({ onSubmit, loading, initialData }: Props) {
         <div>
           <label className="text-xs font-semibold text-[#2A2522]/60 uppercase tracking-wider block mb-1.5">สัญชาติ</label>
           <select {...register('nationality')}
-            className="w-full px-4 py-3 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30 min-h-[44px]">
+            className="w-full px-4 py-3 bg-secondary/50 border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 min-h-[44px]">
             <option value="">ไม่ระบุ</option>
             <option value="TH">🇹🇭 ไทย</option>
             <option value="CN">🇨🇳 จีน</option>
@@ -61,7 +61,7 @@ export function GuestForm({ onSubmit, loading, initialData }: Props) {
         <div>
           <label className="text-xs font-semibold text-[#2A2522]/60 uppercase tracking-wider block mb-1.5">เวลาเช็คอิน (ประมาณ)</label>
           <select {...register('estimatedArrival')}
-            className="w-full px-4 py-3 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30 min-h-[44px]">
+            className="w-full px-4 py-3 bg-secondary/50 border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 min-h-[44px]">
             <option value="">ไม่ระบุ</option>
             {['14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','หลังเที่ยงคืน'].map(t => (
               <option key={t} value={t}>{t}</option>
@@ -73,7 +73,7 @@ export function GuestForm({ onSubmit, loading, initialData }: Props) {
         <label className="text-xs font-semibold text-[#2A2522]/60 uppercase tracking-wider block mb-1.5">คำขอพิเศษ</label>
         <textarea {...register('specialRequests')} rows={3}
           placeholder="เช่น ต้องการห้องชั้นสูง, ห้องห่างลิฟต์, เตียงเสริม..."
-          className="w-full px-4 py-3 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+          className="w-full px-4 py-3 bg-secondary/50 border border-black/8 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30" />
         <p className="text-2xs text-[#2A2522]/40 mt-1">ไม่สามารถรับประกันได้ แต่เราจะพยายามอย่างเต็มที่</p>
       </div>
 

@@ -32,7 +32,7 @@ const MENU_SECTIONS = [
   {
     title: 'การเดินทาง',
     items: [
-      { href: '/portal/trips',    icon: CalendarDays, label: 'การจองทั้งหมด',  desc: 'ดูและจัดการการจองของคุณ',     color: 'bg-amber-500/12 text-amber-700 dark:text-amber-400' },
+      { href: '/portal/trips',    icon: CalendarDays, label: 'การจองทั้งหมด',  desc: 'ดูและจัดการการจองของคุณ',     color: 'bg-blue-500/12 text-blue-600 dark:text-blue-400' },
       { href: '/portal/wishlist', icon: Heart,        label: 'ที่บันทึกไว้',   desc: 'โรงแรมและห้องที่คุณถูกใจ',   color: 'bg-rose-500/12 text-rose-600 dark:text-rose-400' },
       { href: '/portal/loyalty',  icon: Gift,         label: 'แต้มสะสม',       desc: 'Maitri Rewards · แลกของรางวัล', color: 'bg-violet-500/12 text-violet-600 dark:text-violet-400' },
     ],

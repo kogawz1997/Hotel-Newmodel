@@ -81,10 +81,10 @@ export default function GuestHomePage() {
           <div className="max-w-2xl">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 mb-7 px-4 py-2 rounded-full
-              bg-[#C66A30]/20 border border-[#C66A30]/40 backdrop-blur-sm">
+              bg-[#2563eb]/20 border border-[#2563eb]/40 backdrop-blur-sm">
               <span className="relative flex h-2 w-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#C66A30] opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#C66A30]" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2563eb] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2563eb]" />
               </span>
               <span className="text-[#E8A87C] text-xs font-semibold tracking-wide uppercase">
                 จองตรงกับโรงแรม · ราคาดีที่สุด
@@ -139,7 +139,7 @@ export default function GuestHomePage() {
               const Icon = t.icon;
               return (
                 <div key={t.title} className="flex items-center gap-4 py-6 md:py-0 md:px-8 first:md:pl-0 last:md:pr-0">
-                  <div className="h-11 w-11 bg-[#C66A30]/25 border border-[#C66A30]/30 rounded-2xl flex items-center justify-center shrink-0">
+                  <div className="h-11 w-11 bg-[#2563eb]/25 border border-[#2563eb]/30 rounded-2xl flex items-center justify-center shrink-0">
                     <Icon className="h-5 w-5 text-[#E8A87C]" />
                   </div>
                   <div>
@@ -164,13 +164,13 @@ export default function GuestHomePage() {
         <div className="container max-w-7xl px-4">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-2">สำรวจ</p>
+              <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#2563eb] mb-2">สำรวจ</p>
               <h2 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
                 จุดหมายยอดนิยม
               </h2>
             </div>
             <Link href="/search"
-              className="hidden md:flex items-center gap-1 text-sm font-semibold text-[#C66A30] hover:text-[#A4522A] transition-colors">
+              className="hidden md:flex items-center gap-1 text-sm font-semibold text-[#2563eb] hover:text-[#1d4ed8] transition-colors">
               ดูทั้งหมด <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
@@ -178,7 +178,7 @@ export default function GuestHomePage() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {DESTINATIONS.slice(0, 2).map(d => (
               <Link key={d.name} href={`/search?city=${d.name}`}
-                className="relative rounded-2xl overflow-hidden h-72 md:h-96 group cursor-pointer ring-2 ring-white/0 group-hover:ring-[#C66A30]/30 transition-all">
+                className="relative rounded-2xl overflow-hidden h-72 md:h-96 group cursor-pointer ring-2 ring-white/0 group-hover:ring-[#2563eb]/30 transition-all">
                 <Image src={d.img} alt={d.name} fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
@@ -191,7 +191,7 @@ export default function GuestHomePage() {
             <div className="grid grid-rows-2 gap-3 md:gap-4">
               {DESTINATIONS.slice(2, 4).map(d => (
                 <Link key={d.name} href={`/search?city=${d.name}`}
-                  className="relative rounded-2xl overflow-hidden min-h-[110px] group cursor-pointer ring-2 ring-white/0 group-hover:ring-[#C66A30]/30 transition-all">
+                  className="relative rounded-2xl overflow-hidden min-h-[110px] group cursor-pointer ring-2 ring-white/0 group-hover:ring-[#2563eb]/30 transition-all">
                   <Image src={d.img} alt={d.name} fill
                     className="object-cover group-hover:scale-105 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -204,7 +204,7 @@ export default function GuestHomePage() {
             </div>
             {DESTINATIONS.slice(4).map(d => (
               <Link key={d.name} href={`/search?city=${d.name}`}
-                className="relative rounded-2xl overflow-hidden h-28 md:h-36 group cursor-pointer hidden md:block ring-2 ring-white/0 group-hover:ring-[#C66A30]/30 transition-all">
+                className="relative rounded-2xl overflow-hidden h-28 md:h-36 group cursor-pointer hidden md:block ring-2 ring-white/0 group-hover:ring-[#2563eb]/30 transition-all">
                 <Image src={d.img} alt={d.name} fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -236,9 +236,9 @@ export default function GuestHomePage() {
       <section id="how-it-works" className="py-24 bg-card">
         <div className="container max-w-7xl px-4">
           <div className="text-center mb-16">
-            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-3">ง่ายมาก</p>
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#2563eb] mb-3">ง่ายมาก</p>
             <h2 className="font-serif text-4xl md:text-5xl font-semibold text-foreground tracking-tight">
-              จองที่พักใน <span className="text-[#C66A30] italic">3 ขั้นตอน</span>
+              จองที่พักใน <span className="text-[#2563eb] italic">3 ขั้นตอน</span>
             </h2>
           </div>
 
@@ -249,19 +249,19 @@ export default function GuestHomePage() {
                 <div key={step.step}
                   className="relative bg-card rounded-3xl p-8 border border-border shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                   {/* Decorative step number watermark */}
-                  <span className="font-display text-[#C66A30]/8 absolute -top-4 -right-4 leading-none select-none pointer-events-none"
+                  <span className="font-display text-[#2563eb]/8 absolute -top-4 -right-4 leading-none select-none pointer-events-none"
                     style={{ fontSize: '120px', fontWeight: 700 }}>
                     {step.step}
                   </span>
                   {/* Step connector arrow */}
                   {i < HOW_IT_WORKS.length - 1 && (
                     <div className="hidden md:block absolute top-12 -right-3 z-10">
-                      <ChevronRight className="h-5 w-5 text-[#C66A30]/40" />
+                      <ChevronRight className="h-5 w-5 text-[#2563eb]/40" />
                     </div>
                   )}
                   <div className="flex items-start gap-4 mb-5">
-                    <div className="h-14 w-14 bg-[#C66A30]/15 rounded-2xl flex items-center justify-center shrink-0">
-                      <Icon className="h-7 w-7 text-[#C66A30]" />
+                    <div className="h-14 w-14 bg-[#2563eb]/15 rounded-2xl flex items-center justify-center shrink-0">
+                      <Icon className="h-7 w-7 text-[#2563eb]" />
                     </div>
                   </div>
                   <h3 className="font-bold text-foreground text-lg mb-2">{step.title}</h3>
@@ -280,7 +280,7 @@ export default function GuestHomePage() {
       <section id="reviews" className="py-24 bg-[#1C1410]">
         <div className="container max-w-7xl px-4">
           <div className="text-center mb-14">
-            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-3">
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#2563eb] mb-3">
               รีวิวจากนักท่องเที่ยว
             </p>
             <h2 className="font-serif text-4xl font-semibold text-white">
@@ -305,7 +305,7 @@ export default function GuestHomePage() {
                 </p>
                 {/* Author */}
                 <div className="flex items-center gap-3 pt-5 border-t border-white/12">
-                  <div className="h-10 w-10 bg-[#C66A30]/20 border border-[#C66A30]/30 rounded-full flex items-center justify-center text-lg shrink-0">
+                  <div className="h-10 w-10 bg-[#2563eb]/20 border border-[#2563eb]/30 rounded-full flex items-center justify-center text-lg shrink-0">
                     {t.avatar}
                   </div>
                   <div>
@@ -339,9 +339,9 @@ export default function GuestHomePage() {
           {/* Primary CTAs */}
           <div className="flex flex-wrap justify-center gap-3 mb-8">
             <Link href="/portal/login"
-              className="flex items-center gap-2 bg-[#C66A30] hover:bg-[#B05B28] text-white
+              className="flex items-center gap-2 bg-[#2563eb] hover:bg-[#1e40af] text-white
                 px-8 py-3.5 rounded-full font-semibold text-sm transition-colors
-                shadow-xl shadow-[#C66A30]/30">
+                shadow-xl shadow-[#2563eb]/30">
               สมัครสมาชิกฟรี <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/search"
@@ -367,7 +367,7 @@ export default function GuestHomePage() {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="h-8 w-8 bg-gradient-to-br from-[#C66A30] to-[#A4522A] rounded-xl flex items-center justify-center">
+                <div className="h-8 w-8 bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-xl flex items-center justify-center">
                   <span className="text-white font-bold text-sm">M</span>
                 </div>
                 <span className="font-serif text-lg font-semibold text-white">Maitri</span>

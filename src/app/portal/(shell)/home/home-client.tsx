@@ -121,7 +121,7 @@ function SearchDropdown({ results, loading, query, onSelect }: {
                 </div>
                 {h.min_rate && (
                   <div className="shrink-0 text-right">
-                    <p className="text-xs font-bold text-amber-700 dark:text-amber-400">฿{h.min_rate.toLocaleString()}</p>
+                    <p className="text-xs font-bold text-orange-500">฿{h.min_rate.toLocaleString()}</p>
                     <p className="text-[10px] text-muted-foreground">/คืน</p>
                   </div>
                 )}
@@ -130,7 +130,7 @@ function SearchDropdown({ results, loading, query, onSelect }: {
           ))}
           <div className="px-3.5 py-2 border-t border-border/40">
             <Link href={`/search?city=${encodeURIComponent(query)}`} onClick={onSelect}
-              className="text-xs text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1 hover:gap-2 transition-all">
+              className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 hover:gap-2 transition-all">
               ดูโรงแรมทั้งหมด <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -192,7 +192,7 @@ function HotelCard({ hotel, index }: { hotel: any; index: number }) {
               {minRate && isFinite(minRate) ? (
                 <>
                   <span className="text-xs text-muted-foreground">เริ่มต้น</span>
-                  <span className="text-base font-bold text-amber-700 dark:text-amber-400 ml-1.5">
+                  <span className="text-base font-bold text-orange-500 ml-1.5">
                     ฿{minRate.toLocaleString()}
                   </span>
                   <span className="text-xs text-muted-foreground">/คืน</span>
@@ -201,7 +201,7 @@ function HotelCard({ hotel, index }: { hotel: any; index: number }) {
                 <span className="text-sm text-muted-foreground">ดูราคาและห้องพัก</span>
               )}
             </div>
-            <div className="flex items-center gap-1 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+            <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400 text-xs font-semibold">
               ดูรายละเอียด <ChevronRight className="h-3.5 w-3.5" />
             </div>
           </div>
@@ -261,10 +261,10 @@ function QRBlock() {
     <Link href="/portal/scan">
       <motion.div
         whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
-        className="flex items-center gap-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 to-amber-500/5 border border-amber-500/20 px-4 py-3.5"
+        className="flex items-center gap-3.5 rounded-2xl bg-gradient-to-r from-blue-500/8 to-blue-500/4 dark:from-blue-400/10 dark:to-blue-400/5 border border-blue-200 dark:border-blue-800/50 px-4 py-3.5"
       >
-        <div className="h-10 w-10 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center shrink-0">
-          <QrCode className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+        <div className="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/50 flex items-center justify-center shrink-0">
+          <QrCode className="h-5 w-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold text-foreground">สแกน QR ในห้องพัก</p>
@@ -306,7 +306,7 @@ function DealsBlock({ horizontal }: { horizontal?: boolean }) {
           </div>
           <h2 className="font-display font-bold text-foreground text-sm">ดีลพิเศษ</h2>
         </div>
-        <Link href="/portal/coupons" className="text-xs text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-0.5 hover:underline">
+        <Link href="/portal/coupons" className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-0.5 hover:underline">
           ดูทั้งหมด <ChevronRight className="h-3 w-3" />
         </Link>
       </div>
@@ -570,7 +570,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
             {/* Row 1: Destination */}
             <div className="flex items-center gap-3 px-4 py-3.5" onClick={() => setSearchExpanded(true)}>
               {searchLoading
-                ? <Loader2 className="h-4.5 w-4.5 text-amber-600 dark:text-amber-400 shrink-0 animate-spin" />
+                ? <Loader2 className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400 shrink-0 animate-spin" />
                 : <Search className="h-4.5 w-4.5 text-muted-foreground shrink-0" />
               }
               <input
@@ -594,7 +594,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                 )}
               </AnimatePresence>
               {!searchExpanded && (
-                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-amber-500 to-[#C66A30] flex items-center justify-center shrink-0 shadow-sm">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shrink-0 shadow-sm">
                   <Search className="h-3.5 w-3.5 text-white" />
                 </div>
               )}
@@ -629,7 +629,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                       onClick={() => { setShowDates(s => !s); setShowGuests(false); }}
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/40 transition-colors text-left"
                     >
-                      <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-foreground">
                           {format(parseISO(checkIn), 'EEE d MMM', { locale: th })}
@@ -657,7 +657,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                                   setCheckIn(e.target.value);
                                   if (e.target.value >= checkOut) setCheckOut(format(addDays(parseISO(e.target.value), 1), 'yyyy-MM-dd'));
                                 }}
-                                className="w-full px-3 py-2 rounded-xl border border-border bg-secondary text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                                className="w-full px-3 py-2 rounded-xl border border-border bg-secondary text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                               />
                             </div>
                             <div>
@@ -666,7 +666,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                                 type="date" value={checkOut}
                                 min={format(addDays(parseISO(checkIn), 1), 'yyyy-MM-dd')}
                                 onChange={e => setCheckOut(e.target.value)}
-                                className="w-full px-3 py-2 rounded-xl border border-border bg-secondary text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                                className="w-full px-3 py-2 rounded-xl border border-border bg-secondary text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                               />
                             </div>
                           </div>
@@ -681,7 +681,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                       onClick={() => { setShowGuests(s => !s); setShowDates(false); }}
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/40 transition-colors text-left"
                     >
-                      <Users className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <Users className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-foreground">
                           {rooms} ห้อง · ผู้ใหญ่ {adults} คน
@@ -714,9 +714,9 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                                   <span className="text-sm font-bold text-foreground w-5 text-center">{value}</span>
                                   <button
                                     onClick={() => (set as any)(value + 1)}
-                                    className="h-8 w-8 rounded-full border border-amber-500/40 bg-amber-500/10 flex items-center justify-center hover:bg-amber-500/20 transition-colors"
+                                    className="h-8 w-8 rounded-full border border-blue-500/40 bg-blue-500/10 flex items-center justify-center hover:bg-blue-500/20 transition-colors"
                                   >
-                                    <Plus className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
+                                    <Plus className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                   </button>
                                 </div>
                               </div>
@@ -792,7 +792,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-display font-bold text-foreground text-base flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     สำรวจที่พัก
                   </h2>
                   <span className="text-xs text-muted-foreground font-medium">{filteredHotels.length} แห่ง</span>

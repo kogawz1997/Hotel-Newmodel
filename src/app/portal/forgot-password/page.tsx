@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-xl border border-black/15 px-3 py-2 outline-none focus:border-[#C66A30]"
+              className="w-full rounded-xl border border-black/15 px-3 py-2 outline-none focus:border-[#2563eb]"
               placeholder="you@example.com"
             />
           </div>
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
           </button>
         </form>
 
-        <Link href="/portal/login" className="mt-4 inline-block text-sm text-[#C66A30] hover:underline">
+        <Link href="/portal/login" className="mt-4 inline-block text-sm text-[#2563eb] hover:underline">
           กลับไปหน้าเข้าสู่ระบบ
         </Link>
       </div>

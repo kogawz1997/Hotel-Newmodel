@@ -39,7 +39,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
       <nav className="bg-[#2A2522] border-b border-white/10 sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-7 w-7 bg-[#C66A30] rounded-lg flex items-center justify-center">
+            <div className="h-7 w-7 bg-[#2563eb] rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xs">M</span>
             </div>
             <span className="font-serif text-lg font-medium text-white">Maitri</span>
@@ -66,7 +66,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         <h1 className="text-2xl md:text-4xl font-bold text-[#2A2522] leading-tight mb-4">{article.title}</h1>
 
         <div className="flex items-center gap-2 mb-8 pb-8 border-b border-black/8">
-          <div className="h-8 w-8 bg-[#C66A30] rounded-full flex items-center justify-center text-white text-xs font-bold">M</div>
+          <div className="h-8 w-8 bg-[#2563eb] rounded-full flex items-center justify-center text-white text-xs font-bold">M</div>
           <span className="text-sm font-medium text-[#2A2522]">{article.author}</span>
         </div>
 
@@ -95,7 +95,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
           <p className="text-white font-bold text-lg mb-1">ลองใช้ Maitri ฟรี 60 วัน</p>
           <p className="text-white/50 text-sm mb-4">ระบบโรงแรมครบวงจร — ไม่ต้องใส่บัตรเครดิต</p>
           <Link href="/auth/signup"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-semibold text-sm transition-colors">
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-semibold text-sm transition-colors">
             เริ่มต้นฟรี <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -111,7 +111,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
                   <span className="text-4xl">{r.emoji}</span>
                 </div>
                 <div className="p-3">
-                  <p className="text-xs font-bold text-[#2A2522] group-hover:text-[#C66A30] transition-colors line-clamp-2">{r.title}</p>
+                  <p className="text-xs font-bold text-[#2A2522] group-hover:text-[#2563eb] transition-colors line-clamp-2">{r.title}</p>
                   <p className="text-2xs text-[#2A2522]/40 mt-1">{r.readTime}</p>
                 </div>
               </Link>

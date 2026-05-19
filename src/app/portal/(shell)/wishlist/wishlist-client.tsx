@@ -45,7 +45,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
               กดไอคอน ❤️ ที่หน้าโรงแรมเพื่อบันทึกที่พักที่คุณสนใจ
             </p>
             <Link href="/portal/home"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-2xl text-sm font-semibold hover:opacity-90 transition-opacity">
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-sm font-semibold hover:bg-blue-700 transition-colors">
               ค้นหาที่พัก <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
@@ -92,7 +92,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
                       <div className="mt-2 p-3 bg-muted/40 rounded-xl border border-border/40">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-foreground">{rt.name}</span>
-                          <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                          <span className="text-sm font-bold text-orange-500">
                             {formatCurrency(rt.base_rate)}<span className="text-xs font-normal text-muted-foreground">/คืน</span>
                           </span>
                         </div>
@@ -117,7 +117,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
                         ดูรายละเอียด
                       </Link>
                       <Link href={`/booking/${hotel?.slug || hotel?.id}`}
-                        className="flex-1 text-center py-2.5 bg-amber-600 dark:bg-amber-500 text-white rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5">
+                        className="flex-1 text-center py-2.5 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5">
                         <Calendar className="h-3 w-3" /> จองเลย
                       </Link>
                     </div>

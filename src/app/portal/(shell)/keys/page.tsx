@@ -52,7 +52,7 @@ function MobileKeyContent() {
 
         <div className="bg-card rounded-3xl border border-border/60 shadow-md overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-br from-amber-600 to-[#C66A30] p-6 text-center relative overflow-hidden">
+          <div className="bg-gradient-to-br from-amber-600 to-[#2563eb] p-6 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 translate-x-4 -translate-y-4 h-24 w-24 rounded-full bg-white/10" />
             <div className="relative">
               <div className="h-16 w-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-3 border border-white/30">

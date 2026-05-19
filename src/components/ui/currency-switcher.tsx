@@ -55,7 +55,7 @@ export function CurrencySwitcher() {
         <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-xl border border-black/8 py-1 z-50 max-h-72 overflow-y-auto">
           {Object.entries(CURRENCIES).map(([code, info]) => (
             <button key={code} onClick={() => { setCurrency(code); setOpen(false); }}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-[#FAF7F2] transition-colors ${currency === code ? 'bg-[#FAF7F2] font-medium text-[#C66A30]' : 'text-[#2A2522]/70'}`}>
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-[#FAF7F2] transition-colors ${currency === code ? 'bg-[#FAF7F2] font-medium text-[#2563eb]' : 'text-[#2A2522]/70'}`}>
               <span className="text-base">{info.flag}</span>
               <span className="flex-1 text-left">{code}</span>
               <span className="text-xs text-[#2A2522]/30">{info.symbol}</span>

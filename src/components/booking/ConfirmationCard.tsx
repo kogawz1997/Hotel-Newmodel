@@ -46,7 +46,7 @@ export function ConfirmationCard({ reservation: r, paymentMethod }: Props) {
         {/* Code */}
         <div className="bg-[#2A2522] p-6 text-center">
           <p className="text-white/50 text-xs uppercase tracking-widest mb-2">รหัสการจอง</p>
-          <p className="font-mono text-3xl font-bold text-[#C66A30] tracking-[0.2em]">{r.reservation_code}</p>
+          <p className="font-mono text-3xl font-bold text-[#2563eb] tracking-[0.2em]">{r.reservation_code}</p>
           <p className="text-white/40 text-xs mt-2">แสดงรหัสนี้เมื่อเช็คอิน</p>
         </div>
 
@@ -80,7 +80,7 @@ export function ConfirmationCard({ reservation: r, paymentMethod }: Props) {
 
           {/* Payment status */}
           {paymentMethod === 'at_hotel' ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 text-sm text-blue-800 dark:text-blue-300">
               💳 ชำระที่โรงแรม — จ่ายเมื่อเช็คอิน
             </div>
           ) : r.payment_status === 'paid' ? (
@@ -107,7 +107,7 @@ export function ConfirmationCard({ reservation: r, paymentMethod }: Props) {
 
       {hotel?.phone && (
         <p className="text-center text-xs text-[#2A2522]/40 mt-4">
-          ติดต่อโรงแรม: <a href={`tel:${hotel.phone}`} className="text-[#C66A30]">{hotel.phone}</a>
+          ติดต่อโรงแรม: <a href={`tel:${hotel.phone}`} className="text-[#2563eb]">{hotel.phone}</a>
         </p>
       )}
     </div>

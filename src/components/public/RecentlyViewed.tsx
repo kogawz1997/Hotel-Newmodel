@@ -45,10 +45,10 @@ export function RecentlyViewed() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-[#C66A30]" />
-            <h2 className="text-xl font-bold text-[#2A2522]">ที่พักที่ดูล่าสุด</h2>
+            <Clock className="h-5 w-5 text-[#2563eb]" />
+            <h2 className="text-xl font-bold text-foreground">ที่พักที่ดูล่าสุด</h2>
           </div>
-          <Link href="/search" className="text-sm text-[#C66A30] hover:underline flex items-center gap-1">
+          <Link href="/search" className="text-sm text-[#2563eb] hover:underline flex items-center gap-1">
             ดูทั้งหมด <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -56,17 +56,17 @@ export function RecentlyViewed() {
           {hotels.map(h => (
             <Link key={h.id} href={`/h/${h.slug}`}
               className="bg-[#FAF7F2] rounded-2xl overflow-hidden border border-black/5 hover:shadow-md transition-shadow group">
-              <div className="h-32 bg-[#2A2522]/10 overflow-hidden relative">
+              <div className="h-32 bg-foreground/10 overflow-hidden relative">
                 {h.hero_image_url
                   ? <Image src={h.hero_image_url} alt={h.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                  : <div className="w-full h-full flex items-center justify-center text-3xl font-serif text-[#2A2522]/10">{h.name.charAt(0)}</div>
+                  : <div className="w-full h-full flex items-center justify-center text-3xl font-serif text-foreground/10">{h.name.charAt(0)}</div>
                 }
               </div>
               <div className="p-3">
-                <p className="font-semibold text-xs text-[#2A2522] line-clamp-1">{h.name}</p>
-                {h.city && <p className="text-2xs text-[#2A2522]/40 mt-0.5">{h.city}</p>}
+                <p className="font-semibold text-xs text-foreground line-clamp-1">{h.name}</p>
+                {h.city && <p className="text-2xs text-foreground/40 mt-0.5">{h.city}</p>}
                 {h.min_rate && (
-                  <p className="text-xs font-bold text-[#C66A30] mt-1">฿{h.min_rate.toLocaleString()}<span className="font-normal text-[#2A2522]/40">/คืน</span></p>
+                  <p className="text-xs font-bold text-[#2563eb] mt-1">฿{h.min_rate.toLocaleString()}<span className="font-normal text-foreground/40">/คืน</span></p>
                 )}
               </div>
             </Link>

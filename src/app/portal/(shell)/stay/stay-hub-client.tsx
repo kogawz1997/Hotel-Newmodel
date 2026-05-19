@@ -65,7 +65,7 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
           สแกน QR Code ในห้องพักเพื่อเข้าถึงบริการโรงแรม หรือเช็คอินผ่านการจองของคุณ
         </p>
         <Link href="/portal/scan"
-          className="flex items-center gap-2 px-5 py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-2xl text-sm font-semibold hover:opacity-90 transition-opacity">
+          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-2xl text-sm font-semibold hover:bg-blue-700 transition-colors">
           <QrCode className="h-4 w-4" /> สแกน QR ในห้อง
         </Link>
         <Link href="/portal/trips"
@@ -197,9 +197,9 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
       {reservation && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
           <Link href="/portal/pre-checkout">
-            <div className="flex items-center justify-between px-4 py-3.5 rounded-2xl border border-amber-500/30 bg-amber-500/8 dark:bg-amber-400/6">
+            <div className="flex items-center justify-between px-4 py-3.5 rounded-2xl border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/15">
               <div className="flex items-center gap-3">
-                <LogOut className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+                <LogOut className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <div>
                   <p className="text-sm font-semibold text-foreground">Express Check-out</p>
                   <p className="text-xs text-muted-foreground">เช็คเอาท์ออนไลน์ได้เลย</p>

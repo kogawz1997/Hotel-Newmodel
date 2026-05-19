@@ -32,7 +32,7 @@ type TabId = 'services' | 'requests' | 'info' | 'chat';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const BRAND_DARK   = '#2A2522';
-const BRAND_ORANGE = '#C66A30';
+const BRAND_ORANGE = '#2563eb';
 const BRAND_CREAM  = '#FAF7F2';
 
 const TIMELINE_STEPS = [
@@ -92,9 +92,9 @@ function LinenSheet({ onSubmit, onClose }: { onSubmit: (detail: string) => void;
         <p className="text-sm text-[#2A2522]/60 mb-3">เลือกรายการที่ต้องการ</p>
         <div className="space-y-2 mb-5">
           {LINEN_ITEMS.map(item => (
-            <label key={item} className="flex items-center gap-3 p-3 rounded-xl border border-black/10 cursor-pointer hover:border-[#C66A30]/40">
+            <label key={item} className="flex items-center gap-3 p-3 rounded-xl border border-black/10 cursor-pointer hover:border-[#2563eb]/40">
               <input type="checkbox" checked={checked.includes(item)} onChange={() => toggle(item)}
-                className="h-4 w-4 accent-[#C66A30]" />
+                className="h-4 w-4 accent-[#2563eb]" />
               <span className="text-sm text-[#2A2522]">{item}</span>
             </label>
           ))}
@@ -102,7 +102,7 @@ function LinenSheet({ onSubmit, onClose }: { onSubmit: (detail: string) => void;
         <button
           disabled={checked.length === 0}
           onClick={() => onSubmit(`ขอ ${checked.join(', ')}`)}
-          className="w-full py-3 bg-[#C66A30] disabled:bg-[#C66A30]/30 text-white rounded-xl font-medium transition-colors"
+          className="w-full py-3 bg-[#2563eb] disabled:bg-[#2563eb]/30 text-white rounded-xl font-medium transition-colors"
         >
           ส่งคำขอ
         </button>
@@ -132,7 +132,7 @@ function RepairSheet({ onSubmit, onClose }: { onSubmit: (detail: string) => void
         <button
           disabled={!text.trim()}
           onClick={() => onSubmit(`แจ้งซ่อม: ${text.trim()}`)}
-          className="w-full py-3 bg-[#C66A30] disabled:bg-[#C66A30]/30 text-white rounded-xl font-medium transition-colors"
+          className="w-full py-3 bg-[#2563eb] disabled:bg-[#2563eb]/30 text-white rounded-xl font-medium transition-colors"
         >
           ส่งคำขอ
         </button>
@@ -170,7 +170,7 @@ function CarSheet({ onSubmit, onClose }: { onSubmit: (detail: string) => void; o
         <button
           disabled={!dest.trim()}
           onClick={() => onSubmit(`เรียกรถ ปลายทาง: ${dest.trim()}${time ? ` เวลา ${time}` : ''}`)}
-          className="w-full py-3 bg-[#C66A30] disabled:bg-[#C66A30]/30 text-white rounded-xl font-medium transition-colors"
+          className="w-full py-3 bg-[#2563eb] disabled:bg-[#2563eb]/30 text-white rounded-xl font-medium transition-colors"
         >
           ส่งคำขอ
         </button>
@@ -398,7 +398,7 @@ function RequestsTab({ requests }: { requests: ServiceRequest[] }) {
                         {step.label}
                       </span>
                       {isCurrent && (
-                        <span className="text-2xs px-1.5 py-0.5 bg-[#C66A30]/10 text-[#C66A30] rounded-full animate-pulse">
+                        <span className="text-2xs px-1.5 py-0.5 bg-[#2563eb]/10 text-[#2563eb] rounded-full animate-pulse">
                           กำลังดำเนินการ
                         </span>
                       )}
@@ -423,7 +423,7 @@ function HotelInfoTab({ hotel }: { hotel: any }) {
       {/* WiFi */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-black/5">
         <div className="flex items-center gap-2 mb-3">
-          <Wifi className="h-4 w-4 text-[#C66A30]" />
+          <Wifi className="h-4 w-4 text-[#2563eb]" />
           <span className="font-semibold text-sm text-[#2A2522]">WiFi</span>
         </div>
         {hotel.wifi_name ? (
@@ -447,7 +447,7 @@ function HotelInfoTab({ hotel }: { hotel: any }) {
       {/* Check-out time */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-black/5">
         <div className="flex items-center gap-2 mb-2">
-          <Clock className="h-4 w-4 text-[#C66A30]" />
+          <Clock className="h-4 w-4 text-[#2563eb]" />
           <span className="font-semibold text-sm text-[#2A2522]">เวลาเช็คเอาท์</span>
         </div>
         <p className="text-2xl font-bold text-[#2A2522]">
@@ -459,7 +459,7 @@ function HotelInfoTab({ hotel }: { hotel: any }) {
       {/* Breakfast */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-black/5">
         <div className="flex items-center gap-2 mb-2">
-          <Coffee className="h-4 w-4 text-[#C66A30]" />
+          <Coffee className="h-4 w-4 text-[#2563eb]" />
           <span className="font-semibold text-sm text-[#2A2522]">อาหารเช้า</span>
         </div>
         <p className="text-lg font-bold text-[#2A2522]">07:00 – 10:30 น.</p>
@@ -469,7 +469,7 @@ function HotelInfoTab({ hotel }: { hotel: any }) {
       {/* Amenities */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-black/5">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="h-4 w-4 text-[#C66A30]" />
+          <Sparkles className="h-4 w-4 text-[#2563eb]" />
           <span className="font-semibold text-sm text-[#2A2522]">สิ่งอำนวยความสะดวก</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -574,7 +574,7 @@ function ChatTab({ hotel, room, reservation, msgs, setMsgs }: {
                 'px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed',
                 m.role === 'assistant'
                   ? 'bg-white text-[#2A2522] rounded-tl-sm shadow-sm'
-                  : 'bg-[#C66A30] text-white rounded-tr-sm',
+                  : 'bg-[#2563eb] text-white rounded-tr-sm',
               )}>
                 {m.text.split('\n').map((line, j, arr) => (
                   <span key={j}>{line}{j < arr.length - 1 && <br />}</span>
@@ -611,8 +611,8 @@ function ChatTab({ hotel, room, reservation, msgs, setMsgs }: {
               const Icon = s.icon;
               return (
                 <button key={s.label} onClick={() => send(s.msg)}
-                  className="flex flex-col items-center gap-1 p-2.5 bg-[#FAF7F2] rounded-xl text-center hover:bg-[#C66A30]/10 transition-colors">
-                  <Icon className="h-4 w-4 text-[#C66A30]" />
+                  className="flex flex-col items-center gap-1 p-2.5 bg-[#FAF7F2] rounded-xl text-center hover:bg-[#2563eb]/10 transition-colors">
+                  <Icon className="h-4 w-4 text-[#2563eb]" />
                   <span className="text-2xs text-[#2A2522]/70 leading-tight">{s.label}</span>
                 </button>
               );
@@ -631,7 +631,7 @@ function ChatTab({ hotel, room, reservation, msgs, setMsgs }: {
             className="flex-1 px-4 py-2.5 bg-[#FAF7F2] rounded-full text-sm focus:outline-none"
           />
           <button onClick={() => send()} disabled={!input.trim() || loading}
-            className="h-10 w-10 bg-[#C66A30] disabled:bg-[#C66A30]/30 text-white rounded-full flex items-center justify-center transition-colors">
+            className="h-10 w-10 bg-[#2563eb] disabled:bg-[#2563eb]/30 text-white rounded-full flex items-center justify-center transition-colors">
             <Send className="h-4 w-4" />
           </button>
         </div>
@@ -718,7 +718,7 @@ export function InStayChatClient({
               </div>
             )
             : (
-              <div className="h-8 w-8 bg-[#C66A30] rounded-lg flex items-center justify-center font-bold text-sm">
+              <div className="h-8 w-8 bg-[#2563eb] rounded-lg flex items-center justify-center font-bold text-sm">
                 {hotel.name.charAt(0)}
               </div>
             )
@@ -776,14 +776,14 @@ export function InStayChatClient({
               className="flex-1 flex flex-col items-center justify-center py-2.5 gap-1 relative"
             >
               <div className="relative">
-                <tab.Icon className={cn('h-5 w-5 transition-colors', isActive ? 'text-[#C66A30]' : 'text-[#2A2522]/40')} />
+                <tab.Icon className={cn('h-5 w-5 transition-colors', isActive ? 'text-[#2563eb]' : 'text-[#2A2522]/40')} />
                 {showBadge && (
                   <span className="absolute -top-1 -right-1.5 h-4 w-4 bg-red-500 text-white text-2xs rounded-full flex items-center justify-center font-bold leading-none">
                     {pendingCount > 9 ? '9+' : pendingCount}
                   </span>
                 )}
               </div>
-              <span className={cn('text-2xs transition-colors', isActive ? 'text-[#C66A30] font-medium' : 'text-[#2A2522]/40')}>
+              <span className={cn('text-2xs transition-colors', isActive ? 'text-[#2563eb] font-medium' : 'text-[#2A2522]/40')}>
                 {tab.label}
               </span>
             </button>

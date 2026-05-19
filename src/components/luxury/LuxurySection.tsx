@@ -39,7 +39,7 @@ export function SectionHeader({ overline, title, subtitle, center = true }: {
 }) {
   return (
     <div className={cn('mb-12', center && 'text-center')}>
-      {overline && <p className="overline text-[#C66A30] mb-3">{overline}</p>}
+      {overline && <p className="overline text-[#2563eb] mb-3">{overline}</p>}
       <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-[#2A2522] mb-4">{title}</h2>
       {subtitle && <p className="text-[#2A2522]/60 max-w-xl mx-auto text-lg leading-relaxed">{subtitle}</p>}
     </div>

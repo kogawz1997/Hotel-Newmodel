@@ -233,7 +233,7 @@ export function MessagesClient({ firstName, reservations }: {
                   className={cn(
                     'flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all',
                     activeFilter === f
-                      ? 'bg-amber-600 dark:bg-amber-500 text-white shadow-sm'
+                      ? 'bg-blue-600 text-white shadow-sm'
                       : 'bg-secondary border border-border/40 text-muted-foreground hover:text-foreground',
                   )}>
                   {f}
@@ -282,7 +282,7 @@ export function MessagesClient({ firstName, reservations }: {
                           className={cn(
                             'flex items-start gap-3 rounded-2xl border p-4 transition-colors',
                             item.isNew
-                              ? 'border-amber-500/20 bg-amber-500/5 dark:bg-amber-400/5'
+                              ? 'border-blue-200 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/10'
                               : 'border-border/50 bg-card hover:bg-secondary/30',
                           )}>
                           {/* Icon or hotel image */}
@@ -298,7 +298,7 @@ export function MessagesClient({ firstName, reservations }: {
                             )}
                             {/* New dot */}
                             {item.isNew && (
-                              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-amber-500 border-2 border-background" />
+                              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-blue-500 border-2 border-background" />
                             )}
                           </div>
 

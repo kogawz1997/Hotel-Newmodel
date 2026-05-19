@@ -186,7 +186,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
       <div className="py-6">
         {/* Avatar card */}
         <div className="bg-card rounded-2xl border border-border p-5 flex items-center gap-4 mb-5">
-          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-500 to-[#C66A30] text-white flex items-center justify-center text-xl font-bold shrink-0">
+          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-500 to-[#2563eb] text-white flex items-center justify-center text-xl font-bold shrink-0">
             {(guest.first_name || guest.email || 'G').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
