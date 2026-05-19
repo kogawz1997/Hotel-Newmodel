@@ -731,7 +731,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                   <div className="px-4 py-3 border-t border-border/40">
                     <button
                       onClick={doSearch}
-                      className="w-full py-3 bg-gradient-to-r from-amber-500 to-[#C66A30] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20 hover:opacity-90 active:scale-[0.98] transition-all"
+                      className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-600/25 hover:opacity-90 active:scale-[0.98] transition-all"
                     >
                       <Search className="h-4 w-4" /> ค้นหาที่พัก
                     </button>
@@ -805,7 +805,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                       {selectedCity === city && (
                         <motion.div
                           layoutId="city-pill"
-                          className="absolute inset-0 bg-amber-600 dark:bg-amber-500 rounded-full"
+                          className="absolute inset-0 bg-blue-600 dark:bg-blue-500 rounded-full"
                           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                         />
                       )}

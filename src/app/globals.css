@@ -9,27 +9,27 @@
 
 @layer base {
   :root {
-    /* Warm hospitality palette — Light */
-    --background: 36 27% 96%;
-    --foreground: 20 14% 13%;
+    /* Trip.com-inspired palette — Light */
+    --background: 210 20% 97%;
+    --foreground: 213 25% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 20 14% 13%;
+    --card-foreground: 213 25% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14% 13%;
-    --primary: 20 14% 13%;
-    --primary-foreground: 36 27% 96%;
-    --secondary: 36 25% 92%;
-    --secondary-foreground: 20 14% 13%;
-    --muted: 36 18% 90%;
-    --muted-foreground: 20 8% 40%;
-    --accent: 22 60% 48%;
+    --popover-foreground: 213 25% 13%;
+    --primary: 213 25% 13%;
+    --primary-foreground: 210 20% 97%;
+    --secondary: 210 16% 93%;
+    --secondary-foreground: 213 25% 13%;
+    --muted: 210 12% 91%;
+    --muted-foreground: 213 10% 42%;
+    --accent: 214 90% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 30 15% 85%;
-    --input: 30 15% 85%;
-    --ring: 20 14% 13%;
-    --radius: 0.625rem;
+    --border: 213 14% 87%;
+    --input: 213 14% 87%;
+    --ring: 214 90% 50%;
+    --radius: 0.5rem;
 
     /* Extended palette */
     --success: 142 70% 40%;
@@ -52,25 +52,25 @@
   }
 
   .dark {
-    --background: 20 14% 7%;
-    --foreground: 36 27% 95%;
-    --card: 20 14% 11%;
-    --card-foreground: 36 27% 95%;
-    --popover: 20 14% 11%;
-    --popover-foreground: 36 27% 95%;
-    --primary: 36 27% 95%;
-    --primary-foreground: 20 14% 10%;
-    --secondary: 20 12% 17%;
-    --secondary-foreground: 36 27% 95%;
-    --muted: 20 12% 17%;
-    --muted-foreground: 30 8% 60%;
-    --accent: 22 60% 55%;
+    --background: 213 25% 7%;
+    --foreground: 213 20% 93%;
+    --card: 213 22% 11%;
+    --card-foreground: 213 20% 93%;
+    --popover: 213 22% 11%;
+    --popover-foreground: 213 20% 93%;
+    --primary: 213 20% 93%;
+    --primary-foreground: 213 25% 10%;
+    --secondary: 213 18% 17%;
+    --secondary-foreground: 213 20% 93%;
+    --muted: 213 18% 17%;
+    --muted-foreground: 213 10% 58%;
+    --accent: 214 90% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 20 12% 20%;
-    --input: 20 12% 20%;
-    --ring: 36 27% 75%;
+    --border: 213 18% 20%;
+    --input: 213 18% 20%;
+    --ring: 214 90% 60%;
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
     --shadow-md: 0 4px 6px rgba(0,0,0,0.35);
     --shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
@@ -404,7 +404,7 @@
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #C66A30 0%, #E8892A 50%, #A4522A 100%);
+  background: linear-gradient(135deg, #0066CC 0%, #0099FF 50%, #0052A3 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -452,7 +452,7 @@
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 12px; border-radius: 99px;
   font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-  background: linear-gradient(135deg, #C66A30, #E8892A);
+  background: linear-gradient(135deg, #0066CC, #0099FF);
   color: white;
 }
 

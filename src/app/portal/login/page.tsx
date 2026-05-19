@@ -423,7 +423,7 @@ export default function GuestLoginPage() {
                       {mode === 'login' && (
                         <motion.div variants={fadeUp} className="text-right -mt-1">
                           <button type="button" onClick={() => setMode('forgot')}
-                            className="text-xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-400 transition-colors">
+                            className="text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             ลืมรหัสผ่าน?
                           </button>
                         </motion.div>
@@ -466,16 +466,17 @@ export default function GuestLoginPage() {
           border-radius: 0.75rem;
           font-size: 0.875rem;
           font-weight: 600;
-          background: linear-gradient(135deg, #C8975A 0%, #A07240 100%);
+          background: linear-gradient(135deg, #0066CC 0%, #004EA3 100%);
           color: white;
           transition: opacity 0.15s, transform 0.15s;
           cursor: pointer;
           border: none;
+          box-shadow: 0 4px 14px rgba(0, 102, 204, 0.3);
         }
         .btn-gold:hover { opacity: 0.92; }
         .btn-gold:disabled { opacity: 0.55; cursor: not-allowed; }
         .dark .btn-gold {
-          background: linear-gradient(135deg, #D4A574 0%, #B0825A 100%);
+          background: linear-gradient(135deg, #1a80e6 0%, #0066CC 100%);
         }
       `}</style>
     </div>
@@ -499,7 +500,7 @@ function LuxField({
         required={required}
         className="w-full px-4 py-2.5 bg-background border border-input rounded-xl text-sm
           placeholder:text-muted-foreground/40
-          focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50
+          focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50
           transition-all"
       />
     </div>

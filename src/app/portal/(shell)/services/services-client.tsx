@@ -234,7 +234,7 @@ export function ServicesClient() {
                             <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                           </div>
                           <div className="flex items-center gap-3 shrink-0">
-                            <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                            <span className="text-sm font-bold text-orange-500">
                               {formatCurrency(item.price)}
                             </span>
                             {inCart ? (
@@ -245,13 +245,13 @@ export function ServicesClient() {
                                 </button>
                                 <span className="text-sm font-bold text-foreground w-4 text-center">{inCart.qty}</span>
                                 <button onClick={() => updateQty(item.id, 1)}
-                                  className="h-7 w-7 rounded-full bg-amber-600 dark:bg-amber-500 text-white flex items-center justify-center hover:opacity-90 transition-opacity">
+                                  className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center hover:opacity-90 transition-opacity">
                                   <Plus className="h-3 w-3" />
                                 </button>
                               </div>
                             ) : (
                               <button onClick={() => addToCart(item)}
-                                className="h-7 w-7 rounded-full bg-amber-600 dark:bg-amber-500 text-white flex items-center justify-center hover:opacity-90 transition-opacity">
+                                className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center hover:opacity-90 transition-opacity">
                                 <Plus className="h-3 w-3" />
                               </button>
                             )}
@@ -268,7 +268,7 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุ</label>
                 <textarea value={rsNotes} onChange={e => setRsNotes(e.target.value)} rows={2}
                   placeholder="ระบุความต้องการพิเศษ เช่น ไม่ใส่ผักชี ..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
             </motion.div>
           )}
@@ -282,12 +282,12 @@ export function ServicesClient() {
                   <label key={item.id}
                     className={cn(
                       'flex items-center gap-3 px-4 py-4 cursor-pointer transition-colors',
-                      hkSelected.includes(item.id) ? 'bg-amber-500/8 dark:bg-amber-400/6' : 'hover:bg-secondary/50'
+                      hkSelected.includes(item.id) ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-secondary/50'
                     )}>
                     <div className={cn(
                       'h-5 w-5 rounded flex items-center justify-center border-2 shrink-0 transition-all',
                       hkSelected.includes(item.id)
-                        ? 'bg-amber-600 dark:bg-amber-500 border-amber-600 dark:border-amber-500'
+                        ? 'bg-blue-600 border-blue-600'
                         : 'border-border bg-background'
                     )}>
                       {hkSelected.includes(item.id) && <Check className="h-3 w-3 text-white" />}
@@ -303,10 +303,10 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุเพิ่มเติม</label>
                 <textarea value={hkNotes} onChange={e => setHkNotes(e.target.value)} rows={2}
                   placeholder="ระบุรายละเอียดเพิ่มเติม..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
               <button onClick={() => submitRequest('housekeeping')} disabled={submitting || (hkSelected.length === 0 && !hkNotes.trim())}
-                className="w-full py-3.5 rounded-2xl bg-amber-600 dark:bg-amber-500 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
+                className="w-full py-3.5 rounded-2xl bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bed className="h-4 w-4" />}
                 {submitting ? 'กำลังส่ง...' : 'ส่งคำขอแม่บ้าน'}
               </button>
@@ -322,12 +322,12 @@ export function ServicesClient() {
                   <button key={s.id} type="button" onClick={() => setSpaService(s.id)}
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-4 text-left transition-colors',
-                      spaService === s.id ? 'bg-amber-500/8 dark:bg-amber-400/6' : 'hover:bg-secondary/50'
+                      spaService === s.id ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-secondary/50'
                     )}>
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         'h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all',
-                        spaService === s.id ? 'bg-amber-600 dark:bg-amber-500 border-amber-600 dark:border-amber-500' : 'border-border'
+                        spaService === s.id ? 'bg-blue-600 border-blue-600' : 'border-border'
                       )}>
                         {spaService === s.id && <div className="h-2 w-2 rounded-full bg-white" />}
                       </div>
@@ -338,7 +338,7 @@ export function ServicesClient() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-bold text-amber-700 dark:text-amber-400 shrink-0 ml-4">
+                    <span className="text-sm font-bold text-orange-500 shrink-0 ml-4">
                       {formatCurrency(s.price)}
                     </span>
                   </button>
@@ -349,7 +349,7 @@ export function ServicesClient() {
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">เวลาที่ต้องการ</label>
                   <input type="time" value={spaTime} onChange={e => setSpaTime(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" />
+                    className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">จำนวนคน</label>
@@ -369,7 +369,7 @@ export function ServicesClient() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">ราคา ({spaGuests} คน)</span>
-                    <span className="font-bold text-amber-700 dark:text-amber-400">
+                    <span className="font-bold text-orange-500">
                       {formatCurrency((SPA_SERVICES.find(s => s.id === spaService)?.price ?? 0) * spaGuests)}
                     </span>
                   </div>
@@ -380,16 +380,16 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุ / ความต้องการพิเศษ</label>
                 <textarea value={spaNotes} onChange={e => setSpaNotes(e.target.value)} rows={2}
                   placeholder="เช่น แพ้น้ำมันมะพร้าว, ต้องการนักบำบัดหญิง..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
 
-              <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-3.5 flex gap-3 text-xs text-amber-700 dark:text-amber-400">
+              <div className="rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-3.5 flex gap-3 text-xs text-orange-500">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <p>ราคาที่แสดงเป็นราคาประมาณ โปรดชำระที่ Spa โดยตรง · จองล่วงหน้าอย่างน้อย 1 ชั่วโมง</p>
               </div>
 
               <button onClick={() => submitRequest('spa')} disabled={submitting || !spaService}
-                className="w-full py-3.5 rounded-2xl bg-amber-600 dark:bg-amber-500 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
+                className="w-full py-3.5 rounded-2xl bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 {submitting ? 'กำลังส่ง...' : 'จองบริการ Spa'}
               </button>
@@ -411,13 +411,13 @@ export function ServicesClient() {
             <button
               onClick={() => setShowCart(true)}
               className="w-full flex items-center justify-between px-5 py-4 rounded-2xl
-                bg-amber-600 dark:bg-amber-500 text-white shadow-xl shadow-amber-900/20
+                bg-blue-600 text-white shadow-xl shadow-blue-900/20
                 hover:opacity-95 transition-all active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <ShoppingCart className="h-5 w-5" />
-                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-white text-amber-700 text-[10px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-white text-blue-600 text-[10px] font-bold flex items-center justify-center">
                     {cartCount}
                   </span>
                 </div>
@@ -466,7 +466,7 @@ export function ServicesClient() {
                       </button>
                       <span className="text-sm font-bold text-foreground w-6 text-center">{c.qty}</span>
                       <button onClick={() => updateQty(c.id, 1)}
-                        className="h-7 w-7 rounded-full bg-amber-600 dark:bg-amber-500 text-white flex items-center justify-center hover:opacity-90">
+                        className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center hover:opacity-90">
                         <Plus className="h-3 w-3" />
                       </button>
                     </div>
@@ -477,15 +477,15 @@ export function ServicesClient() {
               <div className="px-5 pb-6 pt-3 border-t border-border">
                 <div className="flex justify-between font-bold text-base mb-4">
                   <span>รวมทั้งหมด</span>
-                  <span className="text-amber-700 dark:text-amber-400">{formatCurrency(cartTotal)}</span>
+                  <span className="text-orange-500">{formatCurrency(cartTotal)}</span>
                 </div>
                 <div className="mb-3">
                   <textarea value={rsNotes} onChange={e => setRsNotes(e.target.value)} rows={2}
                     placeholder="หมายเหตุ (ไม่ใส่ผักชี, แพ้อาหาร...)"
-                    className="w-full px-4 py-3 bg-secondary border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+                    className="w-full px-4 py-3 bg-secondary border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30" />
                 </div>
                 <button onClick={() => submitRequest('room_service')} disabled={submitting}
-                  className="w-full py-3.5 rounded-2xl bg-amber-600 dark:bg-amber-500 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                  className="w-full py-3.5 rounded-2xl bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Utensils className="h-4 w-4" />}
                   {submitting ? 'กำลังส่ง...' : `สั่งอาหาร · ${formatCurrency(cartTotal)}`}
                 </button>

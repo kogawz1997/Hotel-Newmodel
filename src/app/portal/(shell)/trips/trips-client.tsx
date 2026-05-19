@@ -159,12 +159,12 @@ function BookingCard({ res, index }: { res: Reservation; index: number }) {
               </div>
               <div className="flex items-center gap-2">
                 {res.total_amount != null && (
-                  <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                  <span className="text-xs font-bold text-orange-500">
                     ฿{res.total_amount.toLocaleString()}
                   </span>
                 )}
                 {isActive ? (
-                  <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400">
+                  <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400">
                     เข้าห้อง <ChevronRight className="h-3.5 w-3.5" />
                   </div>
                 ) : (
@@ -285,7 +285,7 @@ export function TripsClient({ reservations, hotels }: {
                   <span className={cn(
                     'relative z-10 inline-flex items-center justify-center h-4 min-w-[1rem] px-1 rounded-full text-[9px] font-bold transition-colors',
                     activeTab === tab
-                      ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
+                      ? 'bg-blue-500/15 text-blue-800 dark:text-blue-300'
                       : 'bg-border/50 text-muted-foreground',
                   )}>
                     {counts[tab]}
@@ -320,7 +320,7 @@ export function TripsClient({ reservations, hotels }: {
               </p>
               <Link href="/portal/home">
                 <motion.div whileTap={{ scale: 0.95 }}
-                  className="px-6 py-3 bg-gradient-to-r from-amber-600 to-[#C66A30] text-white rounded-2xl text-sm font-bold shadow-lg shadow-amber-500/25 flex items-center gap-2">
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl text-sm font-bold shadow-lg shadow-blue-600/25 flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
                   ค้นหาที่พัก
                 </motion.div>
@@ -340,12 +340,12 @@ export function TripsClient({ reservations, hotels }: {
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <div className="flex items-center justify-between mb-3.5">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-lg bg-amber-500/15 flex items-center justify-center">
-                  <MapPin className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
+                <div className="h-6 w-6 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <MapPin className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h2 className="font-display font-bold text-foreground">สำรวจที่พัก</h2>
               </div>
-              <Link href="/portal/home" className="text-xs text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-0.5">
+              <Link href="/portal/home" className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-0.5">
                 ดูทั้งหมด <ChevronRight className="h-3.5 w-3.5" />
               </Link>
             </div>

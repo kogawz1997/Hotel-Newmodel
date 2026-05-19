@@ -21,7 +21,7 @@ type ReferralItem = {
 const HOW_IT_WORKS = [
   { step: '1', icon: Share2, title: 'แชร์โค้ดของคุณ', desc: 'ส่งโค้ดให้เพื่อนหรือครอบครัวที่กำลังมองหาที่พัก', bg: 'bg-sky-500/10', color: 'text-sky-600 dark:text-sky-400' },
   { step: '2', icon: Tag,    title: 'เพื่อนใช้โค้ด',   desc: 'เพื่อนใช้โค้ดตอนจองที่พักผ่าน Maitri ได้รับส่วนลดทันที', bg: 'bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-400' },
-  { step: '3', icon: Gift,   title: 'รับรางวัล',       desc: 'คุณได้รับ Maitri Points สะสมแต้มเป็นของขวัญ', bg: 'bg-amber-500/10', color: 'text-amber-700 dark:text-amber-400' },
+  { step: '3', icon: Gift,   title: 'รับรางวัล',       desc: 'คุณได้รับ Maitri Points สะสมแต้มเป็นของขวัญ', bg: 'bg-amber-500/10', color: 'text-blue-600 dark:text-blue-400' },
 ];
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
@@ -143,7 +143,7 @@ export default function PortalReferralsPage() {
             <button
               onClick={createCode}
               disabled={creating}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 dark:bg-amber-500 hover:opacity-90 text-white text-xs font-bold rounded-lg transition-opacity disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-opacity disabled:opacity-50"
             >
               <Gift className="h-3.5 w-3.5" />
               {creating ? 'กำลังสร้าง...' : 'สร้างโค้ดใหม่'}
@@ -175,7 +175,7 @@ export default function PortalReferralsPage() {
                           : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
                       </button>
                     </div>
-                    <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                       {item.reward_value}{item.reward_type === 'percent' ? '%' : ' บาท'}
                     </span>
                   </div>
@@ -214,12 +214,12 @@ export default function PortalReferralsPage() {
                 onKeyDown={e => e.key === 'Enter' && applyReferral()}
                 placeholder="MTR-XXXXXX"
                 className="flex-1 px-3 py-2.5 bg-background border border-input rounded-xl text-sm font-mono
-                  focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 transition-all"
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all"
               />
               <button
                 onClick={applyReferral}
                 disabled={applying || !applyCode.trim()}
-                className="px-4 py-2.5 bg-amber-600 dark:bg-amber-500 hover:opacity-90 text-white rounded-xl text-sm font-bold transition-opacity disabled:opacity-50"
+                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-opacity disabled:opacity-50"
               >
                 {applying ? 'กำลังใช้...' : 'ใช้โค้ด'}
               </button>

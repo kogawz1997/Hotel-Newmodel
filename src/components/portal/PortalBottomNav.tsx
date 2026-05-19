@@ -55,16 +55,16 @@ export function PortalBottomNav() {
             {active && (
               <motion.div
                 layoutId="nav-active-bg"
-                className="absolute -inset-2 rounded-[14px] bg-amber-500/10 dark:bg-amber-400/8"
+                className="absolute -inset-2 rounded-[14px] bg-blue-500/10 dark:bg-blue-400/10"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}
             <Icon
               className={cn(
                 'h-[22px] w-[22px] relative z-10 transition-all duration-200',
-                active ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground/65',
+                active ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground/65',
               )}
-              strokeWidth={active ? 2.2 : 1.7}
+              strokeWidth={active ? 2.4 : 1.7}
             />
             {isBell && msgCount > 0 && (
               <motion.span
@@ -77,7 +77,7 @@ export function PortalBottomNav() {
           </div>
           <span className={cn(
             'text-[10px] font-semibold relative z-10 transition-colors',
-            active ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground/60',
+            active ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground/60',
           )}>
             {label}
           </span>
@@ -136,7 +136,7 @@ export function PortalBottomNav() {
             </Link>
             <span className={cn(
               'text-[10px] font-semibold transition-colors',
-              centerActive ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground/60',
+              centerActive ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground/60',
             )}>
               {hasStay ? 'โรงแรม' : 'สแกน QR'}
             </span>

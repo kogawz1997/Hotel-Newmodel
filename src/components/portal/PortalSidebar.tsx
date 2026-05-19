@@ -69,13 +69,13 @@ export function PortalSidebar() {
           whileTap={{ scale: 0.97 }}
           className={cn(
             'relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors select-none',
-            active ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60',
+            active ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60',
           )}
         >
           {active && (
             <motion.div
               layoutId="sidebar-active-bg"
-              className="absolute inset-0 rounded-xl bg-amber-500/10 dark:bg-amber-400/8"
+              className="absolute inset-0 rounded-xl bg-blue-500/10 dark:bg-blue-400/10"
               transition={{ type: 'spring', stiffness: 380, damping: 30 }}
             />
           )}
@@ -137,7 +137,7 @@ export function PortalSidebar() {
             {centerActive && (
               <motion.div
                 layoutId="sidebar-active-bg"
-                className="absolute inset-0 rounded-xl bg-amber-500/10 dark:bg-amber-400/8"
+                className="absolute inset-0 rounded-xl bg-blue-500/10 dark:bg-blue-400/10"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}
