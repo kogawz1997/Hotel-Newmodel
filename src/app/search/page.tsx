@@ -79,11 +79,14 @@ interface TripCardProps {
 }
 
 function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardProps) {
-  const price = hotel.min_rate ?? hotel.min_price ?? 0;
-  const stars = Math.min(5, Math.max(0, hotel.star_rating || 0));
-  const rating = hotel.avg_rating ?? null;
+  const price    = hotel.min_rate ?? hotel.min_price ?? 0;
+  const origPrice = hotel.original_price && hotel.original_price > price ? hotel.original_price : null;
+  const savings  = origPrice ? origPrice - price : (hotel.deal_percent ? Math.round(price * hotel.deal_percent / (100 - hotel.deal_percent)) : 0);
+  const stars    = Math.min(5, Math.max(0, hotel.star_rating || 0));
+  const rating   = hotel.avg_rating ?? null;
+  const tripCoins = price > 0 ? Math.round(price * 0.05) : 0;
   const bookHref = `/h/${hotel.slug}${checkIn ? `?checkIn=${checkIn}&checkOut=${checkOut}` : ''}`;
-  const heroSrc = (hotel.gallery?.[0]?.image_url) || hotel.hero_image_url;
+  const heroSrc  = (hotel.gallery?.[0]?.image_url) || hotel.hero_image_url;
 
   const amenityIcons: { label: string; Icon: React.FC<{ className?: string }> }[] = [];
   if (hotel.amenities?.includes('wifi') || hotel.amenities?.includes('free_wifi'))
@@ -100,7 +103,7 @@ function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardPr
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col sm:flex-row">
 
         {/* ── Left: Image ── */}
-        <div className="relative sm:w-[260px] sm:min-w-[260px] h-52 sm:h-auto flex-shrink-0 bg-gray-100">
+        <div className="relative sm:w-[240px] sm:min-w-[240px] h-52 sm:h-auto flex-shrink-0 bg-gray-100">
           {heroSrc ? (
             <Image
               src={heroSrc}
@@ -116,14 +119,12 @@ function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardPr
 
           {/* Deal badge */}
           {hotel.deal_percent && hotel.deal_percent > 0 && (
-            <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded shadow-md">
+            <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-md">
               -{hotel.deal_percent}%
             </div>
           )}
-
-          {/* Last minute badge */}
-          {hotel.is_last_minute && (
-            <div className="absolute top-3 left-3 bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+          {hotel.is_last_minute && !hotel.deal_percent && (
+            <div className="absolute top-3 left-3 bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
               <Flame className="h-3 w-3" />ดีลวันนี้
             </div>
           )}
@@ -132,11 +133,12 @@ function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardPr
         {/* ── Right: Info ── */}
         <div className="flex-1 flex flex-col p-4 min-w-0 relative">
 
-          {/* Top row: rating badge top-right */}
+          {/* Score badge — top right */}
           {rating !== null && rating !== undefined && (
-            <div className="absolute top-4 right-4 flex flex-col items-end gap-0.5">
-              <div className="bg-blue-600 text-white text-sm font-bold px-2.5 py-1.5 rounded leading-none min-w-[2.5rem] text-center">
+            <div className="absolute top-4 right-4 flex flex-col items-end gap-0.5 shrink-0">
+              <div className="bg-blue-600 text-white text-sm font-bold px-2.5 py-1.5 rounded-lg leading-none min-w-[3rem] text-center">
                 {rating.toFixed(1)}
+                <span className="text-[10px] font-normal opacity-70">/10</span>
               </div>
               <span className="text-[11px] text-gray-500 whitespace-nowrap">{scoreLabel(rating)}</span>
               {hotel.review_count && (
@@ -156,7 +158,7 @@ function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardPr
               {Array.from({ length: stars }).map((_, i) => (
                 <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
               ))}
-              <span className="text-xs text-gray-400 ml-1">{stars}-star hotel</span>
+              <span className="text-xs text-gray-400 ml-1">{stars} ดาว</span>
             </div>
           )}
 
@@ -179,7 +181,7 @@ function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardPr
           {/* Amenity pills */}
           {amenityIcons.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-2">
-              {amenityIcons.slice(0, 4).map(({ label, Icon }) => (
+              {amenityIcons.slice(0, 3).map(({ label, Icon }) => (
                 <span key={label} className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[11px] px-2 py-0.5 rounded border border-blue-100">
                   <Icon className="h-2.5 w-2.5" />
                   {label}
@@ -188,8 +190,8 @@ function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardPr
             </div>
           )}
 
-          {/* Tags: free cancel / breakfast */}
-          <div className="flex flex-wrap gap-2 mb-auto">
+          {/* Free cancel / breakfast tags */}
+          <div className="flex flex-wrap gap-2 mb-2">
             {hotel.is_free_cancel && (
               <span className="flex items-center gap-1 text-emerald-600 text-xs font-medium">
                 <CheckCircle className="h-3 w-3" />
@@ -204,28 +206,46 @@ function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardPr
             )}
           </div>
 
-          {/* Bottom: price + CTA */}
-          <div className="flex items-end justify-between mt-3 pt-3 border-t border-gray-100">
-            <div>
-              {hotel.original_price && hotel.original_price > price && (
-                <p className="text-xs text-gray-400 line-through leading-none mb-0.5">
-                  {formatCurrency(hotel.original_price)}
-                </p>
-              )}
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-orange-500 leading-none">
-                  {formatCurrency(price)}
-                </span>
-                <span className="text-xs text-gray-400">/ คืน</span>
+          {/* Price section */}
+          <div className="mt-auto pt-3 border-t border-gray-100">
+            <div className="flex items-end justify-between">
+              <div>
+                {/* Strikethrough original price */}
+                {origPrice && (
+                  <p className="text-xs text-gray-400 line-through leading-none mb-0.5">
+                    {formatCurrency(origPrice)}
+                  </p>
+                )}
+                {/* Bold price */}
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xl font-bold text-orange-500 leading-none">
+                    {formatCurrency(price)}
+                  </span>
+                  <span className="text-xs text-gray-400">/ คืน</span>
+                </div>
+                {/* Total with tax */}
+                {nights > 0 && price > 0 && (
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    ฿{Math.round(price * nights * 1.07).toLocaleString()} รวมภาษีและค่าธรรมเนียม
+                  </p>
+                )}
+                {/* Savings */}
+                {savings > 0 && (
+                  <p className="text-[11px] text-red-500 font-medium mt-0.5">
+                    ประหยัด {formatCurrency(savings)}
+                  </p>
+                )}
+                {/* Trip Coins */}
+                {tripCoins > 0 && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <div className="h-3.5 w-3.5 rounded-full bg-amber-400 flex items-center justify-center shrink-0">
+                      <span className="text-[7px] font-bold text-amber-900">T</span>
+                    </div>
+                    <span className="text-[11px] text-amber-600 font-medium">+{tripCoins} Trip Coins</span>
+                  </div>
+                )}
               </div>
-              {nights > 1 && price > 0 && (
-                <p className="text-[11px] text-gray-400 mt-0.5">
-                  {nights} คืน · {formatCurrency(price * nights)}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col items-end gap-1.5">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors">
+              <button className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm shrink-0 ml-3">
                 ดูห้องพัก
               </button>
             </div>
