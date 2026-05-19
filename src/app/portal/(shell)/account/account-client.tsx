@@ -13,10 +13,10 @@ import { createClient } from '@/lib/supabase/client';
 import { PortalThemeToggle } from '@/components/portal/PortalThemeToggle';
 
 const TIERS = {
-  bronze:   { label: 'Bronze',   color: '#CD7F32', gFrom: 'from-[#CD7F32]', gTo: 'to-[#A0522D]', emoji: '🥉', minPoints: 0,     next: 1000  },
-  silver:   { label: 'Silver',   color: '#A8A9AD', gFrom: 'from-[#A8A9AD]', gTo: 'to-[#6B7280]', emoji: '🥈', minPoints: 1000,  next: 3000  },
-  gold:     { label: 'Gold',     color: '#D4AF37', gFrom: 'from-[#F59E0B]', gTo: 'to-[#D97706]', emoji: '🥇', minPoints: 3000,  next: 10000 },
-  platinum: { label: 'Platinum', color: '#94A3B8', gFrom: 'from-[#94A3B8]', gTo: 'to-[#64748B]', emoji: '💎', minPoints: 10000, next: null  },
+  bronze:   { label: 'Bronze',   textCls: 'text-amber-700 dark:text-amber-400', gFrom: 'from-amber-500',   gTo: 'to-orange-600',  emoji: '🥉', minPoints: 0,     next: 1000  },
+  silver:   { label: 'Silver',   textCls: 'text-slate-500 dark:text-slate-300', gFrom: 'from-slate-400',   gTo: 'to-slate-600',   emoji: '🥈', minPoints: 1000,  next: 3000  },
+  gold:     { label: 'Gold',     textCls: 'text-yellow-600 dark:text-yellow-400',gFrom: 'from-yellow-400', gTo: 'to-amber-500',   emoji: '🥇', minPoints: 3000,  next: 10000 },
+  platinum: { label: 'Platinum', textCls: 'text-sky-500 dark:text-sky-300',     gFrom: 'from-sky-400',    gTo: 'to-indigo-500',  emoji: '💎', minPoints: 10000, next: null  },
 } as const;
 type TierKey = keyof typeof TIERS;
 
@@ -101,7 +101,7 @@ export function AccountClient({ guest, loyaltyPoints, loyaltyTier }: {
               <p className="text-xs text-muted-foreground mt-0.5 truncate">{guest.email || guest.phone || '—'}</p>
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-sm">{tier.emoji}</span>
-                <span className="text-xs font-bold" style={{ color: tier.color }}>{tier.label} Member</span>
+                <span className={cn('text-xs font-bold', tier.textCls)}>{tier.label} Member</span>
               </div>
             </div>
             <Link href="/portal/profile">

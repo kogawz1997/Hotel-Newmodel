@@ -306,9 +306,9 @@ function DealsBlock({ horizontal }: { horizontal?: boolean }) {
           </div>
           <h2 className="font-display font-bold text-foreground text-sm">ดีลพิเศษ</h2>
         </div>
-        <button className="text-xs text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-0.5">
+        <Link href="/portal/coupons" className="text-xs text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-0.5 hover:underline">
           ดูทั้งหมด <ChevronRight className="h-3 w-3" />
-        </button>
+        </Link>
       </div>
 
       {horizontal ? (
