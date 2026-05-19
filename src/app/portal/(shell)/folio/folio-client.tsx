@@ -165,7 +165,7 @@ export function FolioClient() {
 
             {reservation.outstanding > 0 ? (
               <Link href="/portal/folio/express-checkout"
-                className="flex items-center justify-center gap-2 w-full rounded-2xl bg-amber-600 dark:bg-amber-500 text-white py-3.5 text-sm font-bold shadow-sm hover:opacity-90 transition-opacity">
+                className="flex items-center justify-center gap-2 w-full rounded-2xl bg-blue-600 dark:bg-blue-500 text-white py-3.5 text-sm font-bold shadow-sm hover:opacity-90 transition-opacity">
                 <CreditCard className="h-4 w-4" />
                 Express Check-out
               </Link>

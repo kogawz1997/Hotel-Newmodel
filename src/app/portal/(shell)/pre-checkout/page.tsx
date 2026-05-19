@@ -31,7 +31,7 @@ export default async function PreCheckoutPage() {
       icon: Clock,
       title: `เช็คเอาท์ก่อน ${hotel.check_out_time || '12:00'} น.`,
       desc: 'กรุณาออกจากห้องพักก่อนเวลาเช็คเอาท์ หากต้องการขยายเวลากรุณาติดต่อ Front Desk',
-      color: 'text-amber-600',
+      color: 'text-blue-600',
     },
     {
       icon: KeyRound,

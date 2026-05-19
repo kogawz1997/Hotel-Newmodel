@@ -390,7 +390,7 @@ export default function LoyaltyPortalPage() {
                         className={cn(
                           'flex items-center gap-3 p-3.5 rounded-xl border transition-all',
                           canRedeem
-                            ? 'border-border/60 hover:border-amber-500/30 hover:bg-amber-500/4 cursor-pointer'
+                            ? 'border-border/60 hover:border-blue-500/30 hover:bg-blue-500/4 cursor-pointer'
                             : 'border-border/30 opacity-45',
                         )}>
                         <span className="text-2xl shrink-0">{opt.icon}</span>
@@ -406,7 +406,7 @@ export default function LoyaltyPortalPage() {
                           className={cn(
                             'flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-bold transition-all shrink-0',
                             canRedeem
-                              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm shadow-amber-600/20 hover:opacity-90'
+                              ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm shadow-blue-600/20 hover:opacity-90'
                               : 'bg-secondary text-muted-foreground cursor-not-allowed',
                           )}>
                           {redeemLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}

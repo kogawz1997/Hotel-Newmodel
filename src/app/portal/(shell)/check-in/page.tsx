@@ -126,7 +126,7 @@ export default function OnlineCheckInPage() {
                 <div className={cn(
                   'h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold transition-all',
                   step === s
-                    ? 'bg-amber-600 dark:bg-amber-500 text-white'
+                    ? 'bg-blue-600 dark:bg-blue-500 text-white'
                     : step === 'details' && s === 'verify'
                     ? 'bg-emerald-500 text-white'
                     : 'bg-muted text-muted-foreground',
@@ -148,7 +148,7 @@ export default function OnlineCheckInPage() {
           {/* ── Step 1: Verify ── */}
           {step === 'verify' && (
             <motion.div key="verify" {...fadeUp} className="space-y-4">
-              <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl p-4 flex items-start gap-3">
+              <div className="bg-blue-500/8 border border-blue-500/20 rounded-2xl p-4 flex items-start gap-3">
                 <ClipboardCheck className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
@@ -172,14 +172,14 @@ export default function OnlineCheckInPage() {
                     placeholder="เช่น MT-123456"
                     className="w-full px-4 py-3 bg-background border border-input rounded-xl text-sm
                       font-mono tracking-wider placeholder:text-muted-foreground/40 placeholder:font-sans placeholder:tracking-normal
-                      focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 transition-all"
+                      focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all"
                   />
                 </div>
 
                 <button
                   onClick={verifyBooking}
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-amber-600 dark:bg-amber-500
+                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-blue-600 dark:bg-blue-500
                     text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {loading
@@ -244,8 +244,8 @@ export default function OnlineCheckInPage() {
                       className={cn(
                         'py-2 rounded-xl text-xs font-medium transition-all border',
                         arrival === t
-                          ? 'bg-amber-600 dark:bg-amber-500 text-white border-transparent'
-                          : 'bg-background border-input text-foreground hover:border-amber-500/50',
+                          ? 'bg-blue-600 dark:bg-blue-500 text-white border-transparent'
+                          : 'bg-background border-input text-foreground hover:border-blue-500/50',
                       )}>
                       {t}
                     </button>
@@ -262,7 +262,7 @@ export default function OnlineCheckInPage() {
                       className={cn(
                         'flex-1 py-2.5 rounded-xl text-xs font-medium border transition-all',
                         idType === t
-                          ? 'bg-amber-600 dark:bg-amber-500 text-white border-transparent'
+                          ? 'bg-blue-600 dark:bg-blue-500 text-white border-transparent'
                           : 'bg-background border-input text-muted-foreground hover:text-foreground',
                       )}>
                       {t === 'id_card' ? 'บัตรประชาชน' : 'หนังสือเดินทาง'}
@@ -275,7 +275,7 @@ export default function OnlineCheckInPage() {
                   placeholder={idType === 'id_card' ? 'เลขบัตรประชาชน 13 หลัก' : 'เลขหนังสือเดินทาง'}
                   className="w-full px-4 py-3 bg-background border border-input rounded-xl text-sm
                     font-mono tracking-wider placeholder:font-sans placeholder:tracking-normal placeholder:text-muted-foreground/40
-                    focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 transition-all"
+                    focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all"
                 />
               </div>
 
@@ -301,7 +301,7 @@ export default function OnlineCheckInPage() {
                   placeholder="ระบุความต้องการเพิ่มเติม..."
                   className="w-full px-4 py-3 bg-background border border-input rounded-xl text-sm resize-none
                     placeholder:text-muted-foreground/40
-                    focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 transition-all"
+                    focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all"
                 />
               </div>
 
@@ -313,7 +313,7 @@ export default function OnlineCheckInPage() {
                 <button
                   onClick={submitCheckIn}
                   disabled={loading}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-amber-600 dark:bg-amber-500
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 dark:bg-blue-500
                     text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {loading
@@ -380,7 +380,7 @@ export default function OnlineCheckInPage() {
 
               <div className="flex flex-col gap-3">
                 <Link href="/portal/trips"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-amber-600 dark:bg-amber-500
+                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-blue-600 dark:bg-blue-500
                     text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity">
                   ดูการจองของฉัน <ChevronRight className="h-4 w-4" />
                 </Link>

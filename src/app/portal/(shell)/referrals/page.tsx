@@ -21,7 +21,7 @@ type ReferralItem = {
 const HOW_IT_WORKS = [
   { step: '1', icon: Share2, title: 'แชร์โค้ดของคุณ', desc: 'ส่งโค้ดให้เพื่อนหรือครอบครัวที่กำลังมองหาที่พัก', bg: 'bg-sky-500/10', color: 'text-sky-600 dark:text-sky-400' },
   { step: '2', icon: Tag,    title: 'เพื่อนใช้โค้ด',   desc: 'เพื่อนใช้โค้ดตอนจองที่พักผ่าน Maitri ได้รับส่วนลดทันที', bg: 'bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-400' },
-  { step: '3', icon: Gift,   title: 'รับรางวัล',       desc: 'คุณได้รับ Maitri Points สะสมแต้มเป็นของขวัญ', bg: 'bg-amber-500/10', color: 'text-blue-600 dark:text-blue-400' },
+  { step: '3', icon: Gift,   title: 'รับรางวัล',       desc: 'คุณได้รับ Maitri Points สะสมแต้มเป็นของขวัญ', bg: 'bg-blue-500/10', color: 'text-blue-600 dark:text-blue-400' },
 ];
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;

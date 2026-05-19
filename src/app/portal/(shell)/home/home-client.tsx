@@ -62,10 +62,10 @@ const DEALS = [
 // ─── Quick service actions ─────────────────────────────────────────────────────
 
 const QUICK = [
-  { icon: BedDouble,       label: 'ห้องพัก',    href: '/portal/trips',   color: 'from-amber-500 to-orange-500' },
+  { icon: BedDouble,       label: 'ห้องพัก',    href: '/portal/trips',   color: 'from-blue-500 to-blue-700' },
   { icon: UtensilsCrossed, label: 'อาหาร',      href: '/portal/stay',    color: 'from-orange-500 to-red-500' },
   { icon: MessageSquare,   label: 'Concierge',  href: '/portal/stay',    color: 'from-violet-500 to-purple-500' },
-  { icon: Key,             label: 'กุญแจ',      href: '/portal/keys',    color: 'from-amber-600 to-yellow-500' },
+  { icon: Key,             label: 'กุญแจ',      href: '/portal/keys',    color: 'from-slate-500 to-slate-700' },
   { icon: Receipt,         label: 'ค่าใช้จ่าย', href: '/portal/folio',   color: 'from-emerald-500 to-teal-500' },
   { icon: Sparkles,        label: 'สิทธิพิเศษ', href: '/portal/loyalty', color: 'from-sky-500 to-blue-500' },
 ];
@@ -218,7 +218,7 @@ function ActiveStayBlock({ activeStay }: { activeStay: any }) {
     <Link href="/portal/stay">
       <motion.div
         whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
-        className="relative rounded-3xl overflow-hidden h-36 shadow-lg border border-amber-500/20"
+        className="relative rounded-3xl overflow-hidden h-36 shadow-lg border border-blue-500/20"
       >
         <Image
           src={(activeStay.hotels as any)?.hero_image_url || PLACEHOLDER}

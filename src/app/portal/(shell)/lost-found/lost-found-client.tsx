@@ -59,7 +59,7 @@ export function LostFoundClient({ reservations }: { reservations: any[] }) {
         <p className="text-sm text-muted-foreground mb-6">
           ทีม Housekeeping จะตรวจสอบและติดต่อกลับภายใน 24 ชั่วโมง
         </p>
-        <Link href="/portal/home" className="px-6 py-2.5 rounded-xl bg-amber-600 dark:bg-amber-500 text-white text-sm font-medium hover:opacity-90 transition-opacity">
+        <Link href="/portal/home" className="px-6 py-2.5 rounded-xl bg-blue-600 dark:bg-blue-500 text-white text-sm font-medium hover:opacity-90 transition-opacity">
           กลับหน้าหลัก
         </Link>
       </div>

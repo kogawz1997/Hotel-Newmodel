@@ -49,7 +49,7 @@ export default function SupportPage() {
       <div className="px-4 py-5 pb-24 max-w-screen-sm mx-auto space-y-4">
 
         {/* Hero */}
-        <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-amber-600 to-[#2563eb] p-6 text-center relative">
+        <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-500 p-6 text-center relative">
           <div className="absolute top-0 right-0 translate-x-4 -translate-y-4 h-32 w-32 rounded-full bg-white/10" />
           <div className="absolute bottom-0 left-4 translate-y-6 h-20 w-20 rounded-full bg-white/8" />
           <div className="relative">
@@ -79,7 +79,7 @@ export default function SupportPage() {
 
         {/* Hours */}
         <div className="bg-card rounded-2xl border border-border/60 p-4 flex items-center gap-3 shadow-sm">
-          <div className="h-9 w-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+          <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
             <Clock className="h-4.5 w-4.5 text-amber-700 dark:text-amber-400" />
           </div>
           <div>

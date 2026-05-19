@@ -197,7 +197,7 @@ function TripHotelCard({ hotel, nights, checkIn, checkOut, onTrack }: TripCardPr
               </span>
             )}
             {hotel.is_breakfast && (
-              <span className="flex items-center gap-1 text-amber-600 text-xs font-medium">
+              <span className="flex items-center gap-1 text-blue-600 text-xs font-medium">
                 <Coffee className="h-3 w-3" />
                 รวมอาหารเช้า
               </span>
@@ -315,8 +315,8 @@ function FilterPanel({ query, setQuery, onApply, onClear }: FilterPanelProps) {
               className={cn(
                 'flex items-center gap-0.5 px-3 py-1.5 rounded-full border text-xs transition-all',
                 query.stars.includes(s)
-                  ? 'bg-amber-50 border-amber-400 text-amber-700 shadow-sm'
-                  : 'border-gray-200 text-gray-500 hover:border-amber-300',
+                  ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm'
+                  : 'border-gray-200 text-gray-500 hover:border-blue-300',
               )}
             >
               {Array.from({ length: s }).map((_, i) => (
@@ -851,7 +851,7 @@ function SearchContent() {
             {activeFilterCount > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {query.stars.map(s => (
-                  <span key={s} className="flex items-center gap-1 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-full">
+                  <span key={s} className="flex items-center gap-1 px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 text-xs rounded-full">
                     {s}★
                     <button onClick={() => setQuery(p => ({ ...p, stars: p.stars.filter(x => x !== s) }))}>
                       <X className="h-3 w-3" />
@@ -877,7 +877,7 @@ function SearchContent() {
                   </span>
                 )}
                 {query.breakfast && (
-                  <span className="flex items-center gap-1 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-full">
+                  <span className="flex items-center gap-1 px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 text-xs rounded-full">
                     รวมอาหารเช้า
                     <button onClick={() => setQuery(p => ({ ...p, breakfast: false }))}><X className="h-3 w-3" /></button>
                   </span>

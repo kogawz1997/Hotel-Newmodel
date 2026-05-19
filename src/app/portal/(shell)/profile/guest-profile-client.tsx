@@ -186,7 +186,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
       <div className="py-6">
         {/* Avatar card */}
         <div className="bg-card rounded-2xl border border-border p-5 flex items-center gap-4 mb-5">
-          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-500 to-[#2563eb] text-white flex items-center justify-center text-xl font-bold shrink-0">
+          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-xl font-bold shrink-0">
             {(guest.first_name || guest.email || 'G').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
@@ -200,7 +200,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
           {TABS.map(({ key, icon: Icon }) => (
             <button key={key} onClick={() => setTab(key)}
               className={cn('flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl font-medium text-2xs transition-all',
-                tab === key ? 'bg-amber-600 dark:bg-amber-500 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                tab === key ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
               <Icon className="h-4 w-4" />
               <span className="leading-none">{s.tabs[key]}</span>
             </button>
@@ -251,7 +251,7 @@ function ProfileTab({ guest, supabase, s }: { guest: any; supabase: any; s: PStr
       <PField label={ps.birthday} type="date" value={form.birthday} onChange={v => set('birthday', v)} />
       <PField label={ps.email} value={guest.email} disabled />
       <button onClick={save} disabled={saving}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+        className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
         <Save className="h-4 w-4" />{saving ? ps.saving : ps.save}
       </button>
     </div>
@@ -314,7 +314,7 @@ function NotificationsTab({ guest, s }: { guest: any; s: PStrings }) {
                   <td key={ch} className="text-center py-3 px-3">
                     <button onClick={() => toggle(key, ch)}
                       className={cn('h-5 w-5 rounded border-2 mx-auto flex items-center justify-center transition-all',
-                        prefs[key]?.[ch] ? 'bg-amber-600 dark:bg-amber-500 border-amber-600 dark:border-amber-500' : 'border-border hover:border-amber-500/50')}>
+                        prefs[key]?.[ch] ? 'bg-blue-600 dark:bg-blue-500 border-blue-600 dark:border-blue-500' : 'border-border hover:border-blue-500/50')}>
                       {prefs[key]?.[ch] && <Check className="h-3 w-3 text-white" />}
                     </button>
                   </td>
@@ -326,7 +326,7 @@ function NotificationsTab({ guest, s }: { guest: any; s: PStrings }) {
       </div>
 
       <button onClick={save} disabled={saving}
-        className="w-full py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+        className="w-full py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
         {saving ? s.saving : ns.save}
       </button>
     </div>
@@ -367,7 +367,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
         <PField label={ss.confirmPw} type="password" value={pwForm.confirm}
           onChange={v => setPwForm(p => ({ ...p, confirm: v }))} />
         <button onClick={changePassword} disabled={pwSaving}
-          className="w-full py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+          className="w-full py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
           {pwSaving ? ss.changing : ss.changePwBtn}
         </button>
       </div>
@@ -379,7 +379,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
           {[
             { device: ss.currentDevice, location: 'Thailand', time: lang === 'th' ? 'ตอนนี้' : 'Now', current: true },
           ].map((session, i) => (
-            <div key={i} className={cn('flex items-center gap-3 p-3 rounded-xl border', session.current ? 'border-amber-500/20 bg-amber-500/8' : 'border-border bg-muted/50')}>
+            <div key={i} className={cn('flex items-center gap-3 p-3 rounded-xl border', session.current ? 'border-blue-500/20 bg-blue-500/8' : 'border-border bg-muted/50')}>
               <Smartphone className="h-4 w-4 text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">{session.device}</p>
@@ -439,7 +439,7 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-muted-foreground block">{ps.language}</label>
         <select value={form.preferred_language} onChange={e => set('preferred_language', e.target.value)}
-          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all">
+          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all">
           {Object.entries(ps.langs).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
@@ -447,7 +447,7 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-muted-foreground block">{ps.currency}</label>
         <select value={form.preferred_currency} onChange={e => set('preferred_currency', e.target.value)}
-          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all">
+          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all">
           {Object.entries(ps.currencies).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
@@ -457,7 +457,7 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
         <div className="grid grid-cols-3 gap-2">
           {Object.entries(ps.dateFormats).map(([v, l]) => (
             <button key={v} onClick={() => set('date_format', v)}
-              className={cn('py-2 text-xs rounded-xl border font-medium transition-all', form.date_format === v ? 'bg-amber-600 dark:bg-amber-500 text-white border-amber-600 dark:border-amber-500' : 'bg-muted/50 border-border text-muted-foreground hover:border-amber-500/40')}>
+              className={cn('py-2 text-xs rounded-xl border font-medium transition-all', form.date_format === v ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500' : 'bg-muted/50 border-border text-muted-foreground hover:border-blue-500/40')}>
               {l}
             </button>
           ))}
@@ -470,13 +470,13 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
           <div className="text-xs text-muted-foreground mt-0.5">{ps.marketingDesc}</div>
         </div>
         <div onClick={() => set('marketing_consent', !form.marketing_consent)}
-          className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', form.marketing_consent ? 'bg-amber-600 dark:bg-amber-500' : 'bg-muted-foreground/30')}>
+          className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', form.marketing_consent ? 'bg-blue-600 dark:bg-blue-500' : 'bg-muted-foreground/30')}>
           <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-card shadow transition-transform', form.marketing_consent ? 'left-6' : 'left-1')} />
         </div>
       </label>
 
       <button onClick={save} disabled={saving}
-        className="w-full py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+        className="w-full py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
         {saving ? s.saving : ps.save}
       </button>
     </div>
@@ -514,8 +514,8 @@ function PaymentsTab({ s }: { s: PStrings }) {
         ) : (
           <div className="space-y-2">
             {cards.map(card => (
-              <div key={card.id} className={cn('flex items-center gap-3 p-3 rounded-xl border transition-all', card.isDefault ? 'border-amber-500/30 bg-amber-500/8' : 'border-border bg-muted/50')}>
-                <div className="h-10 w-14 bg-gradient-to-br from-foreground/80 to-amber-600 dark:to-amber-500 rounded-lg flex items-center justify-center shrink-0">
+              <div key={card.id} className={cn('flex items-center gap-3 p-3 rounded-xl border transition-all', card.isDefault ? 'border-blue-500/30 bg-blue-500/8' : 'border-border bg-muted/50')}>
+                <div className="h-10 w-14 bg-gradient-to-br from-foreground/80 to-blue-600 dark:to-blue-500 rounded-lg flex items-center justify-center shrink-0">
                   <span className="text-white text-2xs font-bold">{card.brand.slice(0, 4).toUpperCase()}</span>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -547,7 +547,7 @@ function PaymentsTab({ s }: { s: PStrings }) {
           <PField label={ps.cardName} placeholder="SOMCHAI JAIDEE" />
           <div className="flex gap-3">
             <button onClick={() => setAddingCard(false)} className="flex-1 py-3 border border-border text-muted-foreground rounded-xl text-sm font-medium">{ps.cancel}</button>
-            <button onClick={() => { toast.success('เพิ่มบัตรแล้ว (ระบบ demo)'); setAddingCard(false); }} className="flex-1 py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl text-sm font-medium">{ps.saveCard}</button>
+            <button onClick={() => { toast.success('เพิ่มบัตรแล้ว (ระบบ demo)'); setAddingCard(false); }} className="flex-1 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl text-sm font-medium">{ps.saveCard}</button>
           </div>
           <p className="text-center text-2xs text-muted-foreground/50">🔒 TLS 1.3 · PCI DSS Level 1</p>
         </div>
@@ -594,7 +594,7 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
         <h3 className="font-semibold text-foreground mb-1">{ps.dataExport}</h3>
         <p className="text-xs text-muted-foreground mb-4">{ps.dataExportDesc}</p>
         <button onClick={() => { window.location.href = '/api/guest/privacy/export'; }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-amber-600 dark:bg-amber-500 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 dark:bg-blue-500 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-colors">
           <Download className="h-4 w-4" />{ps.exportBtn}
         </button>
       </div>
@@ -613,13 +613,13 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
               <div className="text-xs text-muted-foreground mt-0.5">{desc}</div>
             </div>
             <div onClick={() => toggle(key)}
-              className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', consents[key] ? 'bg-amber-600 dark:bg-amber-500' : 'bg-muted-foreground/30')}>
+              className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', consents[key] ? 'bg-blue-600 dark:bg-blue-500' : 'bg-muted-foreground/30')}>
               <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-card shadow transition-transform', consents[key] ? 'left-6' : 'left-1')} />
             </div>
           </label>
         ))}
         <button onClick={saveConsents} disabled={saving}
-          className="w-full py-2.5 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+          className="w-full py-2.5 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
           {saving ? s.saving : ps.save}
         </button>
       </div>
@@ -656,7 +656,7 @@ function DateSelect({ label, value, onChange }: { label?: string; value?: string
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 80 }, (_, i) => currentYear - i);
 
-  const sel = 'flex-1 px-2 py-2.5 bg-muted/50 border border-border rounded-xl text-sm transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 appearance-none cursor-pointer';
+  const sel = 'flex-1 px-2 py-2.5 bg-muted/50 border border-border rounded-xl text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 appearance-none cursor-pointer';
 
   return (
     <div>
@@ -692,7 +692,7 @@ function PField({ label, value, onChange, type = 'text', placeholder, disabled }
         placeholder={placeholder} disabled={disabled}
         className={cn(
           'w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm transition-all',
-          'focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500',
+          'focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500',
           disabled && 'opacity-50 cursor-not-allowed',
         )}
       />

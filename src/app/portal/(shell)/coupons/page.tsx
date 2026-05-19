@@ -199,7 +199,7 @@ export default function CouponsPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.35 }}>
           <Link href="/search">
-            <div className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-dashed border-border/60 text-muted-foreground hover:text-foreground hover:border-amber-500/30 hover:bg-amber-500/4 transition-all">
+            <div className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-dashed border-border/60 text-muted-foreground hover:text-foreground hover:border-blue-500/30 hover:bg-blue-500/4 transition-all">
               <Search className="h-4 w-4" />
               <span className="text-sm font-semibold">ค้นหาโรงแรมและรับส่วนลด</span>
               <ChevronRight className="h-4 w-4" />

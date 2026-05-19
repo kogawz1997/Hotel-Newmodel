@@ -21,7 +21,7 @@ type Tab = typeof TABS[number];
 
 const STATUS: Record<string, { label: string; Icon: React.ElementType; pillBg: string; pillText: string; ring: string }> = {
   confirmed:  { label: 'ยืนยันแล้ว',   Icon: CheckCircle2, pillBg: 'bg-emerald-500/15', pillText: 'text-emerald-700 dark:text-emerald-300', ring: 'ring-emerald-500/20' },
-  checked_in: { label: 'กำลังเข้าพัก', Icon: Clock,         pillBg: 'bg-amber-500/20',  pillText: 'text-amber-800 dark:text-amber-300',   ring: 'ring-amber-500/30'   },
+  checked_in: { label: 'กำลังเข้าพัก', Icon: Clock,         pillBg: 'bg-green-500/20',  pillText: 'text-green-800 dark:text-green-300',   ring: 'ring-green-500/30'   },
   completed:  { label: 'เสร็จสิ้น',     Icon: CheckCircle2, pillBg: 'bg-sky-500/15',    pillText: 'text-sky-700 dark:text-sky-300',         ring: ''                    },
   cancelled:  { label: 'ยกเลิกแล้ว',   Icon: XCircle,      pillBg: 'bg-red-500/10',    pillText: 'text-red-600 dark:text-red-400',         ring: ''                    },
   pending:    { label: 'รอยืนยัน',      Icon: AlertCircle,  pillBg: 'bg-orange-500/15', pillText: 'text-orange-700 dark:text-orange-300',   ring: ''                    },
@@ -62,7 +62,7 @@ function BookingCard({ res, index }: { res: Reservation; index: number }) {
         <div className={cn(
           'rounded-3xl border bg-card overflow-hidden shadow-md transition-shadow hover:shadow-lg',
           isActive
-            ? `border-amber-500/40 ring-1 ${cfg.ring}`
+            ? `border-green-500/40 ring-1 ${cfg.ring}`
             : 'border-border/50',
         )}>
 
@@ -90,7 +90,7 @@ function BookingCard({ res, index }: { res: Reservation; index: number }) {
 
             {/* Countdown badge */}
             {isUpcoming && (
-              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-amber-500/85 backdrop-blur-sm border border-amber-400/30">
+              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-green-500/85 backdrop-blur-sm border border-green-400/30">
                 <span className="text-[9px] font-bold text-white">
                   {daysUntil === 0 ? '🎉 วันนี้!' : `⏳ อีก ${daysUntil} วัน`}
                 </span>

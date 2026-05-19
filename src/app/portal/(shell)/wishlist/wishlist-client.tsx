@@ -67,7 +67,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
                       <Image src={hotel.hero_image_url} alt={hotel.name}
                         fill className="object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-500/10 to-amber-600/5">
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/10 to-blue-600/5">
                         <span className="text-6xl text-amber-500/20 font-serif">{hotel?.name?.charAt(0)}</span>
                       </div>
                     )}
