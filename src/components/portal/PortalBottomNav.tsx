@@ -87,7 +87,7 @@ export function PortalBottomNav() {
   }
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 pb-safe">
+    <div className="fixed bottom-0 inset-x-0 z-40 pb-safe lg:hidden">
       <div className="bg-background/88 backdrop-blur-3xl border-t border-border/20 shadow-2xl shadow-black/8">
         <nav className="max-w-lg mx-auto flex items-end px-1">
 

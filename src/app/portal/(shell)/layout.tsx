@@ -1,14 +1,21 @@
 import { CookieConsent } from '@/components/ui/cookie-consent';
 import { PortalChatButton } from '@/components/portal/portal-chat-button';
 import { PortalBottomNav } from '@/components/portal/PortalBottomNav';
+import { PortalSidebar } from '@/components/portal/PortalSidebar';
 import { AppInstallBanner } from '@/components/ui/app-install-banner';
 
 export default function PortalShellLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <main className="mx-auto w-full max-w-screen-sm pb-24">
+      {/* Desktop sidebar — hidden on mobile */}
+      <PortalSidebar />
+
+      {/* Main content — centered + capped on mobile, full-width offset on desktop */}
+      <main className="w-full max-w-screen-sm mx-auto pb-24 lg:max-w-none lg:mx-0 lg:ml-64 lg:pb-12">
         {children}
       </main>
+
+      {/* Bottom nav — hidden on desktop (sidebar takes over) */}
       <PortalBottomNav />
       <AppInstallBanner />
       <CookieConsent />
