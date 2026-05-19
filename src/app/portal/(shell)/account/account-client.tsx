@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   CalendarDays, Heart, User, Shield, Users, LogOut,
   ChevronRight, Sparkles, Trophy, Settings2, Gift,
-  Bell, HelpCircle,
+  Bell, HelpCircle, Tag, Settings,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -40,8 +40,10 @@ const MENU_SECTIONS = [
   {
     title: 'บัญชีของฉัน',
     items: [
-      { href: '/portal/profile',  icon: User,         label: 'ข้อมูลส่วนตัว',  desc: 'แก้ไขชื่อ อีเมล โทรศัพท์',  color: 'bg-sky-500/12 text-sky-600 dark:text-sky-400' },
-      { href: '/portal/referrals',icon: Users,        label: 'ชวนเพื่อน',      desc: 'รับแต้มพิเศษเมื่อเพื่อนจอง', color: 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400' },
+      { href: '/portal/profile',   icon: User,     label: 'ข้อมูลส่วนตัว',   desc: 'แก้ไขชื่อ อีเมล โทรศัพท์',    color: 'bg-sky-500/12 text-sky-600 dark:text-sky-400' },
+      { href: '/portal/referrals', icon: Users,    label: 'ชวนเพื่อน',       desc: 'รับแต้มพิเศษเมื่อเพื่อนจอง',  color: 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400' },
+      { href: '/portal/coupons',   icon: Tag,      label: 'คูปองส่วนลด',     desc: 'โปรโมชั่นและรหัสส่วนลด',      color: 'bg-rose-500/12 text-rose-600 dark:text-rose-400' },
+      { href: '/portal/settings',  icon: Settings, label: 'ตั้งค่า',          desc: 'ธีม การแจ้งเตือน ภาษา',       color: 'bg-gray-500/12 text-gray-600 dark:text-gray-400' },
     ],
   },
 ];

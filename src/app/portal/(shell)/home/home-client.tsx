@@ -1,16 +1,18 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, MapPin, Star, ChevronRight, Sparkles, X,
   QrCode, Loader2, Flame, ArrowRight, Key,
   UtensilsCrossed, BedDouble, MessageSquare, Receipt,
+  Calendar, Users, Minus, Plus, ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, addDays, differenceInDays } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { PortalThemeToggle } from '@/components/portal/PortalThemeToggle';
 
@@ -379,6 +381,8 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
   activeStay: any | null;
   loyaltyPoints?: number;
 }) {
+  const router = useRouter();
+
   // Hero carousel
   const [heroIdx, setHeroIdx] = useState(0);
   const [heroKey, setHeroKey] = useState(0);
@@ -418,11 +422,36 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
 
   useEffect(() => {
     function onDown(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowDropdown(false);
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+        setSearchExpanded(false);
+        setShowDates(false);
+        setShowGuests(false);
+      }
     }
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
   }, []);
+
+  // Search form (dates + guests)
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [showDates, setShowDates]     = useState(false);
+  const [showGuests, setShowGuests]   = useState(false);
+  const [checkIn, setCheckIn]   = useState(() => format(addDays(new Date(), 1), 'yyyy-MM-dd'));
+  const [checkOut, setCheckOut] = useState(() => format(addDays(new Date(), 2), 'yyyy-MM-dd'));
+  const [adults, setAdults]     = useState(2);
+  const [rooms, setRooms]       = useState(1);
+  const nights = useMemo(() => {
+    try { return Math.max(1, differenceInDays(parseISO(checkOut), parseISO(checkIn))); } catch { return 1; }
+  }, [checkIn, checkOut]);
+
+  function doSearch() {
+    const p = new URLSearchParams({ city: query || '', checkIn, checkOut, adults: String(adults) });
+    router.push(`/search?${p}`);
+    setSearchExpanded(false);
+    setShowDates(false);
+    setShowGuests(false);
+  }
 
   // City filter
   const cities = ['ทั้งหมด', ...Array.from(new Set(hotels.map((h: any) => h.city).filter(Boolean)))];
@@ -536,9 +565,10 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
             initial={{ opacity: 0, y: 16, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5, ease }}
-            className="bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/15 border border-border/50"
+            className="bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/15 border border-border/50 overflow-hidden"
           >
-            <div className="flex items-center gap-3 px-4 py-3.5">
+            {/* Row 1: Destination */}
+            <div className="flex items-center gap-3 px-4 py-3.5" onClick={() => setSearchExpanded(true)}>
               {searchLoading
                 ? <Loader2 className="h-4.5 w-4.5 text-amber-600 dark:text-amber-400 shrink-0 animate-spin" />
                 : <Search className="h-4.5 w-4.5 text-muted-foreground shrink-0" />
@@ -548,7 +578,7 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                onFocus={() => query.trim().length >= 2 && setShowDropdown(true)}
+                onFocus={() => { setSearchExpanded(true); query.trim().length >= 2 && setShowDropdown(true); }}
                 placeholder="ค้นหาโรงแรม หรือ เมือง..."
                 className="flex-1 bg-transparent text-sm placeholder:text-muted-foreground/50 focus:outline-none text-foreground"
               />
@@ -556,27 +586,160 @@ export function HomeClient({ firstName, hotels, activeStay, loyaltyPoints }: {
                 {query && (
                   <motion.button
                     initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.7 }}
-                    onClick={() => { setQuery(''); setSuggestions([]); setShowDropdown(false); inputRef.current?.focus(); }}
+                    onClick={e => { e.stopPropagation(); setQuery(''); setSuggestions([]); setShowDropdown(false); inputRef.current?.focus(); }}
                     className="h-5 w-5 rounded-full bg-secondary flex items-center justify-center shrink-0"
                   >
                     <X className="h-3 w-3 text-muted-foreground" />
                   </motion.button>
                 )}
               </AnimatePresence>
-              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-amber-500 to-[#C66A30] flex items-center justify-center shrink-0 shadow-sm">
-                <Search className="h-3.5 w-3.5 text-white" />
-              </div>
+              {!searchExpanded && (
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-amber-500 to-[#C66A30] flex items-center justify-center shrink-0 shadow-sm">
+                  <Search className="h-3.5 w-3.5 text-white" />
+                </div>
+              )}
             </div>
-          </motion.div>
 
-          <AnimatePresence>
-            {showDropdown && query.trim().length >= 2 && (
-              <SearchDropdown
-                results={suggestions} loading={searchLoading} query={query}
-                onSelect={() => { setShowDropdown(false); setQuery(''); }}
-              />
-            )}
-          </AnimatePresence>
+            {/* Autocomplete results (inside card when expanded) */}
+            <AnimatePresence>
+              {showDropdown && query.trim().length >= 2 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                  className="border-t border-border/40 overflow-hidden"
+                >
+                  <SearchDropdown
+                    results={suggestions} loading={searchLoading} query={query}
+                    onSelect={() => { setShowDropdown(false); setQuery(''); setSearchExpanded(true); }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Expanded: dates + guests + search button */}
+            <AnimatePresence>
+              {searchExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease }}
+                  className="overflow-hidden"
+                >
+                  {/* Dates row */}
+                  <div className="border-t border-border/40">
+                    <button
+                      onClick={() => { setShowDates(s => !s); setShowGuests(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/40 transition-colors text-left"
+                    >
+                      <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-foreground">
+                          {format(parseISO(checkIn), 'EEE d MMM', { locale: th })}
+                          <span className="mx-2 text-muted-foreground/50">→</span>
+                          {format(parseISO(checkOut), 'EEE d MMM', { locale: th })}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{nights} คืน</p>
+                      </div>
+                      <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform duration-200', showDates && 'rotate-180')} />
+                    </button>
+
+                    <AnimatePresence>
+                      {showDates && (
+                        <motion.div
+                          initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-3 grid grid-cols-2 gap-2">
+                            <div>
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">เช็คอิน</p>
+                              <input
+                                type="date" value={checkIn}
+                                min={format(new Date(), 'yyyy-MM-dd')}
+                                onChange={e => {
+                                  setCheckIn(e.target.value);
+                                  if (e.target.value >= checkOut) setCheckOut(format(addDays(parseISO(e.target.value), 1), 'yyyy-MM-dd'));
+                                }}
+                                className="w-full px-3 py-2 rounded-xl border border-border bg-secondary text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">เช็คออก</p>
+                              <input
+                                type="date" value={checkOut}
+                                min={format(addDays(parseISO(checkIn), 1), 'yyyy-MM-dd')}
+                                onChange={e => setCheckOut(e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl border border-border bg-secondary text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Guests row */}
+                  <div className="border-t border-border/40">
+                    <button
+                      onClick={() => { setShowGuests(s => !s); setShowDates(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/40 transition-colors text-left"
+                    >
+                      <Users className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-foreground">
+                          {rooms} ห้อง · ผู้ใหญ่ {adults} คน
+                        </p>
+                      </div>
+                      <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform duration-200', showGuests && 'rotate-180')} />
+                    </button>
+
+                    <AnimatePresence>
+                      {showGuests && (
+                        <motion.div
+                          initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-3 space-y-3">
+                            {([
+                              { label: 'ห้องพัก', value: rooms, min: 1, set: setRooms },
+                              { label: 'ผู้ใหญ่', value: adults, min: 1, set: setAdults },
+                            ] as const).map(({ label, value, min, set }) => (
+                              <div key={label} className="flex items-center justify-between">
+                                <span className="text-sm text-foreground font-medium">{label}</span>
+                                <div className="flex items-center gap-3">
+                                  <button
+                                    onClick={() => (set as any)(Math.max(min, value - 1))}
+                                    className="h-8 w-8 rounded-full border border-border flex items-center justify-center hover:bg-secondary disabled:opacity-30 transition-colors"
+                                    disabled={value <= min}
+                                  >
+                                    <Minus className="h-3.5 w-3.5 text-foreground" />
+                                  </button>
+                                  <span className="text-sm font-bold text-foreground w-5 text-center">{value}</span>
+                                  <button
+                                    onClick={() => (set as any)(value + 1)}
+                                    className="h-8 w-8 rounded-full border border-amber-500/40 bg-amber-500/10 flex items-center justify-center hover:bg-amber-500/20 transition-colors"
+                                  >
+                                    <Plus className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Search button */}
+                  <div className="px-4 py-3 border-t border-border/40">
+                    <button
+                      onClick={doSearch}
+                      className="w-full py-3 bg-gradient-to-r from-amber-500 to-[#C66A30] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20 hover:opacity-90 active:scale-[0.98] transition-all"
+                    >
+                      <Search className="h-4 w-4" /> ค้นหาที่พัก
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
 
