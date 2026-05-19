@@ -385,7 +385,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
                 <p className="text-sm font-medium text-foreground">{session.device}</p>
                 <p className="text-xs text-muted-foreground">{session.location} · {session.time}</p>
               </div>
-              {session.current && <span className="text-2xs text-amber-700 dark:text-amber-400 font-medium">Active</span>}
+              {session.current && <span className="text-2xs text-emerald-600 dark:text-emerald-400 font-medium">Active</span>}
             </div>
           ))}
         </div>
@@ -504,7 +504,7 @@ function PaymentsTab({ s }: { s: PStrings }) {
       <div className="bg-card rounded-2xl border border-border p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-foreground">{ps.savedCards}</h3>
-          <button onClick={() => setAddingCard(true)} className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-medium hover:underline">
+          <button onClick={() => setAddingCard(true)} className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-medium hover:underline">
             <Plus className="h-3.5 w-3.5" />{ps.addCard}
           </button>
         </div>
@@ -521,11 +521,11 @@ function PaymentsTab({ s }: { s: PStrings }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground">•••• {card.last4}</p>
                   <p className="text-xs text-muted-foreground">{ps.expires} {String(card.expMonth).padStart(2, '0')}/{card.expYear}</p>
-                  {card.isDefault && <span className="text-2xs text-amber-700 dark:text-amber-400 font-medium">{ps.defaultCard}</span>}
+                  {card.isDefault && <span className="text-2xs text-blue-600 dark:text-blue-400 font-medium">{ps.defaultCard}</span>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {!card.isDefault && (
-                    <button onClick={() => setDefault(card.id)} className="text-2xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-400 transition-colors whitespace-nowrap">{ps.setDefault}</button>
+                    <button onClick={() => setDefault(card.id)} className="text-2xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap">{ps.setDefault}</button>
                   )}
                   <button onClick={() => removeCard(card.id)} className="p-1.5 text-muted-foreground/50 hover:text-red-500 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>

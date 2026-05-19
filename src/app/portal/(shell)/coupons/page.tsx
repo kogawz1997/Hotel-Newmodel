@@ -122,7 +122,7 @@ export default function CouponsPage() {
           <div className="rounded-2xl bg-card border border-border/60 shadow-sm p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">ใส่รหัสคูปอง</p>
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center gap-2 h-10 rounded-xl bg-secondary border border-border/40 px-3 focus-within:ring-2 focus-within:ring-amber-500/30">
+              <div className="flex-1 flex items-center gap-2 h-10 rounded-xl bg-secondary border border-border/40 px-3 focus-within:ring-2 focus-within:ring-blue-500/30">
                 <Tag className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <input
                   value={code}
@@ -135,7 +135,7 @@ export default function CouponsPage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={redeemCode}
-                className="h-10 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold shadow-sm shadow-amber-600/20 hover:opacity-90 transition-all shrink-0">
+                className="h-10 px-4 rounded-xl bg-blue-600 text-white text-sm font-bold hover:opacity-90 transition-all shrink-0">
                 ใช้เลย
               </motion.button>
             </div>
@@ -246,7 +246,7 @@ function CouponCard({ coupon: c, copied, onCopy, onUse }: {
               <span className={cn(
                 'text-sm font-bold px-2.5 py-0.5 rounded-lg shrink-0',
                 isUsable
-                  ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
+                  ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
                   : 'bg-secondary text-muted-foreground',
               )}>
                 {c.discount}
@@ -288,7 +288,7 @@ function CouponCard({ coupon: c, copied, onCopy, onUse }: {
             <motion.button
               whileTap={{ scale: 0.93 }}
               onClick={onUse}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold shadow-sm shadow-amber-600/20 hover:opacity-90 transition-all shrink-0">
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold hover:opacity-90 transition-all shrink-0">
               ใช้เลย <ChevronRight className="h-3 w-3" />
             </motion.button>
           )}

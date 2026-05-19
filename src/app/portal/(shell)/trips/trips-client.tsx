@@ -213,7 +213,7 @@ function HotelMiniCard({ hotel, index }: { hotel: any; index: number }) {
           <div className="p-2.5">
             <p className="text-xs font-bold text-foreground line-clamp-1 leading-snug">{hotel.name}</p>
             {minRate && isFinite(minRate) ? (
-              <p className="text-[10px] text-amber-700 dark:text-amber-400 mt-1 font-semibold">
+              <p className="text-[10px] text-orange-500 mt-1 font-semibold">
                 ฿{minRate.toLocaleString()}<span className="text-muted-foreground font-normal">/คืน</span>
               </p>
             ) : (

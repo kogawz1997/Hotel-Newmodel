@@ -33,7 +33,7 @@ export default async function CompendiumPage() {
     },
     {
       icon: Clock, title: 'เวลาบริการ',
-      color: 'text-amber-700 dark:text-amber-400', bg: 'bg-blue-500/10',
+      color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10',
       items: [
         `เช็คอิน: ${ciTime} น. | เช็คเอาท์: ${coTime} น.`,
         'Front Desk: 24 ชั่วโมง',
@@ -106,7 +106,7 @@ export default async function CompendiumPage() {
         {hotel?.address && (
           <div className="rounded-2xl bg-card border border-border/60 p-4 flex items-start gap-3 shadow-sm">
             <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-              <MapPin className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+              <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">ที่ตั้ง</p>
@@ -137,7 +137,7 @@ export default async function CompendiumPage() {
         <Link href="/portal/services">
           <div className="flex items-center gap-3.5 rounded-2xl border border-blue-500/20 bg-gradient-to-r from-blue-500/8 to-transparent px-4 py-3.5 shadow-sm">
             <div className="h-10 w-10 rounded-xl bg-blue-500/15 flex items-center justify-center shrink-0">
-              <Sparkles className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+              <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">ต้องการบริการ?</p>
@@ -150,7 +150,7 @@ export default async function CompendiumPage() {
         {hotel?.phone && (
           <a href={`tel:${hotel.phone}`}
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-card border border-border/60 text-sm font-semibold shadow-sm hover:bg-secondary transition-colors">
-            <Phone className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+            <Phone className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             โทร Front Desk: {hotel.phone}
           </a>
         )}

@@ -80,7 +80,7 @@ export default function SupportPage() {
         {/* Hours */}
         <div className="bg-card rounded-2xl border border-border/60 p-4 flex items-center gap-3 shadow-sm">
           <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-            <Clock className="h-4.5 w-4.5 text-amber-700 dark:text-amber-400" />
+            <Clock className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">เวลาให้บริการ</p>

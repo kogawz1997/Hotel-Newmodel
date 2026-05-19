@@ -149,12 +149,12 @@ export default function OnlineCheckInPage() {
           {step === 'verify' && (
             <motion.div key="verify" {...fadeUp} className="space-y-4">
               <div className="bg-blue-500/8 border border-blue-500/20 rounded-2xl p-4 flex items-start gap-3">
-                <ClipboardCheck className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <ClipboardCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
                     เช็กอินออนไลน์ได้ตั้งแต่ 24 ชม. ก่อนวันเข้าพัก
                   </p>
-                  <p className="text-xs text-amber-700/70 dark:text-amber-400/70 mt-0.5">
+                  <p className="text-xs text-blue-700/70 dark:text-blue-400/70 mt-0.5">
                     กรอกเลขที่การจองเพื่อเริ่มต้น Online Check-in
                   </p>
                 </div>
@@ -195,7 +195,7 @@ export default function OnlineCheckInPage() {
             <motion.div key="details" {...fadeUp} className="space-y-4">
               {/* Booking card */}
               <div className="bg-card border border-border/60 rounded-2xl overflow-hidden shadow-sm">
-                <div className="bg-gradient-to-r from-amber-600/10 to-amber-500/5 border-b border-border/40 px-5 py-4">
+                <div className="bg-gradient-to-r from-blue-600/10 to-blue-500/5 border-b border-border/40 px-5 py-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="font-semibold text-foreground">{hotel?.name || 'โรงแรม'}</p>
@@ -235,7 +235,7 @@ export default function OnlineCheckInPage() {
               {/* Arrival time */}
               <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-sm space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   เวลาเดินทางถึงโดยประมาณ
                 </h3>
                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
@@ -282,7 +282,7 @@ export default function OnlineCheckInPage() {
               {/* Special requests */}
               <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-sm space-y-3">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   คำขอพิเศษ <span className="text-xs font-normal text-muted-foreground">(ไม่บังคับ)</span>
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -340,7 +340,7 @@ export default function OnlineCheckInPage() {
               </div>
 
               <div className="bg-card border border-border/60 rounded-2xl overflow-hidden text-left shadow-sm">
-                <div className="bg-gradient-to-r from-amber-600/10 to-amber-500/5 border-b border-border/40 px-5 py-4">
+                <div className="bg-gradient-to-r from-blue-600/10 to-blue-500/5 border-b border-border/40 px-5 py-4">
                   <p className="font-semibold text-foreground">{hotel?.name}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {booking && format(parseISO(booking.check_in), 'd MMM', { locale: th })} —{' '}
@@ -366,7 +366,7 @@ export default function OnlineCheckInPage() {
                     <span className="text-muted-foreground flex items-center gap-2">
                       <QrCode className="h-3.5 w-3.5" /> รหัสการจอง
                     </span>
-                    <span className="font-mono font-bold text-amber-700 dark:text-amber-400">
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
                       {booking?.reservation_code}
                     </span>
                   </div>

@@ -58,7 +58,7 @@ export function FolioClient() {
 
         {loading && (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-amber-600 dark:text-amber-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
             <p className="text-sm text-muted-foreground">กำลังโหลดข้อมูล...</p>
           </div>
         )}
@@ -78,7 +78,7 @@ export function FolioClient() {
             <h2 className="font-display font-bold text-foreground text-lg mb-2">ไม่พบการเข้าพัก</h2>
             <p className="text-sm text-muted-foreground mb-6">ใบบัญชีจะแสดงเมื่อคุณ Check-in แล้ว</p>
             <Link href="/portal/trips"
-              className="text-sm text-amber-700 dark:text-amber-400 hover:underline font-medium">
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
               ดูการจองของฉัน
             </Link>
           </div>
@@ -93,11 +93,11 @@ export function FolioClient() {
               )}
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <BedDouble className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
+                  <BedDouble className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                   <span>{roomType?.name || 'ห้องพัก'}{room ? ` · ห้อง ${room.room_number}` : ''}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
+                  <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                   <span>
                     {format(parseISO(reservation.check_in), 'd MMM', { locale: th })} →{' '}
                     {format(parseISO(reservation.check_out), 'd MMM yyyy', { locale: th })}

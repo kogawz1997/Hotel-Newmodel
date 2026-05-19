@@ -28,7 +28,7 @@ const SERVICES: ServiceTile[] = [
   { href: '/portal/services', icon: Utensils,      label: 'Room Service',    desc: 'สั่งอาหาร & เครื่องดื่ม', color: 'text-orange-500',  badge: '24 ชม.' },
   { href: '/portal/services', icon: BedDouble,     label: 'Housekeeping',    desc: 'แม่บ้าน / ของใช้ห้อง',     color: 'text-sky-500'   },
   { href: '/portal/services', icon: MessageSquare, label: 'Concierge',       desc: 'ขอความช่วยเหลือ',           color: 'text-violet-500' },
-  { href: '/portal/keys',     icon: Key,           label: 'Digital Key',     desc: 'กุญแจห้องดิจิทัล',         color: 'text-amber-600 dark:text-amber-400' },
+  { href: '/portal/keys',     icon: Key,           label: 'Digital Key',     desc: 'กุญแจห้องดิจิทัล',         color: 'text-blue-600 dark:text-blue-400' },
   { href: '/portal/folio',    icon: Receipt,       label: 'ค่าใช้จ่าย',    desc: 'รายการชาร์จ & ใบแจ้งหนี้',  color: 'text-emerald-500' },
   { href: '/portal/compendium',icon: BookOpen,     label: 'คู่มือโรงแรม',  desc: 'WiFi · เวลาบริการ · แผนที่',color: 'text-rose-500' },
 ];

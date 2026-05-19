@@ -52,7 +52,7 @@ function MobileKeyContent() {
 
         <div className="bg-card rounded-3xl border border-border/60 shadow-md overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-br from-amber-600 to-[#2563eb] p-6 text-center relative overflow-hidden">
+          <div className="bg-gradient-to-br from-blue-700 to-[#2563eb] p-6 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 translate-x-4 -translate-y-4 h-24 w-24 rounded-full bg-white/10" />
             <div className="relative">
               <div className="h-16 w-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-3 border border-white/30">
@@ -72,7 +72,7 @@ function MobileKeyContent() {
                     ใช้ NFC หรือ BLE unlock ประตู
                   </div>
                   <div className="flex items-center gap-2.5 text-muted-foreground">
-                    <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
                     ใช้ได้ตลอดช่วงเข้าพัก
                   </div>
                   <div className="flex items-center gap-2.5 text-muted-foreground">
@@ -86,7 +86,7 @@ function MobileKeyContent() {
                   </div>
                 )}
                 <button onClick={requestKey}
-                  className="w-full py-3.5 bg-amber-600 dark:bg-amber-500 text-white rounded-2xl font-bold hover:opacity-90 transition-opacity">
+                  className="w-full py-3.5 bg-blue-600 dark:bg-blue-500 text-white rounded-2xl font-bold hover:opacity-90 transition-opacity">
                   ขอรับ Mobile Key
                 </button>
               </>
@@ -94,7 +94,7 @@ function MobileKeyContent() {
 
             {loading && (
               <div className="text-center py-10">
-                <Loader2 className="h-8 w-8 animate-spin text-amber-600 dark:text-amber-400 mx-auto mb-3" />
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400 mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">กำลังออก key...</p>
               </div>
             )}
@@ -122,7 +122,7 @@ function MobileKeyContent() {
 
                 {key.vendorConnected && (
                   <button onClick={openDoor}
-                    className="w-full py-4 bg-amber-600 dark:bg-amber-500 text-white rounded-2xl font-bold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                    className="w-full py-4 bg-blue-600 dark:bg-blue-500 text-white rounded-2xl font-bold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
                     <Smartphone className="h-5 w-5" /> แตะเปิดประตู (NFC)
                   </button>
                 )}
@@ -141,7 +141,7 @@ export default function MobileKeyPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-amber-600 dark:text-amber-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
       </div>
     }>
       <MobileKeyContent />
