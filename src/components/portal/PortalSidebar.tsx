@@ -94,7 +94,7 @@ export function PortalSidebar() {
   }
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:z-40 bg-background/95 backdrop-blur-2xl border-r border-border/20">
+    <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:z-40 bg-white dark:bg-background/95 backdrop-blur-2xl border-r border-gray-200/80 dark:border-border/20">
 
       {/* ── Brand ── */}
       <div className="px-5 pt-6 pb-5 border-b border-border/20">

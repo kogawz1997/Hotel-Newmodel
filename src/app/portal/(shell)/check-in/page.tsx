@@ -103,8 +103,8 @@ export default function OnlineCheckInPage() {
   const room     = booking?.rooms as any;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
           <Link href="/portal/stay"
             className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
@@ -160,7 +160,7 @@ export default function OnlineCheckInPage() {
                 </div>
               </div>
 
-              <div className="bg-card border border-border/60 rounded-2xl p-5 space-y-4 shadow-sm">
+              <div className="bg-white dark:bg-card border border-gray-100 dark:border-border/60 rounded-2xl p-5 space-y-4 shadow-sm">
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                     เลขที่การจอง
@@ -170,7 +170,7 @@ export default function OnlineCheckInPage() {
                     onChange={e => setCode(e.target.value.toUpperCase())}
                     onKeyDown={e => e.key === 'Enter' && verifyBooking()}
                     placeholder="เช่น MT-123456"
-                    className="w-full px-4 py-3 bg-background border border-input rounded-xl text-sm
+                    className="w-full px-4 py-3 bg-white dark:bg-background border border-gray-200 dark:border-input rounded-xl text-sm
                       font-mono tracking-wider placeholder:text-muted-foreground/40 placeholder:font-sans placeholder:tracking-normal
                       focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all"
                   />
@@ -194,7 +194,7 @@ export default function OnlineCheckInPage() {
           {step === 'details' && booking && (
             <motion.div key="details" {...fadeUp} className="space-y-4">
               {/* Booking card */}
-              <div className="bg-card border border-border/60 rounded-2xl overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-card border border-gray-100 dark:border-border/60 rounded-2xl overflow-hidden shadow-sm">
                 <div className="bg-gradient-to-r from-blue-600/10 to-blue-500/5 border-b border-border/40 px-5 py-4">
                   <div className="flex items-start justify-between">
                     <div>
@@ -233,7 +233,7 @@ export default function OnlineCheckInPage() {
               </div>
 
               {/* Arrival time */}
-              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="bg-white dark:bg-card border border-gray-100 dark:border-border/60 rounded-2xl p-5 shadow-sm space-y-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   เวลาเดินทางถึงโดยประมาณ
@@ -245,7 +245,7 @@ export default function OnlineCheckInPage() {
                         'py-2 rounded-xl text-xs font-medium transition-all border',
                         arrival === t
                           ? 'bg-blue-600 dark:bg-blue-500 text-white border-transparent'
-                          : 'bg-background border-input text-foreground hover:border-blue-500/50',
+                          : 'bg-white dark:bg-background border-gray-200 dark:border-input text-foreground hover:border-blue-500/50',
                       )}>
                       {t}
                     </button>
@@ -254,7 +254,7 @@ export default function OnlineCheckInPage() {
               </div>
 
               {/* ID */}
-              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="bg-white dark:bg-card border border-gray-100 dark:border-border/60 rounded-2xl p-5 shadow-sm space-y-4">
                 <h3 className="text-sm font-semibold text-foreground">เอกสารประจำตัว</h3>
                 <div className="flex gap-2">
                   {(['id_card', 'passport'] as const).map(t => (
@@ -263,7 +263,7 @@ export default function OnlineCheckInPage() {
                         'flex-1 py-2.5 rounded-xl text-xs font-medium border transition-all',
                         idType === t
                           ? 'bg-blue-600 dark:bg-blue-500 text-white border-transparent'
-                          : 'bg-background border-input text-muted-foreground hover:text-foreground',
+                          : 'bg-white dark:bg-background border-gray-200 dark:border-input text-muted-foreground hover:text-foreground',
                       )}>
                       {t === 'id_card' ? 'บัตรประชาชน' : 'หนังสือเดินทาง'}
                     </button>
@@ -273,14 +273,14 @@ export default function OnlineCheckInPage() {
                   value={idNumber}
                   onChange={e => setIdNumber(e.target.value)}
                   placeholder={idType === 'id_card' ? 'เลขบัตรประชาชน 13 หลัก' : 'เลขหนังสือเดินทาง'}
-                  className="w-full px-4 py-3 bg-background border border-input rounded-xl text-sm
+                  className="w-full px-4 py-3 bg-white dark:bg-background border border-gray-200 dark:border-input rounded-xl text-sm
                     font-mono tracking-wider placeholder:font-sans placeholder:tracking-normal placeholder:text-muted-foreground/40
                     focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all"
                 />
               </div>
 
               {/* Special requests */}
-              <div className="bg-card border border-border/60 rounded-2xl p-5 shadow-sm space-y-3">
+              <div className="bg-white dark:bg-card border border-gray-100 dark:border-border/60 rounded-2xl p-5 shadow-sm space-y-3">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   คำขอพิเศษ <span className="text-xs font-normal text-muted-foreground">(ไม่บังคับ)</span>
@@ -299,7 +299,7 @@ export default function OnlineCheckInPage() {
                   onChange={e => setRequests(e.target.value)}
                   rows={3}
                   placeholder="ระบุความต้องการเพิ่มเติม..."
-                  className="w-full px-4 py-3 bg-background border border-input rounded-xl text-sm resize-none
+                  className="w-full px-4 py-3 bg-white dark:bg-background border border-gray-200 dark:border-input rounded-xl text-sm resize-none
                     placeholder:text-muted-foreground/40
                     focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all"
                 />
@@ -339,7 +339,7 @@ export default function OnlineCheckInPage() {
                 </div>
               </div>
 
-              <div className="bg-card border border-border/60 rounded-2xl overflow-hidden text-left shadow-sm">
+              <div className="bg-white dark:bg-card border border-gray-100 dark:border-border/60 rounded-2xl overflow-hidden text-left shadow-sm">
                 <div className="bg-gradient-to-r from-blue-600/10 to-blue-500/5 border-b border-border/40 px-5 py-4">
                   <p className="font-semibold text-foreground">{hotel?.name}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">

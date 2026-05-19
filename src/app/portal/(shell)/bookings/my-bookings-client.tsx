@@ -161,7 +161,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background text-foreground">
 
       {/* ── Header ── */}
       <motion.div
@@ -204,7 +204,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
             { label: 'เสร็จสิ้น', value: past.length },
           ].map(s => (
             <div key={s.label} className={cn(
-              'rounded-2xl border border-border bg-card px-4 py-3',
+              'rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card px-4 py-3',
               loyaltyPoints ? 'col-span-4 sm:col-span-2 lg:col-span-1' : 'col-span-4 sm:col-span-4 lg:col-span-4',
             )}>
               <p className="text-2xl font-bold text-foreground font-display">{s.value}</p>
@@ -236,7 +236,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
             {activeTab === t.key && (
               <motion.div
                 layoutId="booking-tab"
-                className="absolute inset-0 bg-card rounded-xl shadow-sm"
+                className="absolute inset-0 bg-white dark:bg-card rounded-xl shadow-sm"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}
@@ -275,7 +275,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
                 variants={cardVariants}
                 initial="hidden"
                 animate="visible"
-                className="rounded-2xl border border-border bg-card overflow-hidden"
+                className="rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card overflow-hidden"
               >
                 {/* Hotel hero */}
                 <div className="relative h-36">
@@ -613,7 +613,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 40, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-          className="relative w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-2xl border border-border shadow-2xl"
+          className="relative w-full sm:max-w-md bg-white dark:bg-card rounded-t-3xl sm:rounded-2xl border border-gray-100 dark:border-border shadow-2xl"
         >
           {/* Handle */}
           <div className="flex justify-center pt-3 pb-1 sm:hidden">

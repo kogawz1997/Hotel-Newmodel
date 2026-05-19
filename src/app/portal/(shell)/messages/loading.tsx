@@ -1,8 +1,8 @@
 export default function MessagesLoading() {
   return (
-    <div className="min-h-screen bg-background animate-pulse">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background animate-pulse">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-border/40">
         <div className="px-4 h-14 flex items-center max-w-screen-sm mx-auto">
           <div className="h-6 w-20 rounded-md bg-muted" />
         </div>

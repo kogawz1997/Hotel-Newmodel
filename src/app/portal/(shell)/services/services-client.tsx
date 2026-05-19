@@ -183,7 +183,7 @@ export function ServicesClient() {
             >
               {tab === t && (
                 <motion.div layoutId="service-tab"
-                  className="absolute inset-0 bg-card rounded-xl shadow-sm"
+                  className="absolute inset-0 bg-white dark:bg-card rounded-xl shadow-sm"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
               )}
               <span className="relative z-10">{TAB_LABELS[t].icon}</span>
@@ -362,7 +362,7 @@ export function ServicesClient() {
 
               {spaService && (
                 <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-                  className="rounded-2xl bg-card border border-blue-500/20 p-4">
+                  className="rounded-2xl bg-white dark:bg-card border border-blue-500/20 p-4">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-muted-foreground">บริการที่เลือก</span>
                     <span className="font-semibold text-foreground">{SPA_SERVICES.find(s => s.id === spaService)?.name}</span>

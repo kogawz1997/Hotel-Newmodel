@@ -29,8 +29,8 @@ export default async function ItineraryPage() {
     .order('time', { ascending: true });
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
           <Link href="/portal/stay"
             className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">

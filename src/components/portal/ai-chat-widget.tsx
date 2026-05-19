@@ -46,7 +46,7 @@ export function AiChatWidget() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 rounded-2xl border border-border bg-background shadow-2xl flex flex-col overflow-hidden" style={{ height: '420px' }}>
+        <div className="fixed bottom-24 right-6 z-50 w-80 rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-background shadow-2xl flex flex-col overflow-hidden" style={{ height: '420px' }}>
           {/* Header */}
           <div className="flex items-center gap-2 px-4 py-3 bg-primary text-primary-foreground">
             <Bot className="h-4 w-4" />

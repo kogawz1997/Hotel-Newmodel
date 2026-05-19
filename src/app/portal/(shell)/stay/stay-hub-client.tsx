@@ -126,7 +126,7 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
             { label: 'เช็คเอาท์', value: checkOut ? format(parseISO(checkOut + 'T00:00:00'), 'd MMM', { locale: th }) : '—' },
             { label: 'คืนที่เหลือ', value: nightsLeft != null ? `${nightsLeft} คืน` : '—' },
           ].map(item => (
-            <div key={item.label} className="rounded-xl bg-card border border-border px-3 py-2.5 text-center">
+            <div key={item.label} className="rounded-xl bg-white dark:bg-card border border-gray-100 dark:border-border px-3 py-2.5 text-center">
               <p className="text-lg font-bold font-display text-foreground">{item.value}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
             </div>
@@ -144,7 +144,7 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
             return (
               <motion.div key={svc.label} custom={i} variants={cardVariants} initial="hidden" animate="show">
                 <Link href={svc.href}>
-                  <div className="relative rounded-2xl border border-border bg-card p-3.5 text-center hover:bg-secondary/60 transition-colors active:scale-95 transition-transform">
+                  <div className="relative rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card p-3.5 text-center hover:bg-secondary/60 transition-colors active:scale-95 transition-transform">
                     {showBadge && (
                       <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500" />
                     )}
@@ -169,7 +169,7 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
       {/* ── Hotel quick info ── */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
         <h2 className="font-display font-semibold text-foreground mb-3">ข้อมูลโรงแรม</h2>
-        <div className="rounded-2xl border border-border bg-card divide-y divide-border">
+        <div className="rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card divide-y divide-border">
           <InfoRow icon={Clock} label="เวลาเช็คอิน / เช็คเอาท์"
             value={`${hotel.check_in_time || '14:00'} / ${hotel.check_out_time || '12:00'}`} />
           {hotel.phone && (

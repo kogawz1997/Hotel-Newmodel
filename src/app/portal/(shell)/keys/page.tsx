@@ -43,14 +43,14 @@ function MobileKeyContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <Link href="/portal/stay"
           className="flex items-center gap-2 text-muted-foreground text-sm mb-6 hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" /> กลับ
         </Link>
 
-        <div className="bg-card rounded-3xl border border-border/60 shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-card rounded-3xl border border-gray-100 dark:border-border/60 shadow-md overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-br from-blue-700 to-[#2563eb] p-6 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 translate-x-4 -translate-y-4 h-24 w-24 rounded-full bg-white/10" />

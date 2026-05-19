@@ -27,7 +27,7 @@ export default function ScanPage() {
   }, [params, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f7fa] dark:bg-background">
       <div className="text-center">
         <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400 mx-auto mb-3" />
         <p className="text-sm text-muted-foreground">กำลังโหลดบริการโรงแรม...</p>

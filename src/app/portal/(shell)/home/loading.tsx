@@ -1,8 +1,8 @@
 export default function HomeLoading() {
   return (
-    <div className="min-h-screen bg-background animate-pulse">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background animate-pulse">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background border-b border-border/30">
+      <div className="sticky top-0 z-40 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-border/30">
         <div className="h-14 px-4 flex items-center justify-between max-w-screen-sm mx-auto">
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-[10px] bg-muted" />
@@ -20,7 +20,7 @@ export default function HomeLoading() {
 
       {/* Search card */}
       <div className="relative z-30 px-4 max-w-screen-sm mx-auto -mt-6">
-        <div className="h-14 rounded-2xl bg-card border border-border/50 shadow-xl" />
+        <div className="h-14 rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border/50 shadow-xl" />
       </div>
 
       <div className="px-4 mt-6 pb-32 max-w-screen-sm mx-auto space-y-7">
@@ -53,7 +53,7 @@ export default function HomeLoading() {
             ))}
           </div>
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-3xl overflow-hidden border border-border/40 bg-card">
+            <div key={i} className="rounded-3xl overflow-hidden border border-gray-100 dark:border-border/40 bg-white dark:bg-card">
               <div className="h-52 bg-muted" />
               <div className="px-4 py-3.5 flex items-center justify-between">
                 <div className="h-4 w-32 rounded-full bg-muted" />

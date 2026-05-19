@@ -169,7 +169,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
   return (
     <>
       {/* Header */}
-      <nav className="bg-card border-b border-border">
+      <nav className="bg-white dark:bg-card border-b border-gray-100 dark:border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/portal/account" className="p-2 rounded-full hover:bg-muted transition-colors">
@@ -185,7 +185,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
 
       <div className="py-6">
         {/* Avatar card */}
-        <div className="bg-card rounded-2xl border border-border p-5 flex items-center gap-4 mb-5">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5 flex items-center gap-4 mb-5">
           <div className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-xl font-bold shrink-0">
             {(guest.first_name || guest.email || 'G').charAt(0).toUpperCase()}
           </div>
@@ -196,7 +196,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
         </div>
 
         {/* Tab strip */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-1 bg-card rounded-2xl p-1 border border-border mb-5">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-1 bg-white dark:bg-card rounded-2xl p-1 border border-gray-100 dark:border-border mb-5">
           {TABS.map(({ key, icon: Icon }) => (
             <button key={key} onClick={() => setTab(key)}
               className={cn('flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl font-medium text-2xs transition-all',
@@ -240,7 +240,7 @@ function ProfileTab({ guest, supabase, s }: { guest: any; supabase: any; s: PStr
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-4">
       <h3 className="font-semibold text-foreground">{ps.title}</h3>
       <div className="grid grid-cols-2 gap-4">
         <PField label={ps.firstName} value={form.first_name} onChange={v => set('first_name', v)} />
@@ -290,7 +290,7 @@ function NotificationsTab({ guest, s }: { guest: any; s: PStrings }) {
 
   const ns = s.notifications;
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-5">
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-5">
       <div>
         <h3 className="font-semibold text-foreground">{ns.title}</h3>
         <p className="text-xs text-muted-foreground mt-0.5">{ns.desc}</p>
@@ -354,7 +354,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
   return (
     <div className="space-y-4">
       {/* Password */}
-      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-4">
         <h3 className="font-semibold text-foreground">{ss.changePassword}</h3>
         <div className="relative">
           <PField label={ss.newPw} type={showPw ? 'text' : 'password'} value={pwForm.next}
@@ -373,7 +373,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
       </div>
 
       {/* Sessions */}
-      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-4">
         <h3 className="font-semibold text-foreground">{ss.sessions}</h3>
         <div className="space-y-2">
           {[
@@ -396,7 +396,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
       </div>
 
       {/* 2FA */}
-      <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between gap-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5 flex items-center justify-between gap-4">
         <div>
           <p className="font-medium text-sm text-foreground">{ss.twoFa}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{ss.twoFaDesc}</p>
@@ -433,7 +433,7 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-5">
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-5">
       <h3 className="font-semibold text-foreground">{ps.title}</h3>
 
       <div className="space-y-1.5">
@@ -471,7 +471,7 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
         </div>
         <div onClick={() => set('marketing_consent', !form.marketing_consent)}
           className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', form.marketing_consent ? 'bg-blue-600 dark:bg-blue-500' : 'bg-muted-foreground/30')}>
-          <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-card shadow transition-transform', form.marketing_consent ? 'left-6' : 'left-1')} />
+          <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform', form.marketing_consent ? 'left-6' : 'left-1')} />
         </div>
       </label>
 
@@ -501,7 +501,7 @@ function PaymentsTab({ s }: { s: PStrings }) {
       </div>
 
       {/* Saved cards */}
-      <div className="bg-card rounded-2xl border border-border p-5">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-foreground">{ps.savedCards}</h3>
           <button onClick={() => setAddingCard(true)} className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-medium hover:underline">
@@ -537,7 +537,7 @@ function PaymentsTab({ s }: { s: PStrings }) {
 
       {/* Add card */}
       {addingCard && (
-        <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5 space-y-4">
           <h3 className="font-bold text-foreground">{ps.addTitle}</h3>
           <PField label={ps.cardNumber} placeholder="1234 5678 9012 3456" />
           <div className="grid grid-cols-2 gap-3">
@@ -554,7 +554,7 @@ function PaymentsTab({ s }: { s: PStrings }) {
       )}
 
       {/* Networks */}
-      <div className="bg-card rounded-2xl border border-border p-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-4">
         <p className="text-xs font-medium text-muted-foreground mb-3">{ps.networks}</p>
         <div className="flex flex-wrap gap-2">
           {['Visa', 'Mastercard', 'Amex', 'PromptPay', 'TrueMoney', 'LINE Pay', 'JCB'].map(n => (
@@ -590,7 +590,7 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
   return (
     <div className="space-y-4">
       {/* Data export */}
-      <div className="bg-card rounded-2xl border border-border p-5">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5">
         <h3 className="font-semibold text-foreground mb-1">{ps.dataExport}</h3>
         <p className="text-xs text-muted-foreground mb-4">{ps.dataExportDesc}</p>
         <button onClick={() => { window.location.href = '/api/guest/privacy/export'; }}
@@ -600,7 +600,7 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
       </div>
 
       {/* Consent management */}
-      <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5 space-y-4">
         <h3 className="font-semibold text-foreground">{ps.consentTitle}</h3>
         {[
           { key: 'cookie' as const, label: ps.cookieConsent, desc: ps.cookieDesc },
@@ -614,7 +614,7 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
             </div>
             <div onClick={() => toggle(key)}
               className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', consents[key] ? 'bg-blue-600 dark:bg-blue-500' : 'bg-muted-foreground/30')}>
-              <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-card shadow transition-transform', consents[key] ? 'left-6' : 'left-1')} />
+              <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform', consents[key] ? 'left-6' : 'left-1')} />
             </div>
           </label>
         ))}

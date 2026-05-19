@@ -50,7 +50,7 @@ export default function SettingsPage() {
 
         {/* ── Regional & Language ── */}
         <motion.div custom={0} variants={v} initial="hidden" animate="show" className="mt-4">
-          <div className="bg-card border-y border-border/40 divide-y divide-border/30">
+          <div className="bg-white dark:bg-card border-y border-gray-100 dark:border-border/40 divide-y divide-gray-100 dark:divide-border/30">
             <SettingRow label="ภาษา"               value="ภาษาไทย"                         />
             <SettingRow label="ประเทศหรือภูมิภาค"   value="ไทย"                             />
             <SettingRow label="สกุลเงิน"             value="THB"                             />
@@ -62,7 +62,7 @@ export default function SettingsPage() {
 
         {/* ── Account ── */}
         <motion.div custom={1} variants={v} initial="hidden" animate="show" className="mt-4">
-          <div className="bg-card border-y border-border/40 divide-y divide-border/30">
+          <div className="bg-white dark:bg-card border-y border-gray-100 dark:border-border/40 divide-y divide-gray-100 dark:divide-border/30">
             <Link href="/portal/profile">
               <SettingRow label="จัดการบัญชี" />
             </Link>
@@ -74,7 +74,7 @@ export default function SettingsPage() {
 
         {/* ── Display & Notifications ── */}
         <motion.div custom={2} variants={v} initial="hidden" animate="show" className="mt-4">
-          <div className="bg-card border-y border-border/40 divide-y divide-border/30">
+          <div className="bg-white dark:bg-card border-y border-gray-100 dark:border-border/40 divide-y divide-gray-100 dark:divide-border/30">
             {/* Dark mode toggle */}
             <div className="px-4 py-3.5">
               <div className="flex items-start justify-between gap-3">
@@ -111,7 +111,7 @@ export default function SettingsPage() {
 
         {/* ── Legal ── */}
         <motion.div custom={3} variants={v} initial="hidden" animate="show" className="mt-4">
-          <div className="bg-card border-y border-border/40 divide-y divide-border/30">
+          <div className="bg-white dark:bg-card border-y border-gray-100 dark:border-border/40 divide-y divide-gray-100 dark:divide-border/30">
             <Link href="/terms">
               <SettingRow label="ข้อกำหนดและเงื่อนไข" />
             </Link>
@@ -123,7 +123,7 @@ export default function SettingsPage() {
 
         {/* ── Danger ── */}
         <motion.div custom={4} variants={v} initial="hidden" animate="show" className="mt-4">
-          <div className="bg-card border-y border-border/40">
+          <div className="bg-white dark:bg-card border-y border-gray-100 dark:border-border/40">
             <button
               onClick={() => toast.error('กรุณาติดต่อฝ่ายบริการลูกค้าเพื่อลบบัญชี')}
               className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-red-500/5 transition-colors">

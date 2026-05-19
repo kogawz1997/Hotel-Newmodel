@@ -99,10 +99,10 @@ export default function CouponsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
 
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto lg:max-w-2xl">
           <Link href="/portal/account">
             <motion.div whileTap={{ scale: 0.9 }}
@@ -119,7 +119,7 @@ export default function CouponsPage() {
 
         {/* Redeem input */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease }}>
-          <div className="rounded-2xl bg-card border border-border/60 shadow-sm p-4">
+          <div className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border/60 shadow-sm p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">ใส่รหัสคูปอง</p>
             <div className="flex gap-2">
               <div className="flex-1 flex items-center gap-2 h-10 rounded-xl bg-secondary border border-border/40 px-3 focus-within:ring-2 focus-within:ring-blue-500/30">
@@ -151,7 +151,7 @@ export default function CouponsPage() {
               className={cn(
                 'flex-1 h-8 rounded-lg text-sm font-semibold transition-all',
                 tab === t.id
-                  ? 'bg-background shadow-sm text-foreground'
+                  ? 'bg-white dark:bg-background shadow-sm text-foreground'
                   : 'text-muted-foreground hover:text-foreground',
               )}>
               {t.label}
@@ -224,7 +224,7 @@ function CouponCard({ coupon: c, copied, onCopy, onUse }: {
     <div className={cn(
       'rounded-2xl overflow-hidden border shadow-sm transition-all',
       isUsable
-        ? 'bg-card border-border/60 hover:shadow-md hover:border-border'
+        ? 'bg-white dark:bg-card border-gray-100 dark:border-border/60 hover:shadow-md hover:border-border'
         : 'bg-secondary/30 border-border/30 opacity-65',
     )}>
       {/* Gradient top band */}
