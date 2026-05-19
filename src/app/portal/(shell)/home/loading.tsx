@@ -2,44 +2,64 @@ export default function HomeLoading() {
   return (
     <div className="min-h-screen bg-background animate-pulse">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background border-b border-border/40">
-        <div className="px-4 h-14 flex items-center justify-between max-w-screen-sm mx-auto">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-xl bg-muted" />
-            <div className="h-5 w-28 rounded-md bg-muted" />
+      <div className="sticky top-0 z-40 bg-background border-b border-border/30">
+        <div className="h-14 px-4 flex items-center justify-between max-w-screen-sm mx-auto">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-[10px] bg-muted" />
+            <div className="space-y-1.5">
+              <div className="h-2 w-16 rounded-full bg-muted/70" />
+              <div className="h-3 w-28 rounded-full bg-muted" />
+            </div>
           </div>
           <div className="h-7 w-20 rounded-full bg-muted" />
         </div>
       </div>
 
-      <div className="px-4 pt-5 pb-24 max-w-screen-sm mx-auto space-y-4">
-        {/* Greeting */}
-        <div className="space-y-2">
-          <div className="h-4 w-24 rounded-md bg-muted" />
-          <div className="h-7 w-48 rounded-md bg-muted" />
-        </div>
+      {/* Hero skeleton */}
+      <div className="h-[58vh] min-h-[340px] bg-muted" />
 
-        {/* Search bar */}
-        <div className="h-12 rounded-2xl bg-muted" />
+      {/* Search card */}
+      <div className="relative z-30 px-4 max-w-screen-sm mx-auto -mt-6">
+        <div className="h-14 rounded-2xl bg-card border border-border/50 shadow-xl" />
+      </div>
 
-        {/* Category grid */}
-        <div className="grid grid-cols-3 gap-2">
+      <div className="px-4 mt-6 pb-32 max-w-screen-sm mx-auto space-y-7">
+        {/* Quick actions */}
+        <div className="grid grid-cols-6 gap-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-16 rounded-2xl bg-muted" />
+            <div key={i} className="flex flex-col items-center gap-1.5">
+              <div className="h-12 w-12 rounded-2xl bg-muted" />
+              <div className="h-2 w-8 rounded-full bg-muted/70" />
+            </div>
           ))}
         </div>
 
-        {/* Promo cards */}
-        <div className="space-y-2">
-          <div className="h-4 w-24 rounded-md bg-muted" />
-          <div className="h-36 rounded-2xl bg-muted" />
+        {/* Deals horizontal strip */}
+        <div className="space-y-3.5">
+          <div className="h-4 w-20 rounded-full bg-muted" />
+          <div className="flex gap-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-36 w-44 shrink-0 rounded-2xl bg-muted" />
+            ))}
+          </div>
         </div>
 
-        {/* Hotel list */}
-        <div className="space-y-2">
-          <div className="h-4 w-32 rounded-md bg-muted" />
+        {/* Hotel cards */}
+        <div className="space-y-4">
+          <div className="h-4 w-28 rounded-full bg-muted" />
+          <div className="flex gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-8 w-20 rounded-full bg-muted shrink-0" />
+            ))}
+          </div>
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-24 rounded-2xl bg-muted" />
+            <div key={i} className="rounded-3xl overflow-hidden border border-border/40 bg-card">
+              <div className="h-52 bg-muted" />
+              <div className="px-4 py-3.5 flex items-center justify-between">
+                <div className="h-4 w-32 rounded-full bg-muted" />
+                <div className="h-3 w-20 rounded-full bg-muted/70" />
+              </div>
+            </div>
           ))}
         </div>
       </div>

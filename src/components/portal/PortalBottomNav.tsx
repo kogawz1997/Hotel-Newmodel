@@ -3,17 +3,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Bell, Briefcase, User, Hotel, QrCode, Plus } from 'lucide-react';
+import { Home, Bell, Briefcase, User, Hotel, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 const LEFT_TABS  = [
-  { href: '/portal/home',     icon: Home,     label: 'หน้าแรก' },
-  { href: '/portal/messages', icon: Bell,     label: 'ข้อความ' },
+  { href: '/portal/home',     icon: Home,      label: 'หน้าแรก' },
+  { href: '/portal/messages', icon: Bell,      label: 'ข้อความ' },
 ];
 const RIGHT_TABS = [
-  { href: '/portal/trips',    icon: Briefcase, label: 'ทริป'   },
-  { href: '/portal/account',  icon: User,      label: 'บัญชี'  },
+  { href: '/portal/trips',   icon: Briefcase, label: 'ทริป'  },
+  { href: '/portal/account', icon: User,      label: 'บัญชี' },
 ];
 
 export function PortalBottomNav() {
@@ -22,7 +22,6 @@ export function PortalBottomNav() {
   const [msgCount, setMsgCount] = useState(0);
 
   useEffect(() => {
-    // Check for active stay
     fetch('/api/guest/active-stay')
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.reservation) setHasStay(true); })
@@ -31,7 +30,6 @@ export function PortalBottomNav() {
       if (localStorage.getItem('maitri_scanned_hotel')) setHasStay(true);
     } catch {}
 
-    // Unread count: upcoming check-ins within 3 days
     fetch('/api/guest/bookings')
       .then(r => r.ok ? r.json() : null)
       .then(d => {
@@ -44,84 +42,101 @@ export function PortalBottomNav() {
       }).catch(() => {});
   }, [pathname]);
 
+  const centerActive = pathname.startsWith('/portal/stay') || pathname.startsWith('/portal/scan');
+
   function NavTab({ href, icon: Icon, label }: { href: string; icon: any; label: string }) {
     const active = pathname === href || pathname.startsWith(href + '/');
     const isBell = href === '/portal/messages';
+
     return (
-      <Link href={href} className="flex-1 relative flex flex-col items-center gap-0.5 py-2.5 select-none">
-        <div className="relative">
-          {active && (
-            <motion.div layoutId="nav-indicator"
-              className="absolute -inset-2 rounded-xl bg-amber-500/12 dark:bg-amber-400/10"
-              transition={{ type: 'spring', stiffness: 420, damping: 32 }} />
-          )}
-          <Icon
-            className={cn(
-              'h-5 w-5 relative z-10 transition-all duration-200',
-              active ? 'text-amber-700 dark:text-amber-400 scale-110' : 'text-muted-foreground',
+      <Link href={href} className="flex-1 flex flex-col items-center gap-0.5 py-2.5 select-none">
+        <motion.div whileTap={{ scale: 0.80 }} className="relative flex flex-col items-center gap-0.5">
+          <div className="relative">
+            {active && (
+              <motion.div
+                layoutId="nav-active-bg"
+                className="absolute -inset-2 rounded-[14px] bg-amber-500/10 dark:bg-amber-400/8"
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              />
             )}
-            strokeWidth={active ? 2.5 : 1.8}
-          />
-          {isBell && msgCount > 0 && (
-            <span className="absolute -top-1 -right-1.5 h-4 w-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center z-20 border-2 border-background">
-              {msgCount > 9 ? '9+' : msgCount}
-            </span>
-          )}
-        </div>
-        <span className={cn(
-          'text-[10px] font-medium relative z-10 transition-colors',
-          active ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground',
-        )}>
-          {label}
-        </span>
+            <Icon
+              className={cn(
+                'h-[22px] w-[22px] relative z-10 transition-all duration-200',
+                active ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground/65',
+              )}
+              strokeWidth={active ? 2.2 : 1.7}
+            />
+            {isBell && msgCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }} animate={{ scale: 1 }}
+                className="absolute -top-1 -right-1.5 h-4 w-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center z-20 border-2 border-background shadow-sm"
+              >
+                {msgCount > 9 ? '9+' : msgCount}
+              </motion.span>
+            )}
+          </div>
+          <span className={cn(
+            'text-[10px] font-semibold relative z-10 transition-colors',
+            active ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground/60',
+          )}>
+            {label}
+          </span>
+        </motion.div>
       </Link>
     );
   }
 
-  const centerActive = pathname.startsWith('/portal/stay') || pathname.startsWith('/portal/scan');
-
   return (
     <div className="fixed bottom-0 inset-x-0 z-40 pb-safe">
-      <div className="bg-background/94 backdrop-blur-2xl border-t border-border/40 shadow-xl">
-        <nav className="max-w-lg mx-auto flex items-end px-2">
+      <div className="bg-background/88 backdrop-blur-3xl border-t border-border/20 shadow-2xl shadow-black/8">
+        <nav className="max-w-lg mx-auto flex items-end px-1">
+
           {LEFT_TABS.map(t => <NavTab key={t.href} {...t} />)}
 
-          {/* ── Center action button ── */}
-          <div className="flex-1 flex flex-col items-center pb-2 pt-1">
+          {/* ── Center button ── */}
+          <div className="flex-1 flex flex-col items-center pb-2 pt-0.5 gap-0.5">
             <Link href={hasStay ? '/portal/stay' : '/portal/scan'}>
               <motion.div
-                whileTap={{ scale: 0.90 }}
+                whileTap={{ scale: 0.87 }}
                 className={cn(
-                  'h-12 w-12 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200',
-                  centerActive
-                    ? 'bg-gradient-to-br from-amber-500 to-[#C66A30] shadow-amber-500/35'
-                    : 'bg-gradient-to-br from-amber-600 to-[#C66A30] dark:from-amber-500 dark:to-[#C66A30] shadow-amber-600/25',
+                  'relative flex items-center justify-center rounded-[18px] shadow-xl transition-shadow duration-300',
+                  centerActive ? 'shadow-amber-500/45' : 'shadow-amber-600/30',
                 )}
+                style={{ width: 52, height: 52 }}
               >
+                {/* gradient fill */}
+                <div className="absolute inset-0 rounded-[18px] bg-gradient-to-br from-amber-500 to-[#C66A30]" />
+                {/* top highlight */}
+                <div className="absolute inset-0 rounded-[18px] bg-gradient-to-b from-white/20 to-transparent opacity-60" />
+
                 <AnimatePresence mode="wait" initial={false}>
                   {hasStay ? (
                     <motion.div key="hotel"
-                      initial={{ scale: 0.5, opacity: 0, rotate: -15 }}
+                      initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
                       animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                      exit={{ scale: 0.5, opacity: 0, rotate: 15 }}
-                      transition={{ duration: 0.2 }}>
-                      <Hotel className="h-5 w-5 text-white" strokeWidth={2} />
+                      exit={{ scale: 0.5, opacity: 0, rotate: 20 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                      className="relative z-10"
+                    >
+                      <Hotel className="h-6 w-6 text-white" strokeWidth={1.8} />
                     </motion.div>
                   ) : (
-                    <motion.div key="plus"
-                      initial={{ scale: 0.5, opacity: 0, rotate: 15 }}
+                    <motion.div key="qr"
+                      initial={{ scale: 0.5, opacity: 0, rotate: 20 }}
                       animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                      exit={{ scale: 0.5, opacity: 0, rotate: -15 }}
-                      transition={{ duration: 0.2 }}>
-                      <QrCode className="h-5 w-5 text-white" strokeWidth={2} />
+                      exit={{ scale: 0.5, opacity: 0, rotate: -20 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                      className="relative z-10"
+                    >
+                      <QrCode className="h-6 w-6 text-white" strokeWidth={1.8} />
                     </motion.div>
                   )}
                 </AnimatePresence>
               </motion.div>
             </Link>
             <span className={cn(
-              'text-[10px] font-medium mt-0.5 transition-colors',
-              centerActive ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground',
+              'text-[10px] font-semibold transition-colors',
+              centerActive ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground/60',
             )}>
               {hasStay ? 'โรงแรม' : 'สแกน QR'}
             </span>
