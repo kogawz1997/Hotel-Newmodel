@@ -10,8 +10,8 @@ export default function PortalShellLayout({ children }: { children: React.ReactN
       {/* Desktop sidebar — hidden on mobile */}
       <PortalSidebar />
 
-      {/* Main content — centered + capped on mobile, full-width offset on desktop */}
-      <main className="w-full max-w-screen-sm mx-auto pb-24 lg:max-w-none lg:mx-0 lg:ml-64 lg:pb-12">
+      {/* Main content — full width on mobile, offset by sidebar on desktop */}
+      <main className="w-full pb-24 lg:ml-64 lg:pb-12">
         {children}
       </main>
 

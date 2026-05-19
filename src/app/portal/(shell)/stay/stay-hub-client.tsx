@@ -56,8 +56,8 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
   // No active stay and no QR scan → show empty state
   if (!reservation && !scannedHotel) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
-        <div className="h-20 w-20 rounded-3xl bg-secondary flex items-center justify-center mb-5">
+      <div className="min-h-screen bg-[#f5f7fa] dark:bg-background flex flex-col items-center justify-center text-center px-6">
+        <div className="h-20 w-20 rounded-3xl bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm flex items-center justify-center mb-5">
           <QrCode className="h-9 w-9 text-muted-foreground" />
         </div>
         <h2 className="font-display text-xl font-semibold text-foreground mb-2">ยังไม่ได้เช็คอิน</h2>
@@ -65,7 +65,7 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
           สแกน QR Code ในห้องพักเพื่อเข้าถึงบริการโรงแรม หรือเช็คอินผ่านการจองของคุณ
         </p>
         <Link href="/portal/scan"
-          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-2xl text-sm font-semibold hover:bg-blue-700 transition-colors">
+          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-2xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
           <QrCode className="h-4 w-4" /> สแกน QR ในห้อง
         </Link>
         <Link href="/portal/trips"
@@ -87,7 +87,24 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
     : null;
 
   return (
-    <div className="space-y-5 pb-4">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+
+      {/* ── Sticky header ── */}
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/95 dark:bg-background/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
+        <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto lg:max-w-2xl">
+          <div>
+            <p className="font-bold text-foreground">My Stay</p>
+            <p className="text-[10px] text-muted-foreground">
+              {reservation
+                ? (hotel.name || 'การเข้าพักปัจจุบัน')
+                : 'บริการห้องพัก'
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 pt-4 pb-24 max-w-screen-sm mx-auto lg:max-w-2xl space-y-5">
 
       {/* ── Hotel Hero ── */}
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-2xl overflow-hidden h-44">
@@ -211,6 +228,7 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
         </motion.div>
       )}
 
+      </div>
     </div>
   );
 }
