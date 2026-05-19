@@ -200,10 +200,10 @@ export function MessagesClient({ firstName, reservations }: {
   const grouped = useMemo(() => groupByDay(filtered), [filtered]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
 
       {/* ── Sticky header ── */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center justify-between max-w-screen-sm mx-auto">
           <div className="flex items-center gap-2">
             <h1 className="font-display font-bold text-lg text-foreground tracking-tight">ข้อความ</h1>
@@ -282,8 +282,8 @@ export function MessagesClient({ firstName, reservations }: {
                           className={cn(
                             'flex items-start gap-3 rounded-2xl border p-4 transition-colors',
                             item.isNew
-                              ? 'border-blue-200 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/10'
-                              : 'border-border/50 bg-card hover:bg-secondary/30',
+                              ? 'border-blue-200 dark:border-blue-800/50 bg-blue-50/60 dark:bg-blue-900/10'
+                              : 'border-gray-100 dark:border-border/50 bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-secondary/30',
                           )}>
                           {/* Icon or hotel image */}
                           <div className="relative shrink-0">

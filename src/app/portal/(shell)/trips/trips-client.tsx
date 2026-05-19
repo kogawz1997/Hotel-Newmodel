@@ -49,7 +49,6 @@ function BookingCard({ res, index }: { res: Reservation; index: number }) {
   const isActive = res.status === 'checked_in';
   const daysUntil = checkIn ? differenceInDays(checkIn, new Date()) : null;
   const isUpcoming = daysUntil !== null && daysUntil >= 0 && daysUntil <= 7 && res.status === 'confirmed';
-  const rating   = hotelRating(hotel?.name);
 
   return (
     <motion.div
@@ -60,119 +59,113 @@ function BookingCard({ res, index }: { res: Reservation; index: number }) {
     >
       <Link href={isActive ? '/portal/stay' : '#'}>
         <div className={cn(
-          'rounded-3xl border bg-card overflow-hidden shadow-md transition-shadow hover:shadow-lg',
-          isActive
-            ? `border-green-500/40 ring-1 ${cfg.ring}`
-            : 'border-border/50',
+          'bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/40 shadow-sm overflow-hidden transition-shadow hover:shadow-md',
+          isActive && `ring-1 ${cfg.ring}`,
         )}>
 
-          {/* ── Hero image ── */}
-          <div className="relative h-44 overflow-hidden">
-            <Image
-              src={hotel?.hero_image_url || PLACEHOLDER}
-              alt={hotel?.name || ''}
-              fill
-              className="object-cover"
-              sizes="(max-width: 640px) 100vw, 640px"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10" />
-
-            {/* Live badge */}
-            {isActive && (
-              <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-emerald-400/30">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
-                </span>
-                <span className="text-[9px] font-bold text-emerald-300 uppercase tracking-wider">กำลังเข้าพัก</span>
-              </div>
-            )}
-
-            {/* Countdown badge */}
-            {isUpcoming && (
-              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-green-500/85 backdrop-blur-sm border border-green-400/30">
-                <span className="text-[9px] font-bold text-white">
-                  {daysUntil === 0 ? '🎉 วันนี้!' : `⏳ อีก ${daysUntil} วัน`}
-                </span>
-              </div>
-            )}
-
-            {/* Rating top-right */}
-            <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              <span className="text-[11px] font-bold text-white">{rating}</span>
+          {/* ── Top row: image + info ── */}
+          <div className="flex items-start gap-3 p-3.5">
+            {/* Small hotel image */}
+            <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0">
+              <Image
+                src={hotel?.hero_image_url || PLACEHOLDER}
+                alt={hotel?.name || ''}
+                fill
+                className="object-cover"
+                sizes="96px"
+              />
+              {isActive && (
+                <div className="absolute bottom-1 left-1 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/90 backdrop-blur-sm">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                  </span>
+                  <span className="text-[8px] font-bold text-white uppercase tracking-wide">Live</span>
+                </div>
+              )}
             </div>
 
-            {/* Bottom overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 flex items-end justify-between">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-white/50 mb-0.5">
-                  {hotel?.city} · Thailand
-                </p>
-                <h3 className="font-display font-bold text-white text-base leading-tight line-clamp-1">
-                  {hotel?.name || '—'}
-                </h3>
+            {/* Right: name + badges */}
+            <div className="flex-1 min-w-0 pt-0.5">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="min-w-0">
+                  <p className="text-[10px] text-muted-foreground font-medium">
+                    {hotel?.city || 'Thailand'}
+                  </p>
+                  <h3 className="font-display font-bold text-foreground text-sm leading-tight line-clamp-2">
+                    {hotel?.name || '—'}
+                  </h3>
+                </div>
+                {/* Status pill top-right */}
+                <span className={cn(
+                  'text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 mt-0.5',
+                  cfg.pillBg, cfg.pillText,
+                )}>
+                  <StatusIcon className="h-2.5 w-2.5" strokeWidth={2.5} />
+                  {cfg.label}
+                </span>
               </div>
-              <span className={cn(
-                'text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 ml-2 flex items-center gap-1 backdrop-blur-sm',
-                cfg.pillBg, cfg.pillText,
-              )}>
-                <StatusIcon className="h-3 w-3" strokeWidth={2.5} />
-                {cfg.label}
-              </span>
+
+              {/* Room type */}
+              {(roomType?.name || room?.room_number) && (
+                <p className="text-[10px] text-muted-foreground mb-1.5">
+                  {roomType?.name}{room?.room_number ? ` · ห้อง ${room.room_number}` : ''}
+                </p>
+              )}
+
+              {/* Countdown badge */}
+              {isUpcoming && (
+                <span className="inline-flex text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-400">
+                  {daysUntil === 0 ? 'วันนี้!' : `อีก ${daysUntil} วัน`}
+                </span>
+              )}
             </div>
           </div>
 
-          {/* ── Details strip ── */}
-          <div className="px-4 py-3.5 space-y-3">
-
-            {/* Date row */}
-            <div className="flex items-center gap-2.5">
-              <div className="flex-1">
-                <p className="text-[10px] text-muted-foreground font-medium">เช็คอิน</p>
-                <p className="text-sm font-bold text-foreground">
-                  {checkIn ? format(checkIn, 'EEE d MMM', { locale: th }) : '—'}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center gap-0.5 px-3">
-                <div className="h-px w-10 bg-border" />
-                <span className="text-[9px] text-muted-foreground/60 font-medium">
-                  {nights != null ? `${nights} คืน` : ''}
-                </span>
-                <div className="h-px w-10 bg-border" />
-              </div>
-
-              <div className="flex-1 text-right">
-                <p className="text-[10px] text-muted-foreground font-medium">เช็คเอาท์</p>
-                <p className="text-sm font-bold text-foreground">
-                  {checkOut ? format(checkOut, 'EEE d MMM', { locale: th }) : '—'}
-                </p>
-              </div>
+          {/* ── Date row ── */}
+          <div className="mx-3.5 border-t border-gray-100 dark:border-border/40 py-3 flex items-center gap-2">
+            <div className="flex-1 text-center">
+              <p className="text-[9px] text-muted-foreground font-medium mb-0.5">เช็คอิน</p>
+              <p className="text-xs font-bold text-foreground">
+                {checkIn ? format(checkIn, 'EEE d MMM', { locale: th }) : '—'}
+              </p>
             </div>
 
-            {/* Room & code row */}
-            <div className="flex items-center justify-between border-t border-border/40 pt-3">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                {roomType?.name && <span className="font-medium text-foreground">{roomType.name}</span>}
-                {room?.room_number && <span>· ห้อง {room.room_number}</span>}
+            <div className="flex flex-col items-center gap-0.5 px-2">
+              <div className="flex items-center gap-1">
+                <div className="h-px w-5 bg-gray-300 dark:bg-border" />
+                <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
+                <div className="h-px w-5 bg-gray-300 dark:bg-border" />
               </div>
-              <div className="flex items-center gap-2">
-                {res.total_amount != null && (
-                  <span className="text-xs font-bold text-orange-500">
-                    ฿{res.total_amount.toLocaleString()}
-                  </span>
-                )}
-                {isActive ? (
-                  <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400">
-                    เข้าห้อง <ChevronRight className="h-3.5 w-3.5" />
-                  </div>
-                ) : (
-                  <span className="text-[10px] font-mono text-muted-foreground/40">
-                    #{res.reservation_code}
-                  </span>
-                )}
-              </div>
+              <span className="text-[9px] text-muted-foreground/60 font-medium">
+                {nights != null ? `${nights} คืน` : ''}
+              </span>
+            </div>
+
+            <div className="flex-1 text-center">
+              <p className="text-[9px] text-muted-foreground font-medium mb-0.5">เช็คเอาท์</p>
+              <p className="text-xs font-bold text-foreground">
+                {checkOut ? format(checkOut, 'EEE d MMM', { locale: th }) : '—'}
+              </p>
+            </div>
+          </div>
+
+          {/* ── Bottom: code + amount ── */}
+          <div className="mx-3.5 border-t border-gray-100 dark:border-border/40 py-2.5 flex items-center justify-between">
+            <span className="text-[10px] font-mono text-muted-foreground/50">
+              #{res.reservation_code}
+            </span>
+            <div className="flex items-center gap-3">
+              {res.total_amount != null && (
+                <span className="text-sm font-bold text-orange-500">
+                  ฿{res.total_amount.toLocaleString()}
+                </span>
+              )}
+              {isActive && (
+                <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400">
+                  เข้าห้อง <ChevronRight className="h-3.5 w-3.5" />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -197,7 +190,7 @@ function HotelMiniCard({ hotel, index }: { hotel: any; index: number }) {
     >
       <Link href={`/h/${hotel.slug || hotel.id}`}>
         <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.96 }}
-          className="rounded-2xl border border-border/50 bg-card overflow-hidden shadow-md">
+          className="rounded-2xl border border-gray-100 dark:border-border/50 bg-white dark:bg-card overflow-hidden shadow-sm">
           <div className="relative h-28 overflow-hidden">
             <Image src={hotel.hero_image_url || PLACEHOLDER} alt={hotel.name} fill
               className="object-cover transition-transform duration-500 hover:scale-105" sizes="176px" />
@@ -247,12 +240,12 @@ export function TripsClient({ reservations, hotels }: {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
 
       {/* ── Header ── */}
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-2xl border-b border-border/30">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/85 backdrop-blur-2xl border-b border-gray-200/60 dark:border-border/30">
         <div className="px-4 h-14 flex items-center justify-between max-w-screen-sm mx-auto">
-          <h1 className="font-display font-bold text-lg text-foreground tracking-tight">ทริปของฉัน</h1>
+          <h1 className="font-display font-bold text-lg text-foreground tracking-tight">การเดินทางของฉัน</h1>
           <PortalThemeToggle />
         </div>
       </div>
@@ -261,7 +254,7 @@ export function TripsClient({ reservations, hotels }: {
 
         {/* ── Animated tab switcher ── */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-          <div className="flex gap-1 bg-secondary/70 rounded-2xl p-1 border border-border/30">
+          <div className="flex gap-1 bg-gray-200/60 dark:bg-secondary/70 rounded-2xl p-1 border border-gray-200/80 dark:border-border/30">
             {TABS.map((tab) => (
               <button
                 key={tab}
@@ -271,7 +264,7 @@ export function TripsClient({ reservations, hotels }: {
                 {activeTab === tab && (
                   <motion.div
                     layoutId="trip-tab"
-                    className="absolute inset-0 bg-card rounded-xl shadow-sm border border-border/40"
+                    className="absolute inset-0 bg-white dark:bg-card rounded-xl shadow-sm border border-gray-100 dark:border-border/40"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}

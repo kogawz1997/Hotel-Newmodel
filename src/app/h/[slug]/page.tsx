@@ -216,7 +216,7 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa]">
       <TrackHotelView
         id={hotel.id} slug={slug} name={hotel.name}
         city={hotel.city ?? undefined}
@@ -268,6 +268,17 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
             : []}
         hotelName={hotel.name}
       />
+
+      {/* ── Breadcrumb ── */}
+      <div className="max-w-6xl mx-auto px-4 pt-4 pb-0">
+        <nav className="flex items-center gap-1.5 text-xs text-gray-500" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-blue-600 transition-colors">หน้าแรก</Link>
+          <ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+          <Link href="/search" className="hover:text-blue-600 transition-colors">ค้นหา</Link>
+          <ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+          <span className="text-gray-700 font-medium truncate max-w-[200px]">{hotel.name}</span>
+        </nav>
+      </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-10">
@@ -358,7 +369,7 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
                   { icon: CheckCircle, title: 'ยกเลิกได้ฟรี',   desc: 'ยกเลิกได้ฟรีก่อน 24 ชั่วโมงสำหรับห้องส่วนใหญ่' },
                   { icon: Phone,       title: 'ติดต่อตรงได้เลย', desc: 'ทีมงานพร้อมตอบ ไม่ผ่านตัวกลาง เร็วกว่าแน่นอน' },
                 ].map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="p-5 rounded-2xl border border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-transparent hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all">
+                  <div key={title} className="p-5 rounded-2xl border border-gray-100 bg-gray-50 hover:border-gray-200 hover:shadow-sm transition-all">
                     <div className="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
                       <Icon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
@@ -398,12 +409,17 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
               <h2 className="text-lg font-bold text-foreground mb-4">สถานที่ใกล้เคียง</h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 {[
-                  `แหล่งท่องเที่ยวหลักใน${hotel.city || 'พื้นที่ใกล้เคียง'}`,
-                  'ร้านอาหารยอดนิยม', 'ศูนย์การค้า', 'สถานีขนส่ง / รถไฟฟ้า',
-                ].map(place => (
-                  <div key={place} className="p-4 rounded-xl border border-border bg-card text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground">{place}</p>
-                    <p className="text-xs mt-1">ระยะทางโดยประมาณ 1–3 กม.</p>
+                  { name: `แหล่งท่องเที่ยวหลักใน${hotel.city || 'พื้นที่ใกล้เคียง'}`, dist: '0.5 กม.' },
+                  { name: 'ร้านอาหารยอดนิยม', dist: '0.3 กม.' },
+                  { name: 'ศูนย์การค้า', dist: '1.2 กม.' },
+                  { name: 'สถานีขนส่ง / รถไฟฟ้า', dist: '1.8 กม.' },
+                ].map(({ name, dist }) => (
+                  <div key={name} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white text-sm">
+                    <div className="flex items-center gap-2.5">
+                      <MapPin className="h-4 w-4 text-blue-600 shrink-0" />
+                      <p className="font-medium text-gray-800">{name}</p>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium bg-gray-50 px-2 py-1 rounded-lg shrink-0 ml-2">{dist}</span>
                   </div>
                 ))}
               </div>
@@ -534,21 +550,22 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
 
           {/* ── Sticky sidebar ── */}
           <div className="hidden lg:block">
-            <div className="sticky top-24 rounded-2xl border border-border shadow-xl shadow-black/8 overflow-hidden bg-card">
+            <div className="sticky top-24 rounded-2xl border border-blue-100 shadow-xl shadow-black/8 overflow-hidden bg-white">
 
-              {/* Price header */}
-              <div className="bg-gradient-to-br from-[#2A2522] to-[#1a1210] p-6 text-white">
-                <div className="text-[11px] text-white/50 uppercase tracking-widest mb-1">ราคาเริ่มต้น / คืน</div>
-                <div className="flex items-baseline gap-1 mb-3">
-                  <span className="text-4xl font-bold tracking-tight">{formatCurrency(minRate)}</span>
+              {/* Price header — white card with blue accent */}
+              <div className="p-6 border-b border-gray-100">
+                <div className="text-xs text-gray-500 mb-1">ราคาเริ่มต้น</div>
+                <div className="flex items-baseline gap-1.5 mb-1">
+                  <span className="text-3xl font-bold text-gray-900 tracking-tight">{formatCurrency(minRate)}</span>
                 </div>
+                <div className="text-xs text-gray-400 mb-3">ต่อคืน</div>
                 {avgRating && score && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-white text-xs font-bold" style={{ backgroundColor: score.bg }}>
+                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-white text-xs font-bold bg-blue-600">
                       <Star className="h-3 w-3 fill-white/70 text-white/70" />
                       {avgRating.toFixed(1)} · {score.th}
                     </div>
-                    <span className="text-xs text-white/40">{reviews.length} รีวิว</span>
+                    <span className="text-xs text-gray-400">{reviews.length} รีวิว</span>
                   </div>
                 )}
               </div>
@@ -585,23 +602,10 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
                 </div>
 
                 <Link href={`/booking/${slug}`}
-                  className="block w-full text-center bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white py-4 rounded-2xl font-bold text-[15px] transition-all mb-4 shadow-lg shadow-blue-600/25">
-                  ดูห้องว่างและจอง →
+                  className="block w-full text-center bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white py-4 rounded-2xl font-bold text-[15px] transition-all mb-3 shadow-lg shadow-blue-600/25">
+                  จองเลย
                 </Link>
-
-                {/* Trust strip */}
-                <div className="flex items-center justify-around mb-4 py-3 border border-border/50 rounded-xl">
-                  {[
-                    { icon: ShieldCheck, label: 'ราคาดีสุด' },
-                    { icon: CheckCircle, label: 'ยกเลิกฟรี' },
-                    { icon: Tag,         label: 'ไม่มีค่าธรรมเนียม' },
-                  ].map(({ icon: Icon, label }) => (
-                    <div key={label} className="flex flex-col items-center gap-1.5 text-center px-2">
-                      <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      <span className="text-[10px] text-muted-foreground leading-tight font-medium">{label}</span>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-center text-[11px] text-gray-400 mb-4">ไม่มีค่าธรรมเนียมจอง · ยกเลิกได้ฟรี</p>
 
                 {/* Quick info */}
                 <div className="space-y-2.5 text-xs text-muted-foreground">

@@ -76,10 +76,10 @@ export function AccountClient({ guest, loyaltyPoints, loyaltyTier }: {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
 
       {/* ── Sticky header ── */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center justify-between max-w-screen-sm mx-auto">
           <h1 className="font-display font-bold text-lg text-foreground tracking-tight">บัญชีของฉัน</h1>
           <PortalThemeToggle />
@@ -90,7 +90,7 @@ export function AccountClient({ guest, loyaltyPoints, loyaltyTier }: {
 
         {/* ── Profile card ── */}
         <motion.div custom={0} variants={v} initial="hidden" animate="show">
-          <div className="flex items-center gap-4 rounded-3xl bg-card border border-border/60 p-4 shadow-sm">
+          <div className="flex items-center gap-4 rounded-3xl bg-white dark:bg-card border border-gray-100 dark:border-border/60 p-4 shadow-sm">
             {/* Avatar with tier gradient */}
             <div
               className={cn('h-16 w-16 rounded-2xl flex items-center justify-center text-xl font-bold text-white shadow-md shrink-0 bg-gradient-to-br', tier.gFrom, tier.gTo)}>
@@ -163,7 +163,7 @@ export function AccountClient({ guest, loyaltyPoints, loyaltyTier }: {
         {MENU_SECTIONS.map((section, si) => (
           <motion.div key={section.title} custom={si + 2} variants={v} initial="hidden" animate="show">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">{section.title}</p>
-            <div className="rounded-2xl bg-card border border-border/60 overflow-hidden shadow-sm divide-y divide-border/40">
+            <div className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border/60 overflow-hidden shadow-sm divide-y divide-gray-100 dark:divide-border/40">
               {section.items.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -189,7 +189,7 @@ export function AccountClient({ guest, loyaltyPoints, loyaltyTier }: {
         {/* ── Logout ── */}
         <motion.div custom={4} variants={v} initial="hidden" animate="show">
           <button onClick={handleLogout}
-            className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-card border border-border/60 shadow-sm hover:bg-red-500/5 hover:border-red-500/20 transition-colors group">
+            className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border/60 shadow-sm hover:bg-red-500/5 hover:border-red-500/20 transition-colors group">
             <div className="h-9 w-9 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
               <LogOut className="h-4.5 w-4.5 text-red-500" strokeWidth={1.8} />
             </div>
