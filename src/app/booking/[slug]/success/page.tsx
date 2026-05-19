@@ -177,7 +177,7 @@ export default async function BookingSuccessPage({
 
         {/* Actions */}
         <div className="space-y-3">
-          <Link href="/portal/bookings"
+          <Link href="/portal/trips"
             className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl text-sm font-bold transition-colors">
             ดูการจองของฉัน
           </Link>

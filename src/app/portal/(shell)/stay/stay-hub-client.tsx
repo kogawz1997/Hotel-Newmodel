@@ -68,7 +68,7 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
           className="flex items-center gap-2 px-5 py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-2xl text-sm font-semibold hover:opacity-90 transition-opacity">
           <QrCode className="h-4 w-4" /> สแกน QR ในห้อง
         </Link>
-        <Link href="/portal/bookings"
+        <Link href="/portal/trips"
           className="mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors">
           ดูการจองของฉัน →
         </Link>

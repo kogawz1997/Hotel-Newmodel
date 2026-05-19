@@ -98,7 +98,7 @@ export function ConfirmationCard({ reservation: r, paymentMethod }: Props) {
             <QrCode className="h-4 w-4" /> QR Check-in
           </LuxuryButton>
         </Link>
-        <Link href="/portal/bookings" className="flex-1">
+        <Link href="/portal/trips" className="flex-1">
           <LuxuryButton variant="outline" fullWidth>
             My Bookings
           </LuxuryButton>

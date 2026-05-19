@@ -219,7 +219,7 @@ export default function PortalReferralsPage() {
               <button
                 onClick={applyReferral}
                 disabled={applying || !applyCode.trim()}
-                className="px-4 py-2.5 bg-foreground hover:opacity-90 text-background rounded-xl text-sm font-bold transition-opacity disabled:opacity-50"
+                className="px-4 py-2.5 bg-amber-600 dark:bg-amber-500 hover:opacity-90 text-white rounded-xl text-sm font-bold transition-opacity disabled:opacity-50"
               >
                 {applying ? 'กำลังใช้...' : 'ใช้โค้ด'}
               </button>

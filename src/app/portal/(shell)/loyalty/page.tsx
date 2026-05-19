@@ -7,10 +7,10 @@ import { Star, ArrowLeft, Gift, Trophy, TrendingUp, ChevronRight, Zap, Cake, Loa
 import { toast } from 'sonner';
 
 const TIERS = [
-  { id: 'bronze',   label: 'Bronze',   minPoints: 0,     color: '#CD7F32', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-500/25',   text: 'text-amber-700 dark:text-amber-400',   emoji: '🥉' },
-  { id: 'silver',   label: 'Silver',   minPoints: 1000,  color: '#A8A9AD', bg: 'bg-gray-400/10 dark:bg-gray-400/10',    border: 'border-gray-400/25',    text: 'text-gray-600 dark:text-gray-300',    emoji: '🥈' },
-  { id: 'gold',     label: 'Gold',     minPoints: 3000,  color: '#D4AF37', bg: 'bg-yellow-400/10 dark:bg-yellow-400/10',  border: 'border-yellow-400/25',  text: 'text-yellow-700 dark:text-yellow-400',  emoji: '🥇' },
-  { id: 'platinum', label: 'Platinum', minPoints: 10000, color: '#94A3B8', bg: 'bg-slate-400/10 dark:bg-slate-400/10',   border: 'border-slate-400/25',   text: 'text-slate-600 dark:text-slate-300',   emoji: '💎' },
+  { id: 'bronze',   label: 'Bronze',   minPoints: 0,     bar: 'bg-amber-600',  bg: 'bg-amber-500/10 dark:bg-amber-500/10',    border: 'border-amber-500/25',   text: 'text-amber-700 dark:text-amber-400',    iconBg: 'bg-amber-500/15',  emoji: '🥉' },
+  { id: 'silver',   label: 'Silver',   minPoints: 1000,  bar: 'bg-gray-400',   bg: 'bg-gray-400/10 dark:bg-gray-400/10',      border: 'border-gray-400/25',    text: 'text-gray-600 dark:text-gray-300',      iconBg: 'bg-gray-400/15',   emoji: '🥈' },
+  { id: 'gold',     label: 'Gold',     minPoints: 3000,  bar: 'bg-yellow-500', bg: 'bg-yellow-400/10 dark:bg-yellow-400/10',  border: 'border-yellow-400/25',  text: 'text-yellow-700 dark:text-yellow-400',  iconBg: 'bg-yellow-400/15', emoji: '🥇' },
+  { id: 'platinum', label: 'Platinum', minPoints: 10000, bar: 'bg-slate-400',  bg: 'bg-slate-400/10 dark:bg-slate-400/10',    border: 'border-slate-400/25',   text: 'text-slate-600 dark:text-slate-300',    iconBg: 'bg-slate-400/15',  emoji: '💎' },
 ];
 
 const BENEFITS: Record<string, string[]> = {
@@ -141,7 +141,7 @@ export default function LoyaltyPortalPage() {
         ) : (
           <>
             {/* Points card */}
-            <div className="rounded-2xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${tier.color}20, ${tier.color}05)`, border: `1px solid ${tier.color}30` }}>
+            <div className={cn('rounded-2xl overflow-hidden border', tier.bg, tier.border)}>
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
@@ -152,8 +152,7 @@ export default function LoyaltyPortalPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold"
-                      style={{ backgroundColor: `${tier.color}20`, color: tier.color }}>
+                    <span className={cn('inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold', tier.bg, tier.text)}>
                       {tier.emoji} {tier.label}
                     </span>
                     {data?.totalStays ? (
@@ -171,8 +170,8 @@ export default function LoyaltyPortalPage() {
                     </div>
                     <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${progress}%`, backgroundColor: tier.color }}
+                        className={cn('h-full rounded-full transition-all duration-700', tier.bar)}
+                        style={{ width: `${progress}%` }}
                       />
                     </div>
                     <p className="text-xs text-muted-foreground mt-1.5">
@@ -181,7 +180,7 @@ export default function LoyaltyPortalPage() {
                   </div>
                 )}
                 {!nextTier && (
-                  <p className="text-xs font-semibold" style={{ color: tier.color }}>
+                  <p className={cn('text-xs font-semibold', tier.text)}>
                     {tier.emoji} คุณอยู่ในระดับสูงสุดแล้ว!
                   </p>
                 )}
@@ -197,8 +196,8 @@ export default function LoyaltyPortalPage() {
               <ul className="space-y-2">
                 {(BENEFITS[tier.id] || []).map(b => (
                   <li key={b} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                    <div className="h-5 w-5 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${tier.color}20` }}>
-                      <Zap className="h-3 w-3" style={{ color: tier.color }} />
+                    <div className={cn('h-5 w-5 rounded-full flex items-center justify-center shrink-0', tier.iconBg)}>
+                      <Zap className={cn('h-3 w-3', tier.text)} />
                     </div>
                     {b}
                   </li>

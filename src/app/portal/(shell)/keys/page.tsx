@@ -122,7 +122,7 @@ function MobileKeyContent() {
 
                 {key.vendorConnected && (
                   <button onClick={openDoor}
-                    className="w-full py-4 bg-foreground text-background rounded-2xl font-bold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                    className="w-full py-4 bg-amber-600 dark:bg-amber-500 text-white rounded-2xl font-bold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
                     <Smartphone className="h-5 w-5" /> แตะเปิดประตู (NFC)
                   </button>
                 )}

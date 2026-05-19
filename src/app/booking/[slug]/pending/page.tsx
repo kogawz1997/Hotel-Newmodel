@@ -78,7 +78,7 @@ export default async function BookingPendingPage({
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
-            href="/portal/bookings"
+            href="/portal/trips"
             className="flex-1 text-center py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-semibold text-sm transition-colors"
           >
             ดูสถานะการจอง

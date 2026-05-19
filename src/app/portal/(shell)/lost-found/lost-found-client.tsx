@@ -59,7 +59,7 @@ export function LostFoundClient({ reservations }: { reservations: any[] }) {
         <p className="text-sm text-muted-foreground mb-6">
           ทีม Housekeeping จะตรวจสอบและติดต่อกลับภายใน 24 ชั่วโมง
         </p>
-        <Link href="/portal/bookings" className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium">
+        <Link href="/portal/home" className="px-6 py-2.5 rounded-xl bg-amber-600 dark:bg-amber-500 text-white text-sm font-medium hover:opacity-90 transition-opacity">
           กลับหน้าหลัก
         </Link>
       </div>
@@ -69,7 +69,7 @@ export function LostFoundClient({ reservations }: { reservations: any[] }) {
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-24">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/portal/bookings" className="p-2 rounded-lg hover:bg-muted transition-colors" aria-label="กลับ">
+        <Link href="/portal/stay" className="p-2 rounded-lg hover:bg-muted transition-colors" aria-label="กลับ">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>

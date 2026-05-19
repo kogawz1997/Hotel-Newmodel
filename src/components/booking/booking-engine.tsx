@@ -937,7 +937,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
           <div className="mt-4 flex gap-3 justify-center">
             {user ? (
-              <Link href="/portal/bookings" className="flex items-center gap-2 px-5 py-2.5 border border-black/10 text-[#2A2522] rounded-xl font-medium text-sm hover:bg-black/5 transition-colors">
+              <Link href="/portal/trips" className="flex items-center gap-2 px-5 py-2.5 border border-black/10 text-[#2A2522] rounded-xl font-medium text-sm hover:bg-black/5 transition-colors">
                 ดูการจองของฉัน <ChevronRight className="h-4 w-4" />
               </Link>
             ) : null}
@@ -1028,7 +1028,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
         <div className="flex gap-3 justify-center">
           {user ? (
-            <Link href="/portal/bookings" className="flex items-center gap-2 px-6 py-3 bg-[#2A2522] text-white rounded-xl font-medium text-sm">
+            <Link href="/portal/trips" className="flex items-center gap-2 px-6 py-3 bg-[#2A2522] text-white rounded-xl font-medium text-sm">
               ดูการจองของฉัน <ChevronRight className="h-4 w-4" />
             </Link>
           ) : (
@@ -1083,7 +1083,7 @@ function PublicLayout({ hotel, user, step, lang, setLang, children }: any) {
               </div>
             )}
             {user ? (
-              <Link href="/portal/bookings" className="flex items-center gap-1.5 text-xs text-[#2A2522]/60 hover:text-[#2A2522] px-3 py-1.5 rounded-lg hover:bg-black/5">
+              <Link href="/portal/trips" className="flex items-center gap-1.5 text-xs text-[#2A2522]/60 hover:text-[#2A2522] px-3 py-1.5 rounded-lg hover:bg-black/5">
                 <User className="h-4 w-4" /> การจองของฉัน
               </Link>
             ) : (

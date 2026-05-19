@@ -380,7 +380,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
                     {hotel.id && (
                       <Link href={`/booking/${hotel.slug || hotel.id}`}
                         className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl
-                          bg-foreground text-background hover:opacity-90 transition-opacity">
+                          bg-amber-600 dark:bg-amber-500 text-white hover:opacity-90 transition-opacity">
                         จองอีกครั้ง <ChevronRight className="h-3.5 w-3.5" />
                       </Link>
                     )}
