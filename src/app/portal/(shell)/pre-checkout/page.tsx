@@ -74,7 +74,7 @@ export default async function PreCheckoutPage() {
       </div>
 
       {res && (
-        <div className="mb-5 rounded-xl border border-border bg-card p-4 flex items-center gap-3">
+        <div className="mb-5 rounded-xl border border-gray-100 dark:border-border bg-white dark:bg-card p-4 flex items-center gap-3">
           <CheckCircle2 className="h-8 w-8 text-emerald-500 shrink-0" aria-hidden="true" />
           <div>
             <p className="font-medium text-sm">{hotel.name}</p>
@@ -90,7 +90,7 @@ export default async function PreCheckoutPage() {
         {STEPS.map((s, i) => {
           const Icon = s.icon;
           return (
-            <div key={i} className="flex gap-3 rounded-xl border border-border bg-card p-4">
+            <div key={i} className="flex gap-3 rounded-xl border border-gray-100 dark:border-border bg-white dark:bg-card p-4">
               <div className="shrink-0 mt-0.5">
                 <Icon className={`h-5 w-5 ${s.color}`} aria-hidden="true" />
               </div>
@@ -106,7 +106,7 @@ export default async function PreCheckoutPage() {
       {hotel.phone && (
         <a
           href={`tel:${hotel.phone}`}
-          className="flex items-center justify-center gap-2 w-full rounded-xl border border-border bg-card py-3 text-sm font-medium hover:bg-secondary transition-colors"
+          className="flex items-center justify-center gap-2 w-full rounded-xl border border-gray-100 dark:border-border bg-white dark:bg-card py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
           aria-label={`โทรหา ${hotel.name}`}
         >
           <Phone className="h-4 w-4" aria-hidden="true" />
@@ -117,7 +117,7 @@ export default async function PreCheckoutPage() {
       <div className="mt-4 flex gap-3">
         <Link
           href="/portal/folio"
-          className="flex-1 text-center rounded-xl border border-border py-3 text-sm font-medium hover:bg-secondary transition-colors"
+          className="flex-1 text-center rounded-xl border border-gray-100 dark:border-border py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
         >
           ดูใบบัญชี Folio
         </Link>

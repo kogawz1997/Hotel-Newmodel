@@ -19,9 +19,9 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
       {/* Sticky header */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
           <Link href="/portal/home"
             className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
@@ -60,7 +60,7 @@ export function WishlistClient({ guest, wishlists: initial }: { guest: any; wish
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="bg-card rounded-2xl border border-border/60 overflow-hidden shadow-sm"
+                  className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 overflow-hidden shadow-sm"
                 >
                   <div className="relative h-44 bg-muted/40 overflow-hidden">
                     {hotel?.hero_image_url ? (

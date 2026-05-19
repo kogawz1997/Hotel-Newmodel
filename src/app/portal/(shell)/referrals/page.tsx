@@ -84,9 +84,9 @@ export default function PortalReferralsPage() {
   useEffect(() => { load(); }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
       {/* Sticky header */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
           <Link href="/portal/account"
             className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
@@ -117,7 +117,7 @@ export default function PortalReferralsPage() {
         {/* How it works */}
         <motion.div custom={1} variants={v} initial="hidden" animate="show">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">วิธีการ</p>
-          <div className="bg-card rounded-2xl border border-border/60 overflow-hidden shadow-sm divide-y divide-border/30">
+          <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 overflow-hidden shadow-sm divide-y divide-border/30">
             {HOW_IT_WORKS.map((s, i) => {
               const Icon = s.icon;
               return (
@@ -155,14 +155,14 @@ export default function PortalReferralsPage() {
               {[1, 2].map(i => <div key={i} className="h-20 bg-muted/40 rounded-2xl animate-pulse" />)}
             </div>
           ) : items.length === 0 ? (
-            <div className="bg-card rounded-2xl border border-border/60 p-8 text-center shadow-sm">
+            <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 p-8 text-center shadow-sm">
               <Gift className="h-10 w-10 text-muted-foreground/20 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">ยังไม่มีโค้ด กดสร้างเพื่อเริ่มแนะนำเพื่อน</p>
             </div>
           ) : (
             <div className="space-y-2">
               {items.map(item => (
-                <div key={item.id} className="bg-card border border-border/60 rounded-2xl p-4 shadow-sm">
+                <div key={item.id} className="bg-white dark:bg-card border border-gray-100 dark:border-border/60 rounded-2xl p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-bold text-lg text-foreground tracking-wider">{item.code}</span>
@@ -204,7 +204,7 @@ export default function PortalReferralsPage() {
 
         {/* Apply a referral code */}
         <motion.div custom={3} variants={v} initial="hidden" animate="show">
-          <div className="bg-card rounded-2xl border border-border/60 p-5 shadow-sm">
+          <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 p-5 shadow-sm">
             <h2 className="font-display font-bold text-foreground mb-1">มีโค้ดจากเพื่อน?</h2>
             <p className="text-xs text-muted-foreground mb-4">ใส่โค้ดเพื่อรับส่วนลดครั้งแรก</p>
             <div className="flex gap-2">

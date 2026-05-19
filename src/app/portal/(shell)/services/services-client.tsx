@@ -144,7 +144,7 @@ export function ServicesClient() {
   const tabInfo = TAB_LABELS[tab];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background text-foreground">
 
       {/* Hero image header */}
       <div className="relative h-44 overflow-hidden rounded-b-3xl mb-6">
@@ -224,7 +224,7 @@ export function ServicesClient() {
                     <span className="text-base">{cat.emoji}</span>
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{cat.category}</h3>
                   </div>
-                  <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60">
+                  <div className="rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card overflow-hidden divide-y divide-border/60">
                     {cat.items.map((item) => {
                       const inCart = cart.find(c => c.id === item.id);
                       return (
@@ -268,7 +268,7 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุ</label>
                 <textarea value={rsNotes} onChange={e => setRsNotes(e.target.value)} rows={2}
                   placeholder="ระบุความต้องการพิเศษ เช่น ไม่ใส่ผักชี ..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
             </motion.div>
           )}
@@ -277,7 +277,7 @@ export function ServicesClient() {
           {tab === 'housekeeping' && (
             <motion.div key="hk" {...fadeIn} transition={{ duration: 0.25 }} className="space-y-4 pb-32">
               <p className="text-sm text-muted-foreground">เลือกรายการที่ต้องการ</p>
-              <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60">
+              <div className="rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card overflow-hidden divide-y divide-border/60">
                 {HK_ITEMS.map(item => (
                   <label key={item.id}
                     className={cn(
@@ -303,7 +303,7 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุเพิ่มเติม</label>
                 <textarea value={hkNotes} onChange={e => setHkNotes(e.target.value)} rows={2}
                   placeholder="ระบุรายละเอียดเพิ่มเติม..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
               <button onClick={() => submitRequest('housekeeping')} disabled={submitting || (hkSelected.length === 0 && !hkNotes.trim())}
                 className="w-full py-3.5 rounded-2xl bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
@@ -317,7 +317,7 @@ export function ServicesClient() {
           {/* ── SPA ── */}
           {tab === 'spa' && (
             <motion.div key="spa" {...fadeIn} transition={{ duration: 0.25 }} className="space-y-4 pb-32">
-              <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60">
+              <div className="rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card overflow-hidden divide-y divide-border/60">
                 {SPA_SERVICES.map(s => (
                   <button key={s.id} type="button" onClick={() => setSpaService(s.id)}
                     className={cn(
@@ -349,12 +349,12 @@ export function ServicesClient() {
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">เวลาที่ต้องการ</label>
                   <input type="time" value={spaTime} onChange={e => setSpaTime(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
+                    className="w-full px-3 py-2.5 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">จำนวนคน</label>
                   <select value={spaGuests} onChange={e => setSpaGuests(Number(e.target.value))}
-                    className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none">
+                    className="w-full px-3 py-2.5 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl text-sm focus:outline-none">
                     {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n} คน</option>)}
                   </select>
                 </div>
@@ -380,7 +380,7 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุ / ความต้องการพิเศษ</label>
                 <textarea value={spaNotes} onChange={e => setSpaNotes(e.target.value)} rows={2}
                   placeholder="เช่น แพ้น้ำมันมะพร้าว, ต้องการนักบำบัดหญิง..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
 
               <div className="rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-3.5 flex gap-3 text-xs text-orange-500">
@@ -439,7 +439,7 @@ export function ServicesClient() {
             <motion.div
               initial={{ y: 40 }} animate={{ y: 0 }} exit={{ y: 40 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-              className="relative w-full max-w-2xl bg-card rounded-t-3xl border-t border-l border-r border-border shadow-2xl"
+              className="relative w-full max-w-2xl bg-white dark:bg-card rounded-t-3xl border-t border-l border-r border-gray-100 dark:border-border shadow-2xl"
             >
               <div className="flex justify-center pt-3 pb-2">
                 <div className="h-1 w-10 rounded-full bg-border" />

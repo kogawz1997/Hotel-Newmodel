@@ -6,7 +6,7 @@ import { AppInstallBanner } from '@/components/ui/app-install-banner';
 
 export default function PortalShellLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background text-foreground">
       {/* Desktop sidebar — hidden on mobile */}
       <PortalSidebar />
 

@@ -38,9 +38,9 @@ export function FolioClient() {
   const currency = hotel?.currency || 'THB';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
       {/* Sticky header */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
           <Link href="/portal/stay"
             className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
@@ -87,7 +87,7 @@ export function FolioClient() {
         {!loading && reservation && (
           <div className="space-y-3">
             {/* Reservation summary */}
-            <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+            <div className="rounded-2xl border border-gray-100 dark:border-border/60 bg-white dark:bg-card p-4 shadow-sm">
               {hotel && (
                 <p className="font-display font-bold text-foreground mb-3">{hotel.name}</p>
               )}
@@ -107,7 +107,7 @@ export function FolioClient() {
             </div>
 
             {/* Charges */}
-            <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm">
+            <div className="rounded-2xl border border-gray-100 dark:border-border/60 bg-white dark:bg-card overflow-hidden shadow-sm">
               <div className="px-4 py-3 border-b border-border/40">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">รายการค่าใช้จ่าย</p>
               </div>
@@ -146,7 +146,7 @@ export function FolioClient() {
             </div>
 
             {/* Totals */}
-            <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm divide-y divide-border/30">
+            <div className="rounded-2xl border border-gray-100 dark:border-border/60 bg-white dark:bg-card overflow-hidden shadow-sm divide-y divide-border/30">
               <div className="flex items-center justify-between px-4 py-3.5">
                 <span className="text-sm text-muted-foreground flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500" /> ชำระแล้ว

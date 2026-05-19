@@ -31,9 +31,9 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function SupportPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
       {/* Sticky header */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
           <Link href="/portal/home"
             className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
@@ -67,7 +67,7 @@ export default function SupportPage() {
             { icon: MessageCircle, label: 'LINE',        sub: '@maitriapp',         href: 'https://line.me/ti/p/@maitriapp',   bg: 'bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-400' },
           ].map(({ icon: Icon, label, sub, href, bg, color }) => (
             <a key={label} href={href} target="_blank" rel="noreferrer"
-              className="bg-card rounded-2xl border border-border/60 p-4 text-center hover:shadow-md transition-shadow shadow-sm">
+              className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 p-4 text-center hover:shadow-md transition-shadow shadow-sm">
               <div className={`h-10 w-10 rounded-xl ${bg} flex items-center justify-center mx-auto mb-2`}>
                 <Icon className={`h-5 w-5 ${color}`} />
               </div>
@@ -78,7 +78,7 @@ export default function SupportPage() {
         </div>
 
         {/* Hours */}
-        <div className="bg-card rounded-2xl border border-border/60 p-4 flex items-center gap-3 shadow-sm">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 p-4 flex items-center gap-3 shadow-sm">
           <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
             <Clock className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" />
           </div>
@@ -89,7 +89,7 @@ export default function SupportPage() {
         </div>
 
         {/* FAQ */}
-        <div className="bg-card rounded-2xl border border-border/60 p-5 shadow-sm">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 p-5 shadow-sm">
           <h2 className="font-display font-bold text-foreground mb-4">คำถามที่พบบ่อย</h2>
           <div>
             {FAQS.map(f => <FAQItem key={f.q} q={f.q} a={f.a} />)}
@@ -97,7 +97,7 @@ export default function SupportPage() {
         </div>
 
         {/* Quick links */}
-        <div className="bg-card rounded-2xl border border-border/60 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 overflow-hidden shadow-sm">
           <div className="px-4 py-3 border-b border-border/40">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">ลิงก์ที่เป็นประโยชน์</p>
           </div>

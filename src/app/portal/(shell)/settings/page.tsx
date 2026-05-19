@@ -35,7 +35,7 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
 
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/40">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/95 dark:bg-background/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto lg:max-w-2xl">
           <Link href="/portal/account">
             <motion.div whileTap={{ scale: 0.9 }} className="h-9 w-9 rounded-full bg-secondary border border-border/40 flex items-center justify-center">

@@ -84,8 +84,8 @@ export default async function CompendiumPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/40">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
         <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
           <Link href="/portal/stay"
             className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
@@ -104,7 +104,7 @@ export default async function CompendiumPage() {
 
       <div className="px-4 py-5 pb-24 max-w-screen-sm mx-auto space-y-3">
         {hotel?.address && (
-          <div className="rounded-2xl bg-card border border-border/60 p-4 flex items-start gap-3 shadow-sm">
+          <div className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border/60 p-4 flex items-start gap-3 shadow-sm">
             <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
               <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
@@ -118,7 +118,7 @@ export default async function CompendiumPage() {
         {SECTIONS.map(s => {
           const Icon = s.icon;
           return (
-            <div key={s.title} className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm">
+            <div key={s.title} className="rounded-2xl border border-gray-100 dark:border-border/60 bg-white dark:bg-card overflow-hidden shadow-sm">
               <div className="flex items-center gap-3 px-4 py-3 border-b border-border/40">
                 <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}>
                   <Icon className={`h-4 w-4 ${s.color}`} strokeWidth={1.8} />
@@ -149,7 +149,7 @@ export default async function CompendiumPage() {
 
         {hotel?.phone && (
           <a href={`tel:${hotel.phone}`}
-            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-card border border-border/60 text-sm font-semibold shadow-sm hover:bg-secondary transition-colors">
+            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border/60 text-sm font-semibold shadow-sm hover:bg-gray-50 dark:hover:bg-secondary transition-colors">
             <Phone className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             โทร Front Desk: {hotel.phone}
           </a>
