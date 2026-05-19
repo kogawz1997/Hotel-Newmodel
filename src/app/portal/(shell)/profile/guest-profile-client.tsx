@@ -172,7 +172,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
       <nav className="bg-card border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted transition-colors">
+            <Link href="/portal/account" className="p-2 rounded-full hover:bg-muted transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <span className="font-semibold text-foreground">{s.title}</span>
@@ -186,7 +186,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
       <div className="py-6">
         {/* Avatar card */}
         <div className="bg-card rounded-2xl border border-border p-5 flex items-center gap-4 mb-5">
-          <div className="h-14 w-14 rounded-full bg-foreground text-white flex items-center justify-center text-xl font-bold shrink-0">
+          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-500 to-[#C66A30] text-white flex items-center justify-center text-xl font-bold shrink-0">
             {(guest.first_name || guest.email || 'G').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
@@ -200,7 +200,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
           {TABS.map(({ key, icon: Icon }) => (
             <button key={key} onClick={() => setTab(key)}
               className={cn('flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl font-medium text-2xs transition-all',
-                tab === key ? 'bg-foreground text-white shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                tab === key ? 'bg-amber-600 dark:bg-amber-500 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
               <Icon className="h-4 w-4" />
               <span className="leading-none">{s.tabs[key]}</span>
             </button>
@@ -367,7 +367,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
         <PField label={ss.confirmPw} type="password" value={pwForm.confirm}
           onChange={v => setPwForm(p => ({ ...p, confirm: v }))} />
         <button onClick={changePassword} disabled={pwSaving}
-          className="w-full py-3 bg-foreground text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+          className="w-full py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
           {pwSaving ? ss.changing : ss.changePwBtn}
         </button>
       </div>
@@ -457,7 +457,7 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
         <div className="grid grid-cols-3 gap-2">
           {Object.entries(ps.dateFormats).map(([v, l]) => (
             <button key={v} onClick={() => set('date_format', v)}
-              className={cn('py-2 text-xs rounded-xl border font-medium transition-all', form.date_format === v ? 'bg-foreground text-background border-foreground' : 'bg-muted/50 border-border text-muted-foreground hover:border-foreground/30')}>
+              className={cn('py-2 text-xs rounded-xl border font-medium transition-all', form.date_format === v ? 'bg-amber-600 dark:bg-amber-500 text-white border-amber-600 dark:border-amber-500' : 'bg-muted/50 border-border text-muted-foreground hover:border-amber-500/40')}>
               {l}
             </button>
           ))}
@@ -594,7 +594,7 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
         <h3 className="font-semibold text-foreground mb-1">{ps.dataExport}</h3>
         <p className="text-xs text-muted-foreground mb-4">{ps.dataExportDesc}</p>
         <button onClick={() => { window.location.href = '/api/guest/privacy/export'; }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white rounded-xl text-sm font-medium hover:opacity-90 transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 bg-amber-600 dark:bg-amber-500 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-colors">
           <Download className="h-4 w-4" />{ps.exportBtn}
         </button>
       </div>
@@ -642,10 +642,48 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
   );
 }
 
+// ─── DateSelect component (replaces native date input) ───────────────────────
+function DateSelect({ label, value, onChange }: { label?: string; value?: string; onChange?: (v: string) => void }) {
+  const parts = value ? value.split('-') : ['', '', ''];
+  const yr = parts[0] || '', mo = parts[1] || '', dy = parts[2] || '';
+
+  function update(y: string, m: string, d: string) {
+    if (y && m && d) onChange?.(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+    else if (!y && !m && !d) onChange?.('');
+  }
+
+  const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 80 }, (_, i) => currentYear - i);
+
+  const sel = 'flex-1 px-2 py-2.5 bg-muted/50 border border-border rounded-xl text-sm transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 appearance-none cursor-pointer';
+
+  return (
+    <div>
+      {label && <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{label}</label>}
+      <div className="flex gap-2">
+        <select value={dy} onChange={e => update(yr, mo, e.target.value)} className={sel}>
+          <option value="">วัน</option>
+          {Array.from({length:31},(_,i)=>i+1).map(d=><option key={d} value={String(d)}>{d}</option>)}
+        </select>
+        <select value={mo} onChange={e => update(yr, e.target.value, dy)} className={cn(sel, 'flex-[2]')}>
+          <option value="">เดือน</option>
+          {months.map((m,i)=><option key={i+1} value={String(i+1).padStart(2,'0')}>{m}</option>)}
+        </select>
+        <select value={yr} onChange={e => update(e.target.value, mo, dy)} className={cn(sel, 'flex-[1.5]')}>
+          <option value="">ปี</option>
+          {years.map(y=><option key={y} value={String(y)}>{y + 543}</option>)}
+        </select>
+      </div>
+    </div>
+  );
+}
+
 // ─── Helper component ─────────────────────────────────────────────────────────
 function PField({ label, value, onChange, type = 'text', placeholder, disabled }: {
   label?: string; value?: string; onChange?: (v: string) => void; type?: string; placeholder?: string; disabled?: boolean;
 }) {
+  if (type === 'date') return <DateSelect label={label} value={value} onChange={onChange} />;
   return (
     <div>
       {label && <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{label}</label>}
