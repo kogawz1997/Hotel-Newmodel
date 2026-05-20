@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   Utensils, BedDouble, MessageSquare, Key, Receipt, BookOpen,
   Wifi, Clock, Phone, QrCode, ChevronRight, MapPin, LogOut,
-  Sparkles, AlertTriangle, Loader2,
+  Sparkles, AlertTriangle, Loader2, CalendarDays,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -38,7 +38,13 @@ const cardVariants = {
   show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.3, ease: [0.4,0,0.2,1] } }),
 };
 
-export function StayHubClient({ reservation }: { reservation: any | null }) {
+export function StayHubClient({
+  reservation,
+  upcomingReservations = [],
+}: {
+  reservation: any | null;
+  upcomingReservations?: any[];
+}) {
   const [scannedHotel, setScannedHotel] = useState<{ id: string; name: string; heroImage?: string } | null>(null);
   const [folioTotal, setFolioTotal] = useState<number | null>(null);
 
@@ -47,31 +53,116 @@ export function StayHubClient({ reservation }: { reservation: any | null }) {
       const raw = localStorage.getItem('maitri_scanned_hotel');
       if (raw) setScannedHotel(JSON.parse(raw));
     } catch {}
-    // Fetch folio outstanding amount
     fetch('/api/guest/folio').then(r => r.ok ? r.json() : null).then(d => {
       if (d?.reservation?.outstanding != null) setFolioTotal(d.reservation.outstanding);
     }).catch(() => {});
   }, []);
 
-  // No active stay and no QR scan → show empty state
+  // No active stay and no QR scan → show empty/upcoming state
   if (!reservation && !scannedHotel) {
     return (
-      <div className="min-h-screen bg-[#f5f7fa] dark:bg-background flex flex-col items-center justify-center text-center px-6">
-        <div className="h-20 w-20 rounded-3xl bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm flex items-center justify-center mb-5">
-          <QrCode className="h-9 w-9 text-muted-foreground" />
+      <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+        {/* Sticky header */}
+        <div className="sticky top-0 z-30 bg-[#f5f7fa]/95 dark:bg-background/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
+          <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto lg:max-w-2xl">
+            <div>
+              <p className="font-bold text-foreground">My Stay</p>
+              <p className="text-[10px] text-muted-foreground">บริการห้องพัก</p>
+            </div>
+          </div>
         </div>
-        <h2 className="font-display text-xl font-semibold text-foreground mb-2">ยังไม่ได้เช็คอิน</h2>
-        <p className="text-sm text-muted-foreground mb-6 max-w-xs leading-relaxed">
-          สแกน QR Code ในห้องพักเพื่อเข้าถึงบริการโรงแรม หรือเช็คอินผ่านการจองของคุณ
-        </p>
-        <Link href="/portal/scan"
-          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-2xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
-          <QrCode className="h-4 w-4" /> สแกน QR ในห้อง
-        </Link>
-        <Link href="/portal/trips"
-          className="mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ดูการจองของฉัน →
-        </Link>
+
+        <div className="px-4 pt-6 pb-24 max-w-screen-sm mx-auto lg:max-w-2xl space-y-5">
+          {/* Upcoming reservations */}
+          {upcomingReservations.length > 0 ? (
+            <>
+              <div>
+                <h2 className="font-display font-semibold text-foreground mb-3">การจองที่กำลังมา</h2>
+                <div className="space-y-3">
+                  {upcomingReservations.map((res: any, i: number) => {
+                    const h = res.hotels as any;
+                    const rt = res.room_types as any;
+                    const checkIn = res.check_in ? parseISO(res.check_in + 'T00:00:00') : null;
+                    const checkOut = res.check_out ? parseISO(res.check_out + 'T00:00:00') : null;
+                    const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : null;
+                    const daysUntil = checkIn ? Math.max(0, differenceInDays(checkIn, new Date())) : null;
+                    return (
+                      <motion.div key={res.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.06 }}>
+                        <Link href="/portal/trips">
+                          <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 shadow-sm overflow-hidden">
+                            <div className="relative h-32 overflow-hidden">
+                              <Image src={h?.hero_image_url || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=75&fit=crop'}
+                                alt={h?.name || ''} fill className="object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                              {daysUntil !== null && (
+                                <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-emerald-500/90 backdrop-blur-sm">
+                                  <span className="text-[10px] font-bold text-white">
+                                    {daysUntil === 0 ? 'วันนี้!' : `อีก ${daysUntil} วัน`}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="absolute bottom-0 left-0 right-0 p-3">
+                                <p className="font-display font-bold text-white text-base leading-tight">{h?.name}</p>
+                                {rt?.name && <p className="text-xs text-white/70 mt-0.5">{rt.name}</p>}
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 flex items-center justify-between">
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                                <span>
+                                  {checkIn ? format(checkIn, 'd MMM', { locale: th }) : '—'}
+                                  {' – '}
+                                  {checkOut ? format(checkOut, 'd MMM', { locale: th }) : '—'}
+                                  {nights ? ` · ${nights} คืน` : ''}
+                                </span>
+                              </div>
+                              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-0.5">
+                                ดูรายละเอียด <ChevronRight className="h-3 w-3" />
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* QR scan prompt (secondary) */}
+              <div className="rounded-2xl border border-dashed border-gray-300 dark:border-border bg-white dark:bg-card px-4 py-5 flex flex-col items-center text-center gap-3">
+                <QrCode className="h-7 w-7 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">เมื่อถึงโรงแรม</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">สแกน QR Code ในห้องพักเพื่อเข้าถึงบริการทั้งหมด</p>
+                </div>
+                <Link href="/portal/scan"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 transition-colors">
+                  <QrCode className="h-3.5 w-3.5" /> สแกน QR
+                </Link>
+              </div>
+            </>
+          ) : (
+            /* No reservation and no upcoming → original empty state */
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="h-20 w-20 rounded-3xl bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm flex items-center justify-center mb-5">
+                <QrCode className="h-9 w-9 text-muted-foreground" />
+              </div>
+              <h2 className="font-display text-xl font-semibold text-foreground mb-2">ยังไม่ได้เช็คอิน</h2>
+              <p className="text-sm text-muted-foreground mb-6 max-w-xs leading-relaxed">
+                สแกน QR Code ในห้องพักเพื่อเข้าถึงบริการโรงแรม หรือเช็คอินผ่านการจองของคุณ
+              </p>
+              <Link href="/portal/scan"
+                className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-2xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
+                <QrCode className="h-4 w-4" /> สแกน QR ในห้อง
+              </Link>
+              <Link href="/portal/trips"
+                className="mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                ดูการจองของฉัน →
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     );
   }

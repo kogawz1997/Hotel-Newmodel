@@ -47,129 +47,111 @@ function BookingCard({ res, index }: { res: Reservation; index: number }) {
   const checkOut = res.check_out ? parseISO(res.check_out + 'T00:00:00') : null;
   const nights   = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : null;
   const isActive = res.status === 'checked_in';
+  const isConfirmed = res.status === 'confirmed';
   const daysUntil = checkIn ? differenceInDays(checkIn, new Date()) : null;
-  const isUpcoming = daysUntil !== null && daysUntil >= 0 && daysUntil <= 7 && res.status === 'confirmed';
+  const isUpcoming = daysUntil !== null && daysUntil >= 0 && daysUntil <= 7 && isConfirmed;
+  const linkHref = isActive ? '/portal/stay' : isConfirmed ? '/portal/stay' : null;
+
+  const cardContent = (
+    <div className={cn(
+      'bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/40 shadow-sm overflow-hidden transition-shadow hover:shadow-md',
+      isActive && `ring-1 ${cfg.ring}`,
+    )}>
+      {/* ── Top row: image + info ── */}
+      <div className="flex items-start gap-3 p-3.5">
+        <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0">
+          <Image
+            src={hotel?.hero_image_url || PLACEHOLDER}
+            alt={hotel?.name || ''}
+            fill
+            className="object-cover"
+            sizes="96px"
+          />
+          {isActive && (
+            <div className="absolute bottom-1 left-1 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/90 backdrop-blur-sm">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+              </span>
+              <span className="text-[8px] font-bold text-white uppercase tracking-wide">Live</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 pt-0.5">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground font-medium">{hotel?.city || 'Thailand'}</p>
+              <h3 className="font-display font-bold text-foreground text-sm leading-tight line-clamp-2">{hotel?.name || '—'}</h3>
+            </div>
+            <span className={cn(
+              'text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 mt-0.5',
+              cfg.pillBg, cfg.pillText,
+            )}>
+              <StatusIcon className="h-2.5 w-2.5" strokeWidth={2.5} />
+              {cfg.label}
+            </span>
+          </div>
+
+          {(roomType?.name || room?.room_number) && (
+            <p className="text-[10px] text-muted-foreground mb-1.5">
+              {roomType?.name}{room?.room_number ? ` · ห้อง ${room.room_number}` : ''}
+            </p>
+          )}
+
+          {isUpcoming && (
+            <span className="inline-flex text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-400">
+              {daysUntil === 0 ? 'วันนี้!' : `อีก ${daysUntil} วัน`}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* ── Date row ── */}
+      <div className="mx-3.5 border-t border-gray-100 dark:border-border/40 py-3 flex items-center gap-2">
+        <div className="flex-1 text-center">
+          <p className="text-[9px] text-muted-foreground font-medium mb-0.5">เช็คอิน</p>
+          <p className="text-xs font-bold text-foreground">{checkIn ? format(checkIn, 'EEE d MMM', { locale: th }) : '—'}</p>
+        </div>
+        <div className="flex flex-col items-center gap-0.5 px-2">
+          <div className="flex items-center gap-1">
+            <div className="h-px w-5 bg-gray-300 dark:bg-border" />
+            <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
+            <div className="h-px w-5 bg-gray-300 dark:bg-border" />
+          </div>
+          <span className="text-[9px] text-muted-foreground/60 font-medium">{nights != null ? `${nights} คืน` : ''}</span>
+        </div>
+        <div className="flex-1 text-center">
+          <p className="text-[9px] text-muted-foreground font-medium mb-0.5">เช็คเอาท์</p>
+          <p className="text-xs font-bold text-foreground">{checkOut ? format(checkOut, 'EEE d MMM', { locale: th }) : '—'}</p>
+        </div>
+      </div>
+
+      {/* ── Bottom: code + amount ── */}
+      <div className="mx-3.5 border-t border-gray-100 dark:border-border/40 py-2.5 flex items-center justify-between">
+        <span className="text-[10px] font-mono text-muted-foreground/50">#{res.reservation_code}</span>
+        <div className="flex items-center gap-3">
+          {res.total_amount != null && (
+            <span className="text-sm font-bold text-orange-500">฿{res.total_amount.toLocaleString()}</span>
+          )}
+          {(isActive || isConfirmed) && (
+            <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400">
+              {isActive ? 'เข้าห้อง' : 'ดูรายละเอียด'} <ChevronRight className="h-3.5 w-3.5" />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07, duration: 0.45, ease }}
-      whileTap={{ scale: 0.985 }}
+      whileTap={linkHref ? { scale: 0.985 } : {}}
     >
-      <Link href={isActive ? '/portal/stay' : '#'}>
-        <div className={cn(
-          'bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/40 shadow-sm overflow-hidden transition-shadow hover:shadow-md',
-          isActive && `ring-1 ${cfg.ring}`,
-        )}>
-
-          {/* ── Top row: image + info ── */}
-          <div className="flex items-start gap-3 p-3.5">
-            {/* Small hotel image */}
-            <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0">
-              <Image
-                src={hotel?.hero_image_url || PLACEHOLDER}
-                alt={hotel?.name || ''}
-                fill
-                className="object-cover"
-                sizes="96px"
-              />
-              {isActive && (
-                <div className="absolute bottom-1 left-1 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/90 backdrop-blur-sm">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
-                  </span>
-                  <span className="text-[8px] font-bold text-white uppercase tracking-wide">Live</span>
-                </div>
-              )}
-            </div>
-
-            {/* Right: name + badges */}
-            <div className="flex-1 min-w-0 pt-0.5">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground font-medium">
-                    {hotel?.city || 'Thailand'}
-                  </p>
-                  <h3 className="font-display font-bold text-foreground text-sm leading-tight line-clamp-2">
-                    {hotel?.name || '—'}
-                  </h3>
-                </div>
-                {/* Status pill top-right */}
-                <span className={cn(
-                  'text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 mt-0.5',
-                  cfg.pillBg, cfg.pillText,
-                )}>
-                  <StatusIcon className="h-2.5 w-2.5" strokeWidth={2.5} />
-                  {cfg.label}
-                </span>
-              </div>
-
-              {/* Room type */}
-              {(roomType?.name || room?.room_number) && (
-                <p className="text-[10px] text-muted-foreground mb-1.5">
-                  {roomType?.name}{room?.room_number ? ` · ห้อง ${room.room_number}` : ''}
-                </p>
-              )}
-
-              {/* Countdown badge */}
-              {isUpcoming && (
-                <span className="inline-flex text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-400">
-                  {daysUntil === 0 ? 'วันนี้!' : `อีก ${daysUntil} วัน`}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* ── Date row ── */}
-          <div className="mx-3.5 border-t border-gray-100 dark:border-border/40 py-3 flex items-center gap-2">
-            <div className="flex-1 text-center">
-              <p className="text-[9px] text-muted-foreground font-medium mb-0.5">เช็คอิน</p>
-              <p className="text-xs font-bold text-foreground">
-                {checkIn ? format(checkIn, 'EEE d MMM', { locale: th }) : '—'}
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center gap-0.5 px-2">
-              <div className="flex items-center gap-1">
-                <div className="h-px w-5 bg-gray-300 dark:bg-border" />
-                <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
-                <div className="h-px w-5 bg-gray-300 dark:bg-border" />
-              </div>
-              <span className="text-[9px] text-muted-foreground/60 font-medium">
-                {nights != null ? `${nights} คืน` : ''}
-              </span>
-            </div>
-
-            <div className="flex-1 text-center">
-              <p className="text-[9px] text-muted-foreground font-medium mb-0.5">เช็คเอาท์</p>
-              <p className="text-xs font-bold text-foreground">
-                {checkOut ? format(checkOut, 'EEE d MMM', { locale: th }) : '—'}
-              </p>
-            </div>
-          </div>
-
-          {/* ── Bottom: code + amount ── */}
-          <div className="mx-3.5 border-t border-gray-100 dark:border-border/40 py-2.5 flex items-center justify-between">
-            <span className="text-[10px] font-mono text-muted-foreground/50">
-              #{res.reservation_code}
-            </span>
-            <div className="flex items-center gap-3">
-              {res.total_amount != null && (
-                <span className="text-sm font-bold text-orange-500">
-                  ฿{res.total_amount.toLocaleString()}
-                </span>
-              )}
-              {isActive && (
-                <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400">
-                  เข้าห้อง <ChevronRight className="h-3.5 w-3.5" />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </Link>
+      {linkHref ? <Link href={linkHref}>{cardContent}</Link> : cardContent}
     </motion.div>
   );
 }
@@ -307,17 +289,27 @@ export function TripsClient({ reservations, hotels }: {
               >
                 <Plane className="h-10 w-10 text-muted-foreground/30" />
               </motion.div>
-              <p className="text-base font-semibold text-foreground mb-2">ยังไม่มีการจองที่นี่</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-xs leading-relaxed">
-                เริ่มต้นการเดินทางครั้งใหม่ที่น่าจดจำ
+              <p className="text-base font-semibold text-foreground mb-2">
+                {activeTab === 'กำลังมา' ? 'ยังไม่มีการเดินทางที่กำลังมา'
+                  : activeTab === 'เสร็จสิ้น' ? 'ยังไม่มีประวัติการเดินทาง'
+                  : 'ยังไม่มีการจอง'}
               </p>
-              <Link href="/portal/home">
-                <motion.div whileTap={{ scale: 0.95 }}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl text-sm font-bold shadow-lg shadow-blue-600/25 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  ค้นหาที่พัก
-                </motion.div>
-              </Link>
+              <p className="text-sm text-muted-foreground mb-6 max-w-xs leading-relaxed">
+                {activeTab === 'กำลังมา'
+                  ? 'เมื่อคุณจองที่พักแล้ว การเดินทางของคุณจะปรากฏที่นี่'
+                  : activeTab === 'เสร็จสิ้น'
+                  ? 'การเข้าพักที่เสร็จสิ้นแล้วจะปรากฏที่นี่'
+                  : 'เริ่มต้นการเดินทางครั้งใหม่ที่น่าจดจำ'}
+              </p>
+              {activeTab !== 'เสร็จสิ้น' && (
+                <Link href="/portal/home">
+                  <motion.div whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl text-sm font-bold shadow-lg shadow-blue-600/25 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    ค้นหาที่พัก
+                  </motion.div>
+                </Link>
+              )}
             </motion.div>
           ) : (
             <motion.div key={activeTab} className="space-y-4">

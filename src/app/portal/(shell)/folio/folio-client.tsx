@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/utils';
-import { ArrowLeft, Receipt, Loader2, AlertCircle, Calendar, BedDouble, CreditCard, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Receipt, Loader2, AlertCircle, Calendar, BedDouble, CreditCard, CheckCircle2, Printer, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ITEM_TYPE_LABELS: Record<string, string> = {
   room_charge: 'ค่าห้องพัก',
@@ -22,6 +23,23 @@ export function FolioClient() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
+
+  async function sendEmailReceipt() {
+    setEmailSending(true);
+    try {
+      const res = await fetch('/api/guest/folio/email', { method: 'POST' });
+      if (res.ok) {
+        toast.success('ส่งใบเสร็จทางอีเมลแล้ว');
+      } else {
+        toast.error('ส่งอีเมลไม่สำเร็จ กรุณาลองใหม่');
+      }
+    } catch {
+      toast.error('ส่งอีเมลไม่สำเร็จ กรุณาลองใหม่');
+    } finally {
+      setEmailSending(false);
+    }
+  }
 
   useEffect(() => {
     fetch('/api/guest/folio')
@@ -174,6 +192,23 @@ export function FolioClient() {
                 ชำระครบแล้ว — ขอบคุณที่ใช้บริการ 🙏
               </div>
             )}
+
+            {/* Receipt actions */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => window.print()}
+                className="flex items-center justify-center gap-2 py-3 rounded-2xl border border-border/60 text-sm font-semibold text-foreground hover:bg-secondary transition-colors">
+                <Printer className="h-4 w-4" />
+                พิมพ์ใบเสร็จ
+              </button>
+              <button
+                onClick={sendEmailReceipt}
+                disabled={emailSending}
+                className="flex items-center justify-center gap-2 py-3 rounded-2xl border border-border/60 text-sm font-semibold text-foreground hover:bg-secondary transition-colors disabled:opacity-50">
+                {emailSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                {emailSending ? 'กำลังส่ง...' : 'ส่งทางอีเมล'}
+              </button>
+            </div>
 
             <p className="text-xs text-muted-foreground/60 text-center pb-2">
               ยอดนี้อาจยังไม่รวมค่าใช้จ่ายล่าสุด — ยอดสุดท้ายคำนวณ ณ วันเช็คเอาท์
