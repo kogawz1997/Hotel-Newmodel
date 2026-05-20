@@ -287,7 +287,8 @@ export function StayHubClient({
           {hotel.city && (
             <InfoRow icon={MapPin} label="ที่ตั้ง" value={hotel.city} />
           )}
-          <InfoRow icon={Wifi} label="WiFi" value="สอบถามที่ Front Desk" />
+          <InfoRow icon={Wifi} label="WiFi" value="ดูข้อมูล WiFi →"
+            href="/portal/compendium" />
         </div>
       </motion.div>
 

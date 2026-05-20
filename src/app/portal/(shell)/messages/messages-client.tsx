@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Bell, Tag, ChevronRight, MessageSquare, Sparkles, CalendarCheck, Gift, Star, Clock } from 'lucide-react';
+import { Bell, Tag, ChevronRight, MessageSquare, Sparkles, CalendarCheck, Gift, Star, Clock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format, parseISO, differenceInDays } from 'date-fns';
@@ -186,16 +186,33 @@ export function MessagesClient({ firstName, reservations }: {
   firstName: string; reservations: Reservation[];
 }) {
   const [activeFilter, setActiveFilter] = useState<Filter>('ทั้งหมด');
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    // Mark all current notifications as seen — clears nav badge
+    try {
+      localStorage.setItem('maitri_msgs_seen_at', String(Date.now()));
+      const stored = localStorage.getItem('maitri_msgs_dismissed');
+      if (stored) setDismissed(new Set(JSON.parse(stored)));
+    } catch {}
+  }, []);
+
+  function dismiss(id: string) {
+    const next = new Set(dismissed).add(id);
+    setDismissed(next);
+    try { localStorage.setItem('maitri_msgs_dismissed', JSON.stringify([...next])); } catch {}
+  }
 
   const allNotifs = useMemo(() => buildNotifications(reservations), [reservations]);
-  const newCount  = allNotifs.filter(n => n.isNew).length;
+  const visibleNotifs = useMemo(() => allNotifs.filter(n => !dismissed.has(n.id)), [allNotifs, dismissed]);
+  const newCount  = visibleNotifs.filter(n => n.isNew).length;
 
   const filtered = useMemo(() => {
-    if (activeFilter === 'ทั้งหมด')   return allNotifs;
-    if (activeFilter === 'การจอง')    return allNotifs.filter(n => n.type === 'booking');
-    if (activeFilter === 'โปรโมชั่น') return allNotifs.filter(n => n.type === 'promo');
-    return allNotifs.filter(n => n.type === 'system');
-  }, [allNotifs, activeFilter]);
+    if (activeFilter === 'ทั้งหมด')   return visibleNotifs;
+    if (activeFilter === 'การจอง')    return visibleNotifs.filter(n => n.type === 'booking');
+    if (activeFilter === 'โปรโมชั่น') return visibleNotifs.filter(n => n.type === 'promo');
+    return visibleNotifs.filter(n => n.type === 'system');
+  }, [visibleNotifs, activeFilter]);
 
   const grouped = useMemo(() => groupByDay(filtered), [filtered]);
 
@@ -223,10 +240,10 @@ export function MessagesClient({ firstName, reservations }: {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-none">
             {FILTERS.map(f => {
-              const count = f === 'ทั้งหมด' ? allNotifs.length
-                : f === 'การจอง' ? allNotifs.filter(n => n.type === 'booking').length
-                : f === 'โปรโมชั่น' ? allNotifs.filter(n => n.type === 'promo').length
-                : allNotifs.filter(n => n.type === 'system').length;
+              const count = f === 'ทั้งหมด' ? visibleNotifs.length
+                : f === 'การจอง' ? visibleNotifs.filter(n => n.type === 'booking').length
+                : f === 'โปรโมชั่น' ? visibleNotifs.filter(n => n.type === 'promo').length
+                : visibleNotifs.filter(n => n.type === 'system').length;
 
               return (
                 <button key={f} onClick={() => setActiveFilter(f)}
@@ -276,9 +293,8 @@ export function MessagesClient({ firstName, reservations }: {
                   <div className="space-y-2">
                     {items.map((item, i) => {
                       const Icon = item.icon;
-                      const inner = (
+                      const card = (
                         <motion.div custom={i} variants={v} initial="hidden" animate="show"
-                          whileTap={{ scale: 0.985 }}
                           className={cn(
                             'flex items-start gap-3 rounded-2xl border p-4 transition-colors',
                             item.isNew
@@ -296,7 +312,6 @@ export function MessagesClient({ firstName, reservations }: {
                                 <Icon className={cn('h-5 w-5', item.iconColor)} strokeWidth={1.8} />
                               </div>
                             )}
-                            {/* New dot */}
                             {item.isNew && (
                               <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-blue-500 border-2 border-background" />
                             )}
@@ -307,7 +322,15 @@ export function MessagesClient({ firstName, reservations }: {
                               <p className={cn('text-sm font-semibold leading-snug', item.isNew ? 'text-foreground' : 'text-foreground/90')}>
                                 {item.title}
                               </p>
-                              <span className="text-[10px] text-muted-foreground/60 shrink-0 mt-0.5">{relativeTime(item.time)}</span>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <span className="text-[10px] text-muted-foreground/60 mt-0.5">{relativeTime(item.time)}</span>
+                                <button
+                                  onClick={e => { e.preventDefault(); e.stopPropagation(); dismiss(item.id); }}
+                                  className="h-5 w-5 rounded-full hover:bg-muted flex items-center justify-center transition-colors ml-0.5"
+                                  aria-label="ลบออก">
+                                  <X className="h-3 w-3 text-muted-foreground/50" />
+                                </button>
+                              </div>
                             </div>
                             <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{item.body}</p>
                             {item.badge && (
@@ -322,9 +345,9 @@ export function MessagesClient({ firstName, reservations }: {
                       );
 
                       return item.href ? (
-                        <Link key={item.id} href={item.href}>{inner}</Link>
+                        <Link key={item.id} href={item.href}>{card}</Link>
                       ) : (
-                        <div key={item.id}>{inner}</div>
+                        <div key={item.id}>{card}</div>
                       );
                     })}
                   </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Bell, Globe, Shield, Trash2, ChevronRight,
@@ -25,10 +25,30 @@ export default function SettingsPage() {
   const [shareScreenshot, setShareScreenshot] = useState(true);
   const [notifAll,        setNotifAll]        = useState(true);
 
+  useEffect(() => {
+    try {
+      const ss = localStorage.getItem('maitri_share_screenshot');
+      if (ss !== null) setShareScreenshot(ss === 'true');
+      const na = localStorage.getItem('maitri_notif_all');
+      if (na !== null) setNotifAll(na === 'true');
+    } catch {}
+  }, []);
+
   function toggleDark(on: boolean) {
     setDarkMode(on);
     setTheme(on ? 'dark' : 'light');
     toast.success(on ? 'เปิดโหมดหน้าจอมืดแล้ว' : 'ปิดโหมดหน้าจอมืดแล้ว');
+  }
+
+  function toggleShareScreenshot(on: boolean) {
+    setShareScreenshot(on);
+    try { localStorage.setItem('maitri_share_screenshot', String(on)); } catch {}
+  }
+
+  function toggleNotifAll(on: boolean) {
+    setNotifAll(on);
+    try { localStorage.setItem('maitri_notif_all', String(on)); } catch {}
+    toast.success(on ? 'เปิดการแจ้งเตือนแล้ว' : 'ปิดการแจ้งเตือนแล้ว');
   }
 
   return (
@@ -87,17 +107,20 @@ export default function SettingsPage() {
                 <Toggle value={darkMode} onChange={toggleDark} />
               </div>
             </div>
-            {/* Notifications link */}
-            <button
-              onClick={() => toast.info('กำลังพัฒนา...')}
-              className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-secondary/50 transition-colors">
-              <p className="text-sm font-medium text-foreground">การแจ้งเตือน</p>
-              <ChevronRight className="h-4 w-4 text-muted-foreground/50 shrink-0" />
-            </button>
+            {/* Notifications toggle */}
+            <div className="px-4 py-3.5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">การแจ้งเตือน</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">รับการแจ้งเตือนการจองและโปรโมชั่น</p>
+                </div>
+                <Toggle value={notifAll} onChange={toggleNotifAll} />
+              </div>
+            </div>
             {/* Share screenshot toggle */}
             <div className="px-4 py-3.5 flex items-center justify-between">
               <p className="text-sm font-medium text-foreground">แชร์ภาพหน้าจอ</p>
-              <Toggle value={shareScreenshot} onChange={setShareScreenshot} />
+              <Toggle value={shareScreenshot} onChange={toggleShareScreenshot} />
             </div>
             {/* Accessibility */}
             <button

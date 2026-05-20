@@ -168,12 +168,14 @@ export default async function HotelLandingPage({ params }: { params: Promise<{ s
     ? typedReviews.reduce((s, r) => s + r.rating, 0) / typedReviews.length
     : null;
 
-  const ratingBreakdown = typedReviews.length ? {
+  const ratingBreakdownRaw = typedReviews.length ? {
     clean:    typedReviews.filter(r => r.rating_clean).reduce((s,r)    => s + (r.rating_clean    || 0), 0) / (typedReviews.filter(r => r.rating_clean).length    || 1),
     service:  typedReviews.filter(r => r.rating_service).reduce((s,r)  => s + (r.rating_service  || 0), 0) / (typedReviews.filter(r => r.rating_service).length  || 1),
     location: typedReviews.filter(r => r.rating_location).reduce((s,r) => s + (r.rating_location || 0), 0) / (typedReviews.filter(r => r.rating_location).length || 1),
     value:    typedReviews.filter(r => r.rating_value).reduce((s,r)    => s + (r.rating_value    || 0), 0) / (typedReviews.filter(r => r.rating_value).length    || 1),
   } : null;
+  // Only show breakdown when at least one sub-rating has real data
+  const ratingBreakdown = ratingBreakdownRaw && Object.values(ratingBreakdownRaw).some(v => v > 0) ? ratingBreakdownRaw : null;
 
   const minRate = roomTypes.length
     ? Math.min(...(roomTypes as RoomTypeLite[]).map(r => Number(r.base_rate) || Infinity))

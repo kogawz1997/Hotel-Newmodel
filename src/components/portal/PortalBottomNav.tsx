@@ -38,6 +38,12 @@ export function PortalBottomNav() {
           const diff = (new Date(b.check_in).getTime() - Date.now()) / 86400000;
           return diff >= 0 && diff <= 3 && b.status === 'confirmed';
         });
+        // Clear badge if user visited messages recently (within 30 min)
+        try {
+          const seenAt = Number(localStorage.getItem('maitri_msgs_seen_at') || 0);
+          const age = Date.now() - seenAt;
+          if (age < 30 * 60 * 1000) { setMsgCount(0); return; }
+        } catch {}
         setMsgCount(soon.length);
       }).catch(() => {});
   }, [pathname]);

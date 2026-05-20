@@ -32,13 +32,36 @@ export default function OnlineCheckInPage() {
   const [step, setStep] = useState<Step>('verify');
   const [loading, setLoading] = useState(false);
 
-  const [code, setCode]   = useState('');
+  const [code, setCode]     = useState('');
   const [booking, setBooking] = useState<any>(null);
 
   const [arrival, setArrival]   = useState('14:00');
   const [requests, setRequests] = useState('');
   const [idType, setIdType]     = useState<'passport' | 'id_card'>('id_card');
   const [idNumber, setIdNumber] = useState('');
+  const [idError, setIdError]   = useState('');
+
+  function validateId(value: string, type: 'id_card' | 'passport'): string {
+    if (!value.trim()) return '';
+    if (type === 'id_card') {
+      if (!/^\d+$/.test(value)) return 'เลขบัตรประชาชนต้องเป็นตัวเลขเท่านั้น';
+      if (value.length !== 13)  return `เลขบัตรประชาชนต้องมี 13 หลัก (ตอนนี้ ${value.length} หลัก)`;
+    } else {
+      if (!/^[A-Z0-9]+$/i.test(value)) return 'เลขหนังสือเดินทางต้องเป็นตัวอักษรหรือตัวเลขเท่านั้น';
+      if (value.length < 6 || value.length > 9) return `ควรมี 6–9 ตัวอักษร (ตอนนี้ ${value.length} ตัว)`;
+    }
+    return '';
+  }
+
+  function handleIdChange(value: string) {
+    setIdNumber(value);
+    setIdError(validateId(value, idType));
+  }
+
+  function handleIdTypeChange(t: 'id_card' | 'passport') {
+    setIdType(t);
+    setIdError(validateId(idNumber, t));
+  }
 
   async function verifyBooking() {
     if (!code.trim()) {
@@ -78,6 +101,8 @@ export default function OnlineCheckInPage() {
 
   async function submitCheckIn() {
     if (!booking) return;
+    const err = validateId(idNumber, idType);
+    if (err) { setIdError(err); toast.error(err); return; }
     setLoading(true);
     try {
       const { error } = await supabase
@@ -258,7 +283,7 @@ export default function OnlineCheckInPage() {
                 <h3 className="text-sm font-semibold text-foreground">เอกสารประจำตัว</h3>
                 <div className="flex gap-2">
                   {(['id_card', 'passport'] as const).map(t => (
-                    <button key={t} onClick={() => setIdType(t)}
+                    <button key={t} onClick={() => handleIdTypeChange(t)}
                       className={cn(
                         'flex-1 py-2.5 rounded-xl text-xs font-medium border transition-all',
                         idType === t
@@ -269,14 +294,33 @@ export default function OnlineCheckInPage() {
                     </button>
                   ))}
                 </div>
-                <input
-                  value={idNumber}
-                  onChange={e => setIdNumber(e.target.value)}
-                  placeholder={idType === 'id_card' ? 'เลขบัตรประชาชน 13 หลัก' : 'เลขหนังสือเดินทาง'}
-                  className="w-full px-4 py-3 bg-white dark:bg-background border border-gray-200 dark:border-input rounded-xl text-sm
-                    font-mono tracking-wider placeholder:font-sans placeholder:tracking-normal placeholder:text-muted-foreground/40
-                    focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all"
-                />
+                <div>
+                  <input
+                    value={idNumber}
+                    onChange={e => handleIdChange(e.target.value)}
+                    placeholder={idType === 'id_card' ? 'เลขบัตรประชาชน 13 หลัก' : 'เลขหนังสือเดินทาง'}
+                    maxLength={idType === 'id_card' ? 13 : 9}
+                    className={cn(
+                      'w-full px-4 py-3 bg-white dark:bg-background rounded-xl text-sm transition-all',
+                      'font-mono tracking-wider placeholder:font-sans placeholder:tracking-normal placeholder:text-muted-foreground/40',
+                      'focus:outline-none focus:ring-2 focus:border-blue-500/50',
+                      idError
+                        ? 'border-2 border-red-400 focus:ring-red-400/30'
+                        : 'border border-gray-200 dark:border-input focus:ring-blue-500/30',
+                    )}
+                  />
+                  <AnimatePresence>
+                    {idError && (
+                      <motion.p
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-1.5 text-xs text-red-500 font-medium px-1">
+                        {idError}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
 
               {/* Special requests */}
@@ -312,7 +356,7 @@ export default function OnlineCheckInPage() {
                 </button>
                 <button
                   onClick={submitCheckIn}
-                  disabled={loading}
+                  disabled={loading || !!idError}
                   className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 dark:bg-blue-500
                     text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
