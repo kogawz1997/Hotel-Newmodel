@@ -13,7 +13,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import {
   Calendar, Bed, MapPin, Clock, Star, Download, MessageSquare,
   X, ChevronRight, LogOut, QrCode, Sunrise, Sunset,
-  ArrowUpCircle, CalendarDays, Sparkles,
+  ArrowUpCircle, CalendarDays, Sparkles, ArrowLeft,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -163,32 +163,36 @@ export function MyBookingsClient({ guest }: { guest: any }) {
   return (
     <div className="min-h-screen bg-[#f5f7fa] dark:bg-background text-foreground">
 
-      {/* ── Header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        {/* Welcome */}
-        <div className="flex items-start justify-between gap-4 mb-5">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-blue-600 dark:text-blue-400 font-medium mb-1">สวัสดี</p>
-            <h1 className="font-display text-2xl font-semibold text-foreground">
-              {guest.first_name} {guest.last_name || ''}
-            </h1>
-            <p className="text-sm text-muted-foreground">{guest.email}</p>
+      {/* ── Sticky header ── */}
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/95 dark:bg-background/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
+        <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto lg:max-w-2xl">
+          <Link href="/portal/account" className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-bold text-foreground">การจองของฉัน</p>
+            <p className="text-[10px] text-muted-foreground">{guest.first_name} {guest.last_name || ''}</p>
           </div>
           <button
             onClick={logout}
-            className="p-2.5 rounded-xl bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors shrink-0"
+            className="h-8 w-8 rounded-xl bg-secondary hover:bg-red-500/10 flex items-center justify-center transition-colors shrink-0"
             aria-label="ออกจากระบบ"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4 text-muted-foreground hover:text-red-500" />
           </button>
         </div>
+      </div>
 
+      <div className="px-4 pt-5 pb-24 max-w-screen-sm mx-auto lg:max-w-2xl">
+
+      {/* ── Stats card ── */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-5"
+      >
         {/* Loyalty + stats row */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-3 mb-0">
           {loyaltyPoints && (
             <div className="col-span-4 sm:col-span-2 flex items-center gap-3 rounded-2xl border border-blue-500/20 bg-blue-500/8 dark:bg-blue-400/6 px-4 py-3">
               <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
@@ -213,6 +217,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
           ))}
         </div>
       </motion.div>
+
 
       {/* ── Tabs ── */}
       <motion.div
@@ -559,6 +564,7 @@ export function MyBookingsClient({ guest }: { guest: any }) {
         </Sheet>
       )}
 
+    </div>
     </div>
   );
 }

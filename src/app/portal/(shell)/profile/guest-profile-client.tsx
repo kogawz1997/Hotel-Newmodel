@@ -167,40 +167,44 @@ export function GuestProfileClient({ guest }: { guest: any }) {
   ];
 
   return (
-    <>
-      {/* Header */}
-      <nav className="bg-white dark:bg-card border-b border-gray-100 dark:border-border">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+      {/* Sticky header */}
+      <nav className="sticky top-0 z-30 bg-[#f5f7fa]/95 dark:bg-background/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
+        <div className="max-w-screen-sm lg:max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/portal/account" className="p-2 rounded-full hover:bg-muted transition-colors">
+            <Link href="/portal/account" className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0 hover:bg-secondary/80 transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <span className="font-semibold text-foreground">{s.title}</span>
+            <p className="font-display font-bold text-foreground">{s.title}</p>
           </div>
-          <button onClick={toggleLang} className="px-3 py-1 rounded-lg bg-muted/50 border border-border text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={toggleLang} className="px-3 py-1.5 rounded-xl bg-secondary border border-border/40 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
             {s.langToggle}
           </button>
         </div>
       </nav>
 
-      <div className="py-6">
+      <div className="px-4 py-5 pb-24 max-w-screen-sm lg:max-w-2xl mx-auto">
         {/* Avatar card */}
-        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5 flex items-center gap-4 mb-5">
-          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-xl font-bold shrink-0">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 shadow-sm p-4 flex items-center gap-4 mb-4">
+          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-xl font-bold shrink-0 shadow-md">
             {(guest.first_name || guest.email || 'G').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-foreground truncate">{guest.first_name} {guest.last_name || ''}</div>
-            <div className="text-sm text-muted-foreground truncate">{guest.email}</div>
+            <p className="font-display font-bold text-foreground truncate">{guest.first_name} {guest.last_name || ''}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{guest.email}</p>
           </div>
         </div>
 
         {/* Tab strip */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-1 bg-white dark:bg-card rounded-2xl p-1 border border-gray-100 dark:border-border mb-5">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-1 bg-secondary rounded-2xl p-1 mb-4">
           {TABS.map(({ key, icon: Icon }) => (
             <button key={key} onClick={() => setTab(key)}
-              className={cn('flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl font-medium text-2xs transition-all',
-                tab === key ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl text-[10px] font-semibold transition-all',
+                tab === key
+                  ? 'bg-white dark:bg-background text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}>
               <Icon className="h-4 w-4" />
               <span className="leading-none">{s.tabs[key]}</span>
             </button>
@@ -214,7 +218,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
         {tab === 'payments'      && <PaymentsTab       s={s} />}
         {tab === 'privacy'       && <PrivacyTab        guest={guest} supabase={supabase} s={s} lang={lang} />}
       </div>
-    </>
+    </div>
   );
 }
 
