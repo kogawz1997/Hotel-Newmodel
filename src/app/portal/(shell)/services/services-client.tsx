@@ -173,7 +173,7 @@ export function ServicesClient() {
         </div>
       </div>
 
-      <div className="px-4">
+      <div className="px-4 max-w-screen-sm mx-auto lg:max-w-2xl">
         {/* Tab selector */}
         <div className="relative flex bg-secondary rounded-2xl p-1 mb-6">
           {(['room_service', 'housekeeping', 'spa'] as Tab[]).map(t => (
