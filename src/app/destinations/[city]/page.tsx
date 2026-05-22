@@ -112,7 +112,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ ci
             <p className="font-semibold text-[#2A2522] text-sm">🗺️ สถานที่ท่องเที่ยวใน{cityName.replace(/\b\w/g, c => c.toUpperCase())}</p>
             <p className="text-xs text-[#2A2522]/50 mt-0.5">สถานที่น่าเที่ยว เส้นทาง เคล็ดลับการเดินทาง</p>
           </div>
-          <ChevronRight className="h-5 w-5 text-[#C66A30] group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight className="h-5 w-5 text-[#2563eb] group-hover:translate-x-0.5 transition-transform" />
         </Link>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -120,7 +120,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ ci
             <div className="md:col-span-2 rounded-2xl border border-dashed border-black/15 bg-white p-8 text-center">
               <h2 className="text-lg font-semibold text-[#2A2522]">ยังไม่พบที่พักในปลายทางนี้</h2>
               <p className="mt-2 text-sm text-[#2A2522]/60">ลองเปลี่ยนเมือง หรือกลับไปหน้า /search เพื่อค้นหาแบบยืดหยุ่นมากขึ้น</p>
-              <Link href="/search" className="inline-block mt-4 px-4 py-2 rounded-lg bg-[#C66A30] text-white text-sm">
+              <Link href="/search" className="inline-block mt-4 px-4 py-2 rounded-lg bg-[#2563eb] text-white text-sm">
                 ไปหน้าค้นหา
               </Link>
             </div>
@@ -131,7 +131,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ ci
               <p className="text-xs text-[#2A2522]/50">{h.city || cityName}</p>
               <p className="mt-2 text-sm text-[#2A2522]/70 line-clamp-3">{h.description || 'ที่พักคุณภาพ พร้อมจองตรงกับโรงแรม'}</p>
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-sm font-medium text-[#C66A30]">เริ่ม {formatCurrency(priceByHotel.get(h.id) || 0)}</span>
+                <span className="text-sm font-medium text-[#2563eb]">เริ่ม {formatCurrency(priceByHotel.get(h.id) || 0)}</span>
                 <Link className="text-sm underline text-[#2A2522]" href={`/h/${h.slug}`}>ดูรายละเอียด</Link>
               </div>
             </LuxuryCard>

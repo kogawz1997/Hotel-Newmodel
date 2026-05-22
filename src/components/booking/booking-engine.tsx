@@ -344,43 +344,43 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         <div className="bg-white rounded-2xl shadow-xl border border-black/5 p-5">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
-              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Check-in' : 'เช็คอิน'}</label>
+              <label className="text-xs font-medium text-foreground/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Check-in' : 'เช็คอิน'}</label>
               <input type="date" value={search.checkIn} min={format(new Date(), 'yyyy-MM-dd')}
                 onChange={e => setSearch(p => ({ ...p, checkIn: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-[#FAF7F2] rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+                className="w-full px-3 py-2.5 bg-secondary/50 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30" />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Check-out' : 'เช็คเอาท์'}</label>
+              <label className="text-xs font-medium text-foreground/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Check-out' : 'เช็คเอาท์'}</label>
               <input type="date" value={search.checkOut} min={search.checkIn || format(addDays(new Date(), 1), 'yyyy-MM-dd')}
                 onChange={e => setSearch(p => ({ ...p, checkOut: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-[#FAF7F2] rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+                className="w-full px-3 py-2.5 bg-secondary/50 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30" />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Adults' : 'ผู้ใหญ่'}</label>
+              <label className="text-xs font-medium text-foreground/50 mb-1.5 block uppercase tracking-wider">{lang === 'en' ? 'Adults' : 'ผู้ใหญ่'}</label>
               <select value={search.adults} onChange={e => setSearch(p => ({ ...p, adults: Number(e.target.value) }))}
-                className="w-full px-3 py-2.5 bg-[#FAF7F2] rounded-xl text-sm font-medium focus:outline-none">
+                className="w-full px-3 py-2.5 bg-secondary/50 rounded-xl text-sm font-medium focus:outline-none">
                 {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} คน</option>)}
               </select>
             </div>
             <button onClick={searchAvailability} disabled={loadingRooms}
-              className="flex items-center justify-center gap-2 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium py-2.5 transition-colors disabled:opacity-60 mt-5">
+              className="flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-medium py-2.5 transition-colors disabled:opacity-60 mt-5">
               {loadingRooms ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Calendar className="h-4 w-4" />}
               {loadingRooms ? (lang === 'en' ? 'Searching...' : 'กำลังค้นหา...') : (lang === 'en' ? 'Search rooms' : 'ค้นหาห้องว่าง')}
             </button>
           </div>
           {nights > 0 && (
-            <p className="text-xs text-[#2A2522]/40 mt-3 text-center">{nights} คืน · {format(new Date(search.checkIn+'T00:00:00'), 'd MMM', { locale: th })} → {format(new Date(search.checkOut+'T00:00:00'), 'd MMM yyyy', { locale: th })}</p>
+            <p className="text-xs text-foreground/40 mt-3 text-center">{nights} คืน · {format(new Date(search.checkIn+'T00:00:00'), 'd MMM', { locale: th })} → {format(new Date(search.checkOut+'T00:00:00'), 'd MMM yyyy', { locale: th })}</p>
           )}
           <div className="mt-3 text-center">
             <button onClick={loadBlockedDates}
-              className="text-xs text-[#C66A30] hover:underline inline-flex items-center gap-1 mx-auto">
+              className="text-xs text-[#2563eb] hover:underline inline-flex items-center gap-1 mx-auto">
               <Calendar className="h-3 w-3" />
               {calendarVisible ? 'ซ่อนปฏิทิน' : 'ดูปฏิทินวันว่าง'}
             </button>
           </div>
           {calendarLoading && (
             <div className="flex justify-center mt-3">
-              <span className="h-4 w-4 border-2 border-[#C66A30]/30 border-t-[#C66A30] rounded-full animate-spin" />
+              <span className="h-4 w-4 border-2 border-[#2563eb]/30 border-t-[#2563eb] rounded-full animate-spin" />
             </div>
           )}
           {calendarVisible && !calendarLoading && (
@@ -405,12 +405,12 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           {hotel.description && (
             <div className="md:col-span-2">
-              <h2 className="font-bold text-lg text-[#2A2522] mb-3">เกี่ยวกับที่พัก</h2>
-              <p className="text-sm text-[#2A2522]/60 leading-relaxed">{hotel.description}</p>
+              <h2 className="font-bold text-lg text-foreground mb-3">เกี่ยวกับที่พัก</h2>
+              <p className="text-sm text-foreground/60 leading-relaxed">{hotel.description}</p>
             </div>
           )}
           <div className="space-y-3">
-            <h3 className="font-semibold text-[#2A2522]">ข้อมูลการเข้าพัก</h3>
+            <h3 className="font-semibold text-foreground">ข้อมูลการเข้าพัก</h3>
             <InfoRow icon={Clock} label="Check-in" value={hotel.check_in_time || '14:00'} />
             <InfoRow icon={Clock} label="Check-out" value={hotel.check_out_time || '12:00'} />
             {hotel.phone && <InfoRow icon={Phone} label="โทร" value={hotel.phone} />}
@@ -427,32 +427,32 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="font-bold text-xl text-[#2A2522]">เลือกห้องพัก</h2>
-            <p className="text-sm text-[#2A2522]/50 mt-0.5">
+            <h2 className="font-bold text-xl text-foreground">เลือกห้องพัก</h2>
+            <p className="text-sm text-foreground/50 mt-0.5">
               {format(new Date(search.checkIn+'T00:00:00'), 'd MMM', { locale: th })} →{' '}
               {format(new Date(search.checkOut+'T00:00:00'), 'd MMM', { locale: th })} · {nights} คืน · {search.adults} ผู้ใหญ่
             </p>
           </div>
-          <button onClick={() => setStep('dates')} className="text-sm text-[#C66A30] hover:underline flex items-center gap-1">
+          <button onClick={() => setStep('dates')} className="text-sm text-[#2563eb] hover:underline flex items-center gap-1">
             <ChevronLeft className="h-3.5 w-3.5" /> แก้ไขวันที่
           </button>
         </div>
 
         {availableRooms.length === 0 && (
-          <div className="text-center py-12 text-[#2A2522]/60">
+          <div className="text-center py-12 text-foreground/60">
             <AlertCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p className="font-medium text-[#2A2522]">ไม่มีห้องว่างในวันที่เลือก</p>
-            <p className="text-sm mt-2 text-[#2A2522]/50 mb-6">ลองวันที่ใกล้เคียง — เราจะค้นหาให้</p>
-            {altLoading && <div className="h-5 w-5 border-2 border-[#C66A30]/30 border-t-[#C66A30] rounded-full animate-spin mx-auto mb-4" />}
+            <p className="font-medium text-foreground">ไม่มีห้องว่างในวันที่เลือก</p>
+            <p className="text-sm mt-2 text-foreground/50 mb-6">ลองวันที่ใกล้เคียง — เราจะค้นหาให้</p>
+            {altLoading && <div className="h-5 w-5 border-2 border-[#2563eb]/30 border-t-[#2563eb] rounded-full animate-spin mx-auto mb-4" />}
             {!altLoading && altSuggestions.length === 0 && (
               <button onClick={fetchAltDates}
-                className="px-5 py-2.5 text-sm bg-[#C66A30] text-white rounded-xl hover:bg-[#A4522A] transition-colors">
+                className="px-5 py-2.5 text-sm bg-[#2563eb] text-white rounded-xl hover:bg-[#1d4ed8] transition-colors">
                 ค้นหาวันที่ใกล้เคียง
               </button>
             )}
             {altSuggestions.length > 0 && (
               <div className="mt-2">
-                <p className="text-xs text-[#2A2522]/50 mb-3">วันที่มีห้องว่าง (±3 วัน)</p>
+                <p className="text-xs text-foreground/50 mb-3">วันที่มีห้องว่าง (±3 วัน)</p>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {altSuggestions.map(s => (
                     <button key={s.date} onClick={() => selectAltDate(s.date)}
@@ -477,10 +477,10 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             const isPopular = idx === 0 && isAvail;
 
             return (
-              <div key={rt.id} className={`bg-white rounded-2xl border overflow-hidden transition-shadow hover:shadow-md ${isAvail ? (isPopular ? 'border-[#C66A30]/40 ring-1 ring-[#C66A30]/20' : 'border-black/8') : 'border-black/5 opacity-60'}`}>
+              <div key={rt.id} className={`bg-white rounded-2xl border overflow-hidden transition-shadow hover:shadow-md ${isAvail ? (isPopular ? 'border-[#2563eb]/40 ring-1 ring-[#2563eb]/20' : 'border-black/8') : 'border-black/5 opacity-60'}`}>
                 {/* Popular banner */}
                 {isPopular && (
-                  <div className="bg-[#C66A30] px-4 py-1.5 flex items-center gap-2">
+                  <div className="bg-[#2563eb] px-4 py-1.5 flex items-center gap-2">
                     <Flame className="h-3.5 w-3.5 text-white" />
                     <span className="text-white text-xs font-semibold">ห้องยอดนิยม — เลือกมากที่สุด</span>
                   </div>
@@ -488,12 +488,12 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
                 <div className="md:flex">
                   {/* Image / Video */}
-                  <div className="md:w-60 h-52 md:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden group cursor-pointer"
+                  <div className="md:w-60 h-52 md:h-auto bg-secondary/50 shrink-0 relative overflow-hidden group cursor-pointer"
                     onClick={() => { if (imgs.length > 0) setRoomLightbox({ images: imgs.map((i: any) => ({ url: i.image_url, alt: rt.name })), idx: 0 }); }}>
                     {imgs[0]?.image_url ? (
                       <NextImage src={imgs[0].image_url} alt={rt.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#2A2522]/20">
+                      <div className="w-full h-full flex items-center justify-center text-foreground/20">
                         <Bed className="h-12 w-12" />
                       </div>
                     )}
@@ -545,37 +545,37 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   <div className="flex-1 p-5 flex flex-col">
                     <div className="flex items-start justify-between mb-2 gap-3">
                       <div>
-                        <h3 className="font-bold text-[#2A2522] text-base">{rt.name}</h3>
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#2A2522]/50 mt-1">
+                        <h3 className="font-bold text-foreground text-base">{rt.name}</h3>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-foreground/50 mt-1">
                           {rt.size_sqm     && <span className="flex items-center gap-1"><Maximize2 className="h-3 w-3" />{rt.size_sqm} ตร.ม.</span>}
                           {rt.max_occupancy && <span className="flex items-center gap-1"><Users className="h-3 w-3" />สูงสุด {rt.max_occupancy} คน</span>}
                           {rt.bed_type      && <span className="flex items-center gap-1"><Bed className="h-3 w-3" />{rt.bed_type}</span>}
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-xl font-bold text-[#C66A30]">{formatCurrency(rate)}</div>
-                        <div className="text-xs text-[#2A2522]/40">/ คืน</div>
+                        <div className="text-xl font-bold text-[#2563eb]">{formatCurrency(rate)}</div>
+                        <div className="text-xs text-foreground/40">/ คืน</div>
                         {nights > 1 && (
-                          <div className="text-xs font-semibold text-[#2A2522]/60 mt-0.5">
+                          <div className="text-xs font-semibold text-foreground/60 mt-0.5">
                             รวม {formatCurrency(total)} ({nights} คืน)
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {rt.description && <p className="text-xs text-[#2A2522]/50 mb-3 line-clamp-2 leading-relaxed">{rt.description}</p>}
+                    {rt.description && <p className="text-xs text-foreground/50 mb-3 line-clamp-2 leading-relaxed">{rt.description}</p>}
 
                     {amenities.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {amenities.slice(0, 6).map((a: string) => {
                           const Icon = AMENITY_ICONS[a.toLowerCase()] || Check;
                           return (
-                            <span key={a} className="flex items-center gap-1 text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-1 rounded-full border border-black/5">
+                            <span key={a} className="flex items-center gap-1 text-2xs bg-secondary/50 text-foreground/60 px-2 py-1 rounded-full border border-black/5">
                               <Icon className="h-3 w-3" />{a}
                             </span>
                           );
                         })}
-                        {amenities.length > 6 && <span className="text-2xs text-[#2A2522]/40 px-2 py-1">+{amenities.length - 6}</span>}
+                        {amenities.length > 6 && <span className="text-2xs text-foreground/40 px-2 py-1">+{amenities.length - 6}</span>}
                       </div>
                     )}
 
@@ -598,7 +598,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                     </div>
 
                     <button onClick={() => { setSelected(rt); setStep('details'); }} disabled={!isAvail}
-                      className="mt-auto w-full sm:w-auto sm:self-end flex items-center justify-center gap-2 px-6 py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                      className="mt-auto w-full sm:w-auto sm:self-end flex items-center justify-center gap-2 px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                       เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
                     </button>
 
@@ -613,17 +613,17 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                             <input type="email" value={waitlistEmail}
                               onChange={e => setWaitlistEmail(e.target.value)}
                               placeholder="อีเมลของคุณ"
-                              className="flex-1 text-xs px-3 py-2 border border-black/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C66A30]/30" />
+                              className="flex-1 text-xs px-3 py-2 border border-black/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2563eb]/30" />
                             <button onClick={() => joinWaitlist(rt.id)} disabled={waitlistLoading}
                               className="text-xs px-4 py-2 bg-[#2A2522] text-white rounded-xl disabled:opacity-50 whitespace-nowrap">
                               {waitlistLoading ? '...' : 'แจ้งเมื่อว่าง'}
                             </button>
                             <button onClick={() => setWaitlistRoomTypeId(null)}
-                              className="text-[#2A2522]/40 hover:text-[#2A2522] text-lg px-1">×</button>
+                              className="text-foreground/40 hover:text-foreground text-lg px-1">×</button>
                           </div>
                         ) : (
                           <button onClick={() => { setWaitlistRoomTypeId(rt.id); setWaitlistEmail(guestInfo.email || ''); }}
-                            className="w-full text-xs py-2 border border-[#2A2522]/20 text-[#2A2522]/60 rounded-xl hover:bg-black/5 transition-colors">
+                            className="w-full text-xs py-2 border border-[#2A2522]/20 text-foreground/60 rounded-xl hover:bg-black/5 transition-colors">
                             แจ้งเตือนเมื่อมีห้องว่าง (Waitlist)
                           </button>
                         )}
@@ -643,7 +643,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
   if (step === 'details') return (
     <PublicLayout hotel={hotel} user={user} step={step} lang={lang} setLang={setLang}>
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <button onClick={() => setStep('rooms')} className="flex items-center gap-1.5 text-sm text-[#C66A30] hover:underline mb-6">
+        <button onClick={() => setStep('rooms')} className="flex items-center gap-1.5 text-sm text-[#2563eb] hover:underline mb-6">
           <ChevronLeft className="h-4 w-4" /> กลับเลือกห้อง
         </button>
 
@@ -651,16 +651,16 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
           {/* Form */}
           <div className="md:col-span-2 space-y-5">
             <div className="bg-white rounded-2xl border border-black/5 p-6">
-              <h2 className="font-bold text-[#2A2522] mb-4">ข้อมูลผู้เข้าพัก</h2>
+              <h2 className="font-bold text-foreground mb-4">ข้อมูลผู้เข้าพัก</h2>
 
               {user && guestAccount ? (
-                <div className="flex items-center gap-3 mb-5 p-3 bg-[#FAF7F2] rounded-xl">
+                <div className="flex items-center gap-3 mb-5 p-3 bg-secondary/50 rounded-xl">
                   <div className="h-9 w-9 rounded-full bg-[#2A2522] text-white flex items-center justify-center font-bold text-sm">
                     {guestAccount.first_name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#2A2522]">{guestAccount.first_name} {guestAccount.last_name || ''}</div>
-                    <div className="text-xs text-[#2A2522]/50">{user.email}</div>
+                    <div className="text-sm font-medium text-foreground">{guestAccount.first_name} {guestAccount.last_name || ''}</div>
+                    <div className="text-xs text-foreground/50">{user.email}</div>
                   </div>
                   <span className="ml-auto text-xs text-emerald-600 flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5" />ล็อกอินแล้ว</span>
                 </div>
@@ -688,27 +688,27 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
             {/* Extra requests */}
             <div className="bg-white rounded-2xl border border-black/5 p-6">
-              <h3 className="font-bold text-[#2A2522] mb-4">คำขอพิเศษ</h3>
+              <h3 className="font-bold text-foreground mb-4">คำขอพิเศษ</h3>
               <div className="mb-4">
-                <label className="text-xs text-[#2A2522]/50 mb-1.5 block">เวลาเช็คอินโดยประมาณ</label>
+                <label className="text-xs text-foreground/50 mb-1.5 block">เวลาเช็คอินโดยประมาณ</label>
                 <input type="time" value={guestInfo.estimatedArrival}
                   onChange={e => setGuestInfo(p => ({ ...p, estimatedArrival: e.target.value }))}
-                  className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+                  className="w-full px-3 py-2.5 bg-secondary/50 border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30" />
               </div>
               <textarea value={guestInfo.specialRequests}
                 onChange={e => setGuestInfo(p => ({ ...p, specialRequests: e.target.value }))}
                 rows={3} placeholder="เช่น ขอเตียงเสริม, แพ้ถั่วลิสง, ต้องการห้องชั้นสูง..."
-                className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
-              <p className="text-xs text-[#2A2522]/40 mt-2">* คำขอพิเศษไม่สามารถรับประกันได้ 100% แต่ทางโรงแรมจะพยายามอย่างเต็มที่</p>
+                className="w-full px-3 py-2.5 bg-secondary/50 border border-black/8 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30" />
+              <p className="text-xs text-foreground/40 mt-2">* คำขอพิเศษไม่สามารถรับประกันได้ 100% แต่ทางโรงแรมจะพยายามอย่างเต็มที่</p>
 
               {/* Guest Preferences #20 */}
               <div className="mt-4 pt-4 border-t border-black/5 space-y-3">
-                <p className="text-xs font-medium text-[#2A2522]/70">Guest Preferences (บันทึกไว้สำหรับทุกการเข้าพัก)</p>
+                <p className="text-xs font-medium text-foreground/70">Guest Preferences (บันทึกไว้สำหรับทุกการเข้าพัก)</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-[#2A2522]/50 mb-1.5 block">ประเภทเตียง</label>
+                    <label className="text-xs text-foreground/50 mb-1.5 block">ประเภทเตียง</label>
                     <select value={(guestInfo as any).bedPref || ''} onChange={e => setGuestInfo(p => ({ ...p, bedPref: e.target.value } as any))}
-                      className="w-full px-3 py-2 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none">
+                      className="w-full px-3 py-2 bg-secondary/50 border border-black/8 rounded-xl text-sm focus:outline-none">
                       <option value="">ไม่ระบุ</option>
                       <option value="king">King bed</option>
                       <option value="twin">Twin beds</option>
@@ -716,9 +716,9 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs text-[#2A2522]/50 mb-1.5 block">ชั้นที่ต้องการ</label>
+                    <label className="text-xs text-foreground/50 mb-1.5 block">ชั้นที่ต้องการ</label>
                     <select value={(guestInfo as any).floorPref || ''} onChange={e => setGuestInfo(p => ({ ...p, floorPref: e.target.value } as any))}
-                      className="w-full px-3 py-2 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none">
+                      className="w-full px-3 py-2 bg-secondary/50 border border-black/8 rounded-xl text-sm focus:outline-none">
                       <option value="">ไม่ระบุ</option>
                       <option value="low">ชั้นต่ำ (1–3)</option>
                       <option value="mid">ชั้นกลาง (4–7)</option>
@@ -727,18 +727,18 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-[#2A2522]/50 mb-1.5 block">ข้อห้ามด้านอาหาร / อาการแพ้</label>
+                  <label className="text-xs text-foreground/50 mb-1.5 block">ข้อห้ามด้านอาหาร / อาการแพ้</label>
                   <input type="text" value={(guestInfo as any).dietaryPref || ''}
                     onChange={e => setGuestInfo(p => ({ ...p, dietaryPref: e.target.value } as any))}
                     placeholder="เช่น มังสวิรัติ, แพ้อาหารทะเล, Halal..."
-                    className="w-full px-3 py-2 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+                    className="w-full px-3 py-2 bg-secondary/50 border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30" />
                 </div>
               </div>
             </div>
 
             {/* Rate plan */}
             <div className="bg-white rounded-2xl border border-black/5 p-6">
-              <h3 className="font-bold text-[#2A2522] mb-4">แผนราคา</h3>
+              <h3 className="font-bold text-foreground mb-4">แผนราคา</h3>
               <div className="space-y-3">
                 {[
                   { key: 'flexible', label: 'Standard Rate', desc: 'ยกเลิกฟรี 24 ชม.ก่อนเช็คอิน', rate: baseRate, badge: null, disabled: false },
@@ -747,20 +747,20 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   { key: 'member', label: 'Member Rate', desc: memberEligible ? 'ราคาเฉพาะสมาชิก' : 'เข้าสู่ระบบเพื่อรับราคาสมาชิก', rate: baseRate * 0.88, badge: 'Member', disabled: !memberEligible },
                   { key: 'package', label: 'Package Rate', desc: 'รวมชุดอาหารเช้าและ late checkout', rate: baseRate * 1.12, badge: 'Package', disabled: false },
                 ].map(plan => (
-                  <label key={plan.key} className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${plan.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${ratePlan === plan.key ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/8 hover:border-[#C66A30]/30'}`}>
+                  <label key={plan.key} className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${plan.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${ratePlan === plan.key ? 'border-[#2563eb] bg-[#2563eb]/5' : 'border-black/8 hover:border-[#2563eb]/30'}`}>
                     <input type="radio" name="ratePlan" value={plan.key} checked={ratePlan === plan.key}
                       disabled={plan.disabled}
-                      onChange={() => setRatePlan(plan.key as any)} className="accent-[#C66A30]" />
+                      onChange={() => setRatePlan(plan.key as any)} className="accent-[#2563eb]" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm text-[#2A2522]">{plan.label}</span>
+                        <span className="font-medium text-sm text-foreground">{plan.label}</span>
                         {plan.badge && <span className="text-2xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">{plan.badge}</span>}
                       </div>
-                      <p className="text-xs text-[#2A2522]/50 mt-0.5">{plan.desc}</p>
+                      <p className="text-xs text-foreground/50 mt-0.5">{plan.desc}</p>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-[#2A2522]">{formatCurrency(plan.rate)}</div>
-                      <div className="text-xs text-[#2A2522]/40">/ คืน</div>
+                      <div className="font-bold text-foreground">{formatCurrency(plan.rate)}</div>
+                      <div className="text-xs text-foreground/40">/ คืน</div>
                     </div>
                   </label>
                 ))}
@@ -769,7 +769,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
             {/* Promo code */}
             <div className="bg-white rounded-2xl border border-black/5 p-6">
-              <h3 className="font-bold text-[#2A2522] mb-4">โค้ดส่วนลด</h3>
+              <h3 className="font-bold text-foreground mb-4">โค้ดส่วนลด</h3>
               <div className="flex gap-2">
                 <input
                   value={promoCode}
@@ -778,7 +778,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   aria-label="โค้ดส่วนลด"
                   aria-describedby={promoError ? 'promo-error' : undefined}
                   aria-invalid={!!promoError}
-                  className={`flex-1 px-4 py-2.5 bg-[#FAF7F2] border rounded-xl text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30 ${promoError ? 'border-red-400' : 'border-black/8'}`}
+                  className={`flex-1 px-4 py-2.5 bg-secondary/50 border rounded-xl text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 ${promoError ? 'border-red-400' : 'border-black/8'}`}
                 />
                 <button onClick={applyPromo} disabled={promoLoading || !promoCode.trim()}
                   className="px-5 py-2.5 bg-[#2A2522] text-white rounded-xl text-sm font-medium disabled:opacity-50 transition-colors">
@@ -804,7 +804,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
             {/* Upsell add-ons */}
             <div className="bg-white rounded-2xl border border-black/5 p-6">
-              <h3 className="font-bold text-[#2A2522] mb-4">Add-ons แนะนำ</h3>
+              <h3 className="font-bold text-foreground mb-4">Add-ons แนะนำ</h3>
               <div className="space-y-2">
                 {Object.entries(addOnCatalog).map(([key, item]) => {
                   const checked = selectedAddOns.includes(key);
@@ -827,7 +827,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
             {/* Payment method */}
             <div className="bg-white rounded-2xl border border-black/5 p-6">
-              <h3 className="font-bold text-[#2A2522] mb-4">วิธีชำระเงิน</h3>
+              <h3 className="font-bold text-foreground mb-4">วิธีชำระเงิน</h3>
               <div className="space-y-3">
                 {[
                   { key: 'promptpay', label: 'PromptPay QR', desc: 'สแกน QR ผ่าน Mobile Banking — ยืนยันอัตโนมัติทันที', badge: '⚡ เร็วที่สุด' },
@@ -841,10 +841,10 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                       onChange={() => setPaymentMethod(pm.key as any)} className="accent-[#004B87] mt-0.5" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm text-[#2A2522]">{pm.label}</span>
+                        <span className="font-medium text-sm text-foreground">{pm.label}</span>
                         {pm.badge && <span className="text-2xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">{pm.badge}</span>}
                       </div>
-                      <p className="text-xs text-[#2A2522]/50 mt-0.5">{pm.desc}</p>
+                      <p className="text-xs text-foreground/50 mt-0.5">{pm.desc}</p>
                     </div>
                   </label>
                 ))}
@@ -855,10 +855,10 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
           {/* Summary */}
           <div>
             <div className="bg-white rounded-2xl border border-black/5 p-5 sticky top-24">
-              <h3 className="font-bold text-[#2A2522] mb-4">สรุปการจอง</h3>
+              <h3 className="font-bold text-foreground mb-4">สรุปการจอง</h3>
               <div className="text-sm space-y-2.5 mb-4">
-                <div className="font-medium text-[#2A2522]">{selected?.name}</div>
-                <div className="text-[#2A2522]/50">{hotel.name}</div>
+                <div className="font-medium text-foreground">{selected?.name}</div>
+                <div className="text-foreground/50">{hotel.name}</div>
                 <div className="border-t border-black/5 pt-2.5 space-y-2">
                   <SummaryRow label={`เช็คอิน`} value={format(new Date(search.checkIn+'T00:00:00'), 'd MMM yyyy', { locale: th })} />
                   <SummaryRow label="เช็คเอาท์" value={format(new Date(search.checkOut+'T00:00:00'), 'd MMM yyyy', { locale: th })} />
@@ -870,7 +870,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                   {addOnTotal > 0 && <SummaryRow label="บริการเสริม" value={formatCurrency(addOnTotal)} />}
                   <SummaryRow label="VAT 7%" value={formatCurrency(vat)} />
                   {addOnTotal > 0 && <SummaryRow label="Add-ons" value={formatCurrency(addOnTotal)} />}
-                  <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
+                  <div className="flex justify-between font-bold text-foreground pt-2 border-t border-black/5">
                     <span>รวมทั้งสิ้น</span>
                     <span className="text-lg">{formatCurrency(total)}</span>
                   </div>
@@ -890,11 +890,11 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
                 }</p>
               </div>
               <button onClick={handleBook} disabled={submitting || !guestInfo.firstName || !guestInfo.email}
-                className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                 {submitting ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
                 {submitting ? 'กำลังยืนยัน...' : `ยืนยันการจอง ${formatCurrency(total)}`}
               </button>
-              <div className="flex items-center gap-2 mt-3 text-xs text-[#2A2522]/40 justify-center">
+              <div className="flex items-center gap-2 mt-3 text-xs text-foreground/40 justify-center">
                 <ShieldCheck className="h-3.5 w-3.5" /> ข้อมูลของคุณได้รับการปกป้อง
               </div>
             </div>
@@ -910,8 +910,8 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
       <PublicLayout hotel={hotel} user={user} step={step} lang={lang} setLang={setLang}>
         <div className="max-w-2xl mx-auto px-4 py-12">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-[#2A2522]">ชำระเงินด้วย PromptPay</h2>
-            <p className="text-[#2A2522]/60 mt-1">รหัสการจอง <span className="font-mono font-bold text-[#C66A30]">{reservation.reservation_code}</span></p>
+            <h2 className="text-2xl font-bold text-foreground">ชำระเงินด้วย PromptPay</h2>
+            <p className="text-foreground/60 mt-1">รหัสการจอง <span className="font-mono font-bold text-[#2563eb]">{reservation.reservation_code}</span></p>
           </div>
 
           <PromptPayQR
@@ -930,14 +930,14 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             <SummaryRow label="ห้องพัก" value={selected?.name} />
             <SummaryRow label="เช็คอิน" value={format(new Date(search.checkIn+'T00:00:00'), 'd MMMM yyyy', { locale: th })} />
             <SummaryRow label="เช็คเอาท์" value={format(new Date(search.checkOut+'T00:00:00'), 'd MMMM yyyy', { locale: th })} />
-            <div className="flex justify-between font-bold text-[#2A2522] pt-2 border-t border-black/5">
+            <div className="flex justify-between font-bold text-foreground pt-2 border-t border-black/5">
               <span>ยอดชำระ</span><span>{formatCurrency(total)}</span>
             </div>
           </div>
 
           <div className="mt-4 flex gap-3 justify-center">
             {user ? (
-              <Link href="/portal/bookings" className="flex items-center gap-2 px-5 py-2.5 border border-black/10 text-[#2A2522] rounded-xl font-medium text-sm hover:bg-black/5 transition-colors">
+              <Link href="/portal/trips" className="flex items-center gap-2 px-5 py-2.5 border border-black/10 text-foreground rounded-xl font-medium text-sm hover:bg-black/5 transition-colors">
                 ดูการจองของฉัน <ChevronRight className="h-4 w-4" />
               </Link>
             ) : null}
@@ -954,12 +954,12 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         <div className="h-20 w-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <Check className="h-10 w-10 text-emerald-600" />
         </div>
-        <h2 className="text-2xl font-bold text-[#2A2522] mb-2">จองสำเร็จแล้ว! 🎉</h2>
-        <p className="text-[#2A2522]/60 mb-2">รหัสการจองของคุณ</p>
-        <div className="font-mono text-3xl font-bold text-[#C66A30] tracking-widest mb-2">
+        <h2 className="text-2xl font-bold text-foreground mb-2">จองสำเร็จแล้ว! 🎉</h2>
+        <p className="text-foreground/60 mb-2">รหัสการจองของคุณ</p>
+        <div className="font-mono text-3xl font-bold text-[#2563eb] tracking-widest mb-2">
           {reservation?.reservation_code}
         </div>
-        <p className="text-sm text-[#2A2522]/50 mb-8">ระบบส่งอีเมลยืนยันไปที่ <strong>{guestInfo.email}</strong> แล้ว</p>
+        <p className="text-sm text-foreground/50 mb-8">ระบบส่งอีเมลยืนยันไปที่ <strong>{guestInfo.email}</strong> แล้ว</p>
         {paymentMethod === 'at_hotel' && (
           <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
             ชำระที่โรงแรมเมื่อเช็คอิน — กรุณาแสดงรหัสการจองแก่พนักงาน
@@ -981,7 +981,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
         )}
 
         <div className="bg-white rounded-2xl border border-black/5 p-6 text-left mb-6">
-          <h3 className="font-semibold text-[#2A2522] mb-4">สรุปการจอง</h3>
+          <h3 className="font-semibold text-foreground mb-4">สรุปการจอง</h3>
           <div className="mb-4">
             <TrustBadges />
           </div>
@@ -1008,7 +1008,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
               href={`https://www.google.com/maps/dir/?api=1&destination=${hotel.latitude},${hotel.longitude}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 py-2.5 text-sm text-[#C66A30] font-medium hover:bg-[#C66A30]/5 transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 text-sm text-[#2563eb] font-medium hover:bg-[#2563eb]/5 transition-colors"
             >
               <MapPin className="h-4 w-4" aria-hidden="true" />
               เปิดใน Google Maps — นำทางมาโรงแรม
@@ -1019,7 +1019,7 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
             href={`https://www.google.com/maps/search/${encodeURIComponent(hotel.name + ' ' + hotel.address)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mb-6 flex items-center justify-center gap-2 rounded-2xl border border-black/5 bg-white py-3 text-sm text-[#C66A30] font-medium hover:bg-[#C66A30]/5 transition-colors"
+            className="mb-6 flex items-center justify-center gap-2 rounded-2xl border border-black/5 bg-white py-3 text-sm text-[#2563eb] font-medium hover:bg-[#2563eb]/5 transition-colors"
           >
             <MapPin className="h-4 w-4" aria-hidden="true" />
             ดูที่ตั้งบน Google Maps
@@ -1028,15 +1028,15 @@ export function BookingEngine({ hotel, roomTypes: initialRoomTypes }: { hotel: a
 
         <div className="flex gap-3 justify-center">
           {user ? (
-            <Link href="/portal/bookings" className="flex items-center gap-2 px-6 py-3 bg-[#2A2522] text-white rounded-xl font-medium text-sm">
+            <Link href="/portal/trips" className="flex items-center gap-2 px-6 py-3 bg-[#2A2522] text-white rounded-xl font-medium text-sm">
               ดูการจองของฉัน <ChevronRight className="h-4 w-4" />
             </Link>
           ) : (
-            <Link href="/portal/login?next=/portal/bookings" className="flex items-center gap-2 px-6 py-3 bg-[#C66A30] text-white rounded-xl font-medium text-sm">
+            <Link href="/portal/login?next=/portal/bookings" className="flex items-center gap-2 px-6 py-3 bg-[#2563eb] text-white rounded-xl font-medium text-sm">
               สมัครสมาชิก / เข้าสู่ระบบ <ChevronRight className="h-4 w-4" />
             </Link>
           )}
-          <button onClick={() => window.print()} className="px-6 py-3 border border-black/10 text-[#2A2522] rounded-xl font-medium text-sm hover:bg-black/5 transition-colors">
+          <button onClick={() => window.print()} className="px-6 py-3 border border-black/10 text-foreground rounded-xl font-medium text-sm hover:bg-black/5 transition-colors">
             พิมพ์ใบยืนยัน
           </button>
         </div>
@@ -1056,7 +1056,7 @@ function PublicLayout({ hotel, user, step, lang, setLang, children }: any) {
   const currentIdx = STEP_ORDER.indexOf(step);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-secondary/50">
       {/* Nav */}
       <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -1066,35 +1066,35 @@ function PublicLayout({ hotel, user, step, lang, setLang, children }: any) {
               <NextImage src={hotel.logo_url} alt="logo" fill className="object-contain" />
             </div>
           )}
-            <span className="font-bold text-[#2A2522]">{hotel.name}</span>
+            <span className="font-bold text-foreground">{hotel.name}</span>
           </Link>
           <div className="flex items-center gap-3">
             {step !== 'confirmed' && step !== 'dates' && (
               <div className="hidden md:flex items-center gap-1">
                 {STEP_ORDER.slice(0, -1).map((s, i) => (
                   <div key={s} className="flex items-center">
-                    <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full ${i <= currentIdx ? 'bg-[#2A2522] text-white' : 'text-[#2A2522]/30'}`}>
+                    <div className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full ${i <= currentIdx ? 'bg-[#2A2522] text-white' : 'text-foreground/30'}`}>
                       {i < currentIdx ? <Check className="h-3 w-3" /> : <span>{i + 1}</span>}
                       {STEP_LABELS[s]}
                     </div>
-                    {i < STEP_ORDER.length - 2 && <ChevronRight className="h-3 w-3 text-[#2A2522]/20 mx-0.5" />}
+                    {i < STEP_ORDER.length - 2 && <ChevronRight className="h-3 w-3 text-foreground/20 mx-0.5" />}
                   </div>
                 ))}
               </div>
             )}
             {user ? (
-              <Link href="/portal/bookings" className="flex items-center gap-1.5 text-xs text-[#2A2522]/60 hover:text-[#2A2522] px-3 py-1.5 rounded-lg hover:bg-black/5">
+              <Link href="/portal/trips" className="flex items-center gap-1.5 text-xs text-foreground/60 hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-black/5">
                 <User className="h-4 w-4" /> การจองของฉัน
               </Link>
             ) : (
               <>
                 <button
                   onClick={() => setLang && setLang((l: string) => l === 'th' ? 'en' : 'th')}
-                  className="text-xs border border-black/10 rounded-lg px-2.5 py-1 text-[#2A2522]/60 hover:bg-black/5 flex items-center gap-1 transition-colors">
+                  className="text-xs border border-black/10 rounded-lg px-2.5 py-1 text-foreground/60 hover:bg-black/5 flex items-center gap-1 transition-colors">
                   <Globe2 className="h-3 w-3" />{lang === 'th' ? 'EN' : 'ไทย'}
                 </button>
                 <CurrencySwitcher />
-                <Link href="/portal/login" className="text-xs text-[#C66A30] hover:underline font-medium">{lang === 'th' ? 'เข้าสู่ระบบ' : 'Login'}</Link>
+                <Link href="/portal/login" className="text-xs text-[#2563eb] hover:underline font-medium">{lang === 'th' ? 'เข้าสู่ระบบ' : 'Login'}</Link>
               </>
             )}
           </div>
@@ -1104,8 +1104,8 @@ function PublicLayout({ hotel, user, step, lang, setLang, children }: any) {
       {/* Footer */}
       <GuestChatWidget hotelId={hotel.id} hotelName={hotel.name} />
       <footer className="border-t border-black/5 bg-white mt-16 py-6">
-        <div className="max-w-4xl mx-auto px-4 text-center text-xs text-[#2A2522]/30">
-          © {new Date().getFullYear()} {hotel.name} · Powered by <Link href="/" className="font-semibold text-[#C66A30]">Maitri</Link>
+        <div className="max-w-4xl mx-auto px-4 text-center text-xs text-foreground/30">
+          © {new Date().getFullYear()} {hotel.name} · Powered by <Link href="/" className="font-semibold text-[#2563eb]">Maitri</Link>
         </div>
       </footer>
     </div>
@@ -1115,33 +1115,33 @@ function PublicLayout({ hotel, user, step, lang, setLang, children }: any) {
 function InfoRow({ icon: Icon, label, value }: any) {
   return (
     <div className="flex items-center gap-2 text-sm">
-      <Icon className="h-4 w-4 text-[#C66A30] shrink-0" />
-      <span className="text-[#2A2522]/50">{label}:</span>
-      <span className="text-[#2A2522] font-medium">{value}</span>
+      <Icon className="h-4 w-4 text-[#2563eb] shrink-0" />
+      <span className="text-foreground/50">{label}:</span>
+      <span className="text-foreground font-medium">{value}</span>
     </div>
   );
 }
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between text-sm">
-      <span className="text-[#2A2522]/60">{label}</span>
-      <span className="font-medium text-[#2A2522]">{value}</span>
+      <span className="text-foreground/60">{label}</span>
+      <span className="font-medium text-foreground">{value}</span>
     </div>
   );
 }
 function FormField({ label, value, onChange, type = 'text', placeholder }: any) {
   return (
     <div>
-      <label className="text-xs font-medium text-[#2A2522]/50 mb-1.5 block">{label}</label>
+      <label className="text-xs font-medium text-foreground/50 mb-1.5 block">{label}</label>
       <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full px-3 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30 focus:border-[#C66A30] transition-all" />
+        className="w-full px-3 py-2.5 bg-secondary/50 border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 focus:border-[#2563eb] transition-all" />
     </div>
   );
 }
 function Section({ title, children }: any) {
   return (
     <div className="bg-white rounded-2xl border border-black/5 p-5">
-      <h3 className="font-semibold text-[#2A2522] text-sm mb-3">{title}</h3>
+      <h3 className="font-semibold text-foreground text-sm mb-3">{title}</h3>
       {children}
     </div>
   );
@@ -1169,12 +1169,12 @@ function MiniCalendar({ blockedDates, checkIn, checkOut, onSelect }: {
 
           return (
             <div key={mi}>
-              <p className="text-xs font-semibold text-[#2A2522] mb-2.5 text-center">
+              <p className="text-xs font-semibold text-foreground mb-2.5 text-center">
                 {format(monthDate, 'MMMM yyyy', { locale: th })}
               </p>
               <div className="grid grid-cols-7 gap-px">
                 {DAY_LABELS.map(d => (
-                  <div key={d} className="text-center text-[10px] text-[#2A2522]/30 py-1">{d}</div>
+                  <div key={d} className="text-center text-[10px] text-foreground/30 py-1">{d}</div>
                 ))}
                 {Array.from({ length: startOffset }).map((_, i) => <div key={`pad${i}`} />)}
                 {days.map(day => {
@@ -1188,11 +1188,11 @@ function MiniCalendar({ blockedDates, checkIn, checkOut, onSelect }: {
                     <button key={ds} disabled={isPast || isBlocked}
                       onClick={() => onSelect(ds)}
                       className={`aspect-square w-full flex items-center justify-center text-xs rounded-lg transition-colors leading-none ${
-                        isCI || isCO   ? 'bg-[#C66A30] text-white font-bold' :
-                        inRange        ? 'bg-[#C66A30]/15 text-[#C66A30]' :
+                        isCI || isCO   ? 'bg-[#2563eb] text-white font-bold' :
+                        inRange        ? 'bg-[#2563eb]/15 text-[#2563eb]' :
                         isBlocked      ? 'bg-red-50 text-red-300 line-through cursor-not-allowed' :
-                        isPast         ? 'text-[#2A2522]/20 cursor-not-allowed' :
-                                         'hover:bg-[#FAF7F2] text-[#2A2522] cursor-pointer'
+                        isPast         ? 'text-foreground/20 cursor-not-allowed' :
+                                         'hover:bg-secondary/50 text-foreground cursor-pointer'
                       }`}>
                       {format(day, 'd')}
                     </button>
@@ -1203,9 +1203,9 @@ function MiniCalendar({ blockedDates, checkIn, checkOut, onSelect }: {
           );
         })}
       </div>
-      <div className="mt-3 flex justify-center gap-4 text-[10px] text-[#2A2522]/40">
+      <div className="mt-3 flex justify-center gap-4 text-[10px] text-foreground/40">
         <span className="flex items-center gap-1"><span className="h-2 w-2 bg-red-200 rounded inline-block" />เต็ม</span>
-        <span className="flex items-center gap-1"><span className="h-2 w-2 bg-[#C66A30] rounded inline-block" />เลือกไว้</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 bg-[#2563eb] rounded inline-block" />เลือกไว้</span>
       </div>
     </div>
   );

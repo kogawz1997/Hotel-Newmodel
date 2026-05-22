@@ -56,7 +56,7 @@ function ResetForm() {
 
   if (!ready) return (
     <div className="text-center">
-      <div className="h-8 w-8 border-2 border-[#C66A30]/30 border-t-[#C66A30] rounded-full animate-spin mx-auto mb-4" />
+      <div className="h-8 w-8 border-2 border-[#2563eb]/30 border-t-[#2563eb] rounded-full animate-spin mx-auto mb-4" />
       <p className="text-sm text-[#2A2522]/60">กำลังยืนยันลิงก์...</p>
     </div>
   );
@@ -72,7 +72,7 @@ function ResetForm() {
         <label className="text-xs font-medium text-[#2A2522]/60 mb-1.5 block">รหัสผ่านใหม่</label>
         <input type={show ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)}
           placeholder="อย่างน้อย 8 ตัวอักษร" required
-          className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+          className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30" />
         <button type="button" onClick={() => setShow(p => !p)} className="absolute right-3 top-8 text-[#2A2522]/30">
           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
@@ -82,7 +82,7 @@ function ResetForm() {
         <label className="text-xs font-medium text-[#2A2522]/60 mb-1.5 block">ยืนยันรหัสผ่าน</label>
         <input type={show ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)}
           placeholder="พิมพ์ซ้ำ" required
-          className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#C66A30]/30" />
+          className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-black/8 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30" />
       </div>
 
       {password.length > 0 && (
@@ -99,7 +99,7 @@ function ResetForm() {
       )}
 
       <button type="submit" disabled={loading || !allPass}
-        className="w-full py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+        className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
         {loading ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Lock className="h-4 w-4" />}
         {loading ? 'กำลังบันทึก...' : 'ตั้งรหัสผ่านใหม่'}
       </button>
@@ -120,12 +120,12 @@ export default function StaffResetPasswordPage() {
           </Link>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-8">
-          <Suspense fallback={<div className="flex justify-center"><div className="h-6 w-6 border-2 border-[#C66A30]/30 border-t-[#C66A30] rounded-full animate-spin" /></div>}>
+          <Suspense fallback={<div className="flex justify-center"><div className="h-6 w-6 border-2 border-[#2563eb]/30 border-t-[#2563eb] rounded-full animate-spin" /></div>}>
             <ResetForm />
           </Suspense>
         </div>
         <p className="text-center text-xs text-[#2A2522]/40 mt-4">
-          <Link href="/auth/login" className="text-[#C66A30] hover:underline">← กลับไป Login</Link>
+          <Link href="/auth/login" className="text-[#2563eb] hover:underline">← กลับไป Login</Link>
         </p>
       </div>
     </div>

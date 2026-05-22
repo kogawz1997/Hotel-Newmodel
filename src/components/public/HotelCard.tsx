@@ -201,7 +201,7 @@ export function HotelCard({ hotel, nights = 0, checkIn = '', checkOut = '' }: Pr
         {/* Price */}
         <div className="flex items-baseline justify-between pt-0.5">
           <div>
-            <span className="text-[17px] font-bold text-foreground leading-none">
+            <span className="text-[17px] font-bold text-orange-500 leading-none">
               {formatCurrency(price)}
             </span>
             <span className="text-xs text-muted-foreground ml-1">/ คืน</span>

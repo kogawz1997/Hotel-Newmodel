@@ -144,7 +144,7 @@ export function ServicesClient() {
   const tabInfo = TAB_LABELS[tab];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background text-foreground">
 
       {/* Hero image header */}
       <div className="relative h-44 overflow-hidden rounded-b-3xl mb-6">
@@ -158,7 +158,7 @@ export function ServicesClient() {
 
         {/* Back button + title overlay */}
         <div className="absolute inset-x-0 top-0 px-4 pt-4 flex items-center gap-3 z-10">
-          <Link href="/portal/bookings"
+          <Link href="/portal/stay"
             className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-black/40 transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </Link>
@@ -173,7 +173,7 @@ export function ServicesClient() {
         </div>
       </div>
 
-      <div className="px-4">
+      <div className="px-4 max-w-screen-sm mx-auto lg:max-w-2xl">
         {/* Tab selector */}
         <div className="relative flex bg-secondary rounded-2xl p-1 mb-6">
           {(['room_service', 'housekeeping', 'spa'] as Tab[]).map(t => (
@@ -183,7 +183,7 @@ export function ServicesClient() {
             >
               {tab === t && (
                 <motion.div layoutId="service-tab"
-                  className="absolute inset-0 bg-card rounded-xl shadow-sm"
+                  className="absolute inset-0 bg-white dark:bg-card rounded-xl shadow-sm"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
               )}
               <span className="relative z-10">{TAB_LABELS[t].icon}</span>
@@ -224,7 +224,7 @@ export function ServicesClient() {
                     <span className="text-base">{cat.emoji}</span>
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{cat.category}</h3>
                   </div>
-                  <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60">
+                  <div className="rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card overflow-hidden divide-y divide-border/60">
                     {cat.items.map((item) => {
                       const inCart = cart.find(c => c.id === item.id);
                       return (
@@ -234,7 +234,7 @@ export function ServicesClient() {
                             <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                           </div>
                           <div className="flex items-center gap-3 shrink-0">
-                            <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                            <span className="text-sm font-bold text-orange-500">
                               {formatCurrency(item.price)}
                             </span>
                             {inCart ? (
@@ -245,13 +245,13 @@ export function ServicesClient() {
                                 </button>
                                 <span className="text-sm font-bold text-foreground w-4 text-center">{inCart.qty}</span>
                                 <button onClick={() => updateQty(item.id, 1)}
-                                  className="h-7 w-7 rounded-full bg-amber-600 dark:bg-amber-500 text-white flex items-center justify-center hover:opacity-90 transition-opacity">
+                                  className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center hover:opacity-90 transition-opacity">
                                   <Plus className="h-3 w-3" />
                                 </button>
                               </div>
                             ) : (
                               <button onClick={() => addToCart(item)}
-                                className="h-7 w-7 rounded-full bg-amber-600 dark:bg-amber-500 text-white flex items-center justify-center hover:opacity-90 transition-opacity">
+                                className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center hover:opacity-90 transition-opacity">
                                 <Plus className="h-3 w-3" />
                               </button>
                             )}
@@ -268,7 +268,7 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุ</label>
                 <textarea value={rsNotes} onChange={e => setRsNotes(e.target.value)} rows={2}
                   placeholder="ระบุความต้องการพิเศษ เช่น ไม่ใส่ผักชี ..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
             </motion.div>
           )}
@@ -277,17 +277,17 @@ export function ServicesClient() {
           {tab === 'housekeeping' && (
             <motion.div key="hk" {...fadeIn} transition={{ duration: 0.25 }} className="space-y-4 pb-32">
               <p className="text-sm text-muted-foreground">เลือกรายการที่ต้องการ</p>
-              <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60">
+              <div className="rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card overflow-hidden divide-y divide-border/60">
                 {HK_ITEMS.map(item => (
                   <label key={item.id}
                     className={cn(
                       'flex items-center gap-3 px-4 py-4 cursor-pointer transition-colors',
-                      hkSelected.includes(item.id) ? 'bg-amber-500/8 dark:bg-amber-400/6' : 'hover:bg-secondary/50'
+                      hkSelected.includes(item.id) ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-secondary/50'
                     )}>
                     <div className={cn(
                       'h-5 w-5 rounded flex items-center justify-center border-2 shrink-0 transition-all',
                       hkSelected.includes(item.id)
-                        ? 'bg-amber-600 dark:bg-amber-500 border-amber-600 dark:border-amber-500'
+                        ? 'bg-blue-600 border-blue-600'
                         : 'border-border bg-background'
                     )}>
                       {hkSelected.includes(item.id) && <Check className="h-3 w-3 text-white" />}
@@ -303,10 +303,10 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุเพิ่มเติม</label>
                 <textarea value={hkNotes} onChange={e => setHkNotes(e.target.value)} rows={2}
                   placeholder="ระบุรายละเอียดเพิ่มเติม..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
               <button onClick={() => submitRequest('housekeeping')} disabled={submitting || (hkSelected.length === 0 && !hkNotes.trim())}
-                className="w-full py-3.5 rounded-2xl bg-amber-600 dark:bg-amber-500 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
+                className="w-full py-3.5 rounded-2xl bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bed className="h-4 w-4" />}
                 {submitting ? 'กำลังส่ง...' : 'ส่งคำขอแม่บ้าน'}
               </button>
@@ -317,17 +317,17 @@ export function ServicesClient() {
           {/* ── SPA ── */}
           {tab === 'spa' && (
             <motion.div key="spa" {...fadeIn} transition={{ duration: 0.25 }} className="space-y-4 pb-32">
-              <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60">
+              <div className="rounded-2xl border border-gray-100 dark:border-border bg-white dark:bg-card overflow-hidden divide-y divide-border/60">
                 {SPA_SERVICES.map(s => (
                   <button key={s.id} type="button" onClick={() => setSpaService(s.id)}
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-4 text-left transition-colors',
-                      spaService === s.id ? 'bg-amber-500/8 dark:bg-amber-400/6' : 'hover:bg-secondary/50'
+                      spaService === s.id ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-secondary/50'
                     )}>
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         'h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all',
-                        spaService === s.id ? 'bg-amber-600 dark:bg-amber-500 border-amber-600 dark:border-amber-500' : 'border-border'
+                        spaService === s.id ? 'bg-blue-600 border-blue-600' : 'border-border'
                       )}>
                         {spaService === s.id && <div className="h-2 w-2 rounded-full bg-white" />}
                       </div>
@@ -338,7 +338,7 @@ export function ServicesClient() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-bold text-amber-700 dark:text-amber-400 shrink-0 ml-4">
+                    <span className="text-sm font-bold text-orange-500 shrink-0 ml-4">
                       {formatCurrency(s.price)}
                     </span>
                   </button>
@@ -349,12 +349,12 @@ export function ServicesClient() {
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">เวลาที่ต้องการ</label>
                   <input type="time" value={spaTime} onChange={e => setSpaTime(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" />
+                    className="w-full px-3 py-2.5 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">จำนวนคน</label>
                   <select value={spaGuests} onChange={e => setSpaGuests(Number(e.target.value))}
-                    className="w-full px-3 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none">
+                    className="w-full px-3 py-2.5 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl text-sm focus:outline-none">
                     {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n} คน</option>)}
                   </select>
                 </div>
@@ -362,14 +362,14 @@ export function ServicesClient() {
 
               {spaService && (
                 <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-                  className="rounded-2xl bg-card border border-amber-500/20 p-4">
+                  className="rounded-2xl bg-white dark:bg-card border border-blue-500/20 p-4">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-muted-foreground">บริการที่เลือก</span>
                     <span className="font-semibold text-foreground">{SPA_SERVICES.find(s => s.id === spaService)?.name}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">ราคา ({spaGuests} คน)</span>
-                    <span className="font-bold text-amber-700 dark:text-amber-400">
+                    <span className="font-bold text-orange-500">
                       {formatCurrency((SPA_SERVICES.find(s => s.id === spaService)?.price ?? 0) * spaGuests)}
                     </span>
                   </div>
@@ -380,16 +380,16 @@ export function ServicesClient() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">หมายเหตุ / ความต้องการพิเศษ</label>
                 <textarea value={spaNotes} onChange={e => setSpaNotes(e.target.value)} rows={2}
                   placeholder="เช่น แพ้น้ำมันมะพร้าว, ต้องการนักบำบัดหญิง..."
-                  className="w-full px-4 py-3 bg-card border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" />
+                  className="w-full px-4 py-3 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all" />
               </div>
 
-              <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-3.5 flex gap-3 text-xs text-amber-700 dark:text-amber-400">
+              <div className="rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-3.5 flex gap-3 text-xs text-orange-500">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <p>ราคาที่แสดงเป็นราคาประมาณ โปรดชำระที่ Spa โดยตรง · จองล่วงหน้าอย่างน้อย 1 ชั่วโมง</p>
               </div>
 
               <button onClick={() => submitRequest('spa')} disabled={submitting || !spaService}
-                className="w-full py-3.5 rounded-2xl bg-amber-600 dark:bg-amber-500 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
+                className="w-full py-3.5 rounded-2xl bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity hover:opacity-90">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 {submitting ? 'กำลังส่ง...' : 'จองบริการ Spa'}
               </button>
@@ -411,13 +411,13 @@ export function ServicesClient() {
             <button
               onClick={() => setShowCart(true)}
               className="w-full flex items-center justify-between px-5 py-4 rounded-2xl
-                bg-amber-600 dark:bg-amber-500 text-white shadow-xl shadow-amber-900/20
+                bg-blue-600 text-white shadow-xl shadow-blue-900/20
                 hover:opacity-95 transition-all active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <ShoppingCart className="h-5 w-5" />
-                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-white text-amber-700 text-[10px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-white text-blue-600 text-[10px] font-bold flex items-center justify-center">
                     {cartCount}
                   </span>
                 </div>
@@ -439,7 +439,7 @@ export function ServicesClient() {
             <motion.div
               initial={{ y: 40 }} animate={{ y: 0 }} exit={{ y: 40 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-              className="relative w-full max-w-2xl bg-card rounded-t-3xl border-t border-l border-r border-border shadow-2xl"
+              className="relative w-full max-w-2xl bg-white dark:bg-card rounded-t-3xl border-t border-l border-r border-gray-100 dark:border-border shadow-2xl"
             >
               <div className="flex justify-center pt-3 pb-2">
                 <div className="h-1 w-10 rounded-full bg-border" />
@@ -466,7 +466,7 @@ export function ServicesClient() {
                       </button>
                       <span className="text-sm font-bold text-foreground w-6 text-center">{c.qty}</span>
                       <button onClick={() => updateQty(c.id, 1)}
-                        className="h-7 w-7 rounded-full bg-amber-600 dark:bg-amber-500 text-white flex items-center justify-center hover:opacity-90">
+                        className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center hover:opacity-90">
                         <Plus className="h-3 w-3" />
                       </button>
                     </div>
@@ -477,15 +477,15 @@ export function ServicesClient() {
               <div className="px-5 pb-6 pt-3 border-t border-border">
                 <div className="flex justify-between font-bold text-base mb-4">
                   <span>รวมทั้งหมด</span>
-                  <span className="text-amber-700 dark:text-amber-400">{formatCurrency(cartTotal)}</span>
+                  <span className="text-orange-500">{formatCurrency(cartTotal)}</span>
                 </div>
                 <div className="mb-3">
                   <textarea value={rsNotes} onChange={e => setRsNotes(e.target.value)} rows={2}
                     placeholder="หมายเหตุ (ไม่ใส่ผักชี, แพ้อาหาร...)"
-                    className="w-full px-4 py-3 bg-secondary border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+                    className="w-full px-4 py-3 bg-secondary border border-border rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30" />
                 </div>
                 <button onClick={() => submitRequest('room_service')} disabled={submitting}
-                  className="w-full py-3.5 rounded-2xl bg-amber-600 dark:bg-amber-500 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                  className="w-full py-3.5 rounded-2xl bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Utensils className="h-4 w-4" />}
                   {submitting ? 'กำลังส่ง...' : `สั่งอาหาร · ${formatCurrency(cartTotal)}`}
                 </button>

@@ -11,7 +11,7 @@ export function HomeNav() {
     <nav className="fixed top-0 inset-x-0 z-50 bg-[#1C1410]/90 backdrop-blur-xl border-b border-white/8">
       <div className="container max-w-7xl flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="h-9 w-9 bg-gradient-to-br from-[#C66A30] to-[#A4522A] rounded-xl flex items-center justify-center shadow-lg shadow-[#C66A30]/25">
+          <div className="h-9 w-9 bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-xl flex items-center justify-center shadow-lg shadow-[#2563eb]/25">
             <span className="text-white font-bold text-sm">M</span>
           </div>
           <span className="font-serif text-xl font-semibold text-white tracking-tight">Maitri</span>
@@ -30,7 +30,7 @@ export function HomeNav() {
             เข้าสู่ระบบ
           </Link>
           <Link href="/portal/login"
-            className="text-sm bg-[#C66A30] hover:bg-[#B05B28] text-white px-5 py-2 rounded-full font-semibold transition-colors shadow-lg shadow-[#C66A30]/30">
+            className="text-sm bg-[#2563eb] hover:bg-[#B05B28] text-white px-5 py-2 rounded-full font-semibold transition-colors shadow-lg shadow-[#2563eb]/30">
             สมัครสมาชิก
           </Link>
           {/* Hamburger — mobile only */}

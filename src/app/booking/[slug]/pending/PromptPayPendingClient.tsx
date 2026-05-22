@@ -25,7 +25,7 @@ export function PromptPayPendingClient({ reservationId, amount, slug }: Props) {
       />
 
       <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <Link href="/portal/bookings" className="rounded-lg bg-[#004B87] px-4 py-2 text-sm text-white hover:bg-[#003a6b]">
+        <Link href="/portal/trips" className="rounded-lg bg-[#004B87] px-4 py-2 text-sm text-white hover:bg-[#003a6b]">
           ดูสถานะการจอง
         </Link>
         <Link href={`/booking/${slug}`} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted/30">

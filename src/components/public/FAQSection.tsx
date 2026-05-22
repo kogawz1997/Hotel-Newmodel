@@ -38,7 +38,7 @@ export function FAQSection() {
     <section className="py-24 bg-background">
       <div className="container max-w-7xl px-4">
         <div className="text-center mb-16">
-          <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#C66A30] mb-3">FAQ</p>
+          <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#2563eb] mb-3">FAQ</p>
           <h2 className="font-serif text-4xl md:text-5xl font-semibold text-foreground tracking-tight mb-4">
             คำถามที่พบบ่อย
           </h2>
@@ -57,13 +57,13 @@ export function FAQSection() {
               >
                 <span className={cn(
                   'font-medium text-base transition-colors',
-                  open === i ? 'text-[#C66A30]' : 'text-foreground group-hover:text-[#C66A30]',
+                  open === i ? 'text-[#2563eb]' : 'text-foreground group-hover:text-[#2563eb]',
                 )}>
                   {item.q}
                 </span>
                 <ChevronDown
                   className={cn(
-                    'h-5 w-5 text-[#C66A30] shrink-0 transition-transform duration-300',
+                    'h-5 w-5 text-[#2563eb] shrink-0 transition-transform duration-300',
                     open === i && 'rotate-180',
                   )}
                 />

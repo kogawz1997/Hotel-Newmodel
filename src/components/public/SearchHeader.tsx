@@ -36,7 +36,7 @@ export function SearchHeader({ initialCity = '', initialCheckIn, initialCheckOut
           <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-black/8">
             {/* City */}
             <div className="p-4 flex items-center gap-3 col-span-1 md:col-span-1">
-              <MapPin className="h-5 w-5 text-[#C66A30] shrink-0" />
+              <MapPin className="h-5 w-5 text-[#2563eb] shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-2xs font-semibold text-[#2A2522]/50 uppercase tracking-wider mb-0.5">ปลายทาง</p>
                 <input value={city} onChange={e => setCity(e.target.value)}
@@ -47,7 +47,7 @@ export function SearchHeader({ initialCity = '', initialCheckIn, initialCheckOut
             </div>
             {/* Check-in */}
             <div className="p-4 flex items-center gap-3">
-              <Calendar className="h-5 w-5 text-[#C66A30] shrink-0" />
+              <Calendar className="h-5 w-5 text-[#2563eb] shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-2xs font-semibold text-[#2A2522]/50 uppercase tracking-wider mb-0.5">เช็คอิน</p>
                 <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)}
@@ -57,7 +57,7 @@ export function SearchHeader({ initialCity = '', initialCheckIn, initialCheckOut
             </div>
             {/* Check-out */}
             <div className="p-4 flex items-center gap-3">
-              <Calendar className="h-5 w-5 text-[#C66A30] shrink-0" />
+              <Calendar className="h-5 w-5 text-[#2563eb] shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-2xs font-semibold text-[#2A2522]/50 uppercase tracking-wider mb-0.5">เช็คเอาท์ · {nights} คืน</p>
                 <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)}
@@ -67,7 +67,7 @@ export function SearchHeader({ initialCity = '', initialCheckIn, initialCheckOut
             </div>
             {/* Guests + Search */}
             <div className="p-4 flex items-center gap-3">
-              <Users className="h-5 w-5 text-[#C66A30] shrink-0" />
+              <Users className="h-5 w-5 text-[#2563eb] shrink-0" />
               <div className="flex-1">
                 <p className="text-2xs font-semibold text-[#2A2522]/50 uppercase tracking-wider mb-0.5">ผู้เข้าพัก</p>
                 <select value={adults} onChange={e => setAdults(Number(e.target.value))}
@@ -76,7 +76,7 @@ export function SearchHeader({ initialCity = '', initialCheckIn, initialCheckOut
                 </select>
               </div>
               <button onClick={handleSearch}
-                className="h-12 w-12 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-[#C66A30]/30 shrink-0">
+                className="h-12 w-12 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-[#2563eb]/30 shrink-0">
                 <Search className="h-5 w-5" />
               </button>
             </div>
@@ -90,7 +90,7 @@ export function SearchHeader({ initialCity = '', initialCheckIn, initialCheckOut
   return (
     <div className="flex items-center gap-2 bg-white border border-black/8 rounded-full px-3 py-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer max-w-2xl w-full"
       onClick={() => setFocused(true)}>
-      <Search className="h-4 w-4 text-[#C66A30] shrink-0" />
+      <Search className="h-4 w-4 text-[#2563eb] shrink-0" />
       <input value={city} onChange={e => setCity(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && handleSearch()}
         placeholder="ค้นหาเมือง หรือโรงแรม..."
@@ -103,7 +103,7 @@ export function SearchHeader({ initialCity = '', initialCheckIn, initialCheckOut
           className="text-xs bg-transparent focus:outline-none text-[#2A2522]/60 w-28" />
       </div>
       <button onClick={e => { e.stopPropagation(); handleSearch(); }}
-        className="h-8 w-8 bg-[#C66A30] text-white rounded-full flex items-center justify-center hover:bg-[#A4522A] transition-colors shrink-0">
+        className="h-8 w-8 bg-[#2563eb] text-white rounded-full flex items-center justify-center hover:bg-[#1d4ed8] transition-colors shrink-0">
         <Search className="h-3.5 w-3.5" />
       </button>
     </div>

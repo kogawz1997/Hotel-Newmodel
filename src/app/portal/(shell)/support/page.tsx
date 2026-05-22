@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ChevronDown, Phone, Mail, MessageCircle, Clock } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Phone, Mail, MessageCircle, Clock, HelpCircle, ChevronRight } from 'lucide-react';
 
 const FAQS = [
   { q: 'ฉันจะดูรหัสการจองได้จากที่ไหน?', a: 'รหัสการจองจะแสดงในอีเมลยืนยัน และในหน้า "การจองของฉัน" หลังเข้าสู่ระบบ' },
@@ -18,11 +18,11 @@ const FAQS = [
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-border last:border-0">
+    <div className="border-b border-border/40 last:border-0">
       <button onClick={() => setOpen(p => !p)}
         className="w-full flex items-center justify-between py-4 text-left">
         <span className="text-sm font-semibold text-foreground pr-4">{q}</span>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && <p className="text-sm text-muted-foreground pb-4 leading-relaxed">{a}</p>}
     </div>
@@ -31,80 +31,93 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function SupportPage() {
   return (
-    <>
-      <nav className="bg-card border-b border-border">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/90 dark:bg-background/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
+        <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
+          <Link href="/portal/home"
+            className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <span className="font-medium text-foreground">ศูนย์ช่วยเหลือ</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-bold text-foreground">ศูนย์ช่วยเหลือ</p>
+          </div>
+          <HelpCircle className="h-4 w-4 text-muted-foreground/40" />
         </div>
-      </nav>
+      </div>
 
-      <div className="py-8 space-y-5">
+      <div className="px-4 py-5 pb-24 max-w-screen-sm mx-auto space-y-4">
 
         {/* Hero */}
-        <div className="bg-foreground rounded-2xl p-6 text-center">
-          <div className="text-4xl mb-3">🛎️</div>
-          <h1 className="text-white font-bold text-xl mb-1">ศูนย์ช่วยเหลือ Maitri</h1>
-          <p className="text-white/50 text-sm">มีคำถาม? เราพร้อมช่วยเหลือคุณตลอด 24/7</p>
+        <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-500 p-6 text-center relative">
+          <div className="absolute top-0 right-0 translate-x-4 -translate-y-4 h-32 w-32 rounded-full bg-white/10" />
+          <div className="absolute bottom-0 left-4 translate-y-6 h-20 w-20 rounded-full bg-white/8" />
+          <div className="relative">
+            <div className="text-4xl mb-3">🛎️</div>
+            <h1 className="font-display font-bold text-white text-xl mb-1">ศูนย์ช่วยเหลือ Maitri</h1>
+            <p className="text-white/70 text-sm">มีคำถาม? เราพร้อมช่วยเหลือตลอด 24/7</p>
+          </div>
         </div>
 
         {/* Contact cards */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { icon: Phone, label: 'โทรหาเรา', sub: '02-000-0000', href: 'tel:020000000', color: 'bg-emerald-50 text-emerald-700' },
-            { icon: Mail, label: 'อีเมล', sub: 'support@maitri.app', href: 'mailto:support@maitri.app', color: 'bg-blue-50 text-blue-700' },
-            { icon: MessageCircle, label: 'LINE', sub: '@maitriapp', href: 'https://line.me/ti/p/@maitriapp', color: 'bg-green-50 text-green-700' },
-          ].map(({ icon: Icon, label, sub, href, color }) => (
+            { icon: Phone,         label: 'โทรหาเรา',   sub: '02-000-0000',        href: 'tel:020000000',                      bg: 'bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-400' },
+            { icon: Mail,          label: 'อีเมล',       sub: 'support@maitri.app', href: 'mailto:support@maitri.app',          bg: 'bg-sky-500/10',     color: 'text-sky-600 dark:text-sky-400' },
+            { icon: MessageCircle, label: 'LINE',        sub: '@maitriapp',         href: 'https://line.me/ti/p/@maitriapp',   bg: 'bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-400' },
+          ].map(({ icon: Icon, label, sub, href, bg, color }) => (
             <a key={label} href={href} target="_blank" rel="noreferrer"
-              className="bg-card rounded-2xl border border-border p-4 text-center hover:shadow-md transition-shadow">
-              <div className={`h-10 w-10 rounded-full ${color} flex items-center justify-center mx-auto mb-2`}>
-                <Icon className="h-5 w-5" />
+              className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 p-4 text-center hover:shadow-md transition-shadow shadow-sm">
+              <div className={`h-10 w-10 rounded-xl ${bg} flex items-center justify-center mx-auto mb-2`}>
+                <Icon className={`h-5 w-5 ${color}`} />
               </div>
               <p className="font-semibold text-xs text-foreground">{label}</p>
-              <p className="text-2xs text-muted-foreground mt-0.5 break-all">{sub}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 break-all">{sub}</p>
             </a>
           ))}
         </div>
 
         {/* Hours */}
-        <div className="bg-card rounded-2xl border border-border p-4 flex items-center gap-3">
-          <Clock className="h-5 w-5 text-[#C66A30] shrink-0" />
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 p-4 flex items-center gap-3 shadow-sm">
+          <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+            <Clock className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" />
+          </div>
           <div>
             <p className="text-sm font-semibold text-foreground">เวลาให้บริการ</p>
-            <p className="text-xs text-muted-foreground">จันทร์–ศุกร์ 8:00–22:00 น. · เสาร์–อาทิตย์ 9:00–20:00 น.</p>
+            <p className="text-xs text-muted-foreground mt-0.5">จันทร์–ศุกร์ 8:00–22:00 น. · เสาร์–อาทิตย์ 9:00–20:00 น.</p>
           </div>
         </div>
 
         {/* FAQ */}
-        <div className="bg-card rounded-2xl border border-border p-5">
-          <h2 className="font-bold text-foreground mb-4">คำถามที่พบบ่อย</h2>
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 p-5 shadow-sm">
+          <h2 className="font-display font-bold text-foreground mb-4">คำถามที่พบบ่อย</h2>
           <div>
             {FAQS.map(f => <FAQItem key={f.q} q={f.q} a={f.a} />)}
           </div>
         </div>
 
         {/* Quick links */}
-        <div className="bg-card rounded-2xl border border-border p-5">
-          <h2 className="font-bold text-foreground mb-4">ลิงก์ที่เป็นประโยชน์</h2>
-          <div className="space-y-2">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 overflow-hidden shadow-sm">
+          <div className="px-4 py-3 border-b border-border/40">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">ลิงก์ที่เป็นประโยชน์</p>
+          </div>
+          <div className="divide-y divide-border/30">
             {[
-              { label: 'ดูการจองของฉัน', href: '/portal/bookings' },
+              { label: 'ดูการจองของฉัน',            href: '/portal/trips' },
               { label: 'Maitri Rewards (แต้มสะสม)', href: '/portal/loyalty' },
-              { label: 'แนะนำเพื่อน รับรางวัล', href: '/portal/referrals' },
-              { label: 'แก้ไขโปรไฟล์', href: '/portal/profile' },
-              { label: 'นโยบายความเป็นส่วนตัว', href: '/privacy' },
+              { label: 'แนะนำเพื่อน รับรางวัล',    href: '/portal/referrals' },
+              { label: 'แก้ไขโปรไฟล์',             href: '/portal/profile' },
             ].map(({ label, href }) => (
               <Link key={href} href={href}
-                className="flex items-center justify-between py-2.5 border-b border-border last:border-0 text-sm text-foreground hover:text-[#C66A30] transition-colors">
+                className="flex items-center justify-between px-4 py-3.5 text-sm font-medium text-foreground hover:bg-secondary/40 transition-colors group">
                 {label}
-                <ChevronDown className="h-4 w-4 -rotate-90 opacity-30" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground/35 group-hover:text-muted-foreground transition-colors" />
               </Link>
             ))}
           </div>
         </div>
+
       </div>
-    </>
+    </div>
   );
 }

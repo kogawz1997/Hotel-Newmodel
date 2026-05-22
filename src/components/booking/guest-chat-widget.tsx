@@ -52,8 +52,8 @@ export function GuestChatWidget({ hotelId, hotelName }: { hotelId: string; hotel
         <div className="fixed bottom-20 right-4 sm:right-6 z-50 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-black/8 flex flex-col overflow-hidden"
           style={{ maxHeight: 'calc(100vh - 120px)' }}>
           {/* Header */}
-          <div className="bg-[#2A2522] text-white px-4 py-3 flex items-center gap-3">
-            <div className="h-8 w-8 bg-[#C66A30] rounded-full flex items-center justify-center">
+          <div className="bg-slate-800 text-white px-4 py-3 flex items-center gap-3">
+            <div className="h-8 w-8 bg-[#2563eb] rounded-full flex items-center justify-center">
               <Bot className="h-4 w-4" />
             </div>
             <div className="flex-1">
@@ -72,20 +72,20 @@ export function GuestChatWidget({ hotelId, hotelName }: { hotelId: string; hotel
             {messages.map((m, i) => (
               <div key={i} className={cn('flex gap-2', m.role === 'user' ? 'flex-row-reverse' : 'flex-row')}>
                 <div className={cn('h-7 w-7 rounded-full flex items-center justify-center shrink-0 mt-0.5',
-                  m.role === 'assistant' ? 'bg-[#2A2522]' : 'bg-[#C66A30]')}>
+                  m.role === 'assistant' ? 'bg-slate-800' : 'bg-[#2563eb]')}>
                   {m.role === 'assistant' ? <Bot className="h-3.5 w-3.5 text-white" /> : <User className="h-3.5 w-3.5 text-white" />}
                 </div>
                 <div className={cn('max-w-[75%] px-3 py-2 rounded-2xl text-sm leading-relaxed',
                   m.role === 'assistant'
                     ? 'bg-white text-[#2A2522] rounded-tl-sm shadow-sm'
-                    : 'bg-[#C66A30] text-white rounded-tr-sm')}>
+                    : 'bg-[#2563eb] text-white rounded-tr-sm')}>
                   {m.content.split('\n').map((line, j) => <span key={j}>{line}{j < m.content.split('\n').length - 1 && <br />}</span>)}
                 </div>
               </div>
             ))}
             {loading && (
               <div className="flex gap-2">
-                <div className="h-7 w-7 rounded-full bg-[#2A2522] flex items-center justify-center">
+                <div className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center">
                   <Bot className="h-3.5 w-3.5 text-white" />
                 </div>
                 <div className="bg-white px-3 py-2 rounded-2xl rounded-tl-sm shadow-sm">
@@ -101,7 +101,7 @@ export function GuestChatWidget({ hotelId, hotelName }: { hotelId: string; hotel
             <div className="px-3 pt-2 flex flex-wrap gap-1.5 bg-white border-t border-black/5">
               {QUICK.map(q => (
                 <button key={q} onClick={() => send(q)}
-                  className="px-2.5 py-1 text-xs border border-[#C66A30]/30 text-[#C66A30] rounded-full hover:bg-[#C66A30]/5 transition-colors">
+                  className="px-2.5 py-1 text-xs border border-[#2563eb]/30 text-[#2563eb] rounded-full hover:bg-[#2563eb]/5 transition-colors">
                   {q}
                 </button>
               ))}
@@ -115,7 +115,7 @@ export function GuestChatWidget({ hotelId, hotelName }: { hotelId: string; hotel
               placeholder="พิมพ์คำถาม..."
               className="flex-1 px-3 py-2 bg-[#FAF7F2] rounded-xl text-sm focus:outline-none" />
             <button onClick={() => send()} disabled={!input.trim() || loading}
-              className="h-9 w-9 bg-[#C66A30] disabled:bg-[#C66A30]/30 text-white rounded-xl flex items-center justify-center transition-colors">
+              className="h-9 w-9 bg-[#2563eb] disabled:bg-[#2563eb]/30 text-white rounded-xl flex items-center justify-center transition-colors">
               <Send className="h-4 w-4" />
             </button>
           </div>
@@ -126,7 +126,7 @@ export function GuestChatWidget({ hotelId, hotelName }: { hotelId: string; hotel
       <button onClick={() => setOpen(p => !p)}
         className={cn(
           'fixed bottom-4 right-4 sm:right-6 z-50 h-14 w-14 rounded-full shadow-lg flex items-center justify-center transition-all',
-          open ? 'bg-[#2A2522] rotate-90' : 'bg-[#C66A30] hover:bg-[#A4522A] hover:scale-110'
+          open ? 'bg-slate-800 rotate-90' : 'bg-[#2563eb] hover:bg-[#1d4ed8] hover:scale-110'
         )}>
         {open ? <X className="h-5 w-5 text-white" /> : <MessageCircle className="h-6 w-6 text-white" />}
         {!open && (

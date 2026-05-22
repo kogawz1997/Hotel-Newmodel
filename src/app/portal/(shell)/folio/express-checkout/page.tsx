@@ -50,13 +50,13 @@ export default function ExpressCheckoutPage() {
   const currency = hotel?.currency || 'THB';
 
   if (loading) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background flex items-center justify-center">
       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
     </div>
   );
 
   if (confirmed) return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background flex items-center justify-center px-4">
       <div className="max-w-sm w-full text-center space-y-4">
         <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
           <CheckCircle className="h-8 w-8 text-emerald-600" />
@@ -77,7 +77,7 @@ export default function ExpressCheckoutPage() {
   );
 
   if (!reservation) return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background flex items-center justify-center px-4">
       <div className="max-w-sm w-full text-center space-y-3">
         <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto" />
         <p className="font-medium">ไม่พบการเข้าพักที่ active</p>
@@ -93,7 +93,7 @@ export default function ExpressCheckoutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/portal/folio" className="p-2 rounded-lg hover:bg-muted transition-colors">
@@ -104,7 +104,7 @@ export default function ExpressCheckoutPage() {
 
         <div className="space-y-4">
           {/* Amount summary */}
-          <div className="rounded-xl border border-border p-4 space-y-2">
+          <div className="rounded-xl border border-gray-100 dark:border-border bg-white dark:bg-card p-4 space-y-2">
             <p className="text-sm font-medium">ยืนยันยอดชำระ</p>
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>ค่าห้องและบริการ</span>
@@ -130,7 +130,7 @@ export default function ExpressCheckoutPage() {
 
           {/* Payment method selection */}
           {reservation.outstanding > 0 && (
-            <div className="rounded-xl border border-border p-4 space-y-2">
+            <div className="rounded-xl border border-gray-100 dark:border-border bg-white dark:bg-card p-4 space-y-2">
               <p className="text-sm font-medium mb-3">วิธีชำระเงิน</p>
               {methods.map(m => (
                 <button

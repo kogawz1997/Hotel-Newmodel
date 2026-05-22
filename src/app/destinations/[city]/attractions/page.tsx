@@ -211,13 +211,13 @@ export default async function AttractionsPage({ params }: { params: Promise<{ ci
                     {/* Meta row */}
                     <div className="flex flex-wrap items-center gap-3 text-xs text-[#2A2522]/50 mb-3">
                       <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-[#C66A30]" />{a.distance}
+                        <MapPin className="h-3 w-3 text-[#2563eb]" />{a.distance}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3 text-[#C66A30]" />{a.duration}
+                        <Clock className="h-3 w-3 text-[#2563eb]" />{a.duration}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Ticket className="h-3 w-3 text-[#C66A30]" />{a.price}
+                        <Ticket className="h-3 w-3 text-[#2563eb]" />{a.price}
                       </span>
                     </div>
 
@@ -247,9 +247,9 @@ export default async function AttractionsPage({ params }: { params: Promise<{ ci
 
         {/* Breadcrumb links */}
         <div className="flex items-center gap-2 text-sm text-[#2A2522]/40 flex-wrap">
-          <Link href="/" className="hover:text-[#C66A30] transition-colors">หน้าแรก</Link>
+          <Link href="/" className="hover:text-[#2563eb] transition-colors">หน้าแรก</Link>
           <span>›</span>
-          <Link href={`/destinations/${city}`} className="hover:text-[#C66A30] transition-colors">
+          <Link href={`/destinations/${city}`} className="hover:text-[#2563eb] transition-colors">
             ที่พักใน{data.label}
           </Link>
           <span>›</span>

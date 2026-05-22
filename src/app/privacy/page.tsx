@@ -13,13 +13,13 @@ export default function PrivacyPage() {
       <nav className="bg-white border-b border-black/5 sticky top-0 z-30">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="font-serif text-xl font-medium text-[#2A2522]">🪷 Maitri</Link>
-          <Link href="/portal/login" className="text-sm text-[#C66A30] hover:underline">เข้าสู่ระบบ</Link>
+          <Link href="/portal/login" className="text-sm text-[#2563eb] hover:underline">เข้าสู่ระบบ</Link>
         </div>
       </nav>
 
       <div className="max-w-3xl mx-auto px-4 py-12">
         <div className="mb-8">
-          <div className="text-xs text-[#C66A30] font-medium uppercase tracking-wider mb-2">Legal · PDPA Compliant</div>
+          <div className="text-xs text-[#2563eb] font-medium uppercase tracking-wider mb-2">Legal · PDPA Compliant</div>
           <h1 className="text-3xl font-bold text-[#2A2522] mb-2">นโยบายความเป็นส่วนตัว</h1>
           <p className="text-sm text-[#2A2522]/40">อัพเดตล่าสุด: {LAST_UPDATED}</p>
         </div>
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className="flex gap-4 mt-6 text-sm">
-          <Link href="/terms" className="text-[#C66A30] hover:underline">เงื่อนไขการใช้งาน →</Link>
+          <Link href="/terms" className="text-[#2563eb] hover:underline">เงื่อนไขการใช้งาน →</Link>
           <Link href="/" className="text-[#2A2522]/40 hover:text-[#2A2522]">กลับหน้าหลัก</Link>
         </div>
       </div>

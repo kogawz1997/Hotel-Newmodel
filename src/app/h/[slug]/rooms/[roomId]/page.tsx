@@ -153,7 +153,7 @@ export default async function RoomDetailPage({
           <Link
             href={`/h/${slug}`}
             className="inline-flex items-center gap-2 text-sm font-medium hover:opacity-70 transition-opacity"
-            style={{ color: '#C66A30' }}
+            style={{ color: '#2563eb' }}
           >
             <ArrowLeft className="w-4 h-4" />
             ห้องพัก {hotel.name}
@@ -209,19 +209,19 @@ export default async function RoomDetailPage({
               <div className="flex flex-wrap gap-4 text-sm" style={{ color: '#2A2522' }}>
                 {room.size_sqm != null && (
                   <span className="flex items-center gap-1.5">
-                    <Maximize2 className="w-4 h-4" style={{ color: '#C66A30' }} />
+                    <Maximize2 className="w-4 h-4" style={{ color: '#2563eb' }} />
                     {room.size_sqm} ตร.ม.
                   </span>
                 )}
                 {room.bed_type && (
                   <span className="flex items-center gap-1.5">
-                    <Bed className="w-4 h-4" style={{ color: '#C66A30' }} />
+                    <Bed className="w-4 h-4" style={{ color: '#2563eb' }} />
                     {room.bed_type}
                   </span>
                 )}
                 {room.max_occupancy != null && (
                   <span className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4" style={{ color: '#C66A30' }} />
+                    <Users className="w-4 h-4" style={{ color: '#2563eb' }} />
                     สูงสุด {room.max_occupancy} คน
                   </span>
                 )}
@@ -268,7 +268,7 @@ export default async function RoomDetailPage({
                         className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5 text-sm"
                         style={{ color: '#2A2522' }}
                       >
-                        <Icon className="w-4 h-4 shrink-0" style={{ color: '#C66A30' }} />
+                        <Icon className="w-4 h-4 shrink-0" style={{ color: '#2563eb' }} />
                         <span>{amenityLabel(a)}</span>
                       </div>
                     );
@@ -295,7 +295,7 @@ export default async function RoomDetailPage({
               <div className="space-y-3 text-sm">
                 {room.cancel_policy && (
                   <div className="flex gap-3">
-                    <Shield className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#C66A30' }} />
+                    <Shield className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#2563eb' }} />
                     <div>
                       <p className="font-medium" style={{ color: '#2A2522' }}>นโยบายยกเลิก</p>
                       <p className="text-gray-500 mt-0.5">{room.cancel_policy}</p>
@@ -303,7 +303,7 @@ export default async function RoomDetailPage({
                   </div>
                 )}
                 <div className="flex gap-3">
-                  <Coffee className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#C66A30' }} />
+                  <Coffee className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#2563eb' }} />
                   <div>
                     <p className="font-medium" style={{ color: '#2A2522' }}>อาหารเช้า</p>
                     <p className="text-gray-500 mt-0.5">
@@ -312,7 +312,7 @@ export default async function RoomDetailPage({
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <Clock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#C66A30' }} />
+                  <Clock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#2563eb' }} />
                   <div>
                     <p className="font-medium" style={{ color: '#2A2522' }}>เวลาเช็คอิน / เช็คเอาท์</p>
                     <p className="text-gray-500 mt-0.5">
@@ -322,7 +322,7 @@ export default async function RoomDetailPage({
                 </div>
                 {room.max_occupancy != null && (
                   <div className="flex gap-3">
-                    <Users className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#C66A30' }} />
+                    <Users className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#2563eb' }} />
                     <div>
                       <p className="font-medium" style={{ color: '#2A2522' }}>จำนวนผู้เข้าพักสูงสุด</p>
                       <p className="text-gray-500 mt-0.5">{room.max_occupancy} คน</p>
@@ -369,7 +369,7 @@ export default async function RoomDetailPage({
                         )}
                       </div>
                       {sr.base_rate != null && (
-                        <p className="mt-3 font-bold text-sm" style={{ color: '#C66A30' }}>
+                        <p className="mt-3 font-bold text-sm" style={{ color: '#2563eb' }}>
                           {formatCurrency(sr.base_rate)}
                           <span className="text-xs font-normal text-gray-400"> /คืน</span>
                         </p>
@@ -388,7 +388,7 @@ export default async function RoomDetailPage({
               <div>
                 {room.base_rate != null ? (
                   <>
-                    <p className="text-2xl font-bold" style={{ color: '#C66A30' }}>
+                    <p className="text-2xl font-bold" style={{ color: '#2563eb' }}>
                       {formatCurrency(room.base_rate)}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">/คืน · ราคารวมภาษี</p>
@@ -410,7 +410,7 @@ export default async function RoomDetailPage({
               <Link
                 href={`/booking/${slug}?roomTypeId=${roomId}`}
                 className="block w-full text-center rounded-xl py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: '#C66A30' }}
+                style={{ backgroundColor: '#2563eb' }}
               >
                 จองห้องนี้
               </Link>

@@ -179,8 +179,8 @@ export function LookupClient() {
               )}
 
               {reservation.special_requests && (
-                <div className="rounded-xl bg-amber-50 border border-amber-200 p-3.5">
-                  <p className="text-xs text-amber-600 mb-0.5">ความต้องการพิเศษ</p>
+                <div className="rounded-xl bg-blue-50 border border-blue-200 p-3.5">
+                  <p className="text-xs text-blue-600 mb-0.5">ความต้องการพิเศษ</p>
                   <p className="text-sm">{reservation.special_requests}</p>
                 </div>
               )}

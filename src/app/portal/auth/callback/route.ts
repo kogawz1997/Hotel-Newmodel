@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -17,8 +17,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/portal/login?error=oauth_failed`);
   }
 
+  const admin = createAdminClient();
+
   // Block staff accounts from using guest portal
-  const { data: staffProfile } = await supabase
+  const { data: staffProfile } = await admin
     .from('user_profiles')
     .select('id')
     .eq('id', data.user.id)
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Create guest_account row for first-time social login users
-  const { data: existingGuest } = await supabase
+  const { data: existingGuest } = await admin
     .from('guest_accounts')
     .select('id')
     .eq('id', data.user.id)
@@ -40,7 +42,7 @@ export async function GET(request: NextRequest) {
     const meta = data.user.user_metadata ?? {};
     const fullName: string = meta.full_name || meta.name || '';
     const [firstName, ...rest] = fullName.split(' ');
-    await supabase.from('guest_accounts').insert({
+    await admin.from('guest_accounts').insert({
       id: data.user.id,
       email: data.user.email!,
       first_name: firstName || meta.given_name || data.user.email!.split('@')[0],

@@ -31,7 +31,7 @@ export default async function PreCheckoutPage() {
       icon: Clock,
       title: `เช็คเอาท์ก่อน ${hotel.check_out_time || '12:00'} น.`,
       desc: 'กรุณาออกจากห้องพักก่อนเวลาเช็คเอาท์ หากต้องการขยายเวลากรุณาติดต่อ Front Desk',
-      color: 'text-amber-600',
+      color: 'text-blue-600',
     },
     {
       icon: KeyRound,
@@ -62,72 +62,85 @@ export default async function PreCheckoutPage() {
   ];
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 pb-24">
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/portal/bookings" className="p-2 rounded-lg hover:bg-muted transition-colors" aria-label="กลับ">
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div>
-          <h1 className="font-semibold">Pre-Checkout Briefing</h1>
-          <p className="text-xs text-muted-foreground">ขั้นตอนการเช็คเอาท์</p>
-        </div>
-      </div>
-
-      {res && (
-        <div className="mb-5 rounded-xl border border-border bg-card p-4 flex items-center gap-3">
-          <CheckCircle2 className="h-8 w-8 text-emerald-500 shrink-0" aria-hidden="true" />
-          <div>
-            <p className="font-medium text-sm">{hotel.name}</p>
-            <p className="text-xs text-muted-foreground">เช็คเอาท์: <strong>{res.check_out}</strong> · รหัส: <span className="font-mono">{res.reservation_code}</span></p>
-            {(res.rooms as any)?.room_number && (
-              <p className="text-xs text-muted-foreground">ห้อง {(res.rooms as any).room_number}</p>
-            )}
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-30 bg-[#f5f7fa]/95 dark:bg-background/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
+        <div className="px-4 h-14 flex items-center gap-3 max-w-screen-sm mx-auto">
+          <Link href="/portal/stay"
+            className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-bold text-foreground">Express Check-out</p>
+            <p className="text-[10px] text-muted-foreground">ขั้นตอนการเช็คเอาท์</p>
           </div>
         </div>
-      )}
-
-      <div className="space-y-3 mb-6">
-        {STEPS.map((s, i) => {
-          const Icon = s.icon;
-          return (
-            <div key={i} className="flex gap-3 rounded-xl border border-border bg-card p-4">
-              <div className="shrink-0 mt-0.5">
-                <Icon className={`h-5 w-5 ${s.color}`} aria-hidden="true" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">{s.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
-              </div>
-            </div>
-          );
-        })}
       </div>
 
-      {hotel.phone && (
-        <a
-          href={`tel:${hotel.phone}`}
-          className="flex items-center justify-center gap-2 w-full rounded-xl border border-border bg-card py-3 text-sm font-medium hover:bg-secondary transition-colors"
-          aria-label={`โทรหา ${hotel.name}`}
-        >
-          <Phone className="h-4 w-4" aria-hidden="true" />
-          โทร Front Desk: {hotel.phone}
-        </a>
-      )}
+      <div className="px-4 pt-5 pb-24 max-w-screen-sm mx-auto space-y-3">
 
-      <div className="mt-4 flex gap-3">
-        <Link
-          href="/portal/folio"
-          className="flex-1 text-center rounded-xl border border-border py-3 text-sm font-medium hover:bg-secondary transition-colors"
-        >
-          ดูใบบัญชี Folio
-        </Link>
-        {outstanding === 0 && (
-          <Link
-            href="/portal/bookings"
-            className="flex-1 text-center rounded-xl bg-primary text-primary-foreground py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            ดูการจองทั้งหมด
+        {/* Reservation summary */}
+        {res && (
+          <div className="rounded-2xl border border-gray-100 dark:border-border/60 bg-white dark:bg-card p-4 flex items-center gap-3 shadow-sm">
+            <CheckCircle2 className="h-9 w-9 text-emerald-500 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm text-foreground truncate">{hotel.name}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                เช็คเอาท์: <strong>{res.check_out}</strong>
+                {(res.rooms as any)?.room_number && ` · ห้อง ${(res.rooms as any).room_number}`}
+              </p>
+            </div>
+            {outstanding > 0 && (
+              <span className="text-sm font-bold text-red-500 shrink-0">
+                ฿{Number(outstanding).toLocaleString()}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Steps */}
+        <div className="space-y-2.5">
+          {STEPS.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <div key={i} className="flex gap-3.5 rounded-2xl border border-gray-100 dark:border-border/60 bg-white dark:bg-card p-4 shadow-sm">
+                <div className="h-9 w-9 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                  <Icon className={`h-4.5 w-4.5 ${s.color}`} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm text-foreground">{s.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2.5 pt-1">
+          <Link href="/portal/folio"
+            className="flex-1 text-center py-3 rounded-2xl border border-border/60 bg-white dark:bg-card text-sm font-semibold text-foreground hover:bg-secondary transition-colors shadow-sm">
+            ดูใบบัญชี
           </Link>
+          {outstanding > 0 ? (
+            <Link href="/portal/folio"
+              className="flex-1 text-center py-3 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:opacity-90 transition-opacity shadow-sm flex items-center justify-center gap-2">
+              <CreditCard className="h-4 w-4" /> ชำระ
+            </Link>
+          ) : (
+            <Link href="/portal/trips"
+              className="flex-1 text-center py-3 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:opacity-90 transition-opacity shadow-sm">
+              ดูการจองทั้งหมด
+            </Link>
+          )}
+        </div>
+
+        {hotel.phone && (
+          <a href={`tel:${hotel.phone}`}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border border-border/60 bg-white dark:bg-card text-sm font-semibold text-foreground shadow-sm hover:bg-secondary transition-colors">
+            <Phone className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            Front Desk: {hotel.phone}
+          </a>
         )}
       </div>
     </div>

@@ -39,7 +39,7 @@ export function RoomCard({ room, nights, onSelect, selected }: RoomCardProps) {
   return (
     <div className={cn(
       'bg-white rounded-2xl border-2 overflow-hidden transition-all duration-300',
-      selected ? 'border-[#C66A30] shadow-lg shadow-[#C66A30]/10' : 'border-black/5 hover:border-[#C66A30]/30 hover:shadow-md'
+      selected ? 'border-[#2563eb] shadow-lg shadow-[#2563eb]/10' : 'border-black/5 hover:border-[#2563eb]/30 hover:shadow-md'
     )}>
       <div className="flex flex-col md:flex-row">
         {/* Image */}

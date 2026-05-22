@@ -66,11 +66,11 @@ export function FilterDrawer({ filters, onChange, onApply, resultCount }: Props)
         className={cn(
           'flex items-center gap-1.5 px-4 py-2 border rounded-full text-sm font-medium transition-colors',
           activeCount > 0
-            ? 'border-[#C66A30] bg-[#C66A30]/5 text-[#C66A30]'
-            : 'border-black/10 text-[#2A2522]/60 hover:border-[#C66A30]/40'
+            ? 'border-[#2563eb] bg-[#2563eb]/5 text-[#2563eb]'
+            : 'border-black/10 text-[#2A2522]/60 hover:border-[#2563eb]/40'
         )}>
         <SlidersHorizontal className="h-3.5 w-3.5" />
-        ตัวกรอง {activeCount > 0 && <span className="bg-[#C66A30] text-white rounded-full h-4 w-4 flex items-center justify-center text-xs">{activeCount}</span>}
+        ตัวกรอง {activeCount > 0 && <span className="bg-[#2563eb] text-white rounded-full h-4 w-4 flex items-center justify-center text-xs">{activeCount}</span>}
       </button>
 
       {/* Backdrop */}
@@ -94,7 +94,7 @@ export function FilterDrawer({ filters, onChange, onApply, resultCount }: Props)
         <div className="p-5">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-semibold text-[#2A2522]">ตัวกรอง</h3>
-            <button onClick={() => onChange(DEFAULT_FILTERS)} className="text-xs text-[#C66A30] hover:underline">รีเซ็ต</button>
+            <button onClick={() => onChange(DEFAULT_FILTERS)} className="text-xs text-[#2563eb] hover:underline">รีเซ็ต</button>
           </div>
 
           {/* Sort */}
@@ -116,7 +116,7 @@ export function FilterDrawer({ filters, onChange, onApply, resultCount }: Props)
             <div className="flex flex-wrap gap-2">
               {TYPES.map(t => (
                 <button key={t.v} onClick={() => set('type', t.v)}
-                  className={cn('px-3 py-1.5 rounded-full text-xs font-medium border transition-all', filters.type === t.v ? 'bg-[#C66A30] text-white border-[#C66A30]' : 'border-black/8 text-[#2A2522]/60 hover:border-[#C66A30]/30')}>
+                  className={cn('px-3 py-1.5 rounded-full text-xs font-medium border transition-all', filters.type === t.v ? 'bg-[#2563eb] text-white border-[#2563eb]' : 'border-black/8 text-[#2A2522]/60 hover:border-[#2563eb]/30')}>
                   {t.l}
                 </button>
               ))}
@@ -130,7 +130,7 @@ export function FilterDrawer({ filters, onChange, onApply, resultCount }: Props)
             </p>
             <input type="range" min={0} max={50000} step={500}
               value={filters.maxPrice} onChange={e => set('maxPrice', Number(e.target.value))}
-              className="w-full accent-[#C66A30]" />
+              className="w-full accent-[#2563eb]" />
           </div>
 
           {/* Rating */}
@@ -154,7 +154,7 @@ export function FilterDrawer({ filters, onChange, onApply, resultCount }: Props)
                 const sel = filters.amenities.includes(a);
                 return (
                   <button key={a} onClick={() => set('amenities', sel ? filters.amenities.filter(x => x !== a) : [...filters.amenities, a])}
-                    className={cn('px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1', sel ? 'bg-[#C66A30] text-white border-[#C66A30]' : 'border-black/8 text-[#2A2522]/60 hover:border-[#C66A30]/30')}>
+                    className={cn('px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1', sel ? 'bg-[#2563eb] text-white border-[#2563eb]' : 'border-black/8 text-[#2A2522]/60 hover:border-[#2563eb]/30')}>
                     {sel && <Check className="h-3 w-3" />}{a}
                   </button>
                 );
@@ -171,7 +171,7 @@ export function FilterDrawer({ filters, onChange, onApply, resultCount }: Props)
               <label key={k} className="flex items-center justify-between cursor-pointer">
                 <span className="text-sm text-[#2A2522]/70">{l}</span>
                 <button onClick={() => set(k, !filters[k])}
-                  className={cn('relative w-11 h-6 rounded-full transition-colors', filters[k] ? 'bg-[#C66A30]' : 'bg-black/15')}>
+                  className={cn('relative w-11 h-6 rounded-full transition-colors', filters[k] ? 'bg-[#2563eb]' : 'bg-black/15')}>
                   <div className={cn('absolute top-1 h-4 w-4 bg-white rounded-full shadow transition-transform', filters[k] ? 'translate-x-6' : 'translate-x-1')} />
                 </button>
               </label>

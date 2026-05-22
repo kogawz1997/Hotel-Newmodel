@@ -31,7 +31,7 @@ export function PaymentMethodCard({ value, onChange, options = defaultOptions }:
           key={option.key}
           className={cn(
             'flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition-all',
-            value === option.key ? 'border-[#C66A30] bg-[#C66A30]/5' : 'border-black/10 hover:border-[#C66A30]/40'
+            value === option.key ? 'border-[#2563eb] bg-[#2563eb]/5' : 'border-black/10 hover:border-[#2563eb]/40'
           )}
         >
           <input

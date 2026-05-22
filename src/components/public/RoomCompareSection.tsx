@@ -60,7 +60,7 @@ const COMPARE_ROWS: { key: string; label: string; render: (rt: RoomType) => Reac
     key: 'base_rate',
     label: 'ราคา/คืน',
     render: (rt) => (
-      <span className="font-bold text-[#C66A30] text-lg">
+      <span className="font-bold text-[#2563eb] text-lg">
         {rt.base_rate != null ? formatCurrency(rt.base_rate) : '—'}
       </span>
     ),
@@ -89,7 +89,7 @@ const COMPARE_ROWS: { key: string; label: string; render: (rt: RoomType) => Reac
           <Check className="h-4 w-4" /> รวม
         </span>
       ) : (
-        <span className="text-[#2A2522]/40">ไม่รวม</span>
+        <span className="text-foreground/40">ไม่รวม</span>
       ),
   },
   {
@@ -101,7 +101,7 @@ const COMPARE_ROWS: { key: string; label: string; render: (rt: RoomType) => Reac
           <Check className="h-4 w-4" /> ได้
         </span>
       ) : (
-        <span className="text-[#2A2522]/40">ไม่ได้</span>
+        <span className="text-foreground/40">ไม่ได้</span>
       ),
   },
   {
@@ -112,13 +112,13 @@ const COMPARE_ROWS: { key: string; label: string; render: (rt: RoomType) => Reac
       return list.length > 0 ? (
         <div className="flex flex-wrap gap-1">
           {list.map((a) => (
-            <span key={a} className="text-xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-0.5 rounded-full border border-black/5">
+            <span key={a} className="text-xs bg-secondary/50 text-foreground/60 px-2 py-0.5 rounded-full border border-black/5">
               {amenityTh(a)}
             </span>
           ))}
         </div>
       ) : (
-        <span className="text-[#2A2522]/40">—</span>
+        <span className="text-foreground/40">—</span>
       );
     },
   },
@@ -159,15 +159,15 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
               key={rt.id}
               className={`rounded-2xl border overflow-hidden hover:shadow-md transition-shadow ${
                 isComparing
-                  ? 'border-[#C66A30] ring-2 ring-[#C66A30]/30'
+                  ? 'border-[#2563eb] ring-2 ring-[#2563eb]/30'
                   : isPopular
-                  ? 'border-[#C66A30]/40 ring-1 ring-[#C66A30]/20'
+                  ? 'border-[#2563eb]/40 ring-1 ring-[#2563eb]/20'
                   : 'border-black/8'
               }`}
             >
               {/* Popular badge strip */}
               {isPopular && (
-                <div className="bg-[#C66A30] px-4 py-1.5 flex items-center gap-1.5">
+                <div className="bg-[#2563eb] px-4 py-1.5 flex items-center gap-1.5">
                   <Flame className="h-3.5 w-3.5 text-white" />
                   <span className="text-white text-xs font-semibold">
                     ห้องยอดนิยม — เลือกมากที่สุด
@@ -177,7 +177,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
 
               <div className="flex flex-col sm:flex-row">
                 {/* Image */}
-                <div className="sm:w-52 h-52 sm:h-auto bg-[#FAF7F2] shrink-0 relative overflow-hidden">
+                <div className="sm:w-52 h-52 sm:h-auto bg-secondary/50 shrink-0 relative overflow-hidden">
                   {imgs[0]?.image_url ? (
                     <NextImage
                       src={imgs[0].image_url}
@@ -186,7 +186,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#2A2522]/10">
+                    <div className="w-full h-full flex items-center justify-center text-foreground/10">
                       <Bed className="h-12 w-12" />
                     </div>
                   )}
@@ -203,7 +203,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                   <div>
                     {/* Header row with compare toggle */}
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <h3 className="font-bold text-[#2A2522] text-base leading-tight">
+                      <h3 className="font-bold text-foreground text-base leading-tight">
                         {rt.name}
                       </h3>
                       <div className="flex items-center gap-3 shrink-0">
@@ -213,10 +213,10 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                           disabled={!isComparing && compareIds.length >= 3}
                           className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${
                             isComparing
-                              ? 'bg-[#C66A30] border-[#C66A30] text-white'
+                              ? 'bg-[#2563eb] border-[#2563eb] text-white'
                               : compareIds.length >= 3
                               ? 'bg-gray-100 border-gray-200 text-gray-300 cursor-not-allowed'
-                              : 'bg-white border-[#C66A30]/40 text-[#C66A30] hover:bg-[#C66A30]/5'
+                              : 'bg-white border-[#2563eb]/40 text-[#2563eb] hover:bg-[#2563eb]/5'
                           }`}
                           title={isComparing ? 'ยกเลิกการเปรียบเทียบ' : 'เพิ่มในการเปรียบเทียบ'}
                         >
@@ -225,15 +225,15 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                         </button>
                         {/* Price */}
                         <div className="text-right">
-                          <div className="font-bold text-xl text-[#C66A30]">
+                          <div className="font-bold text-xl text-[#2563eb]">
                             {formatCurrency(rt.base_rate)}
                           </div>
-                          <div className="text-xs text-[#2A2522]/40">/ คืน (ราคาเริ่มต้น)</div>
+                          <div className="text-xs text-foreground/40">/ คืน (ราคาเริ่มต้น)</div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3 text-xs text-[#2A2522]/50 mb-3">
+                    <div className="flex flex-wrap gap-3 text-xs text-foreground/50 mb-3">
                       {rt.size_sqm && (
                         <span className="flex items-center gap-1">
                           <Maximize2 className="h-3.5 w-3.5" />
@@ -255,7 +255,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                     </div>
 
                     {rt.description && (
-                      <p className="text-xs text-[#2A2522]/60 leading-relaxed mb-3 line-clamp-2">
+                      <p className="text-xs text-foreground/60 leading-relaxed mb-3 line-clamp-2">
                         {rt.description}
                       </p>
                     )}
@@ -265,13 +265,13 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                         {amenities.slice(0, 6).map((a: string) => (
                           <span
                             key={a}
-                            className="text-2xs bg-[#FAF7F2] text-[#2A2522]/60 px-2 py-0.5 rounded-full border border-black/5"
+                            className="text-2xs bg-secondary/50 text-foreground/60 px-2 py-0.5 rounded-full border border-black/5"
                           >
                             {amenityTh(a)}
                           </span>
                         ))}
                         {amenities.length > 6 && (
-                          <span className="text-2xs text-[#2A2522]/40">
+                          <span className="text-2xs text-foreground/40">
                             +{amenities.length - 6} อื่นๆ
                           </span>
                         )}
@@ -285,7 +285,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                         ยกเลิกฟรี 24 ชม.
                       </span>
                       {isLow && (
-                        <span className="flex items-center gap-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full font-semibold">
+                        <span className="flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-full font-semibold">
                           เหลือเพียง {availCount} ห้อง!
                         </span>
                       )}
@@ -294,7 +294,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
 
                   <Link
                     href={`/booking/${slug}?roomTypeId=${rt.id}`}
-                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto sm:self-end bg-[#C66A30] hover:bg-[#A4522A] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto sm:self-end bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors"
                   >
                     เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
                   </Link>
@@ -320,8 +320,8 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                 key={i}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm shrink-0 ${
                   rt
-                    ? 'bg-[#FAF7F2] border-[#C66A30]/30 text-[#2A2522]'
-                    : 'border-dashed border-black/20 text-[#2A2522]/30 min-w-[100px]'
+                    ? 'bg-secondary/50 border-[#2563eb]/30 text-foreground'
+                    : 'border-dashed border-black/20 text-foreground/30 min-w-[100px]'
                 }`}
               >
                 {rt ? (
@@ -329,7 +329,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                     <span className="truncate max-w-[120px] font-medium">{rt.name}</span>
                     <button
                       onClick={() => toggleCompare(rt.id)}
-                      className="text-[#2A2522]/40 hover:text-[#2A2522] ml-0.5 shrink-0"
+                      className="text-foreground/40 hover:text-foreground ml-0.5 shrink-0"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -346,13 +346,13 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setModalOpen(true)}
-            className="px-4 py-2 bg-[#C66A30] hover:bg-[#A4522A] text-white text-sm font-semibold rounded-xl transition-colors"
+            className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-xl transition-colors"
           >
             เปรียบเทียบ ({compareIds.length})
           </button>
           <button
             onClick={() => setCompareIds([])}
-            className="px-3 py-2 border border-black/15 text-[#2A2522]/60 hover:text-[#2A2522] text-sm rounded-xl transition-colors"
+            className="px-3 py-2 border border-black/15 text-foreground/60 hover:text-foreground text-sm rounded-xl transition-colors"
             title="ล้างการเปรียบเทียบ"
           >
             ×ล้าง
@@ -373,10 +373,10 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-black/8 shrink-0">
-              <h2 className="text-lg font-bold text-[#2A2522]">เปรียบเทียบห้องพัก</h2>
+              <h2 className="text-lg font-bold text-foreground">เปรียบเทียบห้องพัก</h2>
               <button
                 onClick={() => setModalOpen(false)}
-                className="p-2 rounded-full hover:bg-black/5 text-[#2A2522]/60 hover:text-[#2A2522] transition-colors"
+                className="p-2 rounded-full hover:bg-black/5 text-foreground/60 hover:text-foreground transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -388,7 +388,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                 <thead>
                   <tr>
                     {/* Empty label column */}
-                    <th className="w-36 px-4 py-3 text-left text-xs font-semibold text-[#2A2522]/50 uppercase tracking-wide bg-[#FAF7F2] border-b border-black/8 sticky left-0 z-10" />
+                    <th className="w-36 px-4 py-3 text-left text-xs font-semibold text-foreground/50 uppercase tracking-wide bg-secondary/50 border-b border-black/8 sticky left-0 z-10" />
                     {compareRooms.map((rt) => {
                       const imgs = ((rt.room_type_images || []) as any[]).sort(
                         (a: any, b: any) => a.display_order - b.display_order,
@@ -408,7 +408,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                               />
                             </div>
                           )}
-                          <div className="font-bold text-[#2A2522] text-base leading-tight mb-1">
+                          <div className="font-bold text-foreground text-base leading-tight mb-1">
                             {rt.name}
                           </div>
                         </th>
@@ -420,13 +420,13 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                   {COMPARE_ROWS.map((row, rowIdx) => (
                     <tr
                       key={row.key}
-                      className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#FAF7F2]/50'}
+                      className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-secondary/50/50'}
                     >
-                      <td className="px-4 py-3 text-xs font-semibold text-[#2A2522]/60 whitespace-nowrap sticky left-0 z-10 bg-inherit border-r border-black/5">
+                      <td className="px-4 py-3 text-xs font-semibold text-foreground/60 whitespace-nowrap sticky left-0 z-10 bg-inherit border-r border-black/5">
                         {row.label}
                       </td>
                       {compareRooms.map((rt) => (
-                        <td key={rt.id} className="px-5 py-3 text-sm text-[#2A2522]">
+                        <td key={rt.id} className="px-5 py-3 text-sm text-foreground">
                           {row.render(rt)}
                         </td>
                       ))}
@@ -441,7 +441,7 @@ export function RoomCompareSection({ roomTypes, slug, roomCountByType }: Props) 
                         <Link
                           href={`/booking/${slug}?roomTypeId=${rt.id}`}
                           onClick={() => setModalOpen(false)}
-                          className="inline-flex items-center justify-center gap-1.5 w-full bg-[#C66A30] hover:bg-[#A4522A] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                          className="inline-flex items-center justify-center gap-1.5 w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
                         >
                           เลือกห้องนี้ <ChevronRight className="h-4 w-4" />
                         </Link>

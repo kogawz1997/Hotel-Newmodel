@@ -9,7 +9,7 @@ interface Props {
 }
 
 const VARIANTS: Record<BadgeVariant, string> = {
-  gold:    'bg-gradient-to-r from-[#C66A30] to-[#E8892A] text-white',
+  gold:    'bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white',
   dark:    'bg-[#2A2522] text-white',
   emerald: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
   sky:     'bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300',

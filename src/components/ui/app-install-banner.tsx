@@ -104,7 +104,7 @@ export function AppInstallBanner() {
           {!isIos && (
             <button
               onClick={install}
-              className="mt-2.5 flex items-center gap-1.5 bg-[#C66A30] hover:bg-[#A4522A] text-white text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-colors"
+              className="mt-2.5 flex items-center gap-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-colors"
             >
               <Download className="h-3 w-3" />
               ติดตั้งแอป

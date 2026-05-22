@@ -55,7 +55,7 @@ export function PriceGraph({ hotelId, roomTypeId, onSelectDate, selectedCheckIn 
             labelFormatter={(l: string) => format(parseISO(l), 'EEE d MMM', { locale: th })}
             contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #eee', background: 'white' }}
           />
-          <ReferenceLine y={avgRate} stroke="#C66A30" strokeDasharray="3 3" strokeWidth={0.5} />
+          <ReferenceLine y={avgRate} stroke="#2563eb" strokeDasharray="3 3" strokeWidth={0.5} />
           <Bar dataKey="rate" radius={[2, 2, 0, 0]} cursor={onSelectDate ? 'pointer' : 'default'}
             onClick={onSelectDate ? (data: any) => onSelectDate(data.date) : undefined}>
             {visible.map((entry, idx) => {
@@ -64,7 +64,7 @@ export function PriceGraph({ hotelId, roomTypeId, onSelectDate, selectedCheckIn 
               const isHigh = entry.rate > avgRate * 1.2;
               return (
                 <Cell key={idx}
-                  fill={isSelected ? '#2A2522' : isLowest ? '#16A34A' : isHigh ? '#EF4444' : '#C66A30'}
+                  fill={isSelected ? '#2A2522' : isLowest ? '#16A34A' : isHigh ? '#EF4444' : '#2563eb'}
                   fillOpacity={isSelected ? 1 : 0.7}
                 />
               );
@@ -74,7 +74,7 @@ export function PriceGraph({ hotelId, roomTypeId, onSelectDate, selectedCheckIn 
       </ResponsiveContainer>
       <div className="flex items-center gap-4 mt-1 text-2xs text-[#2A2522]/40">
         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500" />ราคาต่ำ</span>
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-[#C66A30]" />ปกติ</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-[#2563eb]" />ปกติ</span>
         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-red-400" />ราคาสูง</span>
         {onSelectDate && <span className="ml-auto">คลิกวันเพื่อเลือก check-in</span>}
       </div>

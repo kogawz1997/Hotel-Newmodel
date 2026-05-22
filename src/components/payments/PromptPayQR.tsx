@@ -110,7 +110,7 @@ export function PromptPayQR({
     <div className={cn('flex flex-col items-center gap-4', className)}>
       {status === 'loading' && (
         <div className="flex flex-col items-center gap-3 py-8">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#C66A30] border-t-transparent" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#2563eb] border-t-transparent" />
           <p className="text-sm text-muted-foreground">กำลังสร้าง QR Code…</p>
         </div>
       )}

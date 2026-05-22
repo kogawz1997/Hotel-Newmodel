@@ -64,7 +64,7 @@ export default async function BookingPendingPage({
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex gap-3">
                 <div className="h-9 w-9 bg-[#FAF7F2] rounded-full flex items-center justify-center shrink-0">
-                  <Icon className="h-4 w-4 text-[#C66A30]" />
+                  <Icon className="h-4 w-4 text-[#2563eb]" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-[#2A2522]">{title}</p>
@@ -78,8 +78,8 @@ export default async function BookingPendingPage({
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
-            href="/portal/bookings"
-            className="flex-1 text-center py-3 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl font-semibold text-sm transition-colors"
+            href="/portal/trips"
+            className="flex-1 text-center py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-semibold text-sm transition-colors"
           >
             ดูสถานะการจอง
           </Link>

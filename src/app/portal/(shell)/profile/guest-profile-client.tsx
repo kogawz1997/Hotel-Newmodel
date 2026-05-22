@@ -167,40 +167,44 @@ export function GuestProfileClient({ guest }: { guest: any }) {
   ];
 
   return (
-    <>
-      {/* Header */}
-      <nav className="bg-card border-b border-border">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#f5f7fa] dark:bg-background">
+      {/* Sticky header */}
+      <nav className="sticky top-0 z-30 bg-[#f5f7fa]/95 dark:bg-background/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-border/40">
+        <div className="max-w-screen-sm lg:max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/portal/bookings" className="p-2 rounded-full hover:bg-muted transition-colors">
+            <Link href="/portal/account" className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center shrink-0 hover:bg-secondary/80 transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <span className="font-semibold text-foreground">{s.title}</span>
+            <p className="font-display font-bold text-foreground">{s.title}</p>
           </div>
-          <button onClick={toggleLang} className="px-3 py-1 rounded-lg bg-muted/50 border border-border text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={toggleLang} className="px-3 py-1.5 rounded-xl bg-secondary border border-border/40 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
             {s.langToggle}
           </button>
         </div>
       </nav>
 
-      <div className="py-6">
+      <div className="px-4 py-5 pb-24 max-w-screen-sm lg:max-w-2xl mx-auto">
         {/* Avatar card */}
-        <div className="bg-card rounded-2xl border border-border p-5 flex items-center gap-4 mb-5">
-          <div className="h-14 w-14 rounded-full bg-foreground text-white flex items-center justify-center text-xl font-bold shrink-0">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border/60 shadow-sm p-4 flex items-center gap-4 mb-4">
+          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-xl font-bold shrink-0 shadow-md">
             {(guest.first_name || guest.email || 'G').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-foreground truncate">{guest.first_name} {guest.last_name || ''}</div>
-            <div className="text-sm text-muted-foreground truncate">{guest.email}</div>
+            <p className="font-display font-bold text-foreground truncate">{guest.first_name} {guest.last_name || ''}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{guest.email}</p>
           </div>
         </div>
 
         {/* Tab strip */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-1 bg-card rounded-2xl p-1 border border-border mb-5">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-1 bg-secondary rounded-2xl p-1 mb-4">
           {TABS.map(({ key, icon: Icon }) => (
             <button key={key} onClick={() => setTab(key)}
-              className={cn('flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl font-medium text-2xs transition-all',
-                tab === key ? 'bg-foreground text-white shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl text-[10px] font-semibold transition-all',
+                tab === key
+                  ? 'bg-white dark:bg-background text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}>
               <Icon className="h-4 w-4" />
               <span className="leading-none">{s.tabs[key]}</span>
             </button>
@@ -214,7 +218,7 @@ export function GuestProfileClient({ guest }: { guest: any }) {
         {tab === 'payments'      && <PaymentsTab       s={s} />}
         {tab === 'privacy'       && <PrivacyTab        guest={guest} supabase={supabase} s={s} lang={lang} />}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -231,13 +235,16 @@ function ProfileTab({ guest, supabase, s }: { guest: any; supabase: any; s: PStr
 
   async function save() {
     setSaving(true);
-    const { error } = await supabase.from('guest_accounts').update({ ...form }).eq('id', guest.id);
+    const res = await fetch('/api/guest/account', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
     setSaving(false);
-    if (error) toast.error(s.error); else toast.success(s.saved);
+    if (!res.ok) toast.error(s.error); else toast.success(s.saved);
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-4">
       <h3 className="font-semibold text-foreground">{ps.title}</h3>
       <div className="grid grid-cols-2 gap-4">
         <PField label={ps.firstName} value={form.first_name} onChange={v => set('first_name', v)} />
@@ -248,7 +255,7 @@ function ProfileTab({ guest, supabase, s }: { guest: any; supabase: any; s: PStr
       <PField label={ps.birthday} type="date" value={form.birthday} onChange={v => set('birthday', v)} />
       <PField label={ps.email} value={guest.email} disabled />
       <button onClick={save} disabled={saving}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+        className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
         <Save className="h-4 w-4" />{saving ? ps.saving : ps.save}
       </button>
     </div>
@@ -287,7 +294,7 @@ function NotificationsTab({ guest, s }: { guest: any; s: PStrings }) {
 
   const ns = s.notifications;
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-5">
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-5">
       <div>
         <h3 className="font-semibold text-foreground">{ns.title}</h3>
         <p className="text-xs text-muted-foreground mt-0.5">{ns.desc}</p>
@@ -311,7 +318,7 @@ function NotificationsTab({ guest, s }: { guest: any; s: PStrings }) {
                   <td key={ch} className="text-center py-3 px-3">
                     <button onClick={() => toggle(key, ch)}
                       className={cn('h-5 w-5 rounded border-2 mx-auto flex items-center justify-center transition-all',
-                        prefs[key]?.[ch] ? 'bg-amber-600 dark:bg-amber-500 border-amber-600 dark:border-amber-500' : 'border-border hover:border-amber-500/50')}>
+                        prefs[key]?.[ch] ? 'bg-blue-600 dark:bg-blue-500 border-blue-600 dark:border-blue-500' : 'border-border hover:border-blue-500/50')}>
                       {prefs[key]?.[ch] && <Check className="h-3 w-3 text-white" />}
                     </button>
                   </td>
@@ -323,7 +330,7 @@ function NotificationsTab({ guest, s }: { guest: any; s: PStrings }) {
       </div>
 
       <button onClick={save} disabled={saving}
-        className="w-full py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+        className="w-full py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
         {saving ? s.saving : ns.save}
       </button>
     </div>
@@ -351,7 +358,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
   return (
     <div className="space-y-4">
       {/* Password */}
-      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-4">
         <h3 className="font-semibold text-foreground">{ss.changePassword}</h3>
         <div className="relative">
           <PField label={ss.newPw} type={showPw ? 'text' : 'password'} value={pwForm.next}
@@ -364,25 +371,25 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
         <PField label={ss.confirmPw} type="password" value={pwForm.confirm}
           onChange={v => setPwForm(p => ({ ...p, confirm: v }))} />
         <button onClick={changePassword} disabled={pwSaving}
-          className="w-full py-3 bg-foreground text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+          className="w-full py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
           {pwSaving ? ss.changing : ss.changePwBtn}
         </button>
       </div>
 
       {/* Sessions */}
-      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-4">
         <h3 className="font-semibold text-foreground">{ss.sessions}</h3>
         <div className="space-y-2">
           {[
             { device: ss.currentDevice, location: 'Thailand', time: lang === 'th' ? 'ตอนนี้' : 'Now', current: true },
           ].map((session, i) => (
-            <div key={i} className={cn('flex items-center gap-3 p-3 rounded-xl border', session.current ? 'border-amber-500/20 bg-amber-500/8' : 'border-border bg-muted/50')}>
+            <div key={i} className={cn('flex items-center gap-3 p-3 rounded-xl border', session.current ? 'border-blue-500/20 bg-blue-500/8' : 'border-border bg-muted/50')}>
               <Smartphone className="h-4 w-4 text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">{session.device}</p>
                 <p className="text-xs text-muted-foreground">{session.location} · {session.time}</p>
               </div>
-              {session.current && <span className="text-2xs text-amber-700 dark:text-amber-400 font-medium">Active</span>}
+              {session.current && <span className="text-2xs text-emerald-600 dark:text-emerald-400 font-medium">Active</span>}
             </div>
           ))}
         </div>
@@ -393,7 +400,7 @@ function SecurityTab({ supabase, s, lang }: { supabase: any; s: PStrings; lang: 
       </div>
 
       {/* 2FA */}
-      <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between gap-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5 flex items-center justify-between gap-4">
         <div>
           <p className="font-medium text-sm text-foreground">{ss.twoFa}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{ss.twoFaDesc}</p>
@@ -421,21 +428,22 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
 
   async function save() {
     setSaving(true);
-    const { error } = await supabase.from('guest_accounts').update({
-      preferred_language: form.preferred_language, marketing_consent: form.marketing_consent,
-    }).eq('id', guest.id);
+    const res = await fetch('/api/guest/account', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ preferred_language: form.preferred_language, marketing_consent: form.marketing_consent }),
+    });
     setSaving(false);
-    if (error) toast.error(s.error); else toast.success(s.saved);
+    if (!res.ok) toast.error(s.error); else toast.success(s.saved);
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-5">
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-6 space-y-5">
       <h3 className="font-semibold text-foreground">{ps.title}</h3>
 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-muted-foreground block">{ps.language}</label>
         <select value={form.preferred_language} onChange={e => set('preferred_language', e.target.value)}
-          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all">
+          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all">
           {Object.entries(ps.langs).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
@@ -443,7 +451,7 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-muted-foreground block">{ps.currency}</label>
         <select value={form.preferred_currency} onChange={e => set('preferred_currency', e.target.value)}
-          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all">
+          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all">
           {Object.entries(ps.currencies).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
@@ -453,7 +461,7 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
         <div className="grid grid-cols-3 gap-2">
           {Object.entries(ps.dateFormats).map(([v, l]) => (
             <button key={v} onClick={() => set('date_format', v)}
-              className={cn('py-2 text-xs rounded-xl border font-medium transition-all', form.date_format === v ? 'bg-foreground text-background border-foreground' : 'bg-muted/50 border-border text-muted-foreground hover:border-foreground/30')}>
+              className={cn('py-2 text-xs rounded-xl border font-medium transition-all', form.date_format === v ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500' : 'bg-muted/50 border-border text-muted-foreground hover:border-blue-500/40')}>
               {l}
             </button>
           ))}
@@ -466,13 +474,13 @@ function PreferencesTab({ guest, supabase, s }: { guest: any; supabase: any; s: 
           <div className="text-xs text-muted-foreground mt-0.5">{ps.marketingDesc}</div>
         </div>
         <div onClick={() => set('marketing_consent', !form.marketing_consent)}
-          className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', form.marketing_consent ? 'bg-amber-600 dark:bg-amber-500' : 'bg-muted-foreground/30')}>
-          <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-card shadow transition-transform', form.marketing_consent ? 'left-6' : 'left-1')} />
+          className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', form.marketing_consent ? 'bg-blue-600 dark:bg-blue-500' : 'bg-muted-foreground/30')}>
+          <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform', form.marketing_consent ? 'left-6' : 'left-1')} />
         </div>
       </label>
 
       <button onClick={save} disabled={saving}
-        className="w-full py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+        className="w-full py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
         {saving ? s.saving : ps.save}
       </button>
     </div>
@@ -497,10 +505,10 @@ function PaymentsTab({ s }: { s: PStrings }) {
       </div>
 
       {/* Saved cards */}
-      <div className="bg-card rounded-2xl border border-border p-5">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-foreground">{ps.savedCards}</h3>
-          <button onClick={() => setAddingCard(true)} className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-medium hover:underline">
+          <button onClick={() => setAddingCard(true)} className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-medium hover:underline">
             <Plus className="h-3.5 w-3.5" />{ps.addCard}
           </button>
         </div>
@@ -510,18 +518,18 @@ function PaymentsTab({ s }: { s: PStrings }) {
         ) : (
           <div className="space-y-2">
             {cards.map(card => (
-              <div key={card.id} className={cn('flex items-center gap-3 p-3 rounded-xl border transition-all', card.isDefault ? 'border-amber-500/30 bg-amber-500/8' : 'border-border bg-muted/50')}>
-                <div className="h-10 w-14 bg-gradient-to-br from-foreground/80 to-amber-600 dark:to-amber-500 rounded-lg flex items-center justify-center shrink-0">
+              <div key={card.id} className={cn('flex items-center gap-3 p-3 rounded-xl border transition-all', card.isDefault ? 'border-blue-500/30 bg-blue-500/8' : 'border-border bg-muted/50')}>
+                <div className="h-10 w-14 bg-gradient-to-br from-foreground/80 to-blue-600 dark:to-blue-500 rounded-lg flex items-center justify-center shrink-0">
                   <span className="text-white text-2xs font-bold">{card.brand.slice(0, 4).toUpperCase()}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground">•••• {card.last4}</p>
                   <p className="text-xs text-muted-foreground">{ps.expires} {String(card.expMonth).padStart(2, '0')}/{card.expYear}</p>
-                  {card.isDefault && <span className="text-2xs text-amber-700 dark:text-amber-400 font-medium">{ps.defaultCard}</span>}
+                  {card.isDefault && <span className="text-2xs text-blue-600 dark:text-blue-400 font-medium">{ps.defaultCard}</span>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {!card.isDefault && (
-                    <button onClick={() => setDefault(card.id)} className="text-2xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-400 transition-colors whitespace-nowrap">{ps.setDefault}</button>
+                    <button onClick={() => setDefault(card.id)} className="text-2xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap">{ps.setDefault}</button>
                   )}
                   <button onClick={() => removeCard(card.id)} className="p-1.5 text-muted-foreground/50 hover:text-red-500 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
@@ -533,7 +541,7 @@ function PaymentsTab({ s }: { s: PStrings }) {
 
       {/* Add card */}
       {addingCard && (
-        <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+        <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5 space-y-4">
           <h3 className="font-bold text-foreground">{ps.addTitle}</h3>
           <PField label={ps.cardNumber} placeholder="1234 5678 9012 3456" />
           <div className="grid grid-cols-2 gap-3">
@@ -543,14 +551,14 @@ function PaymentsTab({ s }: { s: PStrings }) {
           <PField label={ps.cardName} placeholder="SOMCHAI JAIDEE" />
           <div className="flex gap-3">
             <button onClick={() => setAddingCard(false)} className="flex-1 py-3 border border-border text-muted-foreground rounded-xl text-sm font-medium">{ps.cancel}</button>
-            <button onClick={() => { toast.success('เพิ่มบัตรแล้ว (ระบบ demo)'); setAddingCard(false); }} className="flex-1 py-3 bg-amber-600 dark:bg-amber-500 text-white rounded-xl text-sm font-medium">{ps.saveCard}</button>
+            <button onClick={() => { toast.success('เพิ่มบัตรแล้ว (ระบบ demo)'); setAddingCard(false); }} className="flex-1 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl text-sm font-medium">{ps.saveCard}</button>
           </div>
           <p className="text-center text-2xs text-muted-foreground/50">🔒 TLS 1.3 · PCI DSS Level 1</p>
         </div>
       )}
 
       {/* Networks */}
-      <div className="bg-card rounded-2xl border border-border p-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-4">
         <p className="text-xs font-medium text-muted-foreground mb-3">{ps.networks}</p>
         <div className="flex flex-wrap gap-2">
           {['Visa', 'Mastercard', 'Amex', 'PromptPay', 'TrueMoney', 'LINE Pay', 'JCB'].map(n => (
@@ -579,24 +587,24 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
   function saveConsents() {
     setSaving(true);
     localStorage.setItem(storageKey, JSON.stringify(consents));
-    supabase.from('guest_accounts').update({ marketing_consent: consents.marketing }).eq('id', guest.id).then(() => {});
+    fetch('/api/guest/account', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ marketing_consent: consents.marketing }) }).catch(() => {});
     setTimeout(() => { setSaving(false); toast.success(s.saved); }, 400);
   }
 
   return (
     <div className="space-y-4">
       {/* Data export */}
-      <div className="bg-card rounded-2xl border border-border p-5">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5">
         <h3 className="font-semibold text-foreground mb-1">{ps.dataExport}</h3>
         <p className="text-xs text-muted-foreground mb-4">{ps.dataExportDesc}</p>
         <button onClick={() => { window.location.href = '/api/guest/privacy/export'; }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-foreground text-white rounded-xl text-sm font-medium hover:opacity-90 transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 dark:bg-blue-500 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-colors">
           <Download className="h-4 w-4" />{ps.exportBtn}
         </button>
       </div>
 
       {/* Consent management */}
-      <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border p-5 space-y-4">
         <h3 className="font-semibold text-foreground">{ps.consentTitle}</h3>
         {[
           { key: 'cookie' as const, label: ps.cookieConsent, desc: ps.cookieDesc },
@@ -609,13 +617,13 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
               <div className="text-xs text-muted-foreground mt-0.5">{desc}</div>
             </div>
             <div onClick={() => toggle(key)}
-              className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', consents[key] ? 'bg-amber-600 dark:bg-amber-500' : 'bg-muted-foreground/30')}>
-              <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-card shadow transition-transform', consents[key] ? 'left-6' : 'left-1')} />
+              className={cn('relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 mt-0.5', consents[key] ? 'bg-blue-600 dark:bg-blue-500' : 'bg-muted-foreground/30')}>
+              <div className={cn('absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform', consents[key] ? 'left-6' : 'left-1')} />
             </div>
           </label>
         ))}
         <button onClick={saveConsents} disabled={saving}
-          className="w-full py-2.5 bg-amber-600 dark:bg-amber-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
+          className="w-full py-2.5 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-medium text-sm disabled:opacity-50 hover:opacity-90 transition-colors">
           {saving ? s.saving : ps.save}
         </button>
       </div>
@@ -638,10 +646,48 @@ function PrivacyTab({ guest, supabase, s, lang }: { guest: any; supabase: any; s
   );
 }
 
+// ─── DateSelect component (replaces native date input) ───────────────────────
+function DateSelect({ label, value, onChange }: { label?: string; value?: string; onChange?: (v: string) => void }) {
+  const parts = value ? value.split('-') : ['', '', ''];
+  const yr = parts[0] || '', mo = parts[1] || '', dy = parts[2] || '';
+
+  function update(y: string, m: string, d: string) {
+    if (y && m && d) onChange?.(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+    else if (!y && !m && !d) onChange?.('');
+  }
+
+  const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 80 }, (_, i) => currentYear - i);
+
+  const sel = 'flex-1 px-2 py-2.5 bg-muted/50 border border-border rounded-xl text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 appearance-none cursor-pointer';
+
+  return (
+    <div>
+      {label && <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{label}</label>}
+      <div className="flex gap-2">
+        <select value={dy} onChange={e => update(yr, mo, e.target.value)} className={sel}>
+          <option value="">วัน</option>
+          {Array.from({length:31},(_,i)=>i+1).map(d=><option key={d} value={String(d)}>{d}</option>)}
+        </select>
+        <select value={mo} onChange={e => update(yr, e.target.value, dy)} className={cn(sel, 'flex-[2]')}>
+          <option value="">เดือน</option>
+          {months.map((m,i)=><option key={i+1} value={String(i+1).padStart(2,'0')}>{m}</option>)}
+        </select>
+        <select value={yr} onChange={e => update(e.target.value, mo, dy)} className={cn(sel, 'flex-[1.5]')}>
+          <option value="">ปี</option>
+          {years.map(y=><option key={y} value={String(y)}>{y + 543}</option>)}
+        </select>
+      </div>
+    </div>
+  );
+}
+
 // ─── Helper component ─────────────────────────────────────────────────────────
 function PField({ label, value, onChange, type = 'text', placeholder, disabled }: {
   label?: string; value?: string; onChange?: (v: string) => void; type?: string; placeholder?: string; disabled?: boolean;
 }) {
+  if (type === 'date') return <DateSelect label={label} value={value} onChange={onChange} />;
   return (
     <div>
       {label && <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{label}</label>}
@@ -650,7 +696,7 @@ function PField({ label, value, onChange, type = 'text', placeholder, disabled }
         placeholder={placeholder} disabled={disabled}
         className={cn(
           'w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm transition-all',
-          'focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500',
+          'focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500',
           disabled && 'opacity-50 cursor-not-allowed',
         )}
       />

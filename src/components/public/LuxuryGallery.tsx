@@ -51,7 +51,7 @@ export function LuxuryGallery({ images, hotelName = 'Hotel', className }: Luxury
               className={cn(
                 'relative h-16 overflow-hidden rounded-lg border-2 transition-all',
                 activeIndex === index
-                  ? 'border-[#C66A30] ring-2 ring-[#C66A30]/20'
+                  ? 'border-[#2563eb] ring-2 ring-[#2563eb]/20'
                   : 'border-transparent opacity-80 hover:opacity-100'
               )}
               aria-label={`ดูรูปที่ ${index + 1}`}

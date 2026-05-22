@@ -46,7 +46,7 @@ export default async function BookingSuccessPage({
       <nav className="bg-card border-b border-border sticky top-0 z-30">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="h-8 w-8 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
               <span className="font-display text-sm font-bold text-amber-700 dark:text-amber-400">M</span>
             </div>
             <span className="font-semibold text-foreground text-sm">Maitri Collection</span>
@@ -145,7 +145,7 @@ export default async function BookingSuccessPage({
 
             {/* Special requests */}
             {reservation?.special_requests && (
-              <div className="mx-5 mb-5 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-lg text-xs text-amber-800 dark:text-amber-300">
+              <div className="mx-5 mb-5 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg text-xs text-blue-800 dark:text-blue-300">
                 <span className="font-semibold">คำขอพิเศษ: </span>{reservation.special_requests}
               </div>
             )}
@@ -177,8 +177,8 @@ export default async function BookingSuccessPage({
 
         {/* Actions */}
         <div className="space-y-3">
-          <Link href="/portal/bookings"
-            className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#C66A30] hover:bg-[#A4522A] text-white rounded-xl text-sm font-bold transition-colors">
+          <Link href="/portal/trips"
+            className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl text-sm font-bold transition-colors">
             ดูการจองของฉัน
           </Link>
           {code && (

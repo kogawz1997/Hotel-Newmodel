@@ -17,7 +17,7 @@ export async function GET(_request: NextRequest) {
       room_types(name),
       rooms(room_number, floor),
       hotels(id, name, currency, check_out_time),
-      folio_items(id, description, amount, item_type, created_at, quantity)
+      folios(id, folio_items(id, description, amount, type, created_at, quantity))
     `)
     .eq('guest_account_id', user.id)
     .eq('status', 'checked_in')
@@ -28,7 +28,10 @@ export async function GET(_request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!reservation) return NextResponse.json({ reservation: null });
 
-  const items = (reservation.folio_items as any[]) || [];
+  const folio = Array.isArray(reservation.folios)
+    ? (reservation.folios as any[])[0]
+    : (reservation.folios as any) ?? null;
+  const items: any[] = folio?.folio_items ?? [];
   const chargesTotal = items.reduce((s, i) => s + Number(i.amount || 0), 0);
   const roomCharge = Number(reservation.total_amount || 0);
   const paidAmount = Number(reservation.paid_amount || 0);
